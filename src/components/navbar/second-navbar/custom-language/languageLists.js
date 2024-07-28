@@ -1,4 +1,5 @@
-import usFlag from '../../../../../public/static/country-flag/us.svg'
+import usFlag from '../../../../../public/static/country-flag/eng.png'
+import loFlag from '../../../../../public/static/country-flag/lao.png'
 import arFlag from '../../../../../public/static/country-flag/arabic-flag-svg.svg'
 import banFlag from '../../../../../public/static/country-flag/bangladesh (1).png'
 import spanFlag from '../../../../../public/static/country-flag/spain.png'
@@ -16,10 +17,10 @@ export const languageLists = [
         countryFlag: usFlag.src,
     },
     {
-        languageName: 'Laos',
+        languageName: 'ພາສາລາວ',
         languageCode: 'lo',
         countryCode: 'LA',
-        countryFlag: usFlag.src,
+        countryFlag: loFlag.src,
     },
     {
         languageName: 'Spanish',
