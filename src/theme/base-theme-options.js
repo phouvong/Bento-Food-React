@@ -302,7 +302,7 @@ export const baseThemeOptions = {
         button: {
             fontWeight: 600,
         },
-        fontFamily: 'MiSans',
+        fontFamily: 'Noto Sans Lao',
         textTransform: 'none',
 
         body1: {
