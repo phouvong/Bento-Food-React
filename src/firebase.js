@@ -8,13 +8,13 @@ import {
 import { useStoreFcm } from './hooks/react-query/push-notification/usePushNotification'
 
 const firebaseConfig = {
-    apiKey: '',
-    authDomain: '',
-    projectId: '',
-    storageBucket: '',
-    messagingSenderId: '',
-    appId: '',
-    measurementId: '',
+    apiKey: 'AIzaSyCHZCBLcVJf2NqZYsd37TzUxqzVcDI-2JU',
+    authDomain: 'bento-food.firebaseapp.com',
+    projectId: 'bento-food',
+    storageBucket: 'bento-food.appspot.com',
+    messagingSenderId: '299589180044',
+    appId: '1:299589180044:web:b575785f8db4c9d93f79a9',
+    measurementId: 'G-BS3XFY11Q6',
 }
 const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp()
 const messaging = (async () => {
