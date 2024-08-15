@@ -13,7 +13,7 @@ const resources = {
     en: {
         translation: english,
     },
-    Lo: {
+    lo: {
         translation: lao,
     },
     bn: {

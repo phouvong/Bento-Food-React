@@ -1,4 +1,4 @@
-export const english = {
+export const lao = {
     "This charge includes extra vehicle charge":"This charge includes extra vehicle charge",
     "and bad weather charge":"and bad weather charge",
     "only":"only",
