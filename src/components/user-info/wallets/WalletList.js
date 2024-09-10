@@ -97,7 +97,7 @@ export const CustomSelect = ({
             value={value}
             label={label}
             onChange={onChange}
-            sx={{ height: '45px' }}
+            sx={{ height: '40px', fontSize: '14px' }}
         >
             {children}
         </Select>
@@ -241,6 +241,7 @@ const Wallet = ({ page }) => {
         }
     }, [page, hasMounted])
     const handleChange = (e) => {
+        setOffset(1)
         setTransactionType(e.target.value)
     }
     const handleClick = (event) => {
@@ -264,7 +265,7 @@ const Wallet = ({ page }) => {
                     boxShadow: isXSmall && 'unset',
                 }}
             >
-                <Grid container spacing={3.5}>
+                <Grid container spacing={2}>
                     {!isXSmall && (
                         <Grid item xs={12} md={12}>
                             <Typography fontSize="16px" fontWeight="500">
@@ -289,7 +290,7 @@ const Wallet = ({ page }) => {
                                         <Stack
                                             sx={{
                                                 position: 'relative',
-                                                top: '-12px',
+                                                top: '-2px',
                                                 right: '-2px',
                                             }}
                                         >
@@ -300,6 +301,7 @@ const Wallet = ({ page }) => {
                                                         theme.palette
                                                             .neutral[100],
                                                     cursor: 'pointer',
+                                                    fontSize: '24px',
                                                 }}
                                             />
                                         </Stack>
@@ -309,7 +311,7 @@ const Wallet = ({ page }) => {
                                     fontSize="36px"
                                     fontWeight="700"
                                     lineHeight={0.9}
-                                    color={theme.palette.neutral[100]}
+                                    color={theme.palette.whiteContainer.main}
                                 >
                                     {' '}
                                     {profileDataLoading ? (
@@ -335,7 +337,9 @@ const Wallet = ({ page }) => {
                                         fontSize="12px"
                                         fontWeight="400"
                                         lineHeight={0}
-                                        color={theme.palette.neutral[100]}
+                                        color={
+                                            theme.palette.whiteContainer.main
+                                        }
                                     >
                                         {t('Total Balance')}
                                     </Typography>
@@ -343,14 +347,15 @@ const Wallet = ({ page }) => {
                                         <Button
                                             sx={{
                                                 backgroundColor: (theme) =>
-                                                    theme.palette.neutral[100],
+                                                    theme.palette.whiteContainer
+                                                        .main,
                                                 minWidth: '101px',
                                                 color: (theme) =>
                                                     theme.palette.neutral[700],
                                                 cursor: 'pointer',
                                                 direction: 'row',
                                                 alignItems: 'center',
-                                                gap: 1,
+                                                padding: '7px 16px',
                                                 zIndex: 99,
                                                 '&:hover': {
                                                     backgroundColor: (theme) =>
@@ -363,10 +368,8 @@ const Wallet = ({ page }) => {
                                             <Typography
                                                 component="span"
                                                 fontWeight="600"
-                                                fontSize="14px"
-                                                color={
-                                                    theme.palette.neutral[1000]
-                                                }
+                                                fontSize="13px"
+                                                color="#141313"
                                             >
                                                 {t('Add fund')}
                                             </Typography>
@@ -400,7 +403,12 @@ const Wallet = ({ page }) => {
                                         onClick={() => setOpen(false)}
                                         className="closebtn"
                                     >
-                                        <CloseIcon sx={{ fontSize: '16px',cursor:'pointer' }} />
+                                        <CloseIcon
+                                            sx={{
+                                                fontSize: '16px',
+                                                cursor: 'pointer',
+                                            }}
+                                        />
                                     </button>
                                     <Box textAlign="center" mb={4}>
                                         <Typography
@@ -471,96 +479,102 @@ const Wallet = ({ page }) => {
                                                     )
                                                 </Typography>
                                             </Typography>
-                                            <SimpleBar style={{ maxHeight: 300 }}>
-                                            <Stack>
-                                                {global?.active_payment_method_list?.map(
-                                                    (item, i) => (
-                                                        <addFundIsLoading
-                                                            key={item?.gateway}
-                                                        >
-                                                            <CustomRadioBox>
-                                                                <label
-                                                                    className={
-                                                                        value ===
-                                                                        item.gateway
-                                                                            ? 'active'
-                                                                            : ''
-                                                                    }
-                                                                >
-                                                                    <input
-                                                                        type="radio"
-                                                                        name="payment_method"
-                                                                        value={
-                                                                            item?.gateway
+                                            <SimpleBar
+                                                style={{ maxHeight: 300 }}
+                                            >
+                                                <Stack>
+                                                    {global?.active_payment_method_list?.map(
+                                                        (item, i) => (
+                                                            <addFundIsLoading
+                                                                key={
+                                                                    item?.gateway
+                                                                }
+                                                            >
+                                                                <CustomRadioBox>
+                                                                    <label
+                                                                        className={
+                                                                            value ===
+                                                                            item.gateway
+                                                                                ? 'active'
+                                                                                : ''
                                                                         }
-                                                                        onChange={(
-                                                                            e
-                                                                        ) => {
-                                                                            setValue(
+                                                                    >
+                                                                        <input
+                                                                            type="radio"
+                                                                            name="payment_method"
+                                                                            value={
+                                                                                item?.gateway
+                                                                            }
+                                                                            onChange={(
                                                                                 e
-                                                                                    .target
-                                                                                    .value
-                                                                            )
-                                                                            formik.handleChange(
-                                                                                e
-                                                                            )
-                                                                        }}
-                                                                        style={{
-                                                                            display:
-                                                                                'none',
-                                                                        }}
-                                                                    />
-                                                                    {value ===
-                                                                    item.gateway ? (
-                                                                        <CheckCircle />
-                                                                    ) : (
-                                                                        <Box
-                                                                            sx={{
-                                                                                width: '18px',
-                                                                                borderRadius:
-                                                                                    '50%',
-                                                                                aspectRatio:
-                                                                                    '1',
-                                                                                border: `1px solid ${theme.palette.divider}`,
+                                                                            ) => {
+                                                                                setValue(
+                                                                                    e
+                                                                                        .target
+                                                                                        .value
+                                                                                )
+                                                                                formik.handleChange(
+                                                                                    e
+                                                                                )
+                                                                            }}
+                                                                            style={{
+                                                                                display:
+                                                                                    'none',
                                                                             }}
                                                                         />
-                                                                    )}
-                                                                    <Stack
-                                                                        direction="row"
-                                                                        gap={1}
-                                                                        sx={{
-                                                                            img: {
-                                                                                height: '24px',
-                                                                                width: 'unset',
-                                                                            },
-                                                                        }}
-                                                                    >
-                                                                        {item?.gateway_image && (
-                                                                            <img
-                                                                                src={`${base_url}/${item?.gateway_image}`}
+                                                                        {value ===
+                                                                        item.gateway ? (
+                                                                            <CheckCircle />
+                                                                        ) : (
+                                                                            <Box
+                                                                                sx={{
+                                                                                    width: '18px',
+                                                                                    borderRadius:
+                                                                                        '50%',
+                                                                                    aspectRatio:
+                                                                                        '1',
+                                                                                    border: `1px solid ${theme.palette.divider}`,
+                                                                                }}
                                                                             />
                                                                         )}
-                                                                        <Box
+                                                                        <Stack
+                                                                            direction="row"
+                                                                            gap={
+                                                                                1
+                                                                            }
                                                                             sx={{
-                                                                                color: (
-                                                                                    theme
-                                                                                ) =>
-                                                                                    theme
-                                                                                        .palette
-                                                                                        .neutral[1000],
+                                                                                img: {
+                                                                                    height: '24px',
+                                                                                    width: 'unset',
+                                                                                },
                                                                             }}
                                                                         >
-                                                                            {
-                                                                                item?.gateway_title
-                                                                            }
-                                                                        </Box>
-                                                                    </Stack>
-                                                                </label>
-                                                            </CustomRadioBox>
-                                                        </addFundIsLoading>
-                                                    )
-                                                )}
-                                            </Stack>
+                                                                            {item?.gateway_image && (
+                                                                                <img
+                                                                                    src={`${base_url}/${item?.gateway_image}`}
+                                                                                />
+                                                                            )}
+                                                                            <Box
+                                                                                sx={{
+                                                                                    color: (
+                                                                                        theme
+                                                                                    ) =>
+                                                                                        theme
+                                                                                            .palette
+                                                                                            .neutral[1000],
+                                                                                }}
+                                                                            >
+                                                                                {
+                                                                                    item?.gateway_title
+                                                                                }
+                                                                            </Box>
+                                                                        </Stack>
+                                                                    </label>
+                                                                </CustomRadioBox>
+                                                            </addFundIsLoading>
+                                                        )
+                                                    )}
+                                                </Stack>
                                             </SimpleBar>
                                         </Box>
                                         <Box mt={4}>
@@ -625,7 +639,6 @@ const Wallet = ({ page }) => {
                                 <CustomSelect
                                     value={transactionType}
                                     onChange={(e) => handleChange(e)}
-                                    sx={{ fontSize: '12px' }}
                                 >
                                     {transaction_options?.map((item, i) => (
                                         <MenuItem
@@ -666,12 +679,26 @@ const Wallet = ({ page }) => {
                         )}
                         {/* </ScrollerProvider> */}
                         {data?.data?.data?.length === 0 && (
-                            <CustomEmptyResult
-                                label="No Transaction History"
-                                image={noTransactionFound}
-                                height="50px"
-                                width="60px"
-                            />
+                            <Stack
+                                marginTop="5px"
+                                alignItems="center"
+                                height="100%"
+                                witdh="100%"
+                                borderRadius="10px"
+                                justifyContent="center"
+                                backgroundColor={
+                                    theme.palette.mode === 'dark'
+                                        ? '#322F2F'
+                                        : theme.palette.neutral[200]
+                                }
+                            >
+                                <CustomEmptyResult
+                                    label="No Transaction History"
+                                    image={noTransactionFound}
+                                    height="50px"
+                                    width="60px"
+                                />
+                            </Stack>
                         )}
                         <CustomStackFullWidth
                             sx={{ height: '50px' }}

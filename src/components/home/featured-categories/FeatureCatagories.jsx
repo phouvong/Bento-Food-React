@@ -38,7 +38,7 @@ const FeatureCatagories = () => {
     const settings = {
         dots: false,
         infinite: categoryIsSticky ? (featuredCategories?.length > 12 ? true : false) : (featuredCategories?.length > 7 ? true : false),
-        speed: 500,
+        speed: 700,
         slidesToShow: categoryIsSticky ? 12 : 7,
         slidesToScroll: 3,
         autoplay: true,

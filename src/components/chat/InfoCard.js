@@ -56,7 +56,6 @@ const InfoCard = (props) => {
         last_message,
         email,
     } = props
-
     const theme = useTheme()
     const { global } = useSelector((state) => state.globalSettings)
     const ChatImageUrl = () => {
@@ -68,8 +67,12 @@ const InfoCard = (props) => {
         } else global?.base_urls?.business_logo_url
     }
 
-    const userImage = userList.receiver_type ==="admin"? global?.logo_full_url: userList?.receiver?.image_full_url
-
+    const userImage =
+        userList.receiver_type === 'admin'
+            ? global?.logo_full_url
+            : userList.receiver_type === 'customer'
+            ? userList?.sender?.image_full_url
+            : userList?.receiver?.image_full_url
 
     const { isLoading, data, isError, error, refetch } = useQuery(
         ['profile-info'],
@@ -90,7 +93,7 @@ const InfoCard = (props) => {
             padding="10px 15px 10px 10px"
             sx={{
                 background:
-                    selectedId === currentId
+                    selectedId === currentId || isRead > 0
                         ? (theme) => alpha(theme.palette.primary.main, 0.1)
                         : '',
             }}
@@ -109,7 +112,6 @@ const InfoCard = (props) => {
                 <Stack
                     direction="row"
                     justifyContent="space-between"
-                    sx={{ paddingInlineEnd: '10px' }}
                     spacing={1}
                 >
                     <CustomTypographyEllipsis
@@ -122,29 +124,46 @@ const InfoCard = (props) => {
                         {receiver}
                     </CustomTypographyEllipsis>
                     <CustomTypographyEllipsis
-                        variant="h5"
                         fontWeight="500"
                         color={theme.palette.neutral[500]}
                         sx={{
+                            fontSize: '10px',
                             textAlign: 'right',
                         }}
                     >
-                        {moment(messageTime).format('MMM Do YY').slice(0, 7)}
-                        {/*{!isLoading && !isSender && unRead > 0 && unRead}*/}
+                        {moment(messageTime).format('h:mm A')}
                     </CustomTypographyEllipsis>
                 </Stack>
-                <CustomTypographyEllipsis
-                    sx={{ maxWidth: '130px' }}
-                    fontSize={isRead > 0 ? '15px' : '10px'}
-                    fontWeight={isRead > 0 ? '700' : '400'}
-                    color={
-                        isRead > 0
-                            ? theme.palette.neutral[1000]
-                            : theme.palette.neutral[500]
-                    }
-                >
-                    {last_message?.message && last_message?.message}{' '}
-                </CustomTypographyEllipsis>
+                <Stack direction="row" justifyContent="space-between">
+                    <CustomTypographyEllipsis
+                        sx={{ maxWidth: '130px' }}
+                        fontSize={'10px'}
+                        fontWeight={'400'}
+                        color={
+                            isRead > 0
+                                ? theme.palette.neutral[1000]
+                                : theme.palette.neutral[500]
+                        }
+                    >
+                        {last_message?.message !== null
+                            ? last_message?.message
+                            : t('Sent attachment')}{' '}
+                    </CustomTypographyEllipsis>
+                    {!isLoading && !isSender && unRead > 0 ? (
+                        <Stack
+                            width="20px"
+                            height="20px"
+                            borderRadius="50%"
+                            backgroundColor={theme.palette.primary.main}
+                            color={theme.palette.neutral[100]}
+                            justifyContent="center"
+                            alignItems="center"
+                            fontSize="12px"
+                        >
+                            {!isLoading && !isSender && unRead > 0 && unRead}
+                        </Stack>
+                    ) : null}
+                </Stack>
                 <Stack
                     direction="row"
                     justifyContent="space-between"

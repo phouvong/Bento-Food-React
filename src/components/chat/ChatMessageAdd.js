@@ -5,10 +5,8 @@ import {
     Tooltip,
     IconButton,
     styled,
-    alpha,
     InputAdornment,
 } from '@mui/material'
-import GifBoxOutlinedIcon from '@mui/icons-material/GifBoxOutlined'
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon'
 import InsertPhotoIcon from '@mui/icons-material/InsertPhoto'
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined'
@@ -18,10 +16,12 @@ import { t } from 'i18next'
 import ChatImage from './ChatImage'
 import { Stack } from '@mui/system'
 import useMediaQuery from '@mui/material/useMediaQuery'
+import AttachmentIcon from '@mui/icons-material/Attachment'
+
 const CssTextField = styled(TextField)(({ theme }) => ({
     '& label.Mui-focused': {
-        color: (theme) => theme.palette.neutral[300],
-        background: (theme) => theme.palette.neutral[100],
+        color: theme.palette.neutral[300],
+        background: theme.palette.neutral[100],
     },
     '& .MuiOutlinedInput-notchedOutline': {
         border: 'none',
@@ -35,6 +35,7 @@ const CssTextField = styled(TextField)(({ theme }) => ({
         },
     },
 }))
+
 const ChatMessageAdd = ({ onSend }) => {
     const [openEmoji, setOpenEmoji] = useState(false)
     const [chosenEmoji, setChosenEmoji] = useState(null)
@@ -45,6 +46,8 @@ const ChatMessageAdd = ({ onSend }) => {
     })
     const languageDirection = localStorage.getItem('direction')
     const fileInputRef = useRef(null)
+    const attachmentInputRef = useRef(null)
+
     const handleChange = (event) => {
         setBody({ ...body, text: event.target.value })
     }
@@ -58,138 +61,163 @@ const ChatMessageAdd = ({ onSend }) => {
         if (!body) {
             toast.error(t('write something'))
         }
-        if (body.file.length > 3) {
-            toast.error(t('Maximum 3 images can be send at a time.'))
-        } else {
-            onSend?.(body)
-            setBody({ text: '', file: [] })
-        }
+        onSend?.(body)
+        setBody({ text: '', file: [] })
     }
+
     const handleAttach = () => {
         fileInputRef.current.click()
     }
+
+    const handleAttachment = () => {
+        attachmentInputRef.current.click()
+    }
+
     const handleKeyUp = (event) => {
         if (event.code === 'Enter' && !event.shiftKey) {
             handleSend()
         }
     }
-    const MAX_LENGTH = 3
+
     const handleFileOnChange = (e) => {
-        const totalImages = body.file.length + e.target.files.length;
-        if (totalImages <= 3) {
-            setBody({ ...body, file: [...body.file, ...e.target.files] })
-        } else {
-            toast.error(t('maximum image upload limit 3'))
-        }
+        const totalImages = body.file.length + e.target.files.length
+        setBody({ ...body, file: [...body.file, ...e.target.files] })
+        fileInputRef.current.value = null // Reset the input value
+    }
+
+    const handleChangeAttachment = (e) => {
+        setBody({ ...body, file: [...body.file, ...e.target.files] })
+        attachmentInputRef.current.value = null // Reset the input value
     }
 
     const removeImage = (name) => {
         const tempData = body.file.filter((item) => item.name !== name)
         setBody({ text: body.text, file: tempData })
     }
+
     return (
         <>
             <Box
                 sx={{
-                    alignItems: 'center',
-                    display: 'flex',
-                    flexShrink: 0,
-                    p: 1.5,
+                    // p: 1.5,
                     position: 'relative',
-                    boxShadow: '0px 0px 1px rgba(0, 0, 0, 0.25)',
-                    margin: '10px',
                 }}
             >
-                <Box sx={{ position: 'absolute', bottom: '80%' }}>
-                    {openEmoji && (
-                        <Picker
-                            pickerStyle={{ width: '100%' }}
-                            onEmojiClick={onEmojiClick}
-                        />
-                    )}
-                </Box>
-                <Stack direction="row" sx={{ paddingInlineEnd: '.7rem' }}>
-                    <Tooltip title={t('Image')}>
-                        <IconButton onClick={handleAttach}>
-                            <InsertPhotoIcon
-                                fontSize="medium"
-                                color="primary"
-                            />
-                        </IconButton>
-                    </Tooltip>
-
-                    <Tooltip title={'Gif'}>
-                        <IconButton onClick={handleAttach}>
-                            <GifBoxOutlinedIcon
-                                fontSize="medium"
-                                color="primary"
-                            />
-                        </IconButton>
-                    </Tooltip>
-                </Stack>
-                <CssTextField
-                    // disabled={disabled}
-                    fullWidth
-                    onChange={handleChange}
-                    onKeyUp={handleKeyUp}
-                    placeholder={t('Start a new message')}
-                    value={body.text}
-                    size="small"
-                    multiline
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="start">
-                                {!xSmall && (
-                                    <InsertEmoticonIcon
-                                        color="primary"
-                                        sx={{ cursor: 'pointer' }}
-                                        onClick={() =>
-                                            setOpenEmoji(
-                                                (prevState) => !prevState
-                                            )
-                                        }
-                                    />
-                                )}
-                            </InputAdornment>
-                        ),
-                    }}
-                />
-
                 <Box
                     sx={{
                         alignItems: 'center',
                         display: 'flex',
-                        m: -2,
-                        marginInlineStart: languageDirection !== 'rtl' && 2,
-                        marginInlineEnd: languageDirection === 'rtl' && '1rem',
+                        flexShrink: 0,
+                        p: 1.5,
+
+                        boxShadow: '0px 0px 1px rgba(0, 0, 0, 0.25)',
+                        margin: '10px',
                     }}
                 >
-                    <Tooltip title="Send">
-                        <IconButton
-                            disabled={
-                                body.text === '' && body.file.length === 0
-                            }
-                            onClick={handleSend}
-                            sx={{
-                                transform:
-                                    languageDirection === 'rtl' &&
-                                    'rotate(180deg)',
-                            }}
-                        >
-                            <SendOutlinedIcon
-                                fontSize="medium"
-                                color="primary"
+                    <Box sx={{ position: 'absolute', bottom: '80%' }}>
+                        {openEmoji && (
+                            <Picker
+                                pickerStyle={{ width: '100%' }}
+                                onEmojiClick={onEmojiClick}
                             />
-                        </IconButton>
-                    </Tooltip>
+                        )}
+                    </Box>
+                    <Stack direction="row" sx={{ paddingInlineEnd: '.7rem' }}>
+                        <Tooltip title={t('Image')}>
+                            <IconButton
+                                sx={{ padding: '2px' }}
+                                onClick={handleAttach}
+                            >
+                                <InsertPhotoIcon
+                                    fontSize="medium"
+                                    color="primary"
+                                />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t('Attachment')}>
+                            <IconButton
+                                sx={{ padding: '2px' }}
+                                onClick={handleAttachment}
+                            >
+                                <AttachmentIcon
+                                    fontSize="medium"
+                                    color="primary"
+                                />
+                            </IconButton>
+                        </Tooltip>
+                    </Stack>
+                    <CssTextField
+                        fullWidth
+                        onChange={handleChange}
+                        onKeyUp={handleKeyUp}
+                        placeholder={t('Start a new message')}
+                        value={body.text}
+                        size="small"
+                        multiline
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="start">
+                                    {!xSmall && (
+                                        <InsertEmoticonIcon
+                                            color="primary"
+                                            sx={{ cursor: 'pointer' }}
+                                            onClick={() =>
+                                                setOpenEmoji(
+                                                    (prevState) => !prevState
+                                                )
+                                            }
+                                        />
+                                    )}
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+
+                    <Box
+                        sx={{
+                            alignItems: 'center',
+                            display: 'flex',
+                            m: -2,
+                            marginInlineStart: languageDirection !== 'rtl' && 2,
+                            marginInlineEnd:
+                                languageDirection === 'rtl' && '1rem',
+                        }}
+                    >
+                        <Tooltip title="Send">
+                            <IconButton
+                                disabled={
+                                    body.text === '' && body.file.length === 0
+                                }
+                                onClick={handleSend}
+                                sx={{
+                                    transform:
+                                        languageDirection === 'rtl' &&
+                                        'rotate(180deg)',
+                                }}
+                            >
+                                <SendOutlinedIcon
+                                    fontSize="medium"
+                                    color="primary"
+                                />
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
+                    <input
+                        hidden
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        onChange={handleFileOnChange}
+                    />
+                    <input
+                        ref={attachmentInputRef}
+                        hidden
+                        multiple
+                        type="file"
+                        accept=".pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.mp4,.avi,.mov,.wmv,.flv,.mkv"
+                        onChange={handleChangeAttachment} // Corrected from onClick to onChange
+                    />
                 </Box>
-                <input
-                    hidden
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    onChange={handleFileOnChange}
-                />
                 {body.file.length > 0 && (
                     <ChatImage body={body} removeImage={removeImage} />
                 )}
@@ -197,4 +225,5 @@ const ChatMessageAdd = ({ onSend }) => {
         </>
     )
 }
+
 export default ChatMessageAdd

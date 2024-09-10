@@ -12,8 +12,8 @@ import { t } from 'i18next'
 import Skeleton from '@mui/material/Skeleton'
 
 import { makeStyles } from '@material-ui/core/styles'
-import {useSelector} from "react-redux";
-import ChatWithAdmin from "./ChatWithAdmin";
+import { useSelector } from 'react-redux'
+import ChatWithAdmin from './ChatWithAdmin'
 
 // const ContactInformation=({channelUsers, handleChannelOnClick})=>{
 //
@@ -32,7 +32,8 @@ const ContactLists = ({
     channelList,
     handleChannelOnClick,
     channelLoading,
-    selectedId, useType
+    selectedId,
+    useType,
 }) => {
     const { global } = useSelector((state) => state.globalSettings)
 
@@ -77,9 +78,11 @@ const ContactLists = ({
             return (
                 <InfoCard
                     name={item.receiver_type.replaceAll('_', ' ')}
-                    messageTime={item.created_at}
+                    messageTime={item?.last_message_time}
                     receiver={
-                        item.receiver ? item.receiver.f_name : global?.business_name
+                        item.receiver
+                            ? item.receiver.f_name
+                            : global?.business_name
                     }
                     unRead={item.unread_message_count}
                     userList={item}
@@ -91,24 +94,22 @@ const ContactLists = ({
             )
         } else {
             return (
-                 <InfoCard
-                     name={item.sender_type.replaceAll('_', ' ')}
-                     messageTime={item.created_at}
-                     last_message={item?.last_message}
-                     receiver={
-                         item?.sender?.f_name.concat(
-                             ' ',
-                             item?.sender?.l_name
-                         ) || ' '
-                     }
-                     unRead={item.unread_message_count}
-                     userList={item}
-                     selectedId={selectedId}
-                     currentId={item.id}
-                     email={item?.sender?.email}
-                 />
-
-
+                <InfoCard
+                    name={item.sender_type.replaceAll('_', ' ')}
+                    messageTime={item.created_at}
+                    last_message={item?.last_message}
+                    receiver={
+                        item?.sender?.f_name.concat(
+                            ' ',
+                            item?.sender?.l_name
+                        ) || ' '
+                    }
+                    unRead={item.unread_message_count}
+                    userList={item}
+                    selectedId={selectedId}
+                    currentId={item.id}
+                    email={item?.sender?.email}
+                />
             )
         }
     }
@@ -116,7 +117,7 @@ const ContactLists = ({
     return (
         <CustomStackFullWidth>
             {channelList?.length > 0 && (
-                <SimpleBar style={{ maxHeight: "60vh" }}>
+                <SimpleBar style={{ maxHeight: '60vh' }}>
                     <List disablePadding>
                         {channelList?.map((item, index) => {
                             return (

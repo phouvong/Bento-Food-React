@@ -117,7 +117,7 @@ const RestaurantLeftDetails = (props) => {
             if (response?.data) {
                 dispatch(
                     addWishListRes({
-                        logo:logo_full_url,
+                        logo: logo_full_url,
                         name,
                         rating_count,
                         avg_rating,
@@ -135,6 +135,7 @@ const RestaurantLeftDetails = (props) => {
         },
         onError: (error) => {},
     })
+
     const addToFavorite = () => {
         if (token) {
             addFavoriteMutation()
@@ -217,6 +218,7 @@ const RestaurantLeftDetails = (props) => {
             )
         }
     }
+
     const handleTop = () => {
         return (
             <RTL direction={languageDirection}>
@@ -238,7 +240,7 @@ const RestaurantLeftDetails = (props) => {
                     }}
                 >
                     <CustomStackFullWidth
-                        alignItems={{ xs: 'center', sm: 'flex-end' }}
+                        alignItems={{ xs: 'center', sm: 'center' }}
                         justiyfContent="center"
                         direction="row"
                         spacing={1}
@@ -258,7 +260,7 @@ const RestaurantLeftDetails = (props) => {
                                     ? '5%'
                                     : isSmall
                                     ? '15%'
-                                    : '45%'
+                                    : '21%'
                             }
                             right="5%"
                             zIndex="999"
@@ -394,44 +396,32 @@ const RestaurantLeftDetails = (props) => {
                                     position="absolute"
                                     top={scrollPosition === 0 ? '-35px' : '0px'}
                                     sx={{ zIndex: 9999 }}
-                                    height={{
-                                        xs:
-                                            scrollPosition === 0
-                                                ? '100px'
-                                                : '74px',
-                                        sm: '100px',
-                                        md: '100px',
-                                    }}
+                                    // height={{
+                                    //     xs:
+                                    //         scrollPosition === 0
+                                    //             ? '100px'
+                                    //             : '74px',
+                                    //     sm: '100px',
+                                    //     md: '100px',
+                                    // }}
                                 >
                                     <CustomImageContainer
                                         src={details?.logo_full_url}
-                                        width="100px"
-                                        smWidth={
-                                            scrollPosition === 0
-                                                ? '100px'
-                                                : isSmall
-                                                ? '74px'
-                                                : '100px'
-                                        }
+                                        width="100%"
                                         height="100%"
                                         borderRadius="50%"
                                         objectFit="cover"
+                                        aspectRatio="1"
                                     />
                                 </Stack>
                             ) : (
                                 <CustomImageContainer
                                     src={details?.logo_full_url}
-                                    width="100px"
-                                    smWidth={
-                                        scrollPosition === 0
-                                            ? '100px'
-                                            : isSmall
-                                            ? '74px'
-                                            : '100px'
-                                    }
+                                    width="100%"
                                     height="100%"
                                     borderRadius="50%"
                                     objectFit="cover"
+                                    aspectRatio="1"
                                 />
                             )}
                         </Box>
@@ -441,6 +431,40 @@ const RestaurantLeftDetails = (props) => {
                                 fontWeight="600"
                             >
                                 {details?.name}
+                            </Typography>
+                            <Typography
+                                align="left"
+                                fontSize="13px"
+                                color={theme.palette.neutral[600]}
+                                sx={{
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: '1',
+                                    WebkitBoxOrient: 'vertical',
+                                    wordWrap: 'break-word',
+                                    width: {
+                                        xs: '192px',
+                                        sm: '215px',
+                                        md: '215px',
+                                    },
+                                }}
+                                //sx={{WebkitLineClamp:'1 !important'}}
+                            >
+                                {details?.characteristics?.length > 0 &&
+                                    details?.characteristics?.map(
+                                        (item, index) => (
+                                            <>
+                                                {item}{' '}
+                                                {details?.characteristics
+                                                    .length -
+                                                    1 ===
+                                                index
+                                                    ? ''
+                                                    : ','}
+                                            </>
+                                        )
+                                    )}
                             </Typography>
 
                             <Stack
@@ -524,7 +548,6 @@ const RestaurantLeftDetails = (props) => {
                     paddingX: '20px',
                     background: theme.palette.neutral[1800],
                 }}
-                justifyContent="space-between"
                 alignItems="center"
             >
                 {details?.positive_rating !== 0 ? (
@@ -542,6 +565,20 @@ const RestaurantLeftDetails = (props) => {
                     </Grid>
                 ) : null}
 
+                {details?.delivery_time ? (
+                    <Grid xs={4} sm={4} md={4}>
+                        <RestaurantCommonTypography>
+                            {details?.delivery_time}
+                        </RestaurantCommonTypography>
+                        <RestaurantCommonTypography
+                            fontSize="12px"
+                            smFontSize="12px"
+                            fontWeight="400"
+                        >
+                            {t('Delivery Time')}
+                        </RestaurantCommonTypography>
+                    </Grid>
+                ) : null}
                 {details?.minimum_order ? (
                     <Grid xs={4} sm={4} md={4}>
                         <RestaurantCommonTypography>
@@ -559,20 +596,6 @@ const RestaurantLeftDetails = (props) => {
                             fontWeight="400"
                         >
                             {t('Minimum Order')}
-                        </RestaurantCommonTypography>
-                    </Grid>
-                ) : null}
-                {details?.delivery_time ? (
-                    <Grid xs={4} sm={4} md={4}>
-                        <RestaurantCommonTypography>
-                            {details?.delivery_time}
-                        </RestaurantCommonTypography>
-                        <RestaurantCommonTypography
-                            fontSize="12px"
-                            smFontSize="12px"
-                            fontWeight="400"
-                        >
-                            {t('Delivery Time')}
                         </RestaurantCommonTypography>
                     </Grid>
                 ) : null}
@@ -595,7 +618,7 @@ const RestaurantLeftDetails = (props) => {
             >
                 <CustomImageContainer
                     src={details.cover_photo_full_url}
-                    height="250px"
+                    height={scrollPosition === 0 ? '250px' : '180px'}
                     smHeight={scrollPosition === 0 ? '205px' : '140px'}
                     objectFit="cover"
                 />

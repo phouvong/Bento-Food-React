@@ -59,7 +59,7 @@ const RestaurantBoxCard = (props) => {
         foods,
         opening_time,
         characteristics,
-        minWidth
+        minWidth,
     } = props
     const { t } = useTranslation()
     const router = useRouter()
@@ -239,9 +239,8 @@ const RestaurantBoxCard = (props) => {
         <Stack
             onClick={handleClick}
             className={className}
-            height={visitAgain ? '250px' : '100%'}
+            height={visitAgain ? '240px' : '100%'}
             width="100%"
-
         >
             <CustomPaperBigCard
                 nopadding="true"
@@ -324,17 +323,18 @@ const RestaurantBoxCard = (props) => {
                                 align="left"
                                 fontSize="12px"
                                 color={theme.palette.neutral[600]}
-                                sx={{WebkitLineClamp:'1 !important'}}
+                                sx={{ WebkitLineClamp: '1 !important' }}
                             >
-                            {characteristics?.length > 0 &&
-                                characteristics?.map((item, index) => (
+                                {characteristics?.length > 0 &&
+                                    characteristics?.map((item, index) => (
                                         <>
-                                            {item} {" "}
-                                            {characteristics.length - 1 === index
+                                            {item}{' '}
+                                            {characteristics.length - 1 ===
+                                            index
                                                 ? ''
                                                 : ','}
                                         </>
-                                ))}
+                                    ))}
                             </CustomTypographyEllipsis>
                         </Stack>
                         {visitAgain && foods?.length > 0 && (

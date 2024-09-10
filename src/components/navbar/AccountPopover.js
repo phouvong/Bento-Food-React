@@ -105,7 +105,7 @@ export const AccountPopover = (props) => {
                 cartListRefetch()
                 // dispatch(setClearCart())
                 // toast.success(t(logoutSuccessFull))
-                CustomToaster('success', logoutSuccessFull)
+                //CustomToaster('success', logoutSuccessFull)
                 onClose?.()
                 if (router.pathname === '/') {
                     router.push('/')

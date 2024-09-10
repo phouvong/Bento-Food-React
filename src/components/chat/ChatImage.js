@@ -1,70 +1,90 @@
 import React, { useEffect, useState } from 'react'
-import { IconButton, Paper, Stack } from '@mui/material'
+import { IconButton, Paper, Stack, Typography } from '@mui/material'
 import CustomImageContainer from '../CustomImageContainer'
 import CloseIcon from '@mui/icons-material/Close'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
+import DescriptionIcon from '@mui/icons-material/Description'
 import { useTheme } from '@mui/material/styles'
+import CancelIcon from '@mui/icons-material/Cancel'
+import AttachmentBox from '@/components/chat/AttachmentBox'
+
+export const isImageType = (file) => {
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp']
+    const fileExtension = file?.name?.split('.').pop().toLowerCase()
+    return imageExtensions.includes(fileExtension)
+}
+
 const ChatImage = ({ body, removeImage }) => {
     const theme = useTheme()
-    const [files, setFiles] = useState()
+    const [files, setFiles] = useState([])
+
     useEffect(() => {
         setFiles(body.file)
     }, [body.file])
 
     return (
-        <Paper
+        <Stack
             sx={{
+                width: '99%',
                 position: 'absolute',
                 bottom: 78,
-                padding: '5px',
+                padding: '14px 5px 5px 10px',
                 display: 'flex',
                 flexDirection: 'row',
                 gap: '20px',
-                flexWrap: 'wrap',
+                flexWrap: 'nowrap',
+                overflowX: 'auto',
+                background: (theme) => theme.palette.background.paper,
+                [theme.breakpoints.between('xs', 'sm')]: {
+                    // styles
+                    bottom: 77,
+                    width: '98%',
+                    gap: '10px',
+                },
             }}
         >
-            {files?.map((item) => {
-                return (
-                    <Stack
-                        sx={{ position: 'relative', width: 'auto' }}
-                        direction="row"
-                    >
-                        <CustomImageContainer
-                            objectFit="contain"
-                            src={URL.createObjectURL(item)}
-                            height="70px"
-                            width="90px"
-                            borderRadius=".5rem"
-                            smWidth="50px"
-                            smHeight="60px"
-                        />
-                        <IconButton
-                            sx={{
-                                position: 'absolute',
-                                right: -0,
-                                bottom: 0,
-                                background: (theme) => theme.palette.error.main,
-                                padding: '0px',
-                                borderRadius: '0px',
-                                '&:hover': {
-                                    backgroundColor: (theme) =>
-                                        theme.palette.error.dark,
-                                },
-                            }}
-                            onClick={() => removeImage(item.name)}
-                        >
-                            <CloseIcon
-                                sx={{
-                                    color: (theme) =>
-                                        theme.palette.neutral[100],
-                                }}
-                                fontSize="small"
+            {files?.map((item) => (
+                <Stack
+                    key={item.name}
+                    sx={{ width: 'auto' }}
+                    direction="row"
+                    alignItems="center"
+                >
+                    {isImageType(item) ? (
+                        <Stack sx={{ position: 'relative' }}>
+                            <CustomImageContainer
+                                objectFit="cover"
+                                src={URL.createObjectURL(item)}
+                                height="40px"
+                                width="40px"
+                                borderRadius=".5rem"
+                                smWidth="40px"
+                                smHeight="40px"
                             />
-                        </IconButton>
-                    </Stack>
-                )
-            })}
-        </Paper>
+                            <IconButton
+                                sx={{
+                                    position: 'absolute',
+                                    right: -10,
+                                    top: -10,
+                                    padding: '0px',
+                                    borderRadius: '0px',
+                                    color: (theme) =>
+                                        theme.palette.neutral[400],
+                                }}
+                                onClick={() => removeImage(item.name)}
+                            >
+                                <CancelIcon
+                                    fontSize="small"
+                                    sx={{ color: theme.palette.neutral[400] }}
+                                />
+                            </IconButton>
+                        </Stack>
+                    ) : (
+                        <AttachmentBox item={item} removeImage={removeImage} />
+                    )}
+                </Stack>
+            ))}
+        </Stack>
     )
 }
+
 export default ChatImage

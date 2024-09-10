@@ -97,9 +97,7 @@ const FoodDetailModal = ({
     const { mutate: updateMutate } = useCartItemUpdate()
     const { mutate: deleteCartItemMutate } = useDeleteAllCartItem()
 
-
     const itemSuccess = (res) => {
-
         if (res) {
             handleInitialTotalPriceVarPriceQuantitySet(
                 res,
@@ -252,10 +250,8 @@ const FoodDetailModal = ({
         }
     }
 
-
     const handleAddUpdate = () => {
         if (productUpdate) {
-
             //for updating
             let totalQty = 0
             const itemObject = {
@@ -597,12 +593,12 @@ const FoodDetailModal = ({
         }
     }
     const addToCard = () => {
-
         if (location) {
             let checkingFor = 'cart'
             if (
                 modalData[0]?.item_stock === 0 &&
-                selectedOptions?.length === 0 && modalData[0].stock_type!=="unlimited"
+                selectedOptions?.length === 0 &&
+                modalData[0].stock_type !== 'unlimited'
             ) {
                 CustomToaster('error', t('Out Of Stock'), 'add')
             } else {
@@ -833,7 +829,6 @@ const FoodDetailModal = ({
         }
     }
     const radioCheckHandler = (choiceIndex, option, optionIndex) => {
-
         const isExist = selectedOptions?.find(
             (sOption) =>
                 sOption.choiceIndex === choiceIndex &&
@@ -880,7 +875,6 @@ const FoodDetailModal = ({
     //     });
     // };
 
-
     const incrementPrice = () => {
         const isLimitedOrDaily = modalData[0]?.stock_type !== 'unlimited'
         const maxCartQuantity = modalData[0]?.maximum_cart_quantity
@@ -904,9 +898,9 @@ const FoodDetailModal = ({
             //setVariationStock(minStock);
 
             // If stock type is limited or daily, check against minStock
-            if(quantity >= modalData[0]?.item_stock && isLimitedOrDaily){
+            if (quantity >= modalData[0]?.item_stock && isLimitedOrDaily) {
                 CustomToaster('error', t('Out Of Stock'), 'stock')
-            }else{
+            } else {
                 if (isLimitedOrDaily) {
                     tryUpdateQuantity(minStock)
                 } else {
@@ -1050,9 +1044,8 @@ const FoodDetailModal = ({
         return false
     }
 
-    const text1=t("only")
-    const text2=t("items available")
-
+    const text1 = t('only')
+    const text2 = t('items available')
 
     return (
         <>
@@ -1139,12 +1132,32 @@ const FoodDetailModal = ({
                                                                 </IconButton>
                                                             </Tooltip>
                                                         )}
-                                                    {quantity >= modalData[0]?.item_stock && modalData[0]?.stock_type !== "unlimited" &&
-
-                                                        <Typography fontSize="12px" color={quantity >= modalData[0]?.item_stock && theme.palette.info.main}>
-                                                            ({text1} {modalData[0]?.item_stock} {text2})
-                                                        </Typography>
-                                                        }
+                                                    {quantity >=
+                                                        modalData[0]
+                                                            ?.item_stock &&
+                                                        modalData[0]
+                                                            ?.stock_type !==
+                                                            'unlimited' && (
+                                                            <Typography
+                                                                fontSize="12px"
+                                                                color={
+                                                                    quantity >=
+                                                                        modalData[0]
+                                                                            ?.item_stock &&
+                                                                    theme
+                                                                        .palette
+                                                                        .info
+                                                                        .main
+                                                                }
+                                                            >
+                                                                ({text1}{' '}
+                                                                {
+                                                                    modalData[0]
+                                                                        ?.item_stock
+                                                                }{' '}
+                                                                {text2})
+                                                            </Typography>
+                                                        )}
                                                 </Stack>
                                                 <ReadMore
                                                     limits="100"

@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Grid, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
+import {
+    Button,
+    Grid,
+    Stack,
+    Typography,
+    useMediaQuery,
+    useTheme,
+} from '@mui/material'
 import { useFormik } from 'formik'
 import CustomTextFieldWithFormik from '../../form-fields/CustomTextFieldWithFormik'
 import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
@@ -10,14 +17,14 @@ import CustomPhoneInput from '../../CustomPhoneInput'
 import LoadingButton from '@mui/lab/LoadingButton'
 import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
-import { useSelector } from "react-redux";
-import HomeIcon from '@mui/icons-material/Home';
-import { LabelButton } from './Address.style';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import ApartmentOutlinedIcon from '@mui/icons-material/ApartmentOutlined';
-import MapsHomeWorkRoundedIcon from '@mui/icons-material/MapsHomeWorkRounded';
-import ApartmentIcon from '@mui/icons-material/Apartment';
-import FmdGoodIcon from '@mui/icons-material/FmdGood';
+import { useSelector } from 'react-redux'
+import HomeIcon from '@mui/icons-material/Home'
+import { LabelButton } from './Address.style'
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded'
+import ApartmentOutlinedIcon from '@mui/icons-material/ApartmentOutlined'
+import MapsHomeWorkRoundedIcon from '@mui/icons-material/MapsHomeWorkRounded'
+import ApartmentIcon from '@mui/icons-material/Apartment'
+import FmdGoodIcon from '@mui/icons-material/FmdGood'
 import { t } from 'i18next'
 
 const AddressForm = ({
@@ -29,13 +36,13 @@ const AddressForm = ({
     formSubmit,
     isLoading,
     editAddress = false,
-    address
+    address,
 }) => {
-    const theme = useTheme();
+    const theme = useTheme()
     const { global } = useSelector((state) => state.globalSettings)
     const { t } = useTranslation()
-    const isXs = useMediaQuery(theme.breakpoints.down("sm"))
-    const [label, setLabel] = useState('Home');
+    const isXs = useMediaQuery(theme.breakpoints.down('sm'))
+    const [label, setLabel] = useState('Home')
     useEffect(() => {
         if (editAddress) {
             if (address?.address_type === 'Home') {
@@ -53,27 +60,39 @@ const AddressForm = ({
         {
             label: t('Home'),
             value: 'Home',
-            icon: <HomeRoundedIcon />
+            icon: <HomeRoundedIcon />,
         },
         {
             label: t('Office'),
             value: 'Office',
-            icon: <ApartmentIcon />
+            icon: <ApartmentIcon />,
         },
         {
             label: t('Others'),
             value: 'Others',
-            icon: <FmdGoodIcon />
+            icon: <FmdGoodIcon />,
         },
     ]
-    const { guestUserInfo } = useSelector((state) => state.guestUserInfo);
+    const { guestUserInfo } = useSelector((state) => state.guestUserInfo)
     const addAddressFormik = useFormik({
         initialValues: {
             address: editAddress ? address?.address : '',
             address_type: editAddress ? address?.address_type : '',
             address_label: editAddress ? address.address_type : '',
-            contact_person_name: editAddress ? address?.contact_person_name : guestUserInfo ? guestUserInfo?.contact_person_name : personName ? personName : '',
-            contact_person_number: editAddress ? address?.contact_person_number : guestUserInfo ? guestUserInfo?.contact_person_number : phone ? phone : '',
+            contact_person_name: editAddress
+                ? address?.contact_person_name
+                : guestUserInfo
+                ? guestUserInfo?.contact_person_name
+                : personName
+                ? personName
+                : '',
+            contact_person_number: editAddress
+                ? address?.contact_person_number
+                : guestUserInfo
+                ? guestUserInfo?.contact_person_number
+                : phone
+                ? phone
+                : '',
             latitude: lat,
             longitude: lng,
             road: editAddress ? address?.road : '',
@@ -82,18 +101,21 @@ const AddressForm = ({
         },
         validationSchema: ValidationSchemaForAddAddress(),
         onSubmit: async (values) => {
-
             try {
                 let newData = {
                     ...values,
-                    address_type:
-                        editAddress ? handleEditAddressLabel(addAddressFormik.values.address_label) :
-                            values.address_label !== ''
-                                ? values?.address_label
-                                : label,
+                    address_type: editAddress
+                        ? handleEditAddressLabel(
+                              addAddressFormik.values.address_label
+                          )
+                        : values.address_label !== ''
+                        ? values?.address_label
+                        : label,
                 }
                 formSubmitOnSuccess(newData)
-            } catch (err) { console.log(err) }
+            } catch (err) {
+                console.log(err)
+            }
         },
     })
     const formSubmitOnSuccess = (values) => {
@@ -121,43 +143,46 @@ const AddressForm = ({
     useEffect(() => {
         addAddressFormik.setFieldValue('address', deliveryAddress)
     }, [deliveryAddress])
-    useEffect(() => {
-
-    }, [])
+    useEffect(() => {}, [])
 
     const handleLabel = (item) => {
         if (label !== item.value) {
-            setLabel(item.value);
+            setLabel(item.value)
         }
     }
     const handleEditAddressLabel = (value) => {
-
-        if (label === "Home" || label === "Office") {
-
+        if (label === 'Home' || label === 'Office') {
             return label
         }
         return value
     }
 
     return (
-        <Stack width={{ xs: "100%", md: "58%" }}>
+        <Stack width={{ xs: '100%', md: '58%' }}>
             <form noValidate onSubmit={addAddressFormik.handleSubmit}>
                 <SimpleBar style={{ height: isXs ? '250px' : '475px' }}>
                     {/* <Stack sx={{overflowY : "auto"}}> */}
                     <Grid
                         container
                         spacing={0}
-                        gap={{ xs: "15px", md: "25px" }}
+                        gap={{ xs: '15px', md: '25px' }}
                         sx={{
                             paddingInlineEnd: '10px',
                         }}
                     >
                         <Grid item xs={12} md={12}>
                             <Stack>
-                                <Typography fontSize="12px" color={theme.palette.neutral[500]} pb="5px">
-                                    {t("Label As")}
+                                <Typography
+                                    fontSize="12px"
+                                    color={theme.palette.neutral[500]}
+                                    pb="5px"
+                                >
+                                    {t('Label As')}
                                 </Typography>
-                                <CustomStackFullWidth flexDirection="row" gap="5px">
+                                <CustomStackFullWidth
+                                    flexDirection="row"
+                                    gap="5px"
+                                >
                                     {typeData?.map((item, index) => (
                                         <LabelButton
                                             key={index}
@@ -166,15 +191,11 @@ const AddressForm = ({
                                             value={item?.label}
                                             selected={label}
                                             onClick={() => handleLabel(item)}
-                                            startIcon={
-                                                item.icon
-                                            }
+                                            startIcon={item.icon}
                                         >
                                             {`${t(item.label)}`}
                                         </LabelButton>
-                                    )
-
-                                    )}
+                                    ))}
                                 </CustomStackFullWidth>
                             </Stack>
                         </Grid>
@@ -184,6 +205,7 @@ const AddressForm = ({
                                 <CustomTextFieldWithFormik
                                     type="text"
                                     label={t('Label Name(Optional)')}
+                                    placeholder="Label Name"
                                     touched={
                                         addAddressFormik.touched.address_label
                                     }
@@ -268,6 +290,7 @@ const AddressForm = ({
                         <Grid item xs={12} md={12}>
                             <CustomTextFieldWithFormik
                                 type="text"
+                                placeholder={t('Enter Your Street Number')}
                                 label={t('Street Number')}
                                 touched={addAddressFormik.touched.road}
                                 errors={addAddressFormik.errors.road}
@@ -279,10 +302,11 @@ const AddressForm = ({
                             />
                         </Grid>
                         <Grid container item spacing={2}>
-                            <Grid item xs={12} md={6} >
+                            <Grid item xs={12} md={6}>
                                 <CustomTextFieldWithFormik
                                     type="text"
                                     label={t('House')}
+                                    placeholder={t('Enter Your House')}
                                     touched={addAddressFormik.touched.house}
                                     errors={addAddressFormik.errors.house}
                                     fieldProps={addAddressFormik.getFieldProps(
@@ -296,6 +320,7 @@ const AddressForm = ({
                                 <CustomTextFieldWithFormik
                                     type="text"
                                     label={t('Floor')}
+                                    placeholder={t('Enter Your Floor')}
                                     touched={addAddressFormik.touched.floor}
                                     errors={addAddressFormik.errors.floor}
                                     fieldProps={addAddressFormik.getFieldProps(

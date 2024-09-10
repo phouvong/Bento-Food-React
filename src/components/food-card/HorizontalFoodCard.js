@@ -7,10 +7,10 @@ import {
 import { Box, Stack } from '@mui/system'
 import CustomImageContainer from '../CustomImageContainer'
 import test_image from '../../../public/static/testImage.svg'
-import { IconButton, Tooltip, Typography, useMediaQuery } from "@mui/material";
+import { IconButton, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import VagSvg from '../foodDetail-modal/VagSvg'
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import {
     CustomOverlayBox,
     CustomStackFullWidth,
@@ -32,17 +32,18 @@ import { CustomTypographyEllipsis } from '../../styled-components/CustomTypograp
 import FoodCardIncrementAndDecrement from './FoodCardIncrementAndDecrement'
 import AfterAddToCart from './AfterAddToCart'
 import CartClearModal from '../foodDetail-modal/CartClearModal'
-import CircularLoader from "../loader/CircularLoader";
+import CircularLoader from '../loader/CircularLoader'
 import { useSelector } from 'react-redux'
-import StarIcon from '@mui/icons-material/Star';
+import StarIcon from '@mui/icons-material/Star'
 import CustomPopover from '../custom-popover/CustomPopover'
 import CustomPopoverWithItem from '../custom-popover/CustomPopoverWithItem'
 import WishListImage from '../../assets/images/WishListImage'
 import DeleteIcon from '../../assets/images/icons/DeleteIcon'
-import HalalSvg from "@/components/food-card/HalalSvg";
+import HalalSvg from '@/components/food-card/HalalSvg'
 
 const HorizontalFoodCard = (props) => {
     const {
+        isShop,
         setOpenModal,
         product,
         imageUrl,
@@ -62,13 +63,13 @@ const HorizontalFoodCard = (props) => {
         handleClickQuantityButton,
         addToCartLoading,
         isRestaurantDetails,
-        inWishListPage = "false",
-        horizontal
+        inWishListPage = 'false',
+        horizontal,
     } = props
-    const theme = useTheme();
-    const [anchorEl, setAnchorEl] = useState(null);
+    const theme = useTheme()
+    const [anchorEl, setAnchorEl] = useState(null)
     const { global } = useSelector((state) => state.globalSettings)
-    const isSmall = useMediaQuery(theme.breakpoints.down('sm'));
+    const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     let currencySymbol
     let currencySymbolDirection
     let digitAfterDecimalPoint
@@ -83,11 +84,11 @@ const HorizontalFoodCard = (props) => {
     }
     const handleClickDelete = (event) => {
         event.stopPropagation()
-        setAnchorEl(event.currentTarget);
-    };
+        setAnchorEl(event.currentTarget)
+    }
     const handleClose = (event) => {
-        setAnchorEl(null);
-    };
+        setAnchorEl(null)
+    }
     return (
         <>
             <RTL direction={languageDirection}>
@@ -113,10 +114,12 @@ const HorizontalFoodCard = (props) => {
                                             theme.transitions.duration.standard,
                                     }
                                 )}`,
-                                marginLeft: languageDirection === "rtl" && ".8rem !important",
+                                marginLeft:
+                                    languageDirection === 'rtl' &&
+                                    '.8rem !important',
                                 '&:hover': {
                                     transform: 'scale(1.04)',
-                                }
+                                },
                             }}
                         >
                             <CustomImageContainer
@@ -155,7 +158,7 @@ const HorizontalFoodCard = (props) => {
                                 </Stack>
                             )}
                         </Stack>
-                        <Stack gap="7px" width="100%" >
+                        <Stack gap="7px" width="100%">
                             <Stack>
                                 <Stack
                                     direction="row"
@@ -169,7 +172,10 @@ const HorizontalFoodCard = (props) => {
                                         fontWeight="500"
                                         maxWidth="120px"
                                         noWrap
-                                        sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
+                                        sx={{
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                        }}
                                         color={theme.palette.neutral[1200]}
                                     >
                                         {product?.name}
@@ -182,37 +188,53 @@ const HorizontalFoodCard = (props) => {
                                         }
                                     />
 
-                                    {product?.halal_tag_status===1 && product?.is_halal===1 &&  <Tooltip arrow title={t("This is a halal food")}>
-                                        <IconButton sx={{padding:"0px"}}>
-                                            <HalalSvg/>
-                                        </IconButton>
-                                    </Tooltip>}
-
+                                    {product?.halal_tag_status === 1 &&
+                                        product?.is_halal === 1 && (
+                                            <Tooltip
+                                                arrow
+                                                title={t(
+                                                    'This is a halal food'
+                                                )}
+                                            >
+                                                <IconButton
+                                                    sx={{ padding: '0px' }}
+                                                >
+                                                    <HalalSvg />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
                                 </Stack>
-                                <Typography
-                                    variant="subtitle2"
-                                    fontSize="12px"
-                                    fontWeight={400}
-                                    color={theme.palette.neutral[400]}
-                                    mt="-3px"
-                                >
-                                    {product?.restaurant_name}
-                                </Typography>
+                                {!isShop && (
+                                    <Typography
+                                        variant="subtitle2"
+                                        fontSize="12px"
+                                        fontWeight={400}
+                                        color={theme.palette.neutral[400]}
+                                        mt="-3px"
+                                    >
+                                        {product?.restaurant_name}
+                                    </Typography>
+                                )}
                             </Stack>
-                            <Stack flexDirection="row" gap="5px" >
+                            <Stack flexDirection="row" gap="5px">
                                 <Typography
-                                    fontSize={{ xs: "12px", md: "14px" }}
+                                    fontSize={{ xs: '12px', md: '14px' }}
                                     fontWeight={400}
                                     color={theme.palette.text.secondary}
                                 >
                                     {getReviewCount(product?.rating_count)}
                                 </Typography>
-                                {
-                                    ((product?.avg_rating !== 0 && isRestaurantDetails && !isSmall) ||
-                                        (!isRestaurantDetails && product?.avg_rating !== 0)) ? (
-                                        <FoodRating product_avg_rating={product?.avg_rating} />) :
-                                        ("")
-                                }
+                                {(product?.avg_rating !== 0 &&
+                                    isRestaurantDetails &&
+                                    !isSmall) ||
+                                (!isRestaurantDetails &&
+                                    product?.avg_rating !== 0) ? (
+                                    <FoodRating
+                                        product_avg_rating={product?.avg_rating}
+                                    />
+                                ) : (
+                                    ''
+                                )}
                             </Stack>
 
                             <StartPriceView
@@ -236,25 +258,27 @@ const HorizontalFoodCard = (props) => {
                                             <FavoriteBorderIcon color="primary" />
                                         </IconButton>
                                     ) : (
-                                        <>{inWishListPage === "true" ? (
-                                            <IconButton
-                                                onClick={handleClickDelete}
-                                                sx={{ padding: '3px' }}
-                                            >
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        ) : (
-
-                                            <IconButton
-                                                onClick={(e) => deleteWishlistItem(product.id, e)}
-                                                sx={{ padding: '3px' }}
-                                            >
-                                                <FavoriteIcon color="primary" />
-                                            </IconButton>
-                                        )
-
-                                        }
-
+                                        <>
+                                            {inWishListPage === 'true' ? (
+                                                <IconButton
+                                                    onClick={handleClickDelete}
+                                                    sx={{ padding: '3px' }}
+                                                >
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            ) : (
+                                                <IconButton
+                                                    onClick={(e) =>
+                                                        deleteWishlistItem(
+                                                            product.id,
+                                                            e
+                                                        )
+                                                    }
+                                                    sx={{ padding: '3px' }}
+                                                >
+                                                    <FavoriteIcon color="primary" />
+                                                </IconButton>
+                                            )}
                                         </>
                                     )}
                                 </>
@@ -264,24 +288,29 @@ const HorizontalFoodCard = (props) => {
                                     onClick={(e) => addToCart(e)}
                                     sx={{ padding: '3px' }}
                                 >
-                                    {addToCartLoading ? <CircularLoader size="20px" /> : <AddShoppingCartIcon color="primary" />}
-
+                                    {addToCartLoading ? (
+                                        <CircularLoader size="20px" />
+                                    ) : (
+                                        <AddShoppingCartIcon color="primary" />
+                                    )}
                                 </IconButton>
                             )}
-                            {isInCart && !incrOpen && product?.variations?.length ===0 &&  (
-                                <AfterAddToCart
-                                    isInCart={isInCart}
-                                    product={product}
-                                    getQuantity={getQuantity}
-                                    handleClickQuantityButton={
-                                        handleClickQuantityButton
-                                    }
-                                    setIncrOpen={setIncrOpen}
-                                    incrOpen={incrOpen}
-                                    addToCartLoading={addToCartLoading}
-                                    horizontal={horizontal}
-                                />
-                            )}
+                            {isInCart &&
+                                !incrOpen &&
+                                product?.variations?.length === 0 && (
+                                    <AfterAddToCart
+                                        isInCart={isInCart}
+                                        product={product}
+                                        getQuantity={getQuantity}
+                                        handleClickQuantityButton={
+                                            handleClickQuantityButton
+                                        }
+                                        setIncrOpen={setIncrOpen}
+                                        incrOpen={incrOpen}
+                                        addToCartLoading={addToCartLoading}
+                                        horizontal={horizontal}
+                                    />
+                                )}
                         </Stack>
                     </Stack>
                     <Box
@@ -311,7 +340,7 @@ const HorizontalFoodCard = (props) => {
                         )}
                     </Box>
                 </CustomFoodCardNew>
-            </RTL >
+            </RTL>
             <CustomPopover
                 anchorEl={anchorEl}
                 setAnchorEl={setAnchorEl}
@@ -327,7 +356,6 @@ const HorizontalFoodCard = (props) => {
                     title="Remove this food"
                     subTitle="Want to remove this food your favourite list ?"
                 />
-
             </CustomPopover>
         </>
     )

@@ -36,14 +36,15 @@ import {
 import { isRTLLanguage } from '../../../utils/customFunctions'
 import { languageLists } from '../../navbar/second-navbar/custom-language/languageLists'
 import cookie from 'js-cookie'
-import ThemeSwitches from "@/components/navbar/top-navbar/ThemeSwitches";
-import { useSettings } from "@/contexts/use-settings";
+import ThemeSwitches from '@/components/navbar/top-navbar/ThemeSwitches'
+import { useSettings } from '@/contexts/use-settings'
+import CustomImageContainer from '@/components/CustomImageContainer'
 
 const label = { inputProps: { 'aria-label': 'Switch demo' } }
 const SettingPage = () => {
     const theme = useTheme()
     const { settings, saveSettings } = useSettings()
-    const isXSmall = useMediaQuery(theme.breakpoints.down("sm"));
+    const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const { t } = useTranslation()
     const dispatch = useDispatch()
     const [anchorEl, setAnchorEl] = useState(null)
@@ -131,7 +132,7 @@ const SettingPage = () => {
             />
             <CustomPaperBigCard
                 padding={isXSmall ? '1rem' : '30px 40px'}
-                sx={{ minHeight: !isXSmall ? '558px' : "450px" }}
+                sx={{ minHeight: !isXSmall ? '558px' : '450px' }}
             >
                 <Grid container spacing={2}>
                     <Grid item md={4} xs={12}>
@@ -217,7 +218,7 @@ const SettingPage = () => {
                                         <Stack
                                             color={theme.palette.neutral[1000]}
                                         >
-                                            <img
+                                            <CustomImageContainer
                                                 width="20px"
                                                 src={activeFlag?.countryFlag}
                                             />

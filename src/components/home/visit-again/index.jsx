@@ -31,64 +31,69 @@ import { MapSetionWrapper, VisitAgainWrapper } from '../HomeStyle'
 import NearByRestaurant from './NearByRestaurant'
 
 const CustomSlider = styled(Stack)(
-    ({ theme, languageDirection, gap, paddingBottom, isCenter,itemLength }) =>
-        isCenter ? {
-            // height: "100%",
-            // paddingY: '1rem',
-            justifyContent: 'center',
-            '& .custom-slide ': {
-                transform: 'scale(.9)',
-                transition: 'all 500ms ease-in-out',
-            },
-            '& .custom-active-slide ': {
-                transform: 'scale(1)',
-                zIndex: '1000',
-                transition: 'all 500ms ease-in-out',
-                opacity: 1,
-            },
-            '& .slick-list': {
-                display: 'flex',
-            },
-            '& .slick-slider': {
-                '& .slick-list': {
-                    '& .slick-track': {
-                        float: languageDirection === 'rtl' ? 'right' : 'left',
-                        gap: gap ? gap : '8px',
-                        paddingBottom: paddingBottom || 0,
-                    },
-                },
-                '& .slick-dots': {
-                    bottom: '-22px !important',
-                    textAlign: 'center !important',
-                    left: '0 !important',
-                    '& li': {
-                        '& .slick-active': {
-                            '& button': {
-                                '&::before': {
-                                    content: '" "',
-                                    fontSize: '12px !important',
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-            '& .slick-track': {
-                marginLeft: '-15px !important',
-                gap:'30px !important ',
-                '@media screen and (max-width: 450px)': {
-                    marginLeft: '85px !important',
-                },
-            },
-        }:{
-            '& .slick-slider': {
-                '& .slick-list': {
-                    '& .slick-track': {
-                       gap: '10px !important',
-                    },
-                },
-            }
-        }
+    ({ theme, languageDirection, gap, paddingBottom, isCenter, itemLength }) =>
+        isCenter
+            ? {
+                  // height: "100%",
+                  // paddingY: '1rem',
+                  justifyContent: 'center',
+                  '& .custom-slide ': {
+                      transform: 'scale(.9)',
+                      transition: 'all 500ms ease-in-out',
+                  },
+                  '& .custom-active-slide ': {
+                      transform: 'scale(1)',
+                      zIndex: '1000',
+                      transition: 'all 500ms ease-in-out',
+                      opacity: 1,
+                  },
+                  '& .slick-list': {
+                      display: 'flex',
+                  },
+                  '& .slick-slider': {
+                      '& .slick-list': {
+                          '& .slick-track': {
+                              float:
+                                  languageDirection === 'rtl'
+                                      ? 'right'
+                                      : 'left',
+                              gap: gap ? gap : '8px',
+                              paddingBottom: paddingBottom || 0,
+                          },
+                      },
+                      '& .slick-dots': {
+                          bottom: '-22px !important',
+                          textAlign: 'center !important',
+                          left: '0 !important',
+                          '& li': {
+                              '& .slick-active': {
+                                  '& button': {
+                                      '&::before': {
+                                          content: '" "',
+                                          fontSize: '12px !important',
+                                      },
+                                  },
+                              },
+                          },
+                      },
+                  },
+                  '& .slick-track': {
+                      marginLeft: '-15px !important',
+                      gap: '30px !important ',
+                      '@media screen and (max-width: 450px)': {
+                          marginLeft: '85px !important',
+                      },
+                  },
+              }
+            : {
+                  '& .slick-slider': {
+                      '& .slick-list': {
+                          '& .slick-track': {
+                              gap: '10px !important',
+                          },
+                      },
+                  },
+              }
 )
 const Puller = styled('div')(({ theme }) => ({
     width: '80px',
@@ -349,7 +354,7 @@ const VisitAgain = () => {
                         </Typography>
                         <Typography
                             textAlign="center"
-                            fontSize={{ xs: '14px', md: '16px' }}
+                            fontSize={{ xs: '13px', md: '16px' }}
                             fontWeight={{ xs: '400', md: '400' }}
                             color={theme.palette.text.secondary}
                         >
@@ -400,7 +405,6 @@ const VisitAgain = () => {
                                         {userData?.map(
                                             (restaurantData, index) => {
                                                 return (
-
                                                     <RestaurantBoxCard
                                                         key={index}
                                                         // className={isSmall? "" : (index === imageIndex ? "custom-active-slide" : "custom-slide")}

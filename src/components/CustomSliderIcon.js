@@ -12,7 +12,7 @@ export const HandleNext = ({ onClick, className ,overLay}) => (
             isdisabled={className?.includes('slick-disabled')}
         >
             <RightArrowStyle
-                right="1%"
+                right="-1%"
                 // languageDirection={languageDirection}
                 isdisabled={className?.includes('slick-disabled')}
             >

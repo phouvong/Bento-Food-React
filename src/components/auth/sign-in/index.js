@@ -11,67 +11,85 @@ import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { useDispatch, useSelector } from 'react-redux'
 import { useMutation, useQuery } from 'react-query'
-import { AuthApi } from "@/hooks/react-query/config/authApi"
+import { AuthApi } from '@/hooks/react-query/config/authApi'
 import { useTheme } from '@mui/material/styles'
 import LoadingButton from '@mui/lab/LoadingButton'
-import { useWishListGet } from "@/hooks/react-query/config/wish-list/useWishListGet"
+import { useWishListGet } from '@/hooks/react-query/config/wish-list/useWishListGet'
 import CustomPhoneInput from '../../CustomPhoneInput'
 import 'react-phone-input-2/lib/material.css'
 import { useTranslation } from 'react-i18next'
 import {
     CustomLink,
     CustomStackFullWidth,
-} from "@/styled-components/CustomStyles.style"
+} from '@/styled-components/CustomStyles.style'
 import toast from 'react-hot-toast'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { useRouter } from 'next/router'
-import { setWishList } from "@/redux/slices/wishList"
+import { setWishList } from '@/redux/slices/wishList'
 import CustomImageContainer from '../../CustomImageContainer'
 import { CustomTypography } from '../../custom-tables/Tables.style'
 import { CustomBoxForModal } from '../auth.style'
-import { ProfileApi } from "@/hooks/react-query/config/profileApi"
-import { setUser } from "@/redux/slices/customer"
+import { ProfileApi } from '@/hooks/react-query/config/profileApi'
+import { setUser } from '@/redux/slices/customer'
 import SocialLogins from './social-login/SocialLogins'
 import { RTL } from '../../RTL/RTL'
-import { loginSuccessFull } from "@/utils/ToasterMessages"
+import { loginSuccessFull } from '@/utils/ToasterMessages'
 import { onErrorResponse, onSingleErrorResponse } from '../../ErrorResponse'
 import CustomModal from '../../custom-modal/CustomModal'
 import OtpForm from '../forgot-password/OtpForm'
-import { useVerifyPhone } from "@/hooks/react-query/otp/useVerifyPhone"
-import { setToken } from "@/redux/slices/userToken"
-import { getGuestId } from "../../checkout-page/functions/getGuestUserId";
-import LockIcon from '@mui/icons-material/Lock';
-import { Stack, alpha, styled } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import { useVerifyPhone } from '@/hooks/react-query/otp/useVerifyPhone'
+import { setToken } from '@/redux/slices/userToken'
+import { getGuestId } from '../../checkout-page/functions/getGuestUserId'
+import LockIcon from '@mui/icons-material/Lock'
+import { Stack, alpha, styled } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 import { CustomToaster } from '@/components/custom-toaster/CustomToaster'
 
+export const CustomSigninOutLine = styled(OutlinedInput)(
+    ({ theme, width }) => ({
+        width: width || '355px',
+        borderRadius: '4px',
+        '&.MuiOutlinedInput-root': {
+            '& .MuiOutlinedInput-input': {
+                padding: '12.5px 0px !important',
+                fontSize: '14px',
+                fontWeight: '400',
+                alignItems: 'center',
+                '&::placeholder': {
+                    color: alpha(theme.palette.neutral[400], 0.7), // Set placeholder color to red
+                },
+            },
+            '& fieldset': {
+                borderColor: alpha(theme.palette.neutral[400], 0.5),
+                borderWidth: '1px',
+            },
+            '&:hover fieldset': {
+                borderColor: alpha(theme.palette.neutral[600], 0.7),
+            },
+            '&.Mui-focused fieldset': {
+                borderColor: alpha(theme.palette.primary.main, 0.7),
+                borderWidth: '1px',
+            },
+        },
 
-
-export const CustomSigninOutLine = styled(OutlinedInput)(({ theme, width }) => ({
-    //maxWidth: '355px',
-    width: width ? width : "355px",
-    borderRadius: "4px",
-    "&.MuiOutlinedInput-root": {
-        "& .MuiOutlinedInput-input": {
-            padding: "12.5px 0px !important",
-            fontSize: "14px",
-            fontWeight: "400",
-            alignItems: "center"
-
-        } // Adjust the padding values as needed
-    },
-    [theme.breakpoints.down('sm')]: {
-        width: '100%',
-    },
-}))
+        [theme.breakpoints.down('sm')]: {
+            width: '100%',
+        },
+    })
+)
 
 const SignInPage = ({
     setSignInPage,
     handleClose,
     signInSuccess,
-    setModalFor, cartListRefetch,
-    setJwtToken, setUserInfo, handleSuccess, setMedium, zoneid
+    setModalFor,
+    cartListRefetch,
+    setJwtToken,
+    setUserInfo,
+    handleSuccess,
+    setMedium,
+    zoneid,
 }) => {
     const [showPassword, setShowPassword] = useState(false)
     // const [profileData,setProfileData]=useState({})
@@ -116,7 +134,7 @@ const SignInPage = ({
                     localStorage.setItem('userDatafor', JSON.stringify(values))
                 }
                 formSubmitHandler(values)
-            } catch (err) { }
+            } catch (err) {}
         },
     })
 
@@ -148,14 +166,17 @@ const SignInPage = ({
     const handleTokenAfterSignIn = async (response) => {
         if (response?.data) {
             localStorage.setItem('token', response?.data?.token)
-            zoneid && await wishlistRefetch()
+            zoneid && (await wishlistRefetch())
             await profileRefatch()
-            await cartListRefetch();
-            CustomToaster('success', loginSuccessFull);
+            await cartListRefetch()
+            CustomToaster('success', loginSuccessFull)
             //always set this dispatch at end line. otherwise wishlist and profile will not refetch. This dispatch closes the modal.
             dispatch(setToken(response?.data?.token))
-            if (router.pathname === "/order" || router.pathname === "/forgot-password") {
-                router.push("/home")
+            if (
+                router.pathname === '/order' ||
+                router.pathname === '/forgot-password'
+            ) {
+                router.push('/home')
             }
             //dispatch(cart(setItemIntoCart()));
         }
@@ -183,7 +204,6 @@ const SignInPage = ({
                     }
                 } else {
                     handleTokenAfterSignIn(response)
-
                 }
             },
             onError: onErrorResponse,
@@ -248,7 +268,7 @@ const SignInPage = ({
                             alt="Logo"
                         />
                         <CustomTypography
-                            sx={{ fontWeight: 'bold', fontSize: "22px" }}
+                            sx={{ fontWeight: 'bold', fontSize: '22px' }}
                         >
                             {t('Sign In')}
                         </CustomTypography>
@@ -260,7 +280,7 @@ const SignInPage = ({
                         <form onSubmit={loginFormik.handleSubmit} noValidate>
                             <CustomStackFullWidth
                                 alignItems="center"
-                                spacing={{ xs: 2, md: 4 }}
+                                spacing={{ xs: 2, md: 2 }}
                             >
                                 <CustomPhoneInput
                                     value={loginFormik.values.phone}
@@ -270,18 +290,17 @@ const SignInPage = ({
                                     errors={loginFormik.errors.phone}
                                     rtlChange="true"
                                 />
-                                <FormControl
-
-                                    variant="outlined"
-                                    fullWidth
-                                >
+                                <FormControl variant="outlined" fullWidth>
                                     <InputLabel
                                         required
                                         sx={{
                                             color: (theme) =>
                                                 theme.palette.neutral[600],
-                                            fontSize: "14px"
 
+                                            '&.Mui-focused': {
+                                                color: (theme) =>
+                                                    theme.palette.neutral[1000], // Set label color to black when focused
+                                            },
                                         }}
                                         htmlFor="outlined-adornment-password"
                                     >
@@ -294,7 +313,7 @@ const SignInPage = ({
                                         }
                                         id="password"
                                         name="password"
-                                        placeholder={t("Enter your password")}
+                                        placeholder={t('6+ Character')}
                                         value={loginFormik.values.password}
                                         onChange={loginFormik.handleChange}
                                         error={
@@ -307,7 +326,7 @@ const SignInPage = ({
                                         }
                                         touched={loginFormik.touched.password}
                                         endAdornment={
-                                            <InputAdornment position="end" >
+                                            <InputAdornment position="end">
                                                 <IconButton
                                                     aria-label="toggle password visibility"
                                                     onClick={() =>
@@ -320,21 +339,68 @@ const SignInPage = ({
                                                     edge="end"
                                                 >
                                                     {showPassword ? (
-                                                        <Visibility sx={{ width: "20px", height: "20px", color: theme => alpha(theme.palette.neutral[400], .5) }} />
+                                                        <Visibility
+                                                            sx={{
+                                                                width: '20px',
+                                                                height: '20px',
+                                                                color: (
+                                                                    theme
+                                                                ) =>
+                                                                    alpha(
+                                                                        theme
+                                                                            .palette
+                                                                            .neutral[400],
+                                                                        0.5
+                                                                    ),
+                                                            }}
+                                                        />
                                                     ) : (
-                                                        <VisibilityOff sx={{ width: "20px", height: "20px", color: theme => alpha(theme.palette.neutral[400], .5) }} />
+                                                        <VisibilityOff
+                                                            sx={{
+                                                                width: '20px',
+                                                                height: '20px',
+                                                                color: (
+                                                                    theme
+                                                                ) =>
+                                                                    alpha(
+                                                                        theme
+                                                                            .palette
+                                                                            .neutral[400],
+                                                                        0.5
+                                                                    ),
+                                                            }}
+                                                        />
                                                     )}
                                                 </IconButton>
                                             </InputAdornment>
                                         }
-                                        startAdornment={<InputAdornment position="start" sx={{ marginInlineEnd: "0px !important" }}>
-                                            <IconButton
-                                                aria-label="toggle password visibility"
-                                                edge="start"
+                                        startAdornment={
+                                            <InputAdornment
+                                                position="start"
+                                                sx={{
+                                                    marginInlineEnd:
+                                                        '0px !important',
+                                                }}
                                             >
-                                                <LockIcon sx={{ fontSize: "1.2rem", color: theme => alpha(theme.palette.neutral[400], .5) }} />
-                                            </IconButton>
-                                        </InputAdornment>}
+                                                <IconButton
+                                                    aria-label="toggle password visibility"
+                                                    edge="start"
+                                                >
+                                                    <LockIcon
+                                                        sx={{
+                                                            fontSize: '1.2rem',
+                                                            color: (theme) =>
+                                                                alpha(
+                                                                    theme
+                                                                        .palette
+                                                                        .neutral[400],
+                                                                    0.5
+                                                                ),
+                                                        }}
+                                                    />
+                                                </IconButton>
+                                            </InputAdornment>
+                                        }
                                         label="Password"
                                     />
                                     {loginFormik.errors.password && (
@@ -366,7 +432,10 @@ const SignInPage = ({
                                             />
                                         }
                                         label={
-                                            <CustomTypography fontSize="12px" fontWeight="400">
+                                            <CustomTypography
+                                                fontSize="12px"
+                                                fontWeight="400"
+                                            >
                                                 {t('Remember me')}
                                             </CustomTypography>
                                         }
@@ -377,10 +446,13 @@ const SignInPage = ({
                                             setModalFor('forgot_password')
                                         }}
                                         sx={{
-                                            fontSize: "12px",
+                                            fontSize: '12px',
                                             textTransform: 'none',
                                             cursor: 'pointer',
-                                            color: alpha(theme.palette.error.main, 0.8),
+                                            color: alpha(
+                                                theme.palette.error.main,
+                                                0.8
+                                            ),
                                         }}
                                     >
                                         {t('Forgot password?')}
@@ -391,7 +463,13 @@ const SignInPage = ({
                                 type="submit"
                                 fullWidth
                                 variant="contained"
-                                sx={{ mt: 2, fontSize: "14px", fontWeight: "500", marginBottom: ".6rem", height: "45px" }}
+                                sx={{
+                                    mt: 2,
+                                    fontSize: '14px',
+                                    fontWeight: '500',
+                                    marginBottom: '.6rem',
+                                    height: '45px',
+                                }}
                                 loading={isLoading}
                             >
                                 {t('Sign In')}
@@ -402,7 +480,6 @@ const SignInPage = ({
                         global?.social_login?.some(
                             (item) => item.status === true
                         ) && (
-
                             <CustomStackFullWidth
                                 alignItems="center"
                                 justifyContent="center"
@@ -431,7 +508,7 @@ const SignInPage = ({
                             justifyContent="center"
                             spacing={0.5}
                         >
-                            <CustomTypography fontSize="14px" >
+                            <CustomTypography fontSize="14px">
                                 {t("Don't have an account?")}
                             </CustomTypography>
                             <CustomLink

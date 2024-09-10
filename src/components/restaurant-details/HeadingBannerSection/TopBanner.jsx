@@ -1,13 +1,13 @@
-import { Box, Grid, NoSsr } from "@mui/material";
+import { Box, Grid, NoSsr } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import RestaurantLeftDetails from '../RestaurantLeftDetails'
 import RestaurantRightDetails from '../RestaurantRightDetails'
-import { useGetScreenPosition } from "@/hooks/custom-hooks/useGetScreenPosition"
+import { useGetScreenPosition } from '@/hooks/custom-hooks/useGetScreenPosition'
 import { useQuery } from 'react-query'
-import { CouponApi } from "@/hooks/react-query/config/couponApi"
+import { CouponApi } from '@/hooks/react-query/config/couponApi'
 import { onErrorResponse } from '../../ErrorResponse'
 import Slider from 'react-slick'
 import { Stack } from '@mui/system'
@@ -17,21 +17,21 @@ import { settings } from '../CouponSettings'
 import RestaurantAnnouncementMessege from '../RestaurantAnnouncementMessege'
 const SliderCustom = styled(Stack)(
     ({ theme, language_direction, nopadding }) => ({
-        "& .slick-slider": {
-            "& .slick-list": {
-                "& .slick-track": {
-                    gap: "0px",
+        '& .slick-slider': {
+            '& .slick-list': {
+                '& .slick-track': {
+                    gap: '0px',
                 },
             },
         },
     })
-);
+)
 const StyledImageBox = styled(Box)(({ theme, height, objectfit }) => ({
     height: height,
     width: '100%',
     borderRadius: '0.125rem',
     position: 'relative',
-    paddingTop: "24px",
+    paddingTop: '24px',
     '& img': {
         width: '100%',
         height: '100%',
@@ -65,82 +65,95 @@ const TopBanner = ({ details }) => {
 
     return (
         <>
-          <NoSsr>
-              <Grid
-                  container
-                  sx={{
-                      position: 'sticky',
-                      top: '20px',
-                      zIndex: 999,
-                      flexDirection: isSmall && 'column-reverse',
-                      [theme.breakpoints.down('sm')]: {
-                          top: '10px',
-                      },
-                  }}
-              >
-                  {isXSmall && scrollPosition === 0 && (
-                      <Grid item xs={12}>
-                          <>
-                              {data?.data.length > 0 && (
-                                  <RestaurantCouponStack isSmall={isSmall}>
-                                      <SliderCustom>
-                                      {
-                                          <Slider {...settings}>
-                                              {data?.data?.map((coupon) => {
-                                                  return (
-                                                      <Stack key={coupon?.id}>
-                                                          <RestaurantCoupon
-                                                              coupon={coupon}
-                                                          />
-                                                      </Stack>
-                                                  )
-                                              })}
-                                          </Slider>
-                                      }
-                                      </SliderCustom>
-                                  </RestaurantCouponStack>
-                              )}
-                          </>
-                      </Grid>
-                  )}
-                  <Grid item container xs={12} sm={12} md={4.7}>
-                      <NoSsr>
-                          <RestaurantLeftDetails
-                              details={details}
-                              restaurantCoverUrl={restaurantCoverUrl}
-                              currencySymbol={currencySymbol}
-                              currencySymbolDirection={currencySymbolDirection}
-                              digitAfterDecimalPoint={digitAfterDecimalPoint}
-                              scrollPosition={scrollPosition}
-                          />
-                      </NoSsr>
-
-                  </Grid>
-                  {isSmall ? (
-                      <>
-                          {scrollPosition === 0 && (
-                              <Grid item xs={12} sm={12} md={7.3}>
-                                  <RestaurantRightDetails
-                                      details={details}
-                                      restaurantCoverUrl={restaurantCoverUrl}
-                                      data={data}
-                                  />
-                              </Grid>
-                          )}
-                      </>
-                  ) : (
-                      <Grid item xs={12} sm={12} md={7.3}>
-                          <RestaurantRightDetails
-                              details={details}
-                              data={data}
-                              restaurantCoverUrl={restaurantCoverUrl}
-                          />
-                      </Grid>
-                  )}
-              </Grid>
-          </NoSsr>
-            {details?.announcement === 1 && details?.announcement_message &&
-                <RestaurantAnnouncementMessege storeAnnouncement={details?.announcement_message} />}
+            <NoSsr>
+                <Grid
+                    container
+                    sx={{
+                        position: 'sticky',
+                        top: '51px',
+                        zIndex: 999,
+                        flexDirection: isSmall && 'column-reverse',
+                        [theme.breakpoints.down('sm')]: {
+                            top: '10px',
+                        },
+                    }}
+                >
+                    {isXSmall && scrollPosition === 0 && (
+                        <Grid item xs={12}>
+                            <>
+                                {data?.data.length > 0 && (
+                                    <RestaurantCouponStack isSmall={isSmall}>
+                                        <SliderCustom>
+                                            {
+                                                <Slider {...settings}>
+                                                    {data?.data?.map(
+                                                        (coupon) => {
+                                                            return (
+                                                                <Stack
+                                                                    key={
+                                                                        coupon?.id
+                                                                    }
+                                                                >
+                                                                    <RestaurantCoupon
+                                                                        coupon={
+                                                                            coupon
+                                                                        }
+                                                                    />
+                                                                </Stack>
+                                                            )
+                                                        }
+                                                    )}
+                                                </Slider>
+                                            }
+                                        </SliderCustom>
+                                    </RestaurantCouponStack>
+                                )}
+                            </>
+                        </Grid>
+                    )}
+                    <Grid item container xs={12} sm={12} md={4.7}>
+                        <NoSsr>
+                            <RestaurantLeftDetails
+                                details={details}
+                                restaurantCoverUrl={restaurantCoverUrl}
+                                currencySymbol={currencySymbol}
+                                currencySymbolDirection={
+                                    currencySymbolDirection
+                                }
+                                digitAfterDecimalPoint={digitAfterDecimalPoint}
+                                scrollPosition={scrollPosition}
+                            />
+                        </NoSsr>
+                    </Grid>
+                    {isSmall ? (
+                        <>
+                            {scrollPosition === 0 && (
+                                <Grid item xs={12} sm={12} md={7.3}>
+                                    <RestaurantRightDetails
+                                        details={details}
+                                        restaurantCoverUrl={restaurantCoverUrl}
+                                        data={data}
+                                    />
+                                </Grid>
+                            )}
+                        </>
+                    ) : (
+                        <Grid item xs={12} sm={12} md={7.3}>
+                            <RestaurantRightDetails
+                                details={details}
+                                data={data}
+                                restaurantCoverUrl={restaurantCoverUrl}
+                                scrollPosition={scrollPosition}
+                            />
+                        </Grid>
+                    )}
+                </Grid>
+            </NoSsr>
+            {details?.announcement === 1 && details?.announcement_message && (
+                <RestaurantAnnouncementMessege
+                    storeAnnouncement={details?.announcement_message}
+                />
+            )}
         </>
     )
 }

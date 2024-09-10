@@ -77,7 +77,7 @@ const getCombinedCategoriesAndProducts = (
     }
 };
 
-const RestaurantDetails = ({ restaurantData }) => {
+const RestaurantDetails = ({ restaurantData, configData }) => {
     const [data, setData] = useState([]);
     const [allFoods, setAllFoods] = useState([]);
     const [page_limit, setPageLimit] = useState(50);

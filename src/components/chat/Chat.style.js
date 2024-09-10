@@ -56,7 +56,7 @@ export const ContactListWrapper = styled(Box)(({ theme }) => ({
 }))
 export const ChatUserTop = styled(Stack)(({ theme, mdUp }) => ({
     alignItems: 'center',
-    justifyContent: mdUp ? 'flex-start' : 'space-between',
+    justifyContent: 'flex-start',
     padding: '10px',
     marginBottom: '10px',
     width: '100%',

@@ -100,9 +100,11 @@ function App({ Component, pageProps, emotionCache = clientSideEmotionCache }) {
                                     <Head>
                                         <title>{t('Loading...')}</title>
                                     </Head>
-                                    <WrapperForApp>
+                                    <WrapperForApp pathname={router.pathname}>
                                         <ScrollToTop />
-                                        <Navigation />
+                                        {router.pathname !== '/maintenance' && (
+                                            <Navigation />
+                                        )}
                                         <DynamicFavicon />
 
                                         <Box
@@ -135,13 +137,16 @@ function App({ Component, pageProps, emotionCache = clientSideEmotionCache }) {
                                                 <Component {...pageProps} />
                                             )}
                                         </Box>
-                                        {viewFooter && (
-                                            <Footer
-                                                languageDirection={
-                                                    value?.settings?.direction
-                                                }
-                                            />
-                                        )}
+                                        {viewFooter &&
+                                            router.pathname !==
+                                                '/maintenance' && (
+                                                <Footer
+                                                    languageDirection={
+                                                        value?.settings
+                                                            ?.direction
+                                                    }
+                                                />
+                                            )}
                                     </WrapperForApp>
                                 </ThemeProvider>
                             )}

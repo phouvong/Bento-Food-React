@@ -3,18 +3,18 @@ import {
     CustomBoxFullWidth,
     CustomPaperBigCard,
     CustomStackFullWidth,
-} from "@/styled-components/CustomStyles.style"
+} from '@/styled-components/CustomStyles.style'
 import ChatSideBar from './ChatSideBar'
 import ChatView from './ChatView'
 import { Stack } from '@mui/material'
 import EmptyView from './EmptyView'
-import { useGetChannelList } from "@/hooks/react-query/config/chat/useGetChannelLists"
+import { useGetChannelList } from '@/hooks/react-query/config/chat/useGetChannelLists'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { useGetConversation } from "@/hooks/react-query/config/chat/useGetConversation"
-import { useStoreMessage } from "@/hooks/react-query/config/chat/useStoreMessage"
+import { useGetConversation } from '@/hooks/react-query/config/chat/useGetConversation'
+import { useStoreMessage } from '@/hooks/react-query/config/chat/useStoreMessage'
 import { onErrorResponse } from '../ErrorResponse'
 import { useRouter } from 'next/router'
-import { useSearchList } from "@/hooks/react-query/config/chat/useSearch"
+import { useSearchList } from '@/hooks/react-query/config/chat/useSearch'
 import { useSelector } from 'react-redux'
 import { useTheme } from '@mui/material/styles'
 import ConversationInfoTop from './ConversationInfoTop'
@@ -137,7 +137,8 @@ const Chat = ({ page }) => {
                     ...receiver,
                     id: id,
                     sender_type: 'customer',
-                    receiver_type:type==="vendor"? 'vendor':"delivery_man",
+                    receiver_type:
+                        type === 'vendor' ? 'vendor' : 'delivery_man',
                     receiver: {
                         f_name: restaurantName,
                         l_name: '',
@@ -163,7 +164,6 @@ const Chat = ({ page }) => {
         setMessagesData([data])
     }, [data])
     const handleChannelOnClick = async (value) => {
-
         setReceiverId(null)
         await refetchChannelList()
         if (value.receiver_type === 'admin') {
@@ -220,13 +220,13 @@ const Chat = ({ page }) => {
         isLoading,
         isRefetching: isRefetchingForSearch,
         refetch: searchRefetch,
-    } = useSearchList(searchValue, handleSearchFetchOnSuccess)
+    } = useSearchList(searchValue, useType, handleSearchFetchOnSuccess)
     const searchSubmitHandler = (e) => {
         e.preventDefault()
         if (searchValue) {
             try {
                 searchRefetch().then()
-            } catch (err) { }
+            } catch (err) {}
         }
     }
 
@@ -255,7 +255,10 @@ const Chat = ({ page }) => {
             return global?.base_urls?.delivery_man_image_url
         } else global?.base_urls?.business_logo_url
     }
-    const userImage = receiverImage
+    const userImage =
+        receiver?.receiver_type === 'customer'
+            ? receiver?.sender?.image_full_url
+            : receiverImage
     return (
         <PushNotificationLayout refetch={refetch} pathName="info">
             <Meta
@@ -265,7 +268,7 @@ const Chat = ({ page }) => {
             />
             <CustomPaperBigCard
                 padding={isXSmall ? '1rem' : '30px 40px'}
-                sx={{ minHeight: !isXSmall ? '558px' : "450px" }}
+                sx={{ minHeight: !isXSmall ? '558px' : '450px' }}
                 nopadding="true"
             >
                 <CustomStackFullWidth direction="row">

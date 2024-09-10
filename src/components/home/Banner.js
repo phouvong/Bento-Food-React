@@ -93,7 +93,7 @@ const Banner = ({bannerIsLoading}) => {
 
     const bannerSettings = {
         infinite: bannerData?.length > 3 ? true : false,
-        speed: 500,
+        speed: 600,
         slidesToShow: 3,
         autoplay: true,
         dots: true,

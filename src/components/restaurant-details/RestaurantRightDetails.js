@@ -13,7 +13,12 @@ import { NoSsr } from '@mui/material'
 import { RestaurantCouponStack } from './restaurant-details.style'
 import { settings } from './CouponSettings'
 
-const RestaurantRightDetails = ({ details, restaurantCoverUrl, data }) => {
+const RestaurantRightDetails = ({
+    details,
+    restaurantCoverUrl,
+    data,
+    scrollPosition,
+}) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     // const { userData } = useSelector((state) => state.user)
@@ -25,11 +30,10 @@ const RestaurantRightDetails = ({ details, restaurantCoverUrl, data }) => {
                     position: !isSmall && 'relative',
                     background: (theme) => theme.palette.neutral[100],
                 }}
-
             >
                 <CustomImageContainer
                     src={details.cover_photo_full_url}
-                    height="250px"
+                    height={scrollPosition === 0 ? '250px' : '180px'}
                     smHeight="120px"
                     width="100%"
                     objectFit="cover !important"

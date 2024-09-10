@@ -399,16 +399,15 @@ export const handleDistance = (distance, origin, destination) => {
         )
     }
 }
-export let bad_weather_fees =0
+export let bad_weather_fees = 0
 const getDeliveryFeeByBadWeather = (
     charge,
     increasedDeliveryFee,
     increasedDeliveryFeeStatus
 ) => {
-
     const totalCharge = charge
     if (Number.parseInt(increasedDeliveryFeeStatus) === 1) {
-        const tempValue =totalCharge * (increasedDeliveryFee / 100)
+        const tempValue = totalCharge * (increasedDeliveryFee / 100)
         bad_weather_fees = tempValue
         return totalCharge + tempValue
     } else {
@@ -1277,8 +1276,15 @@ export const getReferDiscount = (totalAmount, discountAmount, discountType) => {
 }
 export const removeSpecialCharacters = (inputString) => {
     // Define the pattern for special characters
-    const pattern = /[^a-zA-Z0-9\s]/g;
+    const pattern = /[^a-zA-Z0-9\s]/g
 
     // Use the replace method to remove special characters
-    return inputString?.replace(pattern, '');
-};
+    return inputString?.replace(pattern, '')
+}
+export const checkMaintenanceMode = (configData) => {
+    const isMaintenanceMode =
+        configData?.maintenance_mode_data?.maintenance_system_setup?.includes(
+            'react_website'
+        )
+    return !!(isMaintenanceMode && configData?.maintenance_mode)
+}

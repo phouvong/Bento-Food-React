@@ -21,7 +21,8 @@ const CustomTextFieldWithFormik = (props) => {
         rows,
         disabled,
         languageDirection,
-        height
+        height,
+        placeholder,
     } = props
     const [inputValue, setInputValue] = useState(value)
     const [showPassword, setShowPassword] = useState(false)
@@ -30,7 +31,6 @@ const CustomTextFieldWithFormik = (props) => {
         //onChangeHandler(e.target.value)
     }
     const onBlurHandler = () => {
-
         onChangeHandler(inputValue)
     }
 
@@ -83,6 +83,7 @@ const CustomTextFieldWithFormik = (props) => {
             return (
                 <CustomTextFieldContainer>
                     <CustomTextFieldStyle
+                        placeholder={placeholder}
                         height={height}
                         disabled={disabled}
                         fullWidth

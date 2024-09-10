@@ -1,12 +1,12 @@
 import React from 'react'
 import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
-import { IconButton, Tooltip, styled, useTheme } from '@mui/material';
-import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import { t } from 'i18next';
-import AfterAddToCart from './AfterAddToCart';
-import FavoriteIcon from "@mui/icons-material/Favorite";
+import { IconButton, Tooltip, styled, useTheme } from '@mui/material'
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
+import { t } from 'i18next'
+import AfterAddToCart from './AfterAddToCart'
+import FavoriteIcon from '@mui/icons-material/Favorite'
 
 const PrimaryToolTip = ({ theme, children, text }) => {
     return (
@@ -18,7 +18,7 @@ const PrimaryToolTip = ({ theme, children, text }) => {
                 tooltip: {
                     sx: {
                         bgcolor: theme.palette.primary.main,
-                        "& .MuiTooltip-arrow": {
+                        '& .MuiTooltip-arrow': {
                             color: theme.palette.primary.main,
                         },
                     },
@@ -27,23 +27,23 @@ const PrimaryToolTip = ({ theme, children, text }) => {
         >
             {children}
         </Tooltip>
-    );
-};
+    )
+}
 
 const IconButtonStyled = styled(IconButton)(({ theme }) => ({
-    backgroundColor: "rgba(255, 255, 255, 0.4)",
-    backdropFilter: "blur(2px)",
-    borderRadius: "4px",
-    padding: "4px",
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    backdropFilter: 'blur(2px)',
+    borderRadius: '4px',
+    padding: '4px',
     color: theme.palette.whiteContainer.main,
-    height: "36px",
-    width: "36px",
-    marginInlineEnd: "6px",
-    "&:hover": {
+    height: '36px',
+    width: '36px',
+    marginInlineEnd: '6px',
+    '&:hover': {
         backgroundColor: theme.palette.primary.main,
         border: `0.5px solid ${theme.palette.neutral[100]}`,
     },
-}));
+}))
 
 const QuickView = (props) => {
     const {
@@ -61,9 +61,9 @@ const QuickView = (props) => {
         setIncrOpen,
         incrOpen,
         addToCart,
-        horizontal
-    } = props;
-    const theme = useTheme();
+        horizontal,
+    } = props
+    const theme = useTheme()
 
     return (
         <CustomStackFullWidth
@@ -82,14 +82,23 @@ const QuickView = (props) => {
             {!noWishlist && !product?.available_date_ends && (
                 <>
                     {isInList(id) ? (
-                        <PrimaryToolTip theme={theme} text="Remove from wishlist">
-                            <IconButtonStyled onClick={(e) => removeFromWishlistHandler(id, e)}>
+                        <PrimaryToolTip
+                            theme={theme}
+                            text="Remove from wishlist"
+                        >
+                            <IconButtonStyled
+                                onClick={(e) =>
+                                    removeFromWishlistHandler(id, e)
+                                }
+                            >
                                 <FavoriteIcon />
                             </IconButtonStyled>
                         </PrimaryToolTip>
                     ) : (
                         <PrimaryToolTip theme={theme} text="Add to wishlist">
-                            <IconButtonStyled onClick={(e) => addToWishlistHandler(e)}>
+                            <IconButtonStyled
+                                onClick={(e) => addToWishlistHandler(e)}
+                            >
                                 <FavoriteBorderIcon />
                             </IconButtonStyled>
                         </PrimaryToolTip>
@@ -98,7 +107,15 @@ const QuickView = (props) => {
             )}
 
             {!isInCart ? (
-                <PrimaryToolTip theme={theme} text={product?.item_stock===0?t("out of stock"):t("Add to cart")}>
+                <PrimaryToolTip
+                    theme={theme}
+                    text={
+                        product?.item_stock === 0 &&
+                        product?.stock_type !== 'unlimited'
+                            ? t('out of stock')
+                            : t('Add to cart')
+                    }
+                >
                     <IconButtonStyled onClick={(e) => addToCart(e)}>
                         <AddShoppingCartIcon />
                     </IconButtonStyled>
@@ -108,9 +125,7 @@ const QuickView = (props) => {
                     isInCart={isInCart}
                     product={product}
                     getQuantity={getQuantity}
-                    handleClickQuantityButton={
-                        handleClickQuantityButton
-                    }
+                    handleClickQuantityButton={handleClickQuantityButton}
                     setIncrOpen={setIncrOpen}
                     incrOpen={incrOpen}
                     horizontal={horizontal}

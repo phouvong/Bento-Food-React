@@ -51,19 +51,34 @@ export const CustomSignUpTextField = styled(TextField)(({ theme }) => ({
         fontSize: '14px',
         fontWeight: '400',
         borderRadius: '4px',
-        // Custom styles for the input field
+        '&::placeholder': {
+            color: alpha(theme.palette.neutral[400], 0.7), // Light placeholder color
+        },
     },
     '& .MuiOutlinedInput-root': {
-        borderRadius: '4px', // Set your desired border radius
+        borderRadius: '4px',
+        '& fieldset': {
+            borderColor: alpha(theme.palette.neutral[400], 0.5), // Light outline color
+            borderWidth: '1px', // Thin outline
+        },
+        '&:hover fieldset': {
+            borderColor: alpha(theme.palette.neutral[600], 0.7), // Slightly darker on hover
+        },
+        '&.Mui-focused fieldset': {
+            borderColor: alpha(theme.palette.primary.main, 0.7), // Light and thin border color on focus
+            borderWidth: '1px', // Keep the outline thin on focus
+        },
     },
     '& .MuiInputLabel-root': {
-        // Custom styles for the label
         color: theme.palette.neutral[1000],
+        '&.Mui-focused': {
+            color: (theme) => theme.palette.neutral[1000], // Set label color to black when focused
+        },
+        '&.MuiInputLabel-shrink': {
+            transform: 'translate(14px, -6px) scale(0.75) !importent', // Adjust the label position and scale when it shrinks
+            // Ensure it doesn’t overlap with the startAdornment
+        },
     },
-    // "&.MuiOutlinedInput-root": {
-    //     "& .MuiOutlinedInput-input":{
-    //         padding: "11px 0px !important",} // Adjust the padding values as needed
-    // },
 }))
 
 const SignUpPage = ({
@@ -216,7 +231,11 @@ const SignUpPage = ({
                                         id="first_name"
                                         label={t('First Name')}
                                         placeholder={t('First Name')}
-                                        inputLabelProps={{ shrink: true }}
+                                        InputLabelProps={{
+                                            shrink:
+                                                !!signUpFormik.values.f_name ||
+                                                signUpFormik.touched.f_name,
+                                        }}
                                         name="f_name"
                                         autoComplete="first_name"
                                         value={signUpFormik.values.f_name}
@@ -348,6 +367,11 @@ const SignUpPage = ({
                                             sx={{
                                                 color: (theme) =>
                                                     theme.palette.neutral[1000],
+                                                '&.Mui-focused': {
+                                                    color: (theme) =>
+                                                        theme.palette
+                                                            .neutral[1000], // Set label color to black when focused
+                                                },
                                             }}
                                             htmlFor="password"
                                         >
@@ -363,7 +387,7 @@ const SignUpPage = ({
                                             }
                                             id="password"
                                             name="password"
-                                            placeholder={t('Password')}
+                                            placeholder={t('6+ Character')}
                                             value={signUpFormik.values.password}
                                             onChange={signUpFormik.handleChange}
                                             error={
@@ -473,6 +497,11 @@ const SignUpPage = ({
                                             sx={{
                                                 color: (theme) =>
                                                     theme.palette.neutral[1000],
+                                                '&.Mui-focused': {
+                                                    color: (theme) =>
+                                                        theme.palette
+                                                            .neutral[1000], // Set label color to black when focused
+                                                },
                                             }}
                                             htmlFor="outlined-adornment-password"
                                         >
@@ -488,7 +517,7 @@ const SignUpPage = ({
                                             }
                                             id="confirm_password"
                                             name="confirm_password"
-                                            placeholder={t('Confirm Password')}
+                                            placeholder={t('6+ Character')}
                                             value={
                                                 signUpFormik.values
                                                     .confirm_password

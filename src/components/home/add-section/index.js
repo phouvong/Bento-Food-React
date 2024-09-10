@@ -1,33 +1,36 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Box } from "@mui/system";
-import { Stack, Typography } from "@mui/material";
-import { t } from "i18next";
-import { useTheme } from "@mui/styles";
-import { CustomStackFullWidth, SliderCustom } from "@/styled-components/CustomStyles.style";
-import PaidAddsCard from "@/components/home/add-section/PaidAddsCard";
-import { useGetAdds } from "@/hooks/react-query/useGetAdds";
-import Slider from "react-slick";
-import { HandleNext, HandlePrev } from "@/components/CustomSliderIcon";
+import React, { useEffect, useRef, useState } from 'react'
+import { Box } from '@mui/system'
+import { Stack, Typography } from '@mui/material'
+import { t } from 'i18next'
+import { useTheme } from '@mui/styles'
+import {
+    CustomStackFullWidth,
+    SliderCustom,
+} from '@/styled-components/CustomStyles.style'
+import PaidAddsCard from '@/components/home/add-section/PaidAddsCard'
+import { useGetAdds } from '@/hooks/react-query/useGetAdds'
+import Slider from 'react-slick'
+import { HandleNext, HandlePrev } from '@/components/CustomSliderIcon'
 
 // Import slick styles
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import Skeleton from "@mui/material/Skeleton";
-import FoodCardShimmer from "@/components/food-card/FoodCarShimmer";
-import { RTL } from "@/components/RTL/RTL";
-import useMediaQuery from "@mui/material/useMediaQuery";
+import 'slick-carousel/slick/slick.css'
+import 'slick-carousel/slick/slick-theme.css'
+import Skeleton from '@mui/material/Skeleton'
+import FoodCardShimmer from '@/components/food-card/FoodCarShimmer'
+import { RTL } from '@/components/RTL/RTL'
+import useMediaQuery from '@mui/material/useMediaQuery'
 
 const AddsSection = () => {
-    const [hoverOn, setHoverOn] = useState(false);
-    const [renderComp,setRenderComp] = useState(1)
-    const languageDirection = localStorage.getItem("direction");
-    const [isAutoPlay, setIsAutoPlay] = useState(true);
-    const sliderRef = useRef(null);
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const [activeSlideData, setActiveSlideData] = useState(null);
-    const { data, isLoading } = useGetAdds();
-    const theme = useTheme();
-    const isSmall = useMediaQuery(theme.breakpoints.down('md'));
+    const [hoverOn, setHoverOn] = useState(false)
+    const [renderComp, setRenderComp] = useState(1)
+    const languageDirection = localStorage.getItem('direction')
+    const [isAutoPlay, setIsAutoPlay] = useState(true)
+    const sliderRef = useRef(null)
+    const [currentSlide, setCurrentSlide] = useState(0)
+    const [activeSlideData, setActiveSlideData] = useState(null)
+    const { data, isLoading } = useGetAdds()
+    const theme = useTheme()
+    const isSmall = useMediaQuery(theme.breakpoints.down('md'))
 
     const settings = {
         autoplay: true,
@@ -39,25 +42,28 @@ const AddsSection = () => {
         prevArrow: hoverOn && <HandlePrev />,
         beforeChange: (oldIndex, newIndex) => setCurrentSlide(newIndex),
         afterChange: (currentSlide) => {
-            setCurrentSlide(currentSlide);
-            const activeSlideIndex = sliderRef.current.innerSlider.state.currentSlide;
-            const activeSlide = data[activeSlideIndex];
-            setActiveSlideData(activeSlide);
-            if (activeSlide?.add_type === "video_promotion") {
-                sliderRef.current.slickPause()
-            } else {
-                setIsAutoPlay(true);
+            if (sliderRef.current && sliderRef.current.innerSlider) {
+                const activeSlideIndex =
+                    sliderRef?.current?.innerSlider?.state?.currentSlide
+                const activeSlide = data[activeSlideIndex || 0]
+                setActiveSlideData(activeSlide)
+                if (activeSlide?.add_type === 'video_promotion') {
+                    sliderRef?.current?.slickPause()
+                } else {
+                    // setIsAutoPlay(true)
+                }
             }
         },
         responsive: [
+            // Same responsive breakpoints as in your original code
             {
                 breakpoint: 2000,
                 settings: {
                     autoplay: isAutoPlay,
                     slidesToShow: 3,
                     slidesToScroll: 1,
-                    infinite: data?.length > 3 && true
-                }
+                    infinite: data?.length > 3 && true,
+                },
             },
             {
                 breakpoint: 1600,
@@ -65,8 +71,8 @@ const AddsSection = () => {
                     autoplay: isAutoPlay,
                     slidesToShow: 3,
                     slidesToScroll: 1,
-                    infinite: data?.length > 3 && true
-                }
+                    infinite: data?.length > 3 && true,
+                },
             },
             {
                 breakpoint: 1340,
@@ -74,82 +80,76 @@ const AddsSection = () => {
                     autoplay: isAutoPlay,
                     slidesToShow: 3,
                     slidesToScroll: 1,
-                    infinite: data?.length > 3 && true
-
-                }
+                    infinite: data?.length > 3 && true,
+                },
             },
             {
                 breakpoint: 1075,
                 settings: {
                     slidesToShow: 3,
                     slidesToScroll: 1,
-                    infinite: data?.length > 3 && true
-
-                }
+                    infinite: data?.length > 3 && true,
+                },
             },
             {
                 breakpoint: 999,
                 settings: {
                     slidesToShow: 2,
-                    slidesToScroll: 1
-
-                }
+                    slidesToScroll: 1,
+                },
             },
             {
                 breakpoint: 850,
                 settings: {
                     slidesToShow: 2,
-                    slidesToScroll: 1
-
-                }
+                    slidesToScroll: 1,
+                },
             },
             {
                 breakpoint: 770,
                 settings: {
                     slidesToShow: 2,
-                    slidesToScroll: 1
-
-                }
+                    slidesToScroll: 1,
+                },
             },
             {
                 breakpoint: 670,
                 settings: {
                     slidesToShow: 1,
-                    slidesToScroll: 1
-
-                }
+                    slidesToScroll: 1,
+                },
             },
             {
                 breakpoint: 540,
                 settings: {
                     slidesToShow: 1,
                     slidesToScroll: 1,
-                    infinite: true
-                }
+                    infinite: true,
+                },
             },
             {
                 breakpoint: 495,
                 settings: {
                     slidesToShow: 1,
                     slidesToScroll: 1,
-                    infinite: true
-                }
+                    infinite: true,
+                },
             },
             {
                 breakpoint: 460,
                 settings: {
                     slidesToShow: 1,
                     slidesToScroll: 1,
-                    infinite: true
-                }
+                    infinite: true,
+                },
             },
             {
                 breakpoint: 400,
                 settings: {
                     slidesToShow: 1,
                     slidesToScroll: 1,
-                    infinite: true
-                }
+                    infinite: true,
+                },
             },
             {
                 breakpoint: 370,
@@ -159,96 +159,136 @@ const AddsSection = () => {
                     infinite: false,
                 },
             },
-        ]
-
-    };
+        ],
+    }
 
     const SliderShouldPlay = () => {
         if (data && data.length > 0) {
-            const firstSlide = data[0];
-            const secondSlide = data[1];
-            const thirdSlide = data[2];
-            setActiveSlideData(firstSlide);
-            if (firstSlide.add_type === "video_promotion") {
-                sliderRef.current.slickPause()
-                //setIsAutoPlay(false);
-            } else if (secondSlide?.add_type === "video_promotion" && firstSlide.add_type !== "video_promotion") {
-                sliderRef?.current.slickPause()
-                sliderRef.current.slickNext();
-                setActiveSlideData(secondSlide);
-            } else if (thirdSlide?.add_type === "video_promotion" && secondSlide.add_type !== "video_promotion") {
-                sliderRef.current.slickPause()
-                sliderRef.current.slickNext();
+            const firstSlide = data[0]
+            const secondSlide = data[1]
+            const thirdSlide = data[2]
+            setActiveSlideData(firstSlide)
+            if (firstSlide?.add_type === 'video_promotion') {
+                sliderRef?.current?.slickPause()
+            } else if (
+                secondSlide?.add_type === 'video_promotion' &&
+                firstSlide?.add_type !== 'video_promotion'
+            ) {
+                sliderRef?.current?.slickPause()
+                sliderRef?.current?.slickNext()
+                setActiveSlideData(secondSlide)
+            } else if (
+                thirdSlide?.add_type === 'video_promotion' &&
+                secondSlide?.add_type !== 'video_promotion'
+            ) {
+                sliderRef?.current?.slickPause()
+                sliderRef?.current?.slickNext()
                 setTimeout(() => {
-                    sliderRef.current.slickPause()
-                    sliderRef.current.slickNext();
-                    setActiveSlideData(thirdSlide);
-                }, 500);
+                    sliderRef?.current?.slickPause()
+                    sliderRef?.current?.slickNext()
+                    setActiveSlideData(thirdSlide)
+                }, 500)
             }
         }
-    };
+    }
 
     useEffect(() => {
-        SliderShouldPlay();
-    }, [data]);
+        SliderShouldPlay()
+    }, [data])
 
     return (
         <>
-            {!isLoading ?
+            {!isLoading ? (
                 <>
                     {data?.length > 0 && (
                         <RTL languageDirection={languageDirection}>
                             <Box
                                 sx={{
-                                    backgroundImage: "url('/static/paidAdds.png')",
-                                    marginTop: "10px",
-                                    backgroundRepeat: "no-repeat",
-                                    backgroundSize: "cover",
-                                    borderRadius: "10px"
+                                    backgroundImage:
+                                        "url('/static/paidAdds.png')",
+                                    marginTop: '10px',
+                                    backgroundRepeat: 'no-repeat',
+                                    backgroundSize: 'cover',
+                                    borderRadius: '10px',
                                 }}
                                 onMouseEnter={() => setHoverOn(true)}
                                 onMouseLeave={() => setHoverOn(false)}
                             >
-                                <Box sx={{
-                                    background: `linear-gradient(0deg, rgba(255, 255, 255, 0.00) 0%, ${theme.palette.neutral[100]} 100%)`,
-                                    padding: languageDirection === "rtl" ? "25px 25px 25px 25px" : "25px 0px 25px 25px",
-                                    borderRadius: "inherit",
-                                    [theme.breakpoints.down('sm')]: {
-                                        padding: languageDirection === "rtl" ? "25px 25px 25px 5px" : "25px 5px 25px 5px",
-                                    },
-                                }}
+                                <Box
+                                    sx={{
+                                        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.00) 0%, ${theme.palette.neutral[100]} 100%)`,
+                                        padding:
+                                            languageDirection === 'rtl'
+                                                ? '25px 25px 25px 25px'
+                                                : '25px 0px 25px 25px',
+                                        borderRadius: 'inherit',
+                                        [theme.breakpoints.down('sm')]: {
+                                            padding:
+                                                languageDirection === 'rtl'
+                                                    ? '25px 25px 25px 5px'
+                                                    : '25px 5px 25px 5px',
+                                        },
+                                    }}
                                 >
                                     <Typography
-                                        fontSize={{ xs: "16px", md: "20px" }}
-                                        fontWeight={{ xs: "500", md: "700" }}
+                                        fontSize={{ xs: '16px', md: '20px' }}
+                                        fontWeight={{ xs: '500', md: '700' }}
                                         color={theme.palette.neutral[1000]}
                                     >
-                                        {t("Highlights for you")}
+                                        {t('Highlights for you')}
                                     </Typography>
                                     <Typography
-                                        fontSize={{ xs: "12px", md: "12px" }}
+                                        fontSize={{ xs: '12px', md: '12px' }}
                                         color={theme.palette.neutral[600]}
                                     >
-                                        {t("See our most popular restaurant and foods")}
+                                        {t(
+                                            'See our most popular restaurant and foods'
+                                        )}
                                     </Typography>
-                                    <CustomStackFullWidth sx={{ paddingTop: "30px" }} >
+                                    <CustomStackFullWidth
+                                        sx={{ paddingTop: '30px' }}
+                                    >
                                         <CustomStackFullWidth>
                                             <SliderCustom
-                                                languageDirection={languageDirection}
-                                                gap={isSmall ? "5px" : "30px"}
+                                                languageDirection={
+                                                    languageDirection
+                                                }
+                                                gap={isSmall ? '5px' : '30px'}
                                                 ads
-
                                             >
-                                                <Slider {...settings} ref={sliderRef}>
-                                                    {data.map((item, index) => (
-                                                        <PaidAddsCard key={item?.id}  data={data}
-                                                                      setIsAutoPlay={setIsAutoPlay}
-                                                                      activeSlideData={activeSlideData}
-                                                                      itemLength={data?.length} item={item} index={index}
-                                                                      sliderRef={sliderRef}
-                                                                      setRenderComp={setRenderComp}
-                                                                      renderComp={renderComp}/>
-                                                    ))}
+                                                <Slider
+                                                    {...settings}
+                                                    ref={sliderRef}
+                                                >
+                                                    {data?.map(
+                                                        (item, index) => (
+                                                            <PaidAddsCard
+                                                                key={item?.id}
+                                                                data={data}
+                                                                setIsAutoPlay={
+                                                                    setIsAutoPlay
+                                                                }
+                                                                activeSlideData={
+                                                                    activeSlideData
+                                                                }
+                                                                itemLength={
+                                                                    data?.length
+                                                                }
+                                                                item={item}
+                                                                index={index}
+                                                                sliderRef={
+                                                                    sliderRef &&
+                                                                    sliderRef
+                                                                }
+                                                                setRenderComp={
+                                                                    setRenderComp
+                                                                }
+                                                                renderComp={
+                                                                    renderComp
+                                                                }
+                                                            />
+                                                        )
+                                                    )}
                                                 </Slider>
                                             </SliderCustom>
                                         </CustomStackFullWidth>
@@ -258,7 +298,8 @@ const AddsSection = () => {
                         </RTL>
                     )}
                 </>
-                : <CustomStackFullWidth sx={{ paddingTop: "30px" }}>
+            ) : (
+                <CustomStackFullWidth sx={{ paddingTop: '30px' }}>
                     <CustomStackFullWidth>
                         <Stack marginTop="40px" spacing={2}>
                             <Skeleton
@@ -284,9 +325,9 @@ const AddsSection = () => {
                         </Stack>
                     </CustomStackFullWidth>
                 </CustomStackFullWidth>
-            }
+            )}
         </>
-    );
-};
+    )
+}
 
-export default AddsSection;
+export default AddsSection

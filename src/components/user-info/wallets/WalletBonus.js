@@ -11,9 +11,11 @@ import 'slick-carousel/slick/slick.css'
 import img from '../../../../public/static/profile/walletbonus.png'
 import { t } from 'i18next'
 
-import { getAmount } from "@/utils/customFunctions"
-import { CustomDateFormat } from "@/utils/CustomDateAndTimeFormat"
+import { getAmount } from '@/utils/customFunctions'
+import { CustomDateFormat } from '@/utils/CustomDateAndTimeFormat'
+import { useTheme } from '@mui/styles'
 const WalletFundBonus = ({ walleBonus, isLoading }) => {
+    const theme = useTheme()
 
     const settings = {
         dots: false,
@@ -29,7 +31,7 @@ const WalletFundBonus = ({ walleBonus, isLoading }) => {
             {
                 breakpoint: 2000,
                 settings: {
-                    slidesToShow: 1.1,
+                    slidesToShow: 1.4,
                     slidesToScroll: 1,
                     infinite: false,
                 },
@@ -37,7 +39,7 @@ const WalletFundBonus = ({ walleBonus, isLoading }) => {
             {
                 breakpoint: 1600,
                 settings: {
-                    slidesToShow: 1.1,
+                    slidesToShow: 1.4,
                     slidesToScroll: 1,
                     infinite: false,
                 },
@@ -68,14 +70,18 @@ const WalletFundBonus = ({ walleBonus, isLoading }) => {
                                 <Typography
                                     fontSize={{ xs: '14px', md: '16px' }}
                                     fontWeight="600"
+                                    color={theme.palette.primary.main}
                                 >
                                     {item?.title}
                                 </Typography>
-                                <Typography variant="body2">
+                                <Typography
+                                    variant="body2"
+                                    color={theme.palette.neutral[1000]}
+                                >
                                     {valid_till}{' '}
                                     {CustomDateFormat(item?.end_date)}
                                 </Typography>
-                                <Typography fontSize="12px">
+                                <Typography fontSize="12px" paddingTop="11px">
                                     {you_have_to_add_min}{' '}
                                     {getAmount(item?.minimum_add_amount)}{' '}
                                     {fund_to_get_max_of}{' '}
@@ -118,7 +124,7 @@ const CustomWalletStack = styled(Stack)(({ theme }) => ({
         fontSize: '14px',
         lineHeight: '1.3',
         display: 'block',
-        color: theme.palette.primary.main,
+        //color: theme.palette.primary.main,
     },
 }))
 

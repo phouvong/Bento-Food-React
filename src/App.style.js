@@ -1,6 +1,6 @@
 import { styled } from '@mui/material'
 
-export const WrapperForApp = styled('div')(({ theme }) => ({
+export const WrapperForApp = styled('div')(({ theme, pathname }) => ({
     direction: theme.direction,
-    backgroundColor: theme.palette.neutral[1800],
+    backgroundColor: pathname !== '/maintenance' && theme.palette.neutral[1800],
 }))

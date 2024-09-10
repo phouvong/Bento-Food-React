@@ -1,26 +1,39 @@
-import React, { useEffect, useState } from "react";
-import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style";
-import { Stack, styled, Button, Grid, FormControl, RadioGroup, FormControlLabel, Radio, Tooltip } from "@mui/material";
-import { PymentTitle } from "./CheckOut.style";
-import { t } from "i18next";
-import { alpha, Typography } from "@mui/material";
-import money from "./assets/fi_2704332.png";
-import wallet from "./assets/walletpayment.png";
-import CustomImageContainer from "../CustomImageContainer";
-import PaymentMethodCard from "./PaymentMethodCard";
-import { useTheme } from "@emotion/react";
-import { PrimaryButton } from "../products-page/FoodOrRestaurant";
-import CloseIcon from "@mui/icons-material/Close";
-import { useDispatch, useSelector } from "react-redux";
-import InfoIcon from "@mui/icons-material/Info";
-import { setOfflineInfoStep, setOfflineMethod } from "../../redux/slices/OfflinePayment";
-import { getToken } from "./functions/getGuestUserId";
+import React, { useEffect, useState } from 'react'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
+import {
+    Stack,
+    styled,
+    Button,
+    Grid,
+    FormControl,
+    RadioGroup,
+    FormControlLabel,
+    Radio,
+    Tooltip,
+} from '@mui/material'
+import { PymentTitle } from './CheckOut.style'
+import { t } from 'i18next'
+import { alpha, Typography } from '@mui/material'
+import money from './assets/fi_2704332.png'
+import wallet from './assets/walletpayment.png'
+import CustomImageContainer from '../CustomImageContainer'
+import PaymentMethodCard from './PaymentMethodCard'
+import { useTheme } from '@emotion/react'
+import { PrimaryButton } from '../products-page/FoodOrRestaurant'
+import CloseIcon from '@mui/icons-material/Close'
+import { useDispatch, useSelector } from 'react-redux'
+import InfoIcon from '@mui/icons-material/Info'
+import {
+    setOfflineInfoStep,
+    setOfflineMethod,
+} from '../../redux/slices/OfflinePayment'
+import { getToken } from './functions/getGuestUserId'
 
 const PayButton = styled(Button)(({ theme, value, paymentMethod }) => ({
-    padding: "16px 16px",
-    gap: "10px",
-    alignItems: "center",
-    border: "1px solid",
+    padding: '16px 16px',
+    gap: '10px',
+    alignItems: 'center',
+    border: '1px solid',
     borderColor: alpha(theme.palette.neutral[400], 0.4),
     color:
         value === paymentMethod
@@ -28,30 +41,31 @@ const PayButton = styled(Button)(({ theme, value, paymentMethod }) => ({
             : theme.palette.neutral[1000],
     background:
         value === paymentMethod && alpha(theme.palette.primary.main, 0.6),
-    "&:hover": {
+    '&:hover': {
         color: theme.palette.neutral[1000],
-        background: value === paymentMethod && theme.palette.primary.main
-    }
-}));
+        background: value === paymentMethod && theme.palette.primary.main,
+    },
+}))
 
 const OfflineButton = styled(Button)(({ theme, value, paymentMethod }) => ({
-    padding: "15px 15px",
-    borderRadius: "10px",
-    fontWeight: "400",
+    padding: '15px 15px',
+    borderRadius: '10px',
+    fontWeight: '400',
     border: `1px solid ${theme.palette.neutral[300]}`,
-    gap: "5px",
-    background: value === paymentMethod
-        ? theme.palette.neutral[800]
-        : theme.palette.neutral[100],
+    gap: '5px',
+    background:
+        value === paymentMethod
+            ? theme.palette.neutral[800]
+            : theme.palette.neutral[100],
     color:
         value === paymentMethod
             ? `${theme.palette.whiteContainer.main} !important`
             : `${theme.palette.neutral[1000]} !important`,
-    "&:hover": {
+    '&:hover': {
         color: `${theme.palette.whiteContainer.main} !important`,
-        background: theme.palette.neutral[800]
-    }
-}));
+        background: theme.palette.neutral[800],
+    },
+}))
 
 const AllPaymentMethod = ({
     paymenMethod,
@@ -68,12 +82,12 @@ const AllPaymentMethod = ({
     setIsCheckedOffline,
     isCheckedOffline,
     offLineWithPartial,
-    paymentMethodDetails
+    paymentMethodDetails,
 }) => {
-    const theme = useTheme();
-    const dispatch = useDispatch();
+    const theme = useTheme()
+    const dispatch = useDispatch()
     const { token } = useSelector((state) => state.userToken)
-    const [openOfflineOptions, setOpenOfflineOptions] = useState(false);
+    const [openOfflineOptions, setOpenOfflineOptions] = useState(false)
     useEffect(() => {
         if (paymentMethodDetails !== selected) {
             setSelected(paymentMethodDetails)
@@ -85,22 +99,22 @@ const AllPaymentMethod = ({
         }
     }, [])
     useEffect(() => {
-        if (paymentMethodDetails?.method === "offline_payment") {
+        if (paymentMethodDetails?.method === 'offline_payment') {
             setIsCheckedOffline(true)
         }
     }, [selected])
     const handleClickOffline = () => {
-        setOpenOfflineOptions(!openOfflineOptions);
-    };
+        setOpenOfflineOptions(!openOfflineOptions)
+    }
 
     const handleClickOfflineItem = (item) => {
         setIsCheckedOffline(true)
         getPaymentMethod({
             name: item?.method_name,
-            method: "offline_payment",
-            id: item?.id
-        });
-    };
+            method: 'offline_payment',
+            id: item?.id,
+        })
+    }
 
     return (
         <Stack width="100%" padding="2rem" spacing={2.4}>
@@ -108,13 +122,13 @@ const AllPaymentMethod = ({
                 <CloseIcon fontSize="18px" />
             </button>
             <Stack>
-                <PymentTitle>{t("Payment Method")}</PymentTitle>
+                <PymentTitle>{t('Payment Method')}</PymentTitle>
                 <Typography
                     fontSize="12px"
                     textTransform="capitalize"
                     color={theme.palette.neutral[1000]}
                 >
-                    {t("Select a Payment Method to Proceed")}
+                    {t('Select a Payment Method to Proceed')}
                 </Typography>
             </Stack>
 
@@ -125,42 +139,86 @@ const AllPaymentMethod = ({
                         gap="1rem"
                         sx={{ flexWrap: 'wrap' }}
                     >
-                        {global?.cash_on_delivery &&
-                            (global?.partial_payment_method === 'both' ||
-                                global?.partial_payment_method === 'cod') ? (
-                            <PayButton
-                                value="cash_on_delivery"
-                                paymentMethod={selected?.name}
-                                onClick={() => {
-                                    getPaymentMethod({
-                                        name: 'cash_on_delivery',
-                                        image: money,
-                                    })
-                                    // dispatch(setOfflineInfoStep(0))
-                                }
-                                }
-                            >
-                                <CustomImageContainer
-                                    src={money.src}
-                                    width="20px"
-                                    height="20px"
-                                    alt="cod"
-                                />
-                                <Typography
-                                    fontSize="12px"
-                                    color={
-                                        selected?.name === 'cash_on_delivery'
-                                            ? theme.palette.neutral[1000]
-                                            : theme.palette.primary.main
-                                    }
-                                >
-                                    {t('Pay after service')}
-                                </Typography>
-                            </PayButton>
-                        ) : null}
-                        {!usePartialPayment && !offLineWithPartial &&
+                        {usePartialPayment ? (
+                            <>
+                                {global?.cash_on_delivery &&
+                                (global?.partial_payment_method === 'both' ||
+                                    global?.partial_payment_method ===
+                                        'cod') ? (
+                                    <PayButton
+                                        value="cash_on_delivery"
+                                        paymentMethod={selected?.name}
+                                        onClick={() => {
+                                            getPaymentMethod({
+                                                name: 'cash_on_delivery',
+                                                image: money,
+                                            })
+                                            // dispatch(setOfflineInfoStep(0))
+                                        }}
+                                    >
+                                        <CustomImageContainer
+                                            src={money.src}
+                                            width="20px"
+                                            height="20px"
+                                            alt="cod"
+                                        />
+                                        <Typography
+                                            fontSize="12px"
+                                            color={
+                                                selected?.name ===
+                                                'cash_on_delivery'
+                                                    ? theme.palette
+                                                          .neutral[1000]
+                                                    : theme.palette.primary.main
+                                            }
+                                        >
+                                            {t('Pay after service')}
+                                        </Typography>
+                                    </PayButton>
+                                ) : null}
+                            </>
+                        ) : (
+                            <>
+                                {global?.cash_on_delivery ? (
+                                    <PayButton
+                                        value="cash_on_delivery"
+                                        paymentMethod={selected?.name}
+                                        onClick={() => {
+                                            getPaymentMethod({
+                                                name: 'cash_on_delivery',
+                                                image: money,
+                                            })
+                                            // dispatch(setOfflineInfoStep(0))
+                                        }}
+                                    >
+                                        <CustomImageContainer
+                                            src={money.src}
+                                            width="20px"
+                                            height="20px"
+                                            alt="cod"
+                                        />
+                                        <Typography
+                                            fontSize="12px"
+                                            color={
+                                                selected?.name ===
+                                                'cash_on_delivery'
+                                                    ? theme.palette
+                                                          .neutral[1000]
+                                                    : theme.palette.primary.main
+                                            }
+                                        >
+                                            {t('Pay after service')}
+                                        </Typography>
+                                    </PayButton>
+                                ) : null}
+                            </>
+                        )}
+
+                        {!usePartialPayment &&
+                            !offLineWithPartial &&
                             global?.customer_wallet_status === 1 &&
-                            subscriptionStates.order !== '1' && token && (
+                            subscriptionStates.order !== '1' &&
+                            token && (
                                 <PayButton
                                     onClick={() => {
                                         getPaymentMethod({
@@ -168,8 +226,7 @@ const AllPaymentMethod = ({
                                             image: wallet,
                                         })
                                         // dispatch(setOfflineInfoStep(0))
-                                    }
-                                    }
+                                    }}
                                     value="wallet"
                                     paymentMethod={selected?.name}
                                     disabled={usePartialPayment}
@@ -217,7 +274,7 @@ const AllPaymentMethod = ({
                                         (global?.partial_payment_method ===
                                             'digital_payment' ||
                                             global?.partial_payment_method ===
-                                            'both') && (
+                                                'both') && (
                                             <>
                                                 {global?.active_payment_method_list?.map(
                                                     (item, index) => {
@@ -276,8 +333,7 @@ const AllPaymentMethod = ({
                                         image: money,
                                     })
                                     // dispatch(setOfflineInfoStep(0))
-                                }
-                                }
+                                }}
                             >
                                 <CustomImageContainer
                                     src={money.src}
@@ -307,8 +363,7 @@ const AllPaymentMethod = ({
                                             image: wallet,
                                         })
                                         // dispatch(setOfflineInfoStep(0))
-                                    }
-                                    }
+                                    }}
                                     value="wallet"
                                     paymentMethod={selected?.name}
                                     disabled={usePartialPayment}
@@ -395,21 +450,25 @@ const AllPaymentMethod = ({
                         )}
                 </>
             )}
-            {
-                global?.offline_payment_status === 1 &&
-                typeof offlinePaymentOptions !== "undefined" &&
+            {global?.offline_payment_status === 1 &&
+                typeof offlinePaymentOptions !== 'undefined' &&
                 Object?.keys(offlinePaymentOptions)?.length !== 0 &&
-                subscriptionStates.order !== '1' &&
-                (
+                subscriptionStates.order !== '1' && (
                     <CustomStackFullWidth
                         padding="10px 10px 10px 15px"
                         borderRadius="10px"
                         backgroundColor={alpha(theme.palette.primary.main, 0.1)}
                     >
                         <CustomStackFullWidth gap="15px">
-                            <CustomStackFullWidth flexDirection="row" justifyContent="space-between" >
+                            <CustomStackFullWidth
+                                flexDirection="row"
+                                justifyContent="space-between"
+                            >
                                 <FormControl
-                                    sx={{ marginRight: { xs: "0px" }, marginLeft: { xs: "5px" } }}
+                                    sx={{
+                                        marginRight: { xs: '0px' },
+                                        marginLeft: { xs: '5px' },
+                                    }}
                                 >
                                     <RadioGroup
                                         aria-labelledby="demo-radio-buttons-group-label"
@@ -417,20 +476,43 @@ const AllPaymentMethod = ({
                                         fontWeight="600"
                                     >
                                         <FormControlLabel
-                                            sx={{ color: theme => theme.palette.neutral[1000] }}
+                                            sx={{
+                                                color: (theme) =>
+                                                    theme.palette.neutral[1000],
+                                            }}
                                             value="Pay Offline"
                                             control={
                                                 <Radio
-                                                    sx={{ padding: { xs: "2px", md: "10px" } }}
+                                                    sx={{
+                                                        padding: {
+                                                            xs: '2px',
+                                                            md: '10px',
+                                                        },
+                                                    }}
                                                     checked={isCheckedOffline}
                                                     onClick={handleClickOffline}
                                                 />
                                             }
                                             label={
-                                                <Typography fontSize="14px" fontWeight="500">
-                                                    {t("Pay Offline")}
-                                                    <Typography component="span" fontSize="10px" ml="5px" color={theme.palette.neutral[1000]}>
-                                                        ( {t("Select option from below")} )
+                                                <Typography
+                                                    fontSize="14px"
+                                                    fontWeight="500"
+                                                >
+                                                    {t('Pay Offline')}
+                                                    <Typography
+                                                        component="span"
+                                                        fontSize="10px"
+                                                        ml="5px"
+                                                        color={
+                                                            theme.palette
+                                                                .neutral[1000]
+                                                        }
+                                                    >
+                                                        ({' '}
+                                                        {t(
+                                                            'Select option from below'
+                                                        )}{' '}
+                                                        )
                                                     </Typography>
                                                 </Typography>
                                             }
@@ -445,45 +527,58 @@ const AllPaymentMethod = ({
                                 >
                                     <InfoIcon
                                         fontSize="16px"
-                                        sx={{ color: theme.palette.primary.main }}
+                                        sx={{
+                                            color: theme.palette.primary.main,
+                                        }}
                                     />
                                 </Tooltip>
                             </CustomStackFullWidth>
-                            {
-                                openOfflineOptions &&
+                            {openOfflineOptions && (
                                 <CustomStackFullWidth paddingBottom="10px">
-
-                                    <CustomStackFullWidth direction="row" gap="10px" sx={{ flexWrap: "wrap" }}>
-                                        {offlinePaymentOptions?.map((item, index) => {
-                                            return (
-                                                <OfflineButton
-                                                    key={index}
-                                                    value={item?.method_name}
-                                                    paymentMethod={selected?.name}
-                                                    onClick={() => handleClickOfflineItem(item)}
-                                                >{item.method_name}
-                                                    {/* <Typography color={item?.id === offlineMethod?.id
+                                    <CustomStackFullWidth
+                                        direction="row"
+                                        gap="10px"
+                                        sx={{ flexWrap: 'wrap' }}
+                                    >
+                                        {offlinePaymentOptions?.map(
+                                            (item, index) => {
+                                                return (
+                                                    <OfflineButton
+                                                        key={index}
+                                                        value={
+                                                            item?.method_name
+                                                        }
+                                                        paymentMethod={
+                                                            selected?.name
+                                                        }
+                                                        onClick={() =>
+                                                            handleClickOfflineItem(
+                                                                item
+                                                            )
+                                                        }
+                                                    >
+                                                        {item.method_name}
+                                                        {/* <Typography color={item?.id === offlineMethod?.id
                                                         ? theme.palette.whiteContainer.main
                                                         : theme.palette.neutral[800]} fontSize="12px">{item.method_name}</Typography> */}
-                                                </OfflineButton>
-                                            );
-                                        })
-                                        }
+                                                    </OfflineButton>
+                                                )
+                                            }
+                                        )}
                                     </CustomStackFullWidth>
                                 </CustomStackFullWidth>
-                            }
+                            )}
                         </CustomStackFullWidth>
                     </CustomStackFullWidth>
-                )
-            }
+                )}
 
             <Stack paddingTop="30px">
                 <PrimaryButton variant="contained" onClick={handleSubmit}>
-                    {t("Select")}
+                    {t('Select')}
                 </PrimaryButton>
             </Stack>
         </Stack>
-    );
-};
+    )
+}
 
-export default AllPaymentMethod;
+export default AllPaymentMethod

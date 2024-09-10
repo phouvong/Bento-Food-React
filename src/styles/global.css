@@ -18,6 +18,18 @@ body {
     color: #b9b9b9;
 }
 
+
+ .gm-style-iw-chr button {
+
+     height: 25px !important;
+
+ }
+.gm-style-iw-chr button span{
+    height: 20px !important;
+    width: 16px !important;
+    margin-top: 6px !important;
+    margin-left: 25px !important;
+}
 .footer-wrap,
 .sm,
 .lg a:hover {

@@ -25,16 +25,21 @@ export const ChatMessageWrapper = styled(Box)(
 
 export const CustomAvatar = styled(Avatar)(
     ({ theme, authorType, userType }) => ({
-        height: 48,
+        height: 40,
         marginInlineStart: authorType === userType ? '1rem' : 0,
         marginInlineEnd: authorType === userType ? 0 : '1rem',
-        width: 48,
+        width: 40,
         marginBlockStart: '10px',
     })
 )
-export const BodyWrapper = styled(Box)(({ theme }) => ({
+export const BodyWrapper = styled(Box)(({ theme, authorType, userType }) => ({
     flexGrow: 1,
     maxWidth: 500,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: authorType === userType ? 'flex-end' : 'flex-start' + '' + '',
+    justifyContent: 'space-between',
+    gap: '8px',
 }))
 export const CardWrapper = styled(Card)(({ theme, authorType, userType }) => ({
     backgroundColor:
@@ -47,10 +52,11 @@ export const CardWrapper = styled(Card)(({ theme, authorType, userType }) => ({
         authorType === userType
             ? theme.palette.neutral[100]
             : theme.palette.neutral[1000],
-    paddingInlineEnd: '1rem',
-    paddingInlineStart: '1rem',
-    paddingBlockStart: '1.2rem',
-    paddingBlockEnd: '1.2rem',
+    width: 'max-content',
+    paddingInlineEnd: '.5rem',
+    paddingInlineStart: '.5rem',
+    paddingBlockStart: '.5rem',
+    paddingBlockEnd: '.5rem',
     borderRadius:
         authorType === userType ? '16px 16px 0px 16px' : '16px 16px 16px 0px',
 

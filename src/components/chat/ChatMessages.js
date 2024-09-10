@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Box from '@mui/material/Box'
-import ChatMessage from './ChatMessage'
+import ChatMessage, { getFileExtension, imageExtensions } from './ChatMessage'
 import CustomModal from '../custom-modal/CustomModal'
 import { ScrollToBottom } from './ChatView'
 import ImagePreviewOnModal from '../image-preview-on-modal'
@@ -14,6 +14,7 @@ const ChatMessages = ({ conversationData, scrollBottom }) => {
     const [conversationDetails, setConversationDetails] = useState()
     const [openModal, setModalOpen] = useState(false)
     const [modalImage, setModalImage] = useState(null)
+    const [AllImages, setAllImages] = useState([])
     const messagesEndRef = useRef(null)
     useEffect(() => {
         let a = []
@@ -30,7 +31,11 @@ const ChatMessages = ({ conversationData, scrollBottom }) => {
         modalImage && setModalOpen(true)
     }, [modalImage])
 
-    const handleImageOnClick = (value) => {
+    const handleImageOnClick = (value, images) => {
+        const getOnlyImage = images?.filter((item) =>
+            imageExtensions?.includes(getFileExtension(item))
+        )
+        setAllImages(getOnlyImage)
         setModalImage(value)
     }
     const handleModalClose = (value) => {
@@ -47,24 +52,25 @@ const ChatMessages = ({ conversationData, scrollBottom }) => {
                             key={index}
                             body={item?.message}
                             messgageData={item && item}
-                            createdAt={item?.updated_at}
+                            createdAt={item?.created_at}
                             conversationData={conversationDetails}
                             image={item?.file_full_url}
                             handleImageOnClick={handleImageOnClick}
+                            setAllImages={setAllImages}
                         />
                     ))
                     .reverse()}
                 <CustomModal
                     openModal={openModal}
                     setModalOpen={handleModalClose}
-                    maxWidth="500px"
+                    maxWidth="400px"
+                    bgColor="none"
                 >
-                    <SimpleBar style={{ maxHeight: "600px" }}>
-                        <ImagePreviewOnModal
-                            modalImage={modalImage}
-                            handleModalClose={handleModalClose}
-                        />
-                    </SimpleBar>
+                    <ImagePreviewOnModal
+                        modalImage={modalImage}
+                        handleModalClose={handleModalClose}
+                        AllImages={AllImages}
+                    />
                 </CustomModal>
                 {scrollBottom && <ScrollToBottom />}
             </>

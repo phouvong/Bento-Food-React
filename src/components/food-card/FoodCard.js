@@ -20,6 +20,7 @@ import FoodDetailModal from '../foodDetail-modal/FoodDetailModal'
 import FoodVerticalCard from './FoodVerticalCard'
 import HorizontalFoodCard from './HorizontalFoodCard'
 import LocationModalAlert from './LocationModalAlert'
+import useDeleteAllCartItem from '@/hooks/react-query/add-cart/useDeleteAllCartItem'
 
 const FoodCard = ({
     product,
@@ -37,7 +38,7 @@ const FoodCard = ({
     const dispatch = useDispatch()
     const {
         name,
-         image_full_url,
+        image_full_url,
         restaurant_name,
         avg_rating,
         price,
@@ -66,6 +67,7 @@ const FoodCard = ({
     const { cartList } = useSelector((state) => state.cart)
     const { mutate: addToCartMutate, isLoading: addToCartLoading } =
         useAddCartItem()
+    const { mutate: deleteCartItemMutate } = useDeleteAllCartItem()
     let currencySymbol
     let currencySymbolDirection
     let digitAfterDecimalPoint
@@ -221,7 +223,10 @@ const FoodCard = ({
             } else if (product?.available_date_ends) {
                 setOpenModal(true)
             } else {
-                if (product?.item_stock === 0) {
+                if (
+                    product?.item_stock === 0 &&
+                    product.stock_type !== 'unlimited'
+                ) {
                     e.stopPropagation()
                     CustomToaster('error', t('Out Of Stock'), product?.id)
                 } else {
@@ -265,6 +270,10 @@ const FoodCard = ({
             quantity: modalData[0]?.quantity ?? 1,
             variations: [],
         }
+        deleteCartItemMutate(getGuestId(), {
+            //onSuccess: handleSuccess,
+            onError: onErrorResponse,
+        })
         dispatch(setClearCart())
         addToCartMutate(itemObject, {
             onSuccess: handleSuccess,

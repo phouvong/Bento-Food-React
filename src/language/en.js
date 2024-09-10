@@ -1,9 +1,10 @@
 export const english = {
-    "This charge includes extra vehicle charge":"This charge includes extra vehicle charge",
-    "and bad weather charge":"and bad weather charge",
-    "only":"only",
-    "Highlights for you":"Highlights for you",
-    "items available":"items available",
+    'This charge includes extra vehicle charge':
+        'This charge includes extra vehicle charge',
+    'and bad weather charge': 'and bad weather charge',
+    only: 'only',
+    'Highlights for you': 'Highlights for you',
+    'items available': 'items available',
     'Welcome to React': 'Welcome to React and react-i18next',
     'Dont have a cutlery? Restaurant will provide you.':
         'Dont have a cutlery? Restaurant will provide you.',
@@ -15,6 +16,7 @@ export const english = {
     'Active from - ': 'Active from - ',
     'Enter Voucher': 'Enter Voucher',
     'This is a halal food': 'This is a halal food',
+    'Sent attachment': 'Sent attachment',
     'No Promo Available!': 'No Promo Available!',
     'Please add manually or collect promo from':
         'Please add manually or collect promo from',

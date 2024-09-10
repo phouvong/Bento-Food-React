@@ -110,7 +110,7 @@ export const NavMenuLink = styled(MenuLink)(({ theme }) => ({
     },
 }))
 export const TopBarButton = styled(Button)(({ theme, formMobileMenu }) => ({
-    padding: formMobileMenu === 'true' ? '7px 5px' : '7px 0px',
+    padding: formMobileMenu === 'true' ? '7px 5px' : '',
     color: theme.palette.neutral[100],
     backgroundColor: theme.palette.navbarBg,
     minWidth: "40px",

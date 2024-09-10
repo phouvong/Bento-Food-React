@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { alpha, Grid, IconButton, Popover, Typography } from '@mui/material'
-import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style"
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { CategoryButton } from './restaurant-details.style'
 import { styled, useTheme } from '@mui/material/styles'
 import FilterButton from '../Button/FilterButton'
@@ -46,7 +46,6 @@ const CustomBox = styled(Box)(({ theme }) => ({
             opacity: 1,
         },
     },
-
 }))
 
 const RestaurantCategoryBar = (props) => {
@@ -146,19 +145,17 @@ const RestaurantCategoryBar = (props) => {
     const handleReset = () => {
         const data = checkedFilterKey?.map((item) => ({
             ...item,
-            isActive: false
-        }));
+            isActive: false,
+        }))
         setCheckedFilterKey(data)
-
-    };
+    }
     return (
         <RTL direction={languageDirection}>
             <Grid
                 container
                 sx={{
-
                     position: 'sticky',
-                    top: { xs: '168px', sm: '200px', md: '270px' },
+                    top: { xs: '168px', sm: '200px', md: '231px' },
                     background: (theme) => theme.palette.neutral[1800],
                     padding: {
                         xs: '5px 5px 7px 10px',
@@ -175,7 +172,7 @@ const RestaurantCategoryBar = (props) => {
             >
                 <Grid item xs={8} sm={10} md={10} sx={{ position: 'relative' }}>
                     {isSmall && searchBoxOpen ? (
-                        <Stack sx={{animation : 'fadeInRight 1s  1',}}>
+                        <Stack sx={{ animation: 'fadeInRight 1s  1' }}>
                             <CustomSearch
                                 borderRadius="5px"
                                 //key={reRenderSearch}
@@ -212,8 +209,11 @@ const RestaurantCategoryBar = (props) => {
                                                     sm: '14px',
                                                     md: '14px',
                                                 }}
-                                                fontWeight={selectedId===item?.id ? "500":"400"}
-
+                                                fontWeight={
+                                                    selectedId === item?.id
+                                                        ? '500'
+                                                        : '400'
+                                                }
                                                 color={
                                                     theme.palette.neutral[900]
                                                 }
@@ -237,7 +237,7 @@ const RestaurantCategoryBar = (props) => {
                     sm={2}
                     md={2}
                     align={languageDirection === 'rtl' ? 'left' : 'right'}
-                    marginBottom={{xs:"0px",md:"8px"}}
+                    marginBottom={{ xs: '0px', md: '8px' }}
                 >
                     <Stack
                         direction="row"
@@ -252,40 +252,47 @@ const RestaurantCategoryBar = (props) => {
                         alignItems="center"
                         paddingLeft="15px"
                     >
-                       <Stack direction="row" spacing={1} justifySelf="flex-end" >
-                           {isSmall && (
-                               <IconButton
-                                   onClick={handleSearchBox}
-                                   sx={{
-                                       background: (theme) =>
-                                           alpha(theme.palette.primary.main, 0.3),
-                                       borderRadius: '3px',
-                                       padding: '6px',
-                                       fontSize: '1.4rem',
-                                   }}
-                               >
-                                   {!searchBoxOpen ? (
-                                       <SearchIcon
-                                           fontSize="1.3rem"
-                                           sx={{
-                                               color: (theme) =>
-                                                   theme.palette.primary.main,
-                                           }}
-                                       />
-                                   ) : (
-                                       <ArrowForwardIosIcon
-                                           fontSize="14px"
-                                           sx={{
-                                               color: (theme) =>
-                                                   theme.palette.primary.main,
-                                           }}
-                                       />
-                                   )}
-                               </IconButton>
-                           )}
+                        <Stack
+                            direction="row"
+                            spacing={1}
+                            justifySelf="flex-end"
+                        >
+                            {isSmall && (
+                                <IconButton
+                                    onClick={handleSearchBox}
+                                    sx={{
+                                        background: (theme) =>
+                                            alpha(
+                                                theme.palette.primary.main,
+                                                0.3
+                                            ),
+                                        borderRadius: '3px',
+                                        padding: '6px',
+                                        fontSize: '1.4rem',
+                                    }}
+                                >
+                                    {!searchBoxOpen ? (
+                                        <SearchIcon
+                                            fontSize="1.3rem"
+                                            sx={{
+                                                color: (theme) =>
+                                                    theme.palette.primary.main,
+                                            }}
+                                        />
+                                    ) : (
+                                        <ArrowForwardIosIcon
+                                            fontSize="14px"
+                                            sx={{
+                                                color: (theme) =>
+                                                    theme.palette.primary.main,
+                                            }}
+                                        />
+                                    )}
+                                </IconButton>
+                            )}
 
-                           <FilterButton handleClick={handleDropClick} />
-                       </Stack>
+                            <FilterButton handleClick={handleDropClick} />
+                        </Stack>
                     </Stack>
                 </Grid>
             </Grid>
