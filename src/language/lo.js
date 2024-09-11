@@ -276,7 +276,7 @@ export const lao = {
     'Track Order': 'ຕິດຕາມອໍເດີ້',
     // Pending: 'ລໍຖ້າ',
 
-    Home: 'ຫຼັກ',
+    Home: 'ໜ້າຫຼັກ',
     'Features Catagories': 'ໝວດໝູ່ແນະນຳ',
     Food: 'ອາຫານ',
     Campaigns: 'ແຄມເປນ',
