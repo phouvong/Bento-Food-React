@@ -4,12 +4,12 @@ import arFlag from '../../../../../public/static/country-flag/arabic-flag-svg.sv
 import banFlag from '../../../../../public/static/country-flag/bangladesh (1).png'
 import spanFlag from '../../../../../public/static/country-flag/spain.png'
 export const languageLists = [
-    {
-        languageName: 'Arabic',
-        languageCode: 'ar',
-        countryCode: 'SA',
-        countryFlag: arFlag.src,
-    },
+    //{
+        //languageName: 'Arabic',
+        //languageCode: 'ar',
+        //countryCode: 'SA',
+        //countryFlag: arFlag.src,
+    //},
     {
         languageName: 'English',
         languageCode: 'en',
@@ -22,16 +22,16 @@ export const languageLists = [
         countryCode: 'LA',
         countryFlag: loFlag.src,
     },
-    {
-        languageName: 'Spanish',
-        languageCode: 'es',
-        countryCode: 'es',
-        countryFlag: spanFlag.src,
-    },
-    {
-        languageName: 'Bengali',
-        languageCode: 'bn',
-        countryCode: 'BN',
-        countryFlag: banFlag.src,
-    },
+    //{
+        //languageName: 'Spanish',
+        //languageCode: 'es',
+        //countryCode: 'es',
+        //countryFlag: spanFlag.src,
+    //},
+    //{
+        //languageName: 'Bengali',
+        //languageCode: 'bn',
+        //countryCode: 'BN',
+        //countryFlag: banFlag.src,
+    //},
 ]
