@@ -269,7 +269,7 @@ export const lao = {
     'items selected': 'ສິນຄ້າທີ່ເລືອກ',
 
     'Image Format - JPG, Pong, ZPEG, GIF Image Size - Maximum Size 2Mb Image Ratio - 1: 1':
-        'ຮູບແບບຮູບພາບ - JPG, Pong, ZPEG, GIF ຂະໜາດຮູບພາບ - ຂະໜາດໃຫຍ່ສຸດ 2Mb ອັດຕາສ່ວນຮູບ - 1: 1'',
+        'ຮູບແບບຮູບພາບ - JPG, Pong, ZPEG, GIF ຂະໜາດຮູບພາບ - ຂະໜາດໃຫຍ່ສຸດ 2Mb ອັດຕາສ່ວນຮູບ - 1: 1',
 
     'Order Id': 'ເລກທີອໍເດີ້',
     'Order Amount': 'ມູນຄ່າອໍເດີ້',
