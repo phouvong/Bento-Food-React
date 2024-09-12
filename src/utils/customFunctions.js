@@ -50,10 +50,10 @@ export const getAmount = (
             newAmount =
                 (newAmount / 1000000)?.toFixed(digitAfterDecimalPoint) + 'M'
             return `${currency_symbol}${newAmount}`
-        } //else if (newAmount >= 1000) {
+        } else if (newAmount >= 1000) {
             // Thousand
             newAmount =
-                (newAmount / 1000)?.toFixed(digitAfterDecimalPoint) + '000'
+                (newAmount / 1000)?.toFixed(digitAfterDecimalPoint) + 'k'
             return `${currency_symbol}${newAmount}`
         }
     } else {
