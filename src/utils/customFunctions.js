@@ -53,7 +53,7 @@ export const getAmount = (
         } else if (newAmount >= 1000) {
             // Thousand
             newAmount =
-                (newAmount / 1000)?.toFixed(digitAfterDecimalPoint) + 'k'
+                (newAmount / 1000)?.toFixed(digitAfterDecimalPoint) + '000'
             return `${currency_symbol}${newAmount}`
         }
     } else {
