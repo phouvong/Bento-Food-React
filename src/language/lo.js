@@ -1082,4 +1082,5 @@ export const lao = {
         'ຢ່າງໃດກໍຕາມ, ຈໍານວນເງິນຄືນສູງສຸດແມ່ນ',
     'Extra Packaging': 'ການຫຸ້ມຫໍ່ພິເສດ',
     'Need Extra Packaging': 'ຕ້ອງການການຫຸ້ມຫໍ່ພິເສດ',
+    'Order Place': 'ຈາກການອໍເດີ້',
 }
