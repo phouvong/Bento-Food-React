@@ -1,28 +1,29 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import jwt_decode from 'jwt-decode'
-import { usePostEmail } from "@/hooks/react-query/social-login/usePostEmail"
+import { usePostEmail } from '@/hooks/react-query/social-login/usePostEmail'
 import CustomModal from '../../../custom-modal/CustomModal'
 import PhoneInputForm from './PhoneInputForm'
 import OtpForm from '../../forgot-password/OtpForm'
 import { toast } from 'react-hot-toast'
-import { useVerifyPhone } from "@/hooks/react-query/otp/useVerifyPhone"
+import { useVerifyPhone } from '@/hooks/react-query/otp/useVerifyPhone'
 import { onErrorResponse } from '../../../ErrorResponse'
-import { googleClientId } from "@/utils/staticCredentials"
-import { alpha, styled, Typography } from "@mui/material";
-import OutlinedInput from "@mui/material/OutlinedInput";
-import { Stack } from "@mui/system";
-import { t } from "i18next";
-import CustomImageContainer from "../../../CustomImageContainer";
-import googleLatest from "../../../../../public/static/Google Logo.png";
+import { googleClientId } from '@/utils/staticCredentials'
+import { alpha, styled, Typography } from '@mui/material'
+import OutlinedInput from '@mui/material/OutlinedInput'
+import { Stack } from '@mui/system'
+import { t } from 'i18next'
+import CustomImageContainer from '../../../CustomImageContainer'
+import googleLatest from '../../../../../public/static/Google Logo.png'
 import { CustomStackFullWidth } from '../../../../styled-components/CustomStyles.style'
+import { getGuestId } from '@/components/checkout-page/functions/getGuestUserId'
 // import { gapi } from 'gapi-scrip
 // import { gapi } from 'gapi-script'
 export const CustomGoogleButton = styled(Stack)(({ theme, width }) => ({
-    width: "100%",
+    width: '100%',
     backgroundColor: theme.palette.neutral[100],
     height: '45px',
-    justifyContent: "center",
+    justifyContent: 'center',
     borderRadius: '10px',
     padding: '10px',
     color: theme.palette.neutral[600],
@@ -32,28 +33,39 @@ export const CustomGoogleButton = styled(Stack)(({ theme, width }) => ({
     transition: 'box-shadow 0.3s',
     '&:hover': {
         boxShadow: `0px 5px 10px 0px rgba(0, 0, 0, 0.3), 0px 2px 5px 0px rgba(0, 0, 0, 0.15)`,
-
-    }
-
+    },
 }))
 const GoogleLoginComp = (props) => {
-    const { handleSuccess, global, handleParentModalClose, setJwtToken, setUserInfo, setModalFor, setMedium, isSingle } = props
-
+    const {
+        handleSuccess,
+        global,
+        handleParentModalClose,
+        setJwtToken,
+        setUserInfo,
+        setModalFor,
+        setMedium,
+        isSingle,
+        loginMutation,
+        setLoginInfo,
+        setForWidth,
+        all,
+    } = props
+    const [loginValue, setLoginValue] = useState(null)
     const [openModal, setOpenModal] = useState(false)
     const [openOtpModal, setOpenOtpModal] = useState(false)
     const [otpData, setOtpData] = useState({ phone: '' })
     const [mainToken, setMainToken] = useState(null)
     const router = useRouter()
 
-    const { mutate } = usePostEmail()
+    // const { mutate } = usePostEmail()
 
     const clientId = googleClientId
     const handleToken = (response) => {
         if (response?.token) {
             handleSuccess(response.token)
         } else {
-            setMedium("google")
-            setModalFor("phone_modal")
+            setMedium('google')
+            setModalFor('phone_modal')
             setOpenModal(true)
         }
     }
@@ -65,19 +77,21 @@ const GoogleLoginComp = (props) => {
     }, [otpData])
 
     const handlePostRequestOnSuccess = (response) => {
-        if (global?.customer_verification) {
-            if (Number.parseInt(response?.is_phone_verified) === 1) {
-                handleToken(response)
-            } else {
-                if (response?.phone) {
-                    setOtpData({ phone: response?.phone })
-                }
-                if (response?.token) {
-                    setMainToken(response)
-                }
-            }
+        const res = response?.data
+        if (
+            response?.data?.is_exist_user === null &&
+            response?.data?.is_personal_info === 1
+        ) {
+            handleToken(response?.data)
+        } else if (response?.data?.is_personal_info === 0) {
+            setLoginInfo({ ...res, email: response?.email, is_email: true })
+            setForWidth(false)
+            setModalFor('user_info')
         } else {
-            handleToken(response)
+            setForWidth(false)
+            setMedium('google')
+            setLoginInfo({ ...res, email: response?.email, is_email: true })
+            setModalFor('is_exist_user')
         }
     }
     const handleCallBackResponse = (res) => {
@@ -85,26 +99,35 @@ const GoogleLoginComp = (props) => {
 
         setJwtToken(res)
         setUserInfo(userObj)
-        mutate(
-            {
-                email: userObj.email,
-                token: res.credential,
-                unique_id: res?.clientId,
-                medium: 'google',
+        const tempValue = {
+            email: res?.email ?? userObj.email,
+            token: res?.token ?? res.credential,
+            unique_id: res?.unique_id ?? res?.clientId,
+            medium: res?.medium ?? 'google',
+            login_type: res?.login_type ?? 'social',
+            guest_id: loginValue?.guest_id ?? getGuestId(),
+        }
+        setLoginValue(tempValue)
+        loginMutation(tempValue, {
+            onSuccess: (res) =>
+                handlePostRequestOnSuccess({
+                    ...res,
+                    email: userObj.email,
+                }),
+            onError: (error) => {
+                error?.response?.data?.errors?.forEach((item) =>
+                    item.code === 'email'
+                        ? handleToken()
+                        : toast.error(item.message)
+                )
             },
-            {
-                onSuccess: handlePostRequestOnSuccess,
-                onError: (error) => {
-                    error?.response?.data?.errors?.forEach((item) =>
-                        item.code === 'email'
-                            ? handleToken()
-                            : toast.error(item.message)
-                    )
-                },
-            }
-        )
+        })
     }
 
+    const setButtonWidth = () => {
+        const screenWidth = window.innerWidth
+        return screenWidth <= 600 ? '236px' : all ? '267px' : '300px' // 600px is the breakpoint for 'xs' and 'md'
+    }
 
     useEffect(() => {
         /* global google */
@@ -119,7 +142,7 @@ const GoogleLoginComp = (props) => {
                     theme: 'outline',
                     size: 'large',
                     shape: 'rounded',
-                    width: '134px',
+                    width: setButtonWidth(),
                     logo_alignment: 'left',
                 }
             )
@@ -149,18 +172,17 @@ const GoogleLoginComp = (props) => {
         })
     }
     return (
-        <Stack
-            width={isSingle ? '100%' : 'fit-content'}
-            maxWidth="355px"
-        >
-            <div style={{ position: "relative" }}>
-                <div style={{
-                    position: "absolute",
-                    height: "100%",
-                    width: "100%",
-                    filter: "opacity(0)",
-                    zIndex:9,
-                }}>
+        <Stack width={'100%'} maxWidth="355px">
+            <div style={{ position: 'relative' }}>
+                <div
+                    style={{
+                        position: 'absolute',
+                        height: '100%',
+                        width: '100%',
+                        filter: 'opacity(0)',
+                        zIndex: 999,
+                    }}
+                >
                     <div id="signInDiv"></div>
                 </div>
 
@@ -173,11 +195,9 @@ const GoogleLoginComp = (props) => {
                         objectFit="cover"
                         borderRadius="50%"
                     />
-                    {isSingle &&
-                        <Typography>
-                            {t("Continue with Google")}
-                        </Typography>
-                    }
+                    <Typography fontSize="14px" fontWeight="600">
+                        {t('Continue with Google')}
+                    </Typography>
                 </CustomGoogleButton>
             </div>
 
@@ -186,9 +206,11 @@ const GoogleLoginComp = (props) => {
                 setModalOpen={setOpenOtpModal}
             >
                 <OtpForm
-                    data={otpData}
+                    data={otpData?.phone}
                     formSubmitHandler={formSubmitHandler}
                     isLoading={isLoading}
+                    reSendOtp={handleCallBackResponse}
+                    loginValue={loginValue}
                 />
             </CustomModal>
         </Stack>

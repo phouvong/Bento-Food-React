@@ -1,29 +1,44 @@
 import React from 'react'
-import phoneIcon from "../../../../../public/static/profile/phoneInput.png"
+import phoneIcon from '../../../../../public/static/profile/phoneInput.png'
 import {
     CustomBoxFullWidth,
     CustomStackFullWidth,
-} from "@/styled-components/CustomStyles.style"
-import { Paper, Stack, Typography, useTheme } from "@mui/material";
+} from '@/styled-components/CustomStyles.style'
+import { alpha, Paper, Stack, Typography, useTheme } from '@mui/material'
 import CustomPhoneInput from '../../../CustomPhoneInput'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { useTranslation } from 'react-i18next'
 import CustomAlert from '../../../alert/CustomAlert'
 import LoadingButton from '@mui/lab/LoadingButton'
-import { usePostRegisterInfo } from "@/hooks/react-query/social-login/usePostRegisterInfo"
+import { usePostRegisterInfo } from '@/hooks/react-query/social-login/usePostRegisterInfo'
 import { onErrorResponse, onSingleErrorResponse } from '../../../ErrorResponse'
-import CustomImageContainer from "../../../CustomImageContainer";
-import { CustomBoxForModal } from "../../auth.style";
+import CustomImageContainer from '../../../CustomImageContainer'
+import { CustomBoxForModal } from '../../auth.style'
+import { t } from 'i18next'
+import InputAdornment from '@mui/material/InputAdornment'
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import { CustomSignUpTextField } from '@/components/auth/sign-up'
+import GroupIcon from '@mui/icons-material/Group'
 
 const PhoneInputForm = (props) => {
-    const { userInfo, jwtToken, medium, handleRegistrationOnSuccess, global, setModalFor } = props
+    const {
+        userInfo,
+        jwtToken,
+        medium,
+        handleRegistrationOnSuccess,
+        global,
+        setModalFor,
+        setForWidth,
+    } = props
     const { t } = useTranslation()
-    const theme = useTheme();
+    const theme = useTheme()
     const { mutate, isLoading } = usePostRegisterInfo()
     const formik = useFormik({
         initialValues: {
+            username: '',
             phone: '',
+            ref_code: '',
         },
         validationSchema: Yup.object({
             phone: Yup.string()
@@ -33,7 +48,7 @@ const PhoneInputForm = (props) => {
         onSubmit: async (values, helpers) => {
             try {
                 handleOnSubmitFormik(values)
-            } catch (err) { }
+            } catch (err) {}
         },
     })
     const handleOnSubmitFormik = (values) => {
@@ -55,24 +70,113 @@ const PhoneInputForm = (props) => {
         formik.setFieldValue('phone', `+${value}`)
     }
     return (
-        <Stack padding="50px 20px 60px">
+        <Stack>
             <form onSubmit={formik.handleSubmit} noValidate>
-                <CustomStackFullWidth spacing={5} justifyContent="center" alignItems='center'>
+                <CustomStackFullWidth
+                    spacing={5}
+                    justifyContent="center"
+                    alignItems="center"
+                >
                     <CustomImageContainer
                         src={phoneIcon.src}
-                        width="80px" height="80px"
+                        width="80px"
+                        height="80px"
                     />
-                    <Typography fontSize="14px" textAlign="center" color={theme.palette.neutral[1000]}>
-                        {t("Provide a valid phone number to complete your sign up")}
+                    <Typography
+                        fontSize="14px"
+                        textAlign="center"
+                        color={theme.palette.neutral[1000]}
+                    >
+                        {t(
+                            'Provide a valid phone number to complete your sign up'
+                        )}
                     </Typography>
-                    <CustomPhoneInput
-                        value={formik.values.phone}
-                        onHandleChange={handleOnChange}
-                        initCountry={global?.country}
-                        touched={formik.touched.phone}
-                        errors={formik.errors.phone}
-                        rtlChange="true"
-                    />
+                    <CustomStackFullWidth gap="36px">
+                        <CustomSignUpTextField
+                            required
+                            fullWidth
+                            id="name"
+                            label={t('Name')}
+                            placeholder={t('Name')}
+                            name="l_name"
+                            autoComplete="username"
+                            value={formik.values.username}
+                            onChange={formik.handleChange}
+                            error={
+                                formik.touched.username &&
+                                Boolean(formik.errors.username)
+                            }
+                            helperText={
+                                formik.touched.username &&
+                                formik.errors.username
+                            }
+                            touched={formik.touched.username}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <AccountCircleIcon
+                                            sx={{
+                                                fontSize: '1.2rem',
+                                                color: (theme) =>
+                                                    alpha(
+                                                        theme.palette
+                                                            .neutral[400],
+                                                        0.5
+                                                    ),
+                                            }}
+                                        />
+                                    </InputAdornment>
+                                ),
+                            }}
+                            //  autoFocus
+                        />
+                        <CustomPhoneInput
+                            value={formik.values.phone}
+                            onHandleChange={handleOnChange}
+                            initCountry={global?.country}
+                            touched={formik.touched.phone}
+                            errors={formik.errors.phone}
+                            rtlChange="true"
+                        />
+                        <CustomSignUpTextField
+                            fullWidth
+                            id="ref_code"
+                            label={t('Refer Code (Optional)')}
+                            placeholder={t('Refer Code (Optional)')}
+                            name="ref_code"
+                            autoComplete="ref_code"
+                            value={formik.values.ref_code}
+                            onChange={formik.handleChange}
+                            error={
+                                formik.touched.ref_code &&
+                                Boolean(formik.errors.ref_code)
+                            }
+                            helperText={
+                                formik.touched.ref_code &&
+                                formik.errors.ref_code
+                            }
+                            touched={formik.touched.ref_code}
+                            //   autoFocus
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <GroupIcon
+                                            sx={{
+                                                fontSize: '1.2rem',
+                                                color: (theme) =>
+                                                    alpha(
+                                                        theme.palette
+                                                            .neutral[400],
+                                                        0.5
+                                                    ),
+                                            }}
+                                        />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                    </CustomStackFullWidth>
+
                     <LoadingButton
                         type="submit"
                         fullWidth
@@ -85,17 +189,18 @@ const PhoneInputForm = (props) => {
                         <Typography
                             textAlign="center"
                             sx={{
-                                cursor: "pointer",
+                                cursor: 'pointer',
                                 color: theme.palette.neutral[500],
-                                "&:hover": {
+                                '&:hover': {
                                     color: theme.palette.primary.main,
-                                }
+                                },
                             }}
                             onClick={() => {
                                 setModalFor('sign-in')
                                 // goNext()
-                            }}>
-                            {t("Go Back")}
+                            }}
+                        >
+                            {t('Go Back')}
                         </Typography>
                     </Stack>
                 </CustomStackFullWidth>

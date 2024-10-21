@@ -1,6 +1,19 @@
 import React, { useRef, useState } from 'react'
-import { Box, Button, Grid, Stack, TextField, useMediaQuery } from '@mui/material'
-import { ButtonBox, CancelButton, CustomDivWithBorder, CustomProfileTextfield, SaveButton } from './Profile.style'
+import {
+    Box,
+    Button,
+    Grid,
+    Stack,
+    TextField,
+    useMediaQuery,
+} from '@mui/material'
+import {
+    ButtonBox,
+    CancelButton,
+    CustomDivWithBorder,
+    CustomProfileTextfield,
+    SaveButton,
+} from './Profile.style'
 import { useFormik } from 'formik'
 import ValidationSechemaProfile from './Validation'
 import ImageUploaderWithPreview from '../../single-file-uploader-with-preview/ImageUploaderWithPreview'
@@ -8,22 +21,40 @@ import { useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import IconButton from '@mui/material/IconButton'
 import { useTheme } from '@mui/material/styles'
-import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
-import { CustomButtonCancel } from '../../../styled-components/CustomButtons.style'
+import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined'
+import ReportProblemIcon from '@mui/icons-material/ReportProblem'
+import VerifiedIcon from '@/components/user-info/profile/VerifiedIcon'
+import CustomModal from '@/components/custom-modal/CustomModal'
+import OtpForm from '@/components/auth/forgot-password/OtpForm'
 
-const BasicInformationForm = ({ data, formSubmit, deleteUserHandler }) => {
+const BasicInformationForm = ({
+    data,
+    formSubmit,
+    deleteUserHandler,
+    open,
+    setOpen,
+    setOpenEmail,
+    openEmail,
+    fireBaseId,
+    resData,
+    handleCloseEmail,
+    handleClosePhone,
+}) => {
+    console.log({ data })
+    const is_verified = true
     const imageContainerRef = useRef()
     const theme = useTheme()
-    const isXSmall = useMediaQuery(theme.breakpoints.down('sm'));
+
+    const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const { t } = useTranslation()
     let { f_name, l_name, phone, email, image } = data
-
+    console.log('gggg', phone)
     const { global } = useSelector((state) => state.globalSettings)
     const customerImageUrl = global?.base_urls?.customer_image_url
     const profileFormik = useFormik({
         initialValues: {
-            f_name: f_name ? f_name : '',
-            l_name: l_name ? l_name : '',
+            name: f_name ? `${f_name} ${l_name}` : '',
+            // l_name: l_name ? l_name : '',
             email: email ? email : '',
             phone: phone ? phone : '',
             image: image ? image : '',
@@ -32,9 +63,10 @@ const BasicInformationForm = ({ data, formSubmit, deleteUserHandler }) => {
         },
         validationSchema: ValidationSechemaProfile(),
         onSubmit: async (values) => {
+            console.log('ffffff', values)
             try {
                 formSubmitOnSuccess(values)
-            } catch (err) { }
+            } catch (err) {}
         },
     })
     const formSubmitOnSuccess = (values) => {
@@ -48,29 +80,38 @@ const BasicInformationForm = ({ data, formSubmit, deleteUserHandler }) => {
     }
     const handleReset = () => {
         profileFormik.setValues({
-            f_name: f_name ? f_name : '',
-            l_name: l_name ? l_name : '',
+            name: f_name ? `${f_name}${l_name}` : '',
+            // name: l_name ? l_name : '',
             email: email ? email : '',
             phone: phone ? phone : '',
             image: image ? image : '',
-        });
-    };
-
+        })
+    }
+    const handleVerified = (type) => {
+        if (type === 'email') {
+            formSubmit({ ...profileFormik?.values, button_type: 'email' })
+        } else {
+            formSubmit({ ...profileFormik?.values, button_type: 'phone' })
+        }
+    }
     return (
         <CustomDivWithBorder isXSmall={isXSmall}>
             <form noValidate onSubmit={profileFormik.handleSubmit}>
-                <Grid
-                    container
-                    md={12}
-                    xs={12}
-                >
-                    <Grid item md={3} xs={12} display="flex" justifyContent="center" alignItems="center">
+                <Grid container md={12} xs={12}>
+                    <Grid
+                        item
+                        md={3}
+                        xs={12}
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                    >
                         <Stack
                             sx={{
                                 position: 'relative',
                                 width: '147px',
                                 borderRadius: '50%',
-                                marginLeft:{xs:0, md:"-25px"}
+                                marginLeft: { xs: 0, md: '-25px' },
                             }}
                         >
                             <ImageUploaderWithPreview
@@ -90,8 +131,8 @@ const BasicInformationForm = ({ data, formSubmit, deleteUserHandler }) => {
                                 <Box
                                     sx={{
                                         position: 'absolute',
-                                        bottom: "14%",
-                                        right: "-5px",
+                                        bottom: '14%',
+                                        right: '-5px',
                                         height: '38px',
                                         width: '38px',
                                         borderRadius: '50%',
@@ -104,7 +145,11 @@ const BasicInformationForm = ({ data, formSubmit, deleteUserHandler }) => {
                                             imageContainerRef.current.click()
                                         }
                                     >
-                                        <CreateOutlinedIcon sx={{ color: theme.palette.info.main }} />
+                                        <CreateOutlinedIcon
+                                            sx={{
+                                                color: theme.palette.info.main,
+                                            }}
+                                        />
                                     </IconButton>
                                     <input
                                         ref={imageContainerRef}
@@ -122,88 +167,214 @@ const BasicInformationForm = ({ data, formSubmit, deleteUserHandler }) => {
                         </Stack>
                     </Grid>
                     <Grid item container md={9} xs={12} spacing={2}>
-                        <Grid item md={6} xs={12}>
+                        <Grid item md={12} xs={12}>
                             <CustomProfileTextfield
                                 id="outlined-basic"
                                 variant="outlined"
-                                name="f_name"
-                                value={profileFormik.values.f_name}
+                                name="name"
+                                value={profileFormik.values.name}
                                 onChange={profileFormik.handleChange}
-                                label={t('Fast Name')}
+                                label={t('Name')}
                                 required
                                 error={
-                                    profileFormik.touched.f_name &&
-                                    Boolean(profileFormik.errors.f_name)
+                                    profileFormik.touched.name &&
+                                    Boolean(profileFormik.errors.name)
                                 }
                                 helperText={
-                                    profileFormik.touched.f_name &&
-                                    profileFormik.errors.f_name
+                                    profileFormik.touched.name &&
+                                    profileFormik.errors.name
                                 }
-                                touched={profileFormik.touched.f_name}
+                                touched={profileFormik.touched.name}
                             />
                         </Grid>
+                        {/*<Grid item md={6} xs={12}>*/}
+                        {/*    <CustomProfileTextfield*/}
+                        {/*        id="outlined-basic"*/}
+                        {/*        variant="outlined"*/}
+                        {/*        name="l_name"*/}
+                        {/*        value={profileFormik.values.l_name}*/}
+                        {/*        onChange={profileFormik.handleChange}*/}
+                        {/*        label={t('Last Name')}*/}
+                        {/*        required*/}
+                        {/*        error={*/}
+                        {/*            profileFormik.touched.l_name &&*/}
+                        {/*            Boolean(profileFormik.errors.l_name)*/}
+                        {/*        }*/}
+                        {/*        helperText={*/}
+                        {/*            profileFormik.touched.l_name &&*/}
+                        {/*            profileFormik.errors.l_name*/}
+                        {/*        }*/}
+                        {/*        touched={profileFormik.touched.l_name}*/}
+                        {/*    />*/}
+                        {/*</Grid>*/}
                         <Grid item md={6} xs={12}>
-                            <CustomProfileTextfield
-                                id="outlined-basic"
-                                variant="outlined"
-                                name="l_name"
-                                value={profileFormik.values.l_name}
-                                onChange={profileFormik.handleChange}
-                                label={t('Last Name')}
-                                required
-                                error={
-                                    profileFormik.touched.l_name &&
-                                    Boolean(profileFormik.errors.l_name)
-                                }
-                                helperText={
-                                    profileFormik.touched.l_name &&
-                                    profileFormik.errors.l_name
-                                }
-                                touched={profileFormik.touched.l_name}
-                            />
+                            <Stack position="relative">
+                                <CustomProfileTextfield
+                                    label={
+                                        <span>
+                                            {t('Phone')}{' '}
+                                            {data?.is_phone_verified === 1 && (
+                                                <>
+                                                    <span
+                                                        style={{ color: 'red' }}
+                                                    >
+                                                        ({t('Not Changeable')})
+                                                    </span>{' '}
+                                                </>
+                                            )}
+                                        </span>
+                                    }
+                                    variant="outlined"
+                                    sx={{ width: '100%' }}
+                                    InputProps={{
+                                        inputMode: 'numeric',
+                                        pattern: '[0-9]*',
+                                    }}
+                                    disabled={data?.is_phone_verified === 1}
+                                    name="phone"
+                                    value={profileFormik.values.phone}
+                                    onChange={(e) => {
+                                        let inputValue = e.target.value
+
+                                        // Allow + at the beginning and remove all non-numeric characters after the first position
+                                        if (inputValue[0] === '+') {
+                                            inputValue = `+${inputValue
+                                                .slice(1)
+                                                .replace(/\D/g, '')}`
+                                        } else {
+                                            inputValue = inputValue.replace(
+                                                /\D/g,
+                                                ''
+                                            ) // Remove all non-numeric characters
+                                        }
+
+                                        profileFormik.setFieldValue(
+                                            'phone',
+                                            inputValue
+                                        )
+                                    }}
+                                    onBlur={profileFormik.handleBlur}
+                                    error={
+                                        profileFormik.touched.phone &&
+                                        Boolean(profileFormik.errors.phone)
+                                    }
+                                    helperText={
+                                        profileFormik.touched.phone &&
+                                        profileFormik.errors.phone
+                                    }
+                                    type="tel"
+                                />
+                                <Stack
+                                    sx={{
+                                        position: 'absolute',
+                                        right: '10px',
+                                        top: '12px',
+                                    }}
+                                >
+                                    {data?.is_phone_verified === 1 ? (
+                                        <VerifiedIcon />
+                                    ) : (
+                                        <>
+                                            {global?.centralize_login
+                                                ?.phone_verification_status ===
+                                                1 && (
+                                                <ReportProblemIcon
+                                                    onClick={() =>
+                                                        handleVerified('phone')
+                                                    }
+                                                    sx={{
+                                                        color: (theme) =>
+                                                            theme.palette.error
+                                                                .pureRed,
+                                                        width: '1.2rem',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                />
+                                            )}
+                                        </>
+                                    )}
+                                </Stack>
+                            </Stack>
                         </Grid>
                         <Grid item md={6} xs={12}>
-                            <CustomProfileTextfield
-                                label={
-                                    <span>
-                                        {t('Phone')}{' '}
-                                        <span style={{ color: 'red' }}>
-                                            ({t('Not Changeable')})
-                                        </span>{' '}
-                                    </span>
-                                }
-                                variant="outlined"
-                                sx={{ width: '100%' }}
-                                InputProps={{
-                                    inputMode: 'numeric',
-                                    pattern: '[0-9]*',
-                                }}
-                                disabled
-                                value={phone}
-                            />
-                        </Grid>
-                        <Grid item md={6} xs={12}>
-                            <CustomProfileTextfield
-                                id="outlined-basic"
-                                variant="outlined"
-                                name="email"
-                                value={profileFormik.values.email}
-                                onChange={data?.social_id===null && profileFormik.handleChange}
-                                label={t('Email')}
-                                required
-                                error={
-                                    profileFormik.touched.email &&
-                                    Boolean(profileFormik.errors.email)
-                                }
-                                helperText={
-                                    profileFormik.touched.email &&
-                                    profileFormik.errors.email
-                                }
-                                touched={profileFormik.touched.email}
-                            />
+                            <Stack position="relative">
+                                <CustomProfileTextfield
+                                    id="outlined-basic"
+                                    variant="outlined"
+                                    name="email"
+                                    value={profileFormik.values.email}
+                                    onChange={profileFormik.handleChange}
+                                    label={t('Email')}
+                                    required
+                                    error={
+                                        profileFormik.touched.email &&
+                                        Boolean(profileFormik.errors.email)
+                                    }
+                                    helperText={
+                                        profileFormik.touched.email &&
+                                        profileFormik.errors.email
+                                    }
+                                    touched={profileFormik.touched.email}
+                                />
+                                <Stack
+                                    sx={{
+                                        position: 'absolute',
+                                        right: '10px',
+                                        top: '12px',
+                                    }}
+                                >
+                                    {data?.is_email_verified === 1 ? (
+                                        <VerifiedIcon />
+                                    ) : (
+                                        <>
+                                            {global?.centralize_login
+                                                ?.email_verification_status ===
+                                                1 && (
+                                                <ReportProblemIcon
+                                                    onClick={() =>
+                                                        handleVerified('email')
+                                                    }
+                                                    sx={{
+                                                        color: (theme) =>
+                                                            theme.palette.error
+                                                                .pureRed,
+                                                        width: '1.2rem',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                />
+                                            )}
+                                        </>
+                                    )}
+
+                                    {/*{!data?.is_email_verified === 0 ? (*/}
+                                    {/*    <VerifiedIcon />*/}
+                                    {/*) : (*/}
+                                    {/*    <ReportProblemIcon*/}
+                                    {/*        onClick={() =>*/}
+                                    {/*            handleVerified('email')*/}
+                                    {/*        }*/}
+                                    {/*        sx={{*/}
+                                    {/*            color: (theme) =>*/}
+                                    {/*                theme.palette.error.pureRed,*/}
+                                    {/*            width: '1.2rem',*/}
+                                    {/*            cursor: 'pointer',*/}
+                                    {/*        }}*/}
+                                    {/*    />*/}
+                                    {/*)}*/}
+                                </Stack>
+                            </Stack>
                         </Grid>
                     </Grid>
-                    <Grid item md={12} xs={12} display="flex" flexDirection="row" gap="10px" justifyContent="flex-end" pt={{xs:"20px", md:0}}>
+                    <Grid
+                        item
+                        md={12}
+                        xs={12}
+                        display="flex"
+                        flexDirection="row"
+                        gap="10px"
+                        justifyContent="flex-end"
+                        pt={{ xs: '20px', md: 0 }}
+                    >
                         <CancelButton variant="outlined" onClick={handleReset}>
                             {t('Reset')}
                         </CancelButton>
@@ -215,6 +386,28 @@ const BasicInformationForm = ({ data, formSubmit, deleteUserHandler }) => {
                     </Grid>
                 </Grid>
             </form>
+            {open && (
+                <CustomModal openModal={open} setModalOpen={setOpen}>
+                    <OtpForm
+                        data={data?.phone}
+                        handleClose={handleClosePhone}
+                        formSubmitHandler={formSubmit}
+                        loginValue={resData}
+                        reSendOtp={formSubmit}
+                    />
+                </CustomModal>
+            )}
+            {openEmail && (
+                <CustomModal openModal={openEmail} setModalOpen={setOpenEmail}>
+                    <OtpForm
+                        data={data?.email}
+                        handleClose={handleCloseEmail}
+                        formSubmitHandler={formSubmit}
+                        loginValue={resData}
+                        reSendOtp={formSubmit}
+                    />
+                </CustomModal>
+            )}
         </CustomDivWithBorder>
     )
 }

@@ -14,6 +14,7 @@ import CookiesConsent from '../CookiesConsent'
 import DiscountBanner from './DiscountBanner'
 
 import { setGlobalSettings } from '@/redux/slices/global'
+import AvailableZoneSection from '@/components/landingpage/AvailableZoneSection'
 
 const LandingPage = (props) => {
     const { global } = props
@@ -55,6 +56,7 @@ const LandingPage = (props) => {
     useEffect(() => {
         dispatch(setGlobalSettings(global))
     }, [])
+
     return (
         <NoSsr>
             <CssBaseline />
@@ -65,7 +67,9 @@ const LandingPage = (props) => {
                 banner_section_subTitle={
                     landingPageData?.react_header_sub_title
                 }
-                banner_section_image={landingPageData?.react_header_image_full_url}
+                banner_section_image={
+                    landingPageData?.react_header_image_full_url
+                }
                 banner_section_image_base_url={
                     landingPageData?.base_urls?.react_header_image_url
                 }
@@ -90,6 +94,11 @@ const LandingPage = (props) => {
                         ?.react_promotional_banner_image_url
                 }
             />
+            {landingPageData?.available_zone_status === 1 &&
+                landingPageData?.available_zone_list?.length > 0 && (
+                    <AvailableZoneSection landingPageData={landingPageData} />
+                )}
+
             <LinkSection
                 self_registration_restaurant={
                     landingPageData?.restaurant_section

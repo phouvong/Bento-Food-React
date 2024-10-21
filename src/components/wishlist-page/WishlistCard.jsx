@@ -1,10 +1,11 @@
 import { Grid, IconButton, Stack, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import DeleteIcon from '@mui/icons-material/Delete'
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { ArrowButton, IconButtonGrid, WishlistBox } from './WishList.style'
-import { getAmount, handleBadge } from "@/utils/customFunctions"
-import FoodDetailModal from '../foodDetail-modal/FoodDetailModal'
+import dynamic from 'next/dynamic'
+const FoodDetailModal = dynamic(() =>
+    import('../foodDetail-modal/FoodDetailModal')
+)
 import { useDispatch, useSelector } from 'react-redux'
 import {
     CustomFavICon,
@@ -14,19 +15,15 @@ import {
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import CustomImageContainer from '../CustomImageContainer'
-import CustomDialogConfirm from '../custom-dialog/confirm/CustomDialogConfirm'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { t } from 'i18next'
 import { RTL } from '../RTL/RTL'
-import { FavoriteBorderOutlined } from '@mui/icons-material'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
 import { useMutation } from 'react-query'
-import { ProductsApi } from "@/hooks/react-query/config/productsApi"
-import { addWishList, removeWishListFood } from "@/redux/slices/wishList"
+import { ProductsApi } from '@/hooks/react-query/config/productsApi'
+import { addWishList, removeWishListFood } from '@/redux/slices/wishList'
 import { toast } from 'react-hot-toast'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import FavoriteIcon from '@mui/icons-material/Favorite'
-import { useWishListDelete } from "@/hooks/react-query/config/wish-list/useWishListDelete"
+import { useWishListDelete } from '@/hooks/react-query/config/wish-list/useWishListDelete'
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined'
 import CustomPopover from '../custom-popover/CustomPopover'
 import WishlistDeleteItem from './WishlistDeleteItem'
@@ -39,7 +36,7 @@ const WishlistCard = ({ product, productImageUrl, recommenedproducts }) => {
     const color1 = theme.palette.error.main
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const [openModal, setOpenModal] = useState(false)
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl, setAnchorEl] = useState(null)
     const { token } = useSelector((state) => state.userToken)
     const { global } = useSelector((state) => state.globalSettings)
     let currencySymbol
@@ -62,7 +59,7 @@ const WishlistCard = ({ product, productImageUrl, recommenedproducts }) => {
         restaurant_discount,
     } = product
 
-    const imageUrl =image_full_url
+    const imageUrl = image_full_url
     const discountPrice = price - discount
     const handleFoodDetailModal = () => setOpenModal(true)
     const handleModalClose = () => {
@@ -124,11 +121,11 @@ const WishlistCard = ({ product, productImageUrl, recommenedproducts }) => {
         return !!wishLists?.food?.find((wishFood) => wishFood.id === id)
     }
     const handleClickDelete = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
+        setAnchorEl(event.currentTarget)
+    }
     const handleClose = (event) => {
-        setAnchorEl(null);
-    };
+        setAnchorEl(null)
+    }
     return (
         <>
             <WishlistBox sx={{ cursor: 'pointer' }}>
@@ -212,7 +209,7 @@ const WishlistCard = ({ product, productImageUrl, recommenedproducts }) => {
                                 <span
                                     style={{
                                         fontSize: '15px',
-                                        marginInlineStart: "3px"
+                                        marginInlineStart: '3px',
                                     }}
                                 >
                                     {discountPrice &&
@@ -249,9 +246,7 @@ const WishlistCard = ({ product, productImageUrl, recommenedproducts }) => {
                                     )}
                                 </>
                             ) : (
-                                <IconButton
-                                    onClick={handleClickDelete}
-                                >
+                                <IconButton onClick={handleClickDelete}>
                                     <DeleteIcon
                                         sx={{
                                             color: (theme) =>
@@ -314,7 +309,6 @@ const WishlistCard = ({ product, productImageUrl, recommenedproducts }) => {
                     title="Remove this food"
                     subTitle="Want to remove this food your favourite list ?"
                 />
-
             </CustomPopover>
         </>
     )

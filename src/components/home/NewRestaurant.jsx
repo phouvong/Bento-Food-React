@@ -211,7 +211,7 @@ const NewRestaurant = () => {
                         direction="row"
                         alignItems="center"
                         justifyContent="space-between"
-                        paddingBottom={{ xs: '0px', md: '20px' }}
+                        paddingBottom={{ xs: '10px', md: '20px' }}
                     >
                         <Stack direction="row" spacing={1}>
                             <Typography
@@ -266,7 +266,9 @@ const NewRestaurant = () => {
                                                 image={
                                                     restaurantData?.cover_photo_full_url
                                                 }
-                                                logo={restaurantData?.logo_full_url}
+                                                logo={
+                                                    restaurantData?.logo_full_url
+                                                }
                                                 name={restaurantData?.name}
                                                 restaurantImageUrl={
                                                     global?.base_urls

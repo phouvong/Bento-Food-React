@@ -7,8 +7,9 @@ import { ReviewApi } from '@/hooks/react-query/config/reviewlist'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import {
     getDateFormat,
-    getNumberWithConvertedDecimalPoint, handleBadge
-} from "@/utils/customFunctions";
+    getNumberWithConvertedDecimalPoint,
+    handleBadge,
+} from '@/utils/customFunctions'
 import { Grid, Typography, alpha } from '@mui/material'
 import LinearProgress, {
     linearProgressClasses,
@@ -22,9 +23,7 @@ import { useQuery } from 'react-query'
 import { useSelector } from 'react-redux'
 import SimpleBar from 'simplebar-react'
 import 'simplebar/dist/simplebar.min.css'
-import { RTL } from "@/components/RTL/RTL";
-import FoodDetailModal from "@/components/foodDetail-modal/FoodDetailModal";
-import ReviewContent from "@/components/restaurant-details/ReviewContent";
+import ReviewContent from '@/components/restaurant-details/ReviewContent'
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     height: 8,
@@ -46,7 +45,6 @@ const RestaurantReviewModal = ({
     id,
     restaurantDetails,
 }) => {
-
     const [review_count, setReview_Count] = useState({})
     const theme = useTheme()
     const { global } = useSelector((state) => state.globalSettings)
@@ -108,11 +106,12 @@ const RestaurantReviewModal = ({
         }
     }, [data])
     const getPercentOfNumber = (percentRate) => {
-        const total = restaurantDetails?.ratings.reduce((sum, current) => sum + current, 0);
+        const total = restaurantDetails?.ratings.reduce(
+            (sum, current) => sum + current,
+            0
+        )
 
-        return percentRate
-            ? ((percentRate / total) * 100).toFixed(1)
-            : 0
+        return percentRate ? ((percentRate / total) * 100).toFixed(1) : 0
     }
     return (
         <CustomStackFullWidth
@@ -204,7 +203,9 @@ const RestaurantReviewModal = ({
                                     <Box flexGrow={1}>
                                         <BorderLinearProgress
                                             variant="determinate"
-                                            value={restaurantDetails?.ratings[0]}
+                                            value={
+                                                restaurantDetails?.ratings[0]
+                                            }
                                         />
                                     </Box>
                                     <Typography
@@ -226,7 +227,9 @@ const RestaurantReviewModal = ({
                                     <Box flexGrow={1}>
                                         <BorderLinearProgress
                                             variant="determinate"
-                                            value={restaurantDetails?.ratings[1]}
+                                            value={
+                                                restaurantDetails?.ratings[1]
+                                            }
                                         />
                                     </Box>
                                     <Typography
@@ -248,7 +251,9 @@ const RestaurantReviewModal = ({
                                     <Box flexGrow={1}>
                                         <BorderLinearProgress
                                             variant="determinate"
-                                            value={restaurantDetails?.ratings[2]}
+                                            value={
+                                                restaurantDetails?.ratings[2]
+                                            }
                                         />
                                     </Box>
                                     <Typography
@@ -270,7 +275,9 @@ const RestaurantReviewModal = ({
                                     <Box flexGrow={1}>
                                         <BorderLinearProgress
                                             variant="determinate"
-                                            value={restaurantDetails?.ratings[3]}
+                                            value={
+                                                restaurantDetails?.ratings[3]
+                                            }
                                         />
                                     </Box>
                                     <Typography
@@ -292,7 +299,9 @@ const RestaurantReviewModal = ({
                                     <Box flexGrow={1}>
                                         <BorderLinearProgress
                                             variant="determinate"
-                                            value={restaurantDetails?.ratings[4]}
+                                            value={
+                                                restaurantDetails?.ratings[4]
+                                            }
                                         />
                                     </Box>
                                     <Typography
@@ -312,7 +321,10 @@ const RestaurantReviewModal = ({
 
                 {data &&
                     data?.data?.map((review) => (
-                        <ReviewContent review={review} restaurantName={restaurantDetails?.name} />
+                        <ReviewContent
+                            review={review}
+                            restaurantName={restaurantDetails?.name}
+                        />
                     ))}
                 {isLoading && (
                     <Stack marginTop="2rem">
@@ -320,7 +332,6 @@ const RestaurantReviewModal = ({
                     </Stack>
                 )}
             </SimpleBar>
-
         </CustomStackFullWidth>
     )
 }

@@ -1,13 +1,12 @@
 import React from 'react'
-import Privacy from '../../components/privacy-policy/Privacy'
-import { useSelector } from 'react-redux'
-import img from '../../../public/static/Privacy/RectangleP.png'
-import Meta from '../../components/Meta'
-import { ConfigApi } from '../../hooks/react-query/config/useConfig'
+import dynamic from 'next/dynamic'
 import { Container, CssBaseline } from '@mui/material'
-import Privacypolicy from '../../components/privacy-policy/Privacypolicy'
-import { CustomHeader } from '../../api/Headers'
 import { getServerSideProps } from '../index'
+const Meta = dynamic(() => import('../../components/Meta'))
+const Privacypolicy = dynamic(() =>
+    import('../../components/privacy-policy/Privacypolicy')
+)
+
 const index = ({ configData }) => {
     return (
         <div className="div">

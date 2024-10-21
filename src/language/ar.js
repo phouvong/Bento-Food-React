@@ -2,13 +2,19 @@ export const arabic = {
     'Welcome to React': 'مرحبًا بك في React و React-I18Next',
     'Dont have a cutlery? Restaurant will provide you.':
         'ليس لديك أدوات مائدة؟ المطعم سوف يوفر لك.',
+    'for demo propose use otp 123456':
+        'للعرض التجريبي، أقترح استخدام مكتب المدعي العام 123456',
     'Minimum Order': 'الحد الأدنى للطلب',
-    "This charge includes extra vehicle charge":"تشمل هذه الرسوم رسوم السيارة الإضافية",
-    "and bad weather charge":"ورسوم الطقس السيئ",
+    'Allergic Ingredients': 'المكونات المسببة للحساسية',
+    'Nutrition Details': 'تفاصيل التغذية',
+    'This charge includes extra vehicle charge':
+        'تشمل هذه الرسوم رسوم السيارة الإضافية',
+    'and bad weather charge': 'ورسوم الطقس السيئ',
     'Choose Food from  your Favourite Restaurants':
         'اختر الطعام من المطاعم المفضلة لديك',
-    "See our most popular restaurant and foods":"شاهد المطاعم والأطعمة الأكثر شعبية لدينا",
-    "Highlights for you":"برز لك",
+    'See our most popular restaurant and foods':
+        'شاهد المطاعم والأطعمة الأكثر شعبية لدينا',
+    'Highlights for you': 'برز لك',
     'Sharing your accurate location enhances precision in search results and delivery estimates, ensures effortless order delivery.':
         'إن مشاركة موقعك الدقيق تعزز الدقة في نتائج البحث وتقديرات التسليم ، مما يضمن تسليم الطلبات دون عناء.',
     'Active from - ': 'نشط من -',
@@ -302,7 +308,6 @@ export const arabic = {
     Capacity: 'سعة',
     'Add to favorite': 'أضف إلى المفضلة',
     'Minimum Order Value': 'الحد الأدنى قيمة الطلب',
-    'Delivery Time': 'موعد التسليم',
     Ratings: 'تقييمات',
     Rating: 'تقييم',
     Offer: 'يعرض',

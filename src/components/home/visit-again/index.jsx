@@ -89,7 +89,7 @@ const CustomSlider = styled(Stack)(
                   '& .slick-slider': {
                       '& .slick-list': {
                           '& .slick-track': {
-                              gap: '10px !important',
+                              gap: itemLength <= 3 ? '30px' : '20px !important',
                           },
                       },
                   },
@@ -536,7 +536,7 @@ const VisitAgain = () => {
                         <Stack
                             sx={{
                                 overflow: 'auto',
-                                height: '93vh',
+                                height: '80vh',
                                 borderRadius: '20px',
                             }}
                         >

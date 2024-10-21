@@ -18,13 +18,10 @@ const AddOnsManager = (props) => {
         cartList,
         setCheckAddOn,
         checkAddOne,
-        itemIsLoading
+        itemIsLoading,
     } = props
     return (
-        <Box
-            paddingLeft={{ xs: '10px', md: '0px' }}
-
-        >
+        <Box paddingLeft={{ xs: '0px', md: '0px' }}>
             <FoodTitleTypography
                 textAlign="left"
                 fontWeight="600"

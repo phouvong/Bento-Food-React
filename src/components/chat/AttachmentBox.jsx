@@ -6,7 +6,6 @@ import { useTheme } from '@mui/styles'
 
 const AttachmentBox = ({ item, removeImage, view }) => {
     const theme = useTheme()
-    console.log({ item })
     const formatFileSize = (sizeInBytes) => {
         const sizeInKB = (sizeInBytes / 1024).toFixed(2)
         return `${sizeInKB} KB`

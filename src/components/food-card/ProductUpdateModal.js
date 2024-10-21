@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
-import FoodDetailModal from '../foodDetail-modal/FoodDetailModal'
 import { RTL } from '../RTL/RTL'
-
+import dynamic from 'next/dynamic'
+const FoodDetailModal = dynamic(() =>
+    import('../foodDetail-modal/FoodDetailModal')
+)
 const ProductUpdateModal = ({
     openModal,
     setOpenModal,
@@ -17,7 +19,11 @@ const ProductUpdateModal = ({
     const { cartItem } = useSelector((state) => state.cart)
     const { global } = useSelector((state) => state.globalSettings)
     useEffect(() => {
-        setProduct({ ...cartItem,add_ons:cartItem?.addons,cart_id:cartItem?.cartItemId })
+        setProduct({
+            ...cartItem,
+            add_ons: cartItem?.addons,
+            cart_id: cartItem?.cartItemId,
+        })
     }, [])
     const handleModalClose = () => {
         setOpenModal(false)

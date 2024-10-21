@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Box, Stack, Typography, useTheme } from '@mui/material'
 import { useFormik } from 'formik'
 import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
@@ -12,9 +12,20 @@ import toast from 'react-hot-toast'
 import { onErrorResponse } from '../../ErrorResponse'
 import forgotPasswordImage from '../../../assets/images/forgotPasswordImage.svg'
 import CustomImageContainer from '../../CustomImageContainer'
-const ForgotPasswordNumberForm = ({ data, goNext, handleFirstForm, setModalFor }) => {
+import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
+import { auth } from '@/firebase'
+import { setUpRecaptcha } from '@/components/auth'
+const ForgotPasswordNumberForm = ({
+    data,
+    goNext,
+    handleFirstForm,
+    setModalFor,
+    sendOTP,
+    id,
+}) => {
     const { t } = useTranslation()
-    const theme = useTheme();
+    const theme = useTheme()
+
     const { global, token } = useSelector((state) => state.globalSettings)
     const phoneFormik = useFormik({
         initialValues: {
@@ -28,7 +39,7 @@ const ForgotPasswordNumberForm = ({ data, goNext, handleFirstForm, setModalFor }
         onSubmit: async (values, helpers) => {
             try {
                 formSubmitHandler(values)
-            } catch (err) { }
+            } catch (err) {}
         },
     })
 
@@ -47,28 +58,49 @@ const ForgotPasswordNumberForm = ({ data, goNext, handleFirstForm, setModalFor }
     })
     const formSubmitHandler = (values) => {
         handleFirstForm(values)
-        mutate(values, {
-            onSuccess: onSuccessHandler,
-            onError: onErrorResponse,
-        })
+        if (global?.firebase_otp_verification === 1) {
+            sendOTP(values?.phone)
+        } else {
+            mutate(values, {
+                onSuccess: onSuccessHandler,
+                onError: onErrorResponse,
+            })
+        }
     }
     const handleOnChange = (value) => {
         phoneFormik.setFieldValue('phone', `+${value}`)
     }
+
     return (
-        <Stack padding={{ xs: "15", sm: "30px 35px" }} >
-            <CustomStackFullWidth alignItems="center" gap="20px" maxWidth="340px">
+        <Stack>
+            <CustomStackFullWidth
+                alignItems="center"
+                gap="20px"
+                maxWidth="340px"
+            >
                 <CustomImageContainer
                     src={forgotPasswordImage.src}
-                    alt='logo'
+                    alt="logo"
                     width="160px"
-                    objectFit='contained'
+                    objectFit="contained"
                 />
-                <Typography fontSize="16px" fontWeight={600} sx={{ color: theme.palette.text.formHeader }}>
+                <Typography
+                    fontSize="16px"
+                    fontWeight={600}
+                    sx={{ color: theme.palette.text.formHeader }}
+                >
                     {t('Forgot Password')}
                 </Typography>
-                <Typography fontSize="14px" sx={{ textAlign: "center", color: theme.palette.neutral[600] }}>
-                    {t('Don’t worry! Give your registered number & get OTP to update your password.')}
+                <Typography
+                    fontSize="14px"
+                    sx={{
+                        textAlign: 'center',
+                        color: theme.palette.neutral[600],
+                    }}
+                >
+                    {t(
+                        'Don’t worry! Give your registered number & get OTP to update your password.'
+                    )}
                 </Typography>
                 <CustomStackFullWidth>
                     <form noValidate onSubmit={phoneFormik.handleSubmit}>
@@ -93,17 +125,18 @@ const ForgotPasswordNumberForm = ({ data, goNext, handleFirstForm, setModalFor }
                             <Typography
                                 textAlign="center"
                                 sx={{
-                                    cursor: "pointer",
+                                    cursor: 'pointer',
                                     color: theme.palette.neutral[500],
-                                    "&:hover": {
+                                    '&:hover': {
                                         color: theme.palette.primary.main,
-                                    }
+                                    },
                                 }}
                                 onClick={() => {
                                     setModalFor('sign-in')
                                     // goNext()
-                                }}>
-                                {t("Go Back")}
+                                }}
+                            >
+                                {t('Go Back')}
                             </Typography>
                         </Stack>
                     </form>

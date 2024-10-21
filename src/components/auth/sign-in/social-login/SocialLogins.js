@@ -4,19 +4,31 @@ import GoogleLoginComp from './GoogleLoginComp'
 import FbLoginComp from './FbLoginComp'
 import { useDispatch, useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
-import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style"
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 
 const SocialLogins = (props) => {
-    const { socialLogins, handleParentModalClose, setJwtToken, setUserInfo, handleSuccess, setModalFor, setMedium } = props
+    const {
+        socialLogins,
+        handleParentModalClose,
+        setJwtToken,
+        setUserInfo,
+        handleSuccess,
+        setModalFor,
+        setMedium,
+        loginMutation,
+        setLoginInfo,
+        setForWidth,
+        all,
+    } = props
     const { global } = useSelector((state) => state.globalSettings)
-    const [isSingle, setIsSingle] = useState(false);
+    const [isSingle, setIsSingle] = useState(false)
     const { t } = useTranslation()
     useEffect(() => {
         if (socialLogins) {
-            let length = 0;
-            socialLogins.map(item => {
+            let length = 0
+            socialLogins.map((item) => {
                 if (item.status === true) {
-                    length = length + 1;
+                    length = length + 1
                 }
             })
             if (length > 1) {
@@ -27,9 +39,17 @@ const SocialLogins = (props) => {
         }
     }, [])
     return (
-        <CustomStackFullWidth alignItems="center" justifyContent="center" columnGap="1.5rem" flexDirection="row">
+        <CustomStackFullWidth
+            alignItems="center"
+            justifyContent="center"
+            gap="1.5rem"
+        >
             {socialLogins.map((item, index) => {
-                if (item?.login_medium === 'facebook' && item?.status === true) {
+                if (
+                    item?.login_medium === 'facebook' &&
+                    item?.status === true &&
+                    global?.centralize_login?.facebook_login_status === 1
+                ) {
                     return (
                         <FbLoginComp
                             key={index}
@@ -41,9 +61,16 @@ const SocialLogins = (props) => {
                             setModalFor={setModalFor}
                             setMedium={setMedium}
                             isSingle={isSingle}
+                            loginMutation={loginMutation}
+                            setLoginInfo={setLoginInfo}
+                            setForWidth={setForWidth}
                         />
                     )
-                } else if (item?.login_medium === 'google' && item.status === true) {
+                } else if (
+                    item?.login_medium === 'google' &&
+                    item.status === true &&
+                    global?.centralize_login?.google_login_status === 1
+                ) {
                     return (
                         <GoogleLoginComp
                             key={index}
@@ -55,6 +82,10 @@ const SocialLogins = (props) => {
                             setModalFor={setModalFor}
                             setMedium={setMedium}
                             isSingle={isSingle}
+                            loginMutation={loginMutation}
+                            setLoginInfo={setLoginInfo}
+                            setForWidth={setForWidth}
+                            all={all}
                         />
                     )
                 }

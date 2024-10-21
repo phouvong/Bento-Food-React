@@ -197,7 +197,9 @@ const NavResturant = ({ zoneid }) => {
                                                                     alignItems="center"
                                                                 >
                                                                     <CustomImageContainer
-                                                                        src={restaurant.logo_full_url}
+                                                                        src={
+                                                                            restaurant.logo_full_url
+                                                                        }
                                                                         width="40px"
                                                                         height="40px"
                                                                         borderRadius=".4rem"
@@ -265,7 +267,9 @@ const NavResturant = ({ zoneid }) => {
                                                                     alignItems="center"
                                                                 >
                                                                     <CustomImageContainer
-                                                                        src={restaurant.logo_full_url}
+                                                                        src={
+                                                                            restaurant.logo_full_url
+                                                                        }
                                                                         width="40px"
                                                                         height="40px"
                                                                         borderRadius=".4rem"
@@ -295,32 +299,42 @@ const NavResturant = ({ zoneid }) => {
                                             </>
                                         )
                                     })}
+                                {popularRestaurants?.length === 0 && (
+                                    <CustomEmptyResult
+                                        height="100px"
+                                        image={noRestaurantsImage}
+                                        label="No restaurant found"
+                                    />
+                                )}
                             </Grid>
                         )}
 
                         <Grid item md={4}>
-                            <Button
-                                sx={{
-                                    zIndex: 1,
-                                    position: 'absolute',
-                                    bottom: '20%',
-                                    background: (theme) =>
-                                        theme.palette.primary.main,
-                                    color: (theme) =>
-                                        `${theme.palette.neutral[100]} !important`,
-                                    right: '11%',
-                                    padding: '9px 25px',
-                                    borderRadius: '5px',
-                                    '&:hover': {
+                            {popularRestaurants?.length !== 0 && (
+                                <Button
+                                    sx={{
+                                        zIndex: 1,
+                                        position: 'absolute',
+                                        bottom: '20%',
                                         background: (theme) =>
-                                            theme.palette.primary.dark,
-                                    },
-                                }}
-                                size="medium"
-                                onClick={viewAll}
-                            >
-                                {t('View all')}
-                            </Button>
+                                            theme.palette.primary.main,
+                                        color: (theme) =>
+                                            `${theme.palette.neutral[100]} !important`,
+                                        right: '11%',
+                                        padding: '9px 25px',
+                                        borderRadius: '5px',
+                                        '&:hover': {
+                                            background: (theme) =>
+                                                theme.palette.primary.dark,
+                                        },
+                                    }}
+                                    size="medium"
+                                    onClick={viewAll}
+                                >
+                                    {t('View all')}
+                                </Button>
+                            )}
+
                             <CustomImageContainer
                                 src={ResOffer.src}
                                 alt="restaurant-image"
@@ -329,14 +343,6 @@ const NavResturant = ({ zoneid }) => {
                                 width="225px"
                             />
                         </Grid>
-                        {popularRestaurants?.length === 0 && (
-                            <Grid item md={8}>
-                                <CustomEmptyResult
-                                    image={noRestaurantsImage}
-                                    label="No restaurant found"
-                                />
-                            </Grid>
-                        )}
                     </Grid>
                 </Popover>
             </RTL>

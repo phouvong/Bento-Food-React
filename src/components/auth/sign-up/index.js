@@ -43,6 +43,9 @@ import SignUpValidation from '../SignUpValidation'
 import OtpForm from '../forgot-password/OtpForm'
 import { CustomSigninOutLine } from '../sign-in'
 import SocialLogins from '../sign-in/social-login/SocialLogins'
+import { getGuestId } from '@/components/checkout-page/functions/getGuestUserId'
+import { getLoginUserCheck } from '@/components/auth/loginHelper'
+import { useFireBaseOtpVerify } from '@/hooks/react-query/useFireBaseVerfify'
 
 // const CustomSignUpTextField =Styled()
 export const CustomSignUpTextField = styled(TextField)(({ theme }) => ({
@@ -88,6 +91,8 @@ const SignUpPage = ({
     setJwtToken,
     setUserInfo,
     handleSuccess,
+    verificationId,
+    sendOTP,
 }) => {
     const { t } = useTranslation()
     const dispatch = useDispatch()
@@ -100,13 +105,13 @@ const SignUpPage = ({
     const businessLogo = global?.base_urls?.business_logo_url
     const [isChecked, setIsChecked] = useState(false)
     const [openOtpModal, setOpenOtpModal] = useState(false)
-    const [otpData, setOtpData] = useState({ phone: '' })
+    const [otpData, setOtpData] = useState({ type: '' })
     const [mainToken, setMainToken] = useState(null)
+    const [loginValue, setLoginValue] = useState(null)
 
     const signUpFormik = useFormik({
         initialValues: {
-            f_name: '',
-            l_name: '',
+            name: '',
             email: '',
             phone: '',
             password: '',
@@ -124,19 +129,19 @@ const SignUpPage = ({
 
     const { mutate, isLoading, error } = useMutation('sign-up', AuthApi.signUp)
     useEffect(() => {
-        if (otpData?.phone !== '') {
+        if (otpData?.type !== '') {
             setOpenOtpModal(true)
         }
     }, [otpData])
 
     const handleTokenAfterSignUp = (response) => {
-        if (response?.data) {
+        if (response) {
             if (typeof window !== 'undefined') {
-                localStorage.setItem('token', response?.data?.token)
+                localStorage.setItem('token', response?.token)
             }
             //toast.success(t('Signup successfully.'))
             CustomToaster('success', 'Signup successfully.')
-            dispatch(setToken(response?.data?.token))
+            dispatch(setToken(response?.token))
             handleClose?.()
             router.push('/interest', {
                 query: { from: 'welcome' },
@@ -146,46 +151,72 @@ const SignUpPage = ({
 
     const formSubmitHandler = (values) => {
         const signUpData = {
-            f_name: values.f_name,
-            l_name: values.l_name,
+            name: values.name,
             email: values.email,
             phone: values.phone,
             password: values.password,
             confirm_password: values.confirm_password,
             ref_code: values.ref_code,
+            guest_id: values?.guest_id ?? getGuestId(),
         }
-
+        setLoginValue(signUpData)
         mutate(signUpData, {
             onSuccess: async (response) => {
-                if (global?.customer_verification) {
-                    if (Number.parseInt(response?.is_phone_verified) === 1) {
-                        handleTokenAfterSignUp(response)
-                    } else {
-                        setOtpData({ phone: signUpData?.phone })
-                        setMainToken(response)
-                    }
-                } else {
-                    handleTokenAfterSignUp(response)
-                }
+                getLoginUserCheck(
+                    response,
+                    signUpData,
+                    handleTokenAfterSignUp,
+                    setOtpData,
+                    setMainToken,
+                    sendOTP,
+                    global
+                )
             },
             onError: onErrorResponse,
         })
     }
     const { mutate: otpVerifyMutate, isLoading: isLoadingOtpVerifiyAPi } =
         useVerifyPhone()
+
+    const { mutate: fireBaseOtpMutation, isLoading: fireIsLoading } =
+        useFireBaseOtpVerify()
     const otpFormSubmitHandler = (values) => {
         const onSuccessHandler = (res) => {
-            //toast.success(res?.message)
-            CustomToaster('success', res?.message)
             setOpenOtpModal(false)
-            handleTokenAfterSignUp(mainToken)
+            handleTokenAfterSignUp(res)
             handleClose()
             dispatch(setWelcomeModal(true))
         }
-        otpVerifyMutate(values, {
-            onSuccess: onSuccessHandler,
-            onError: onSingleErrorResponse,
-        })
+
+        if (
+            global?.firebase_otp_verification === 1 &&
+            global?.centralize_login?.phone_verification_status === 1
+        ) {
+            const temValue = {
+                session_info: verificationId,
+                phone: values.phone,
+                otp: values.reset_token,
+                login_type: 'manual',
+                guest_id: getGuestId(),
+            }
+            fireBaseOtpMutation(temValue, {
+                onSuccess: onSuccessHandler,
+                onError: onErrorResponse,
+            })
+        } else {
+            let tempValues = {
+                [otpData?.verification_type]: otpData.type,
+                otp: values.reset_token,
+                login_type: otpData?.login_type,
+                verification_type: otpData?.verification_type,
+                guest_id: getGuestId(),
+            }
+
+            otpVerifyMutate(tempValues, {
+                onSuccess: onSuccessHandler,
+                onError: onSingleErrorResponse,
+            })
+        }
     }
     const handleOnChange = (value) => {
         signUpFormik.setFieldValue('phone', `+${value}`)
@@ -224,31 +255,39 @@ const SignUpPage = ({
                     <form onSubmit={signUpFormik.handleSubmit} noValidate>
                         <Stack>
                             <Grid container spacing={3}>
-                                <Grid item xs={12} md={6}>
+                                <Grid
+                                    item
+                                    xs={12}
+                                    md={
+                                        global?.ref_earning_status === 1
+                                            ? 6
+                                            : 12
+                                    }
+                                >
                                     <CustomSignUpTextField
                                         required
                                         fullWidth
-                                        id="first_name"
-                                        label={t('First Name')}
-                                        placeholder={t('First Name')}
+                                        id="name"
+                                        label={t('User name')}
+                                        placeholder={t('User name')}
                                         InputLabelProps={{
                                             shrink:
-                                                !!signUpFormik.values.f_name ||
-                                                signUpFormik.touched.f_name,
+                                                !!signUpFormik.values.name ||
+                                                signUpFormik.touched.name,
                                         }}
-                                        name="f_name"
-                                        autoComplete="first_name"
-                                        value={signUpFormik.values.f_name}
+                                        name="name"
+                                        autoComplete="name"
+                                        value={signUpFormik.values.name}
                                         onChange={signUpFormik.handleChange}
                                         error={
-                                            signUpFormik.touched.f_name &&
-                                            Boolean(signUpFormik.errors.f_name)
+                                            signUpFormik.touched.name &&
+                                            Boolean(signUpFormik.errors.name)
                                         }
                                         helperText={
-                                            signUpFormik.touched.f_name &&
-                                            signUpFormik.errors.f_name
+                                            signUpFormik.touched.name &&
+                                            signUpFormik.errors.name
                                         }
-                                        touched={signUpFormik.touched.f_name}
+                                        touched={signUpFormik.touched.name}
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">
@@ -269,47 +308,60 @@ const SignUpPage = ({
                                         }}
                                     />
                                 </Grid>
-                                <Grid item xs={12} md={6}>
-                                    <CustomSignUpTextField
-                                        required
-                                        fullWidth
-                                        id="last_name"
-                                        label={t('Last Name')}
-                                        placeholder={t('Last Name')}
-                                        name="l_name"
-                                        autoComplete="last_name"
-                                        value={signUpFormik.values.l_name}
-                                        onChange={signUpFormik.handleChange}
-                                        error={
-                                            signUpFormik.touched.l_name &&
-                                            Boolean(signUpFormik.errors.l_name)
-                                        }
-                                        helperText={
-                                            signUpFormik.touched.l_name &&
-                                            signUpFormik.errors.l_name
-                                        }
-                                        touched={signUpFormik.touched.l_name}
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <AccountCircleIcon
-                                                        sx={{
-                                                            fontSize: '1.2rem',
-                                                            color: (theme) =>
-                                                                alpha(
+                                {global?.customer_wallet_status === 1 &&
+                                global?.ref_earning_status === 1 ? (
+                                    <Grid item xs={12} md={6}>
+                                        <CustomSignUpTextField
+                                            fullWidth
+                                            id="ref_code"
+                                            label={t('Refer Code (Optional)')}
+                                            placeholder={t(
+                                                'Refer Code (Optional)'
+                                            )}
+                                            name="ref_code"
+                                            autoComplete="ref_code"
+                                            value={signUpFormik.values.ref_code}
+                                            onChange={signUpFormik.handleChange}
+                                            error={
+                                                signUpFormik.touched.ref_code &&
+                                                Boolean(
+                                                    signUpFormik.errors.ref_code
+                                                )
+                                            }
+                                            helperText={
+                                                signUpFormik.touched.ref_code &&
+                                                signUpFormik.errors.ref_code
+                                            }
+                                            touched={
+                                                signUpFormik.touched.ref_code
+                                            }
+                                            //   autoFocus
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <GroupIcon
+                                                            sx={{
+                                                                fontSize:
+                                                                    '1.2rem',
+                                                                color: (
                                                                     theme
-                                                                        .palette
-                                                                        .neutral[400],
-                                                                    0.5
-                                                                ),
-                                                        }}
-                                                    />
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                        //  autoFocus
-                                    />
-                                </Grid>
+                                                                ) =>
+                                                                    alpha(
+                                                                        theme
+                                                                            .palette
+                                                                            .neutral[400],
+                                                                        0.5
+                                                                    ),
+                                                            }}
+                                                        />
+                                                    </InputAdornment>
+                                                ),
+                                            }}
+                                        />
+                                    </Grid>
+                                ) : (
+                                    ''
+                                )}
                                 <Grid item xs={12} md={6}>
                                     <CustomSignUpTextField
                                         required
@@ -483,7 +535,10 @@ const SignUpPage = ({
 
                                         {signUpFormik.errors.password && (
                                             <FormHelperText
-                                                sx={{ color: '#FF686A' }}
+                                                sx={{
+                                                    color: '#FF686A',
+                                                    fontSize: '10px',
+                                                }}
                                             >
                                                 {signUpFormik.errors.password}
                                             </FormHelperText>
@@ -517,7 +572,7 @@ const SignUpPage = ({
                                             }
                                             id="confirm_password"
                                             name="confirm_password"
-                                            placeholder={t('6+ Character')}
+                                            placeholder={t('8+ Character')}
                                             value={
                                                 signUpFormik.values
                                                     .confirm_password
@@ -625,6 +680,7 @@ const SignUpPage = ({
                                                     color: (theme) =>
                                                         theme.palette.error
                                                             .main,
+                                                    fontSize: '10px',
                                                 }}
                                             >
                                                 {
@@ -635,60 +691,6 @@ const SignUpPage = ({
                                         )}
                                     </FormControl>
                                 </Grid>
-                                {global?.customer_wallet_status === 1 &&
-                                global?.ref_earning_status === 1 ? (
-                                    <Grid item xs={12} md={12}>
-                                        <CustomSignUpTextField
-                                            fullWidth
-                                            id="ref_code"
-                                            label={t('Refer Code (Optional)')}
-                                            placeholder={t(
-                                                'Refer Code (Optional)'
-                                            )}
-                                            name="ref_code"
-                                            autoComplete="ref_code"
-                                            value={signUpFormik.values.ref_code}
-                                            onChange={signUpFormik.handleChange}
-                                            error={
-                                                signUpFormik.touched.ref_code &&
-                                                Boolean(
-                                                    signUpFormik.errors.ref_code
-                                                )
-                                            }
-                                            helperText={
-                                                signUpFormik.touched.ref_code &&
-                                                signUpFormik.errors.ref_code
-                                            }
-                                            touched={
-                                                signUpFormik.touched.ref_code
-                                            }
-                                            //   autoFocus
-                                            InputProps={{
-                                                startAdornment: (
-                                                    <InputAdornment position="start">
-                                                        <GroupIcon
-                                                            sx={{
-                                                                fontSize:
-                                                                    '1.2rem',
-                                                                color: (
-                                                                    theme
-                                                                ) =>
-                                                                    alpha(
-                                                                        theme
-                                                                            .palette
-                                                                            .neutral[400],
-                                                                        0.5
-                                                                    ),
-                                                            }}
-                                                        />
-                                                    </InputAdornment>
-                                                ),
-                                            }}
-                                        />
-                                    </Grid>
-                                ) : (
-                                    ''
-                                )}
                             </Grid>
 
                             <CustomStackFullWidth>
@@ -730,7 +732,7 @@ const SignUpPage = ({
                                         label={t('I accept all the')}
                                     />
                                     <CustomColouredTypography
-                                        color={theme.palette.newsletterBG}
+                                        color={theme.palette.primary.main}
                                         onClick={handleClick}
                                         sx={{
                                             cursor: 'pointer',
@@ -794,6 +796,7 @@ const SignUpPage = ({
                                         }}
                                         loading={isLoading}
                                         variant="contained"
+                                        id="recaptcha-container"
                                     >
                                         {t('Sign Up')}
                                     </LoadingButton>
@@ -802,23 +805,23 @@ const SignUpPage = ({
                         </Stack>
                     </form>
                 </CustomStackFullWidth>
-                {global?.social_login.length > 0 && (
-                    <CustomStackFullWidth
-                        alignItems="center"
-                        justifyContent="center"
-                        spacing={1}
-                    >
-                        <SocialLogins
-                            socialLogins={global?.social_login}
-                            handleParentModalClose={handleClose}
-                            setJwtToken={setJwtToken}
-                            setUserInfo={setUserInfo}
-                            handleSuccess={handleSuccess}
-                            setModalFor={setModalFor}
-                        />
-                    </CustomStackFullWidth>
-                )}
-                <Box mt="1.8rem">
+                {/*{global?.social_login.length > 0 && (*/}
+                {/*    <CustomStackFullWidth*/}
+                {/*        alignItems="center"*/}
+                {/*        justifyContent="center"*/}
+                {/*        spacing={1}*/}
+                {/*    >*/}
+                {/*        <SocialLogins*/}
+                {/*            socialLogins={global?.social_login}*/}
+                {/*            handleParentModalClose={handleClose}*/}
+                {/*            setJwtToken={setJwtToken}*/}
+                {/*            setUserInfo={setUserInfo}*/}
+                {/*            handleSuccess={handleSuccess}*/}
+                {/*            setModalFor={setModalFor}*/}
+                {/*        />*/}
+                {/*    </CustomStackFullWidth>*/}
+                {/*)}*/}
+                <Box>
                     <CustomTypography align="center" fontSize="14px">
                         {t('Already have an account?')}
                         <CustomLink
@@ -838,9 +841,12 @@ const SignUpPage = ({
                     setModalOpen={setOpenOtpModal}
                 >
                     <OtpForm
-                        data={otpData}
+                        handleClose={() => setOpenOtpModal(false)}
+                        data={otpData?.type}
                         formSubmitHandler={otpFormSubmitHandler}
-                        isLoading={isLoadingOtpVerifiyAPi}
+                        isLoading={isLoadingOtpVerifiyAPi || fireIsLoading}
+                        loginValue={loginValue}
+                        reSendOtp={formSubmitHandler}
                     />
                 </CustomModal>
             </RTL>

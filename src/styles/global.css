@@ -17,7 +17,23 @@ body {
     text-decoration: none !important;
     color: #b9b9b9;
 }
+.grecaptcha-badge{
+    display: none !important;
+    height: 0px !important;
+}
+/*.rc-anchor-light {*/
+/*    display: none !important;*/
+/*    background: #f9f9f9;*/
+/*    color: #000;*/
+/*}*/
 
+/*.rc-anchor-normal {*/
+/*    height: 0 !important;*/
+/*    width:0 !important;*/
+/*}*/
+/*.rc-anchor-light.rc-anchor-normal{*/
+/*    opacity: 0 !important;*/
+/*}*/
 
  .gm-style-iw-chr button {
 

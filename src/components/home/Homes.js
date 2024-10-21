@@ -47,7 +47,7 @@ import SearchFilterTag from './Search-filter-tag/SearchFilterTag'
 import Cuisines from './cuisines'
 import FeatureCatagories from './featured-categories/FeatureCatagories'
 import VisitAgain from './visit-again'
-import AddsSection from "@/components/home/add-section";
+import AddsSection from '@/components/home/add-section'
 
 const Homes = ({ configData }) => {
     const { global } = useSelector((state) => state.globalSettings)
@@ -55,9 +55,7 @@ const Homes = ({ configData }) => {
     const { filterData, foodOrRestaurant } = useSelector(
         (state) => state.searchFilterStore
     )
-
     const { userData } = useSelector((state) => state.user)
-
     const [sort_by, setSort_by] = useState('')
     const { searchTagData } = useSelector((state) => state.searchTags)
     const router = useRouter()
@@ -65,7 +63,7 @@ const Homes = ({ configData }) => {
     const { campaignFoods, banners, bestReviewedFoods, popularFood } =
         useSelector((state) => state.storedData)
 
-    const { welcomeModal } = useSelector((state) => state.utilsData)
+    const { welcomeModal, isNeedLoad } = useSelector((state) => state.utilsData)
     const dispatch = useDispatch()
     const onSuccessHandler = (response) => {
         setFetcheedData(response)
@@ -124,21 +122,23 @@ const Homes = ({ configData }) => {
         enabled: false,
         onError: onSingleErrorResponse,
     })
+
     useEffect(async () => {
         if (
-            banners?.banners?.length === 0 &&
-            banners?.campaigns?.length === 0
+            (banners?.banners?.length === 0 &&
+                banners?.campaigns?.length === 0) ||
+            isNeedLoad
         ) {
             await refetchBannerData()
         }
 
-        if (campaignFoods?.length === 0) {
+        if (campaignFoods?.length === 0 || isNeedLoad) {
             await refetchCampaignData()
         }
-        if (bestReviewedFoods?.length === 0) {
+        if (bestReviewedFoods?.length === 0 || isNeedLoad) {
             await refetchMostReviewed()
         }
-        if (popularFood?.length === 0) {
+        if (popularFood?.length === 0 || isNeedLoad) {
             await refetchNearByPopularRestaurantData()
         }
     }, [])
@@ -232,7 +232,7 @@ const Homes = ({ configData }) => {
                             <FeatureCatagories height="70px" />
                             <CustomContainer>
                                 <VisitAgain />
-                                <AddsSection/>
+                                <AddsSection />
                             </CustomContainer>
                         </Box>
                         <CustomContainer>
@@ -282,17 +282,26 @@ const Homes = ({ configData }) => {
                             />
                         </Box>
                         <Box mt={2}>
-                            <Typography variant="h5" mb={1} color={theme.palette.neutral[1000]}>
+                            <Typography
+                                variant="h5"
+                                mb={1}
+                                color={theme.palette.neutral[1000]}
+                            >
                                 {t('Welcome to ' + configData?.business_name)}
                             </Typography>
-                            <Typography variant="body2" lineHeight={'1.5'} color={theme.palette.neutral[1000]}>
+                            <Typography
+                                variant="body2"
+                                lineHeight={'1.5'}
+                                color={theme.palette.neutral[1000]}
+                            >
                                 {userData?.is_valid_for_discount
                                     ? t(
                                           `Get ready for a special welcome gift, enjoy a special discount on your first order within `
                                       ) +
                                       userData?.validity +
                                       '.'
-                                    : ''}{'  '}
+                                    : ''}
+                                {'  '}
                                 {t(
                                     `  Start exploring the best services around you.`
                                 )}

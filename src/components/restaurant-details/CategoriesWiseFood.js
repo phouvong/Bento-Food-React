@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { alpha, Grid, Typography } from "@mui/material";
+import { alpha, Grid, Typography } from '@mui/material'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
 import FoodCard from '../food-card/FoodCard'
@@ -13,13 +13,15 @@ import discountBanner from '../../../public/static/discount.svg'
 import heroImg from '../../../public/static/heroHome.svg'
 import ImageNotFound from '../../../public/static/no-image-found.png'
 import { DiscountImageGrid } from './restaurant-details.style'
-import { t } from "i18next";
+import { t } from 'i18next'
 
 const CategoriesWiseFood = ({
     data,
     handleFocusedSection,
     indexNumber,
-    restaurantDiscount, hasFreeDelivery,disRef
+    restaurantDiscount,
+    hasFreeDelivery,
+    disRef,
 }) => {
     const theme = useTheme()
     const ref2 = useRef(null)
@@ -85,7 +87,11 @@ const CategoriesWiseFood = ({
                                 />
                                 <Typography
                                     fontWeight="500"
-                                    fontSize={{ xs: "16px", sm: "18px", md: "20px" }}
+                                    fontSize={{
+                                        xs: '16px',
+                                        sm: '18px',
+                                        md: '20px',
+                                    }}
                                     color={theme.palette.neutral[1000]}
                                 >
                                     {data?.name}
@@ -99,14 +105,14 @@ const CategoriesWiseFood = ({
                                 xs={12}
                                 sm={12}
                                 md={12}
-
                                 sx={{
                                     padding: {
                                         xs: '10px',
                                         sm: '.6rem',
                                         md: '.6rem',
                                     },
-                                    background: (theme) => alpha( theme.palette.primary.main,.15),
+                                    background: (theme) =>
+                                        alpha(theme.palette.primary.main, 0.15),
                                     marginTop: '.5rem',
                                 }}
                             >
@@ -188,7 +194,7 @@ const CategoriesWiseFood = ({
                                     fontSize="27px"
                                     fontWeigth="600"
                                 >
-                                    {t("Free Delivery")}
+                                    {t('Free Delivery')}
                                 </Typography>
                             </DiscountImageGrid>
                         )}
@@ -207,7 +213,11 @@ const CategoriesWiseFood = ({
                         >
                             <Typography
                                 fontWeight="500"
-                                fontSize={{ xs: "16px", sm: "18px", md: "20px" }}
+                                fontSize={{
+                                    xs: '16px',
+                                    sm: '18px',
+                                    md: '20px',
+                                }}
                                 color={theme.palette.neutral[1000]}
                             >
                                 {data?.name}
@@ -230,12 +240,17 @@ const CategoriesWiseFood = ({
                                     ) {
                                         return (
                                             <Grid
+                                                key={food?.id}
                                                 item
                                                 xs={6}
                                                 sm={4}
                                                 md={2.4}
                                                 align="left"
-                                                pb={{ xs: "0rem", sm: ".5rem", md: "1.2rem" }}
+                                                pb={{
+                                                    xs: '0rem',
+                                                    sm: '.5rem',
+                                                    md: '1.2rem',
+                                                }}
                                             >
                                                 <FoodCard
                                                     product={food}
@@ -286,7 +301,7 @@ const CategoriesWiseFood = ({
                                     fontSize="27px"
                                     fontWeigth="600"
                                 >
-                                    {t("Free Delivery")}
+                                    {t('Free Delivery')}
                                 </Typography>
                             </DiscountImageGrid>
                         )}

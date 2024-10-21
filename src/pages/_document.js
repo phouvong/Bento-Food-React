@@ -24,41 +24,43 @@ class CustomDocument extends Document {
                     {/*/>*/}
 
                     <meta name="theme-color" content="#111827" />
-                    {/*<meta name="robots"*/}
-                    {/*      content="nofollow, noindex, max-snippet:1, max-video-preview:1, max-image-preview:standard" />*/}
+                    {/*<meta*/}
+                    {/*    name="robots"*/}
+                    {/*    content="nofollow, noindex, max-snippet:1, max-video-preview:1, max-image-preview:standard"*/}
+                    {/*/>*/}
                     <script
                         type="application/javascript"
                         src="https://accounts.google.com/gsi/client"
                         async
                     />
-                    {/*{process.env.NODE_ENV === "production" && (*/}
+                    {/*{process.env.NODE_ENV === 'production' && (*/}
                     {/*    <script*/}
                     {/*        dangerouslySetInnerHTML={{*/}
                     {/*            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':*/}
                     {/*            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],*/}
                     {/*            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=*/}
                     {/*            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);*/}
-                    {/*            })(window,document,'script','dataLayer','GTM-WQFJQK8B');`*/}
+                    {/*            })(window,document,'script','dataLayer','GTM-WQFJQK8B');`,*/}
                     {/*        }}*/}
                     {/*    ></script>*/}
                     {/*)}*/}
-                    {/*{process.env.NODE_ENV === "production" && (*/}
+                    {/*{process.env.NODE_ENV === 'production' && (*/}
                     {/*    <noscript*/}
                     {/*        dangerouslySetInnerHTML={{*/}
-                    {/*            __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WQFJQK8B" height="0" width="0" style="display:none;visibility:hidden"></iframe>`*/}
+                    {/*            __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WQFJQK8B" height="0" width="0" style="display:none;visibility:hidden"></iframe>`,*/}
                     {/*        }}*/}
                     {/*    ></noscript>*/}
                     {/*)}*/}
-                    {/*<script*/}
-                    {/*    async*/}
-                    {/*    defer*/}
-                    {/*    crossOrigin="anonymous"*/}
-                    {/*    src="https://connect.facebook.net/en_US/sdk.js"*/}
-                    {/*/>*/}
+                    <script
+                        async
+                        defer
+                        crossOrigin="anonymous"
+                        src="https://connect.facebook.net/en_US/sdk.js"
+                    />
                 </Head>
                 <body>
-                <Main />
-                <NextScript />
+                    <Main />
+                    <NextScript />
                 </body>
             </Html>
         )

@@ -16,12 +16,14 @@ import { RTL } from '../RTL/RTL'
 import { getGuestId } from '../checkout-page/functions/getGuestUserId'
 import CustomModal from '../custom-modal/CustomModal'
 import CartClearModal from '../foodDetail-modal/CartClearModal'
-import FoodDetailModal from '../foodDetail-modal/FoodDetailModal'
 import FoodVerticalCard from './FoodVerticalCard'
 import HorizontalFoodCard from './HorizontalFoodCard'
 import LocationModalAlert from './LocationModalAlert'
 import useDeleteAllCartItem from '@/hooks/react-query/add-cart/useDeleteAllCartItem'
-
+import dynamic from 'next/dynamic'
+const FoodDetailModal = dynamic(() =>
+    import('../foodDetail-modal/FoodDetailModal')
+)
 const FoodCard = ({
     product,
     horizontal,

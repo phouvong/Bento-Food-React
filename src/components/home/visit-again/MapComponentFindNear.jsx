@@ -47,8 +47,6 @@ const MapComponentFindNear = ({
     data,
     handleRouteToRestaurant,
     customMapStyle,
-    resLat,
-    resLong,
     hoveredMarkerId,
     setHoveredMarkerId,
 }) => {
@@ -64,9 +62,6 @@ const MapComponentFindNear = ({
         lat: location?.lat,
         lng: location?.lng,
     })
-    // useEffect(() => {
-    //     setUserLocation({ lat: location?.lat, lng:  location?.lng })
-    // }, [ location?.lng,location?.lat])
     const {
         searchKey,
         setSearchKey,

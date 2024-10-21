@@ -15,7 +15,7 @@ export const ReadMore = ({ children, limits, color }) => {
     const fontColor = theme.palette.primary.main
     return (
         <Typography
-            fontSize={{ xs: '10px', sm: '14px', md: '14px' }}
+            fontSize={{ xs: '10px', sm: '12px', md: '12px' }}
             fontWeight="400"
             color={color ? color : theme.palette.neutral[600]}
         >

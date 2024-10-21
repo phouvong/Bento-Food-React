@@ -53,7 +53,7 @@ export const getAmount = (
         } else if (newAmount >= 1000) {
             // Thousand
             newAmount =
-                (newAmount / 1000)?.toFixed(digitAfterDecimalPoint) + '000'
+                (newAmount / 1000)?.toFixed(digitAfterDecimalPoint) + 'k'
             return `${currency_symbol}${newAmount}`
         }
     } else {
@@ -1287,4 +1287,46 @@ export const checkMaintenanceMode = (configData) => {
             'react_website'
         )
     return !!(isMaintenanceMode && configData?.maintenance_mode)
+}
+export function maskSensitiveInfo(input) {
+    if (input) {
+        if (input?.includes('@')) {
+            const [localPart, domain] = input.split('@')
+            const maskedLocalPart =
+                localPart.slice(0, 2) + '*'.repeat(localPart.length - 2)
+
+            return `${maskedLocalPart}@${domain}`
+        } else {
+            const maskedSection = input.slice(4, -3).replace(/\d/g, '*')
+            return input.slice(0, 4) + maskedSection + input.slice(-3)
+        }
+    }
+}
+
+function isEmail(input) {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    return emailPattern.test(input)
+}
+function isPhoneNumber(input) {
+    const phonePattern =
+        /^\+?[0-9]{1,4}?[-.s]?(\(?\d{1,3}?\))?[-.s]?\d{1,4}[-.s]?\d{1,4}[-.s]?\d{1,9}$/
+    return phonePattern.test(input)
+}
+export function checkInput(input) {
+    if (isEmail(input)) {
+        return 'email'
+    } else if (isPhoneNumber(input)) {
+        return 'phone'
+    } else {
+        return 'invalid'
+    }
+}
+
+export function formatPhoneNumber(number) {
+    const str = number.toString()
+    if (str.startsWith('+')) {
+        return str
+    } else {
+        return `+${str}`
+    }
 }

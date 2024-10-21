@@ -10,5 +10,5 @@ export const getData = async (orderId) => {
     }
 }
 export const useGetOrderPlaceNotification = (orderId) => {
-    return useQuery('api-for-notification-count', () => getData(orderId))
+    return useQuery('api-for-notification-count', () => getData(orderId), {})
 }

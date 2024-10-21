@@ -3,7 +3,7 @@ import { GoogleApi } from '@/hooks/react-query/config/googleApi'
 import { OrderApi } from '@/hooks/react-query/config/orderApi'
 import { ProfileApi } from '@/hooks/react-query/config/profileApi'
 import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
-import money from "./assets/fi_2704332.png";
+import money from './assets/fi_2704332.png'
 import {
     getAmount,
     getFinalTotalPrice,
@@ -78,7 +78,8 @@ import {
     additionalInformationInitialState,
     additionalInformationReducer,
 } from './states/additionalInformationStates'
-import useGetMostTrips from "@/hooks/react-query/useGetMostTrips";
+import useGetMostTrips from '@/hooks/react-query/useGetMostTrips'
+import { setIsNeedLoad } from '@/redux/slices/utils'
 
 let currentDate = moment().format('YYYY/MM/DD HH:mm')
 let nextday = moment(currentDate).add(1, 'days').format('YYYY/MM/DD')
@@ -104,7 +105,6 @@ export const handleValuesFromCartItems = (variationValues) => {
     return value
 }
 export const handleIdsFromCartItems = (variationValues) => {
-
     let value = []
     if (variationValues?.length > 0) {
         variationValues?.forEach((item) => {
@@ -164,9 +164,22 @@ const CheckoutPage = () => {
     const { offLineWithPartial, offlinePaymentInfo } = useSelector(
         (state) => state.offlinePayment
     )
-    const { data: tripsData } = useGetMostTrips();
+    const { data: tripsData } = useGetMostTrips()
+    // const onSuccessHandler = (res) => {
+    //     console.log({ res })
+    //     if (res) {
+    //         dispatch(setIsNeedLoad(res?.reload_home))
+    //     }
+    // }
+
     const { data, refetch: refetchNotification } =
         useGetOrderPlaceNotification(orderId)
+
+    useEffect(() => {
+        if (data) {
+            dispatch(setIsNeedLoad(data?.reload_home))
+        }
+    }, [data])
     const [enabled, setEnabled] = useState(cartList?.length ? true : false)
     const {
         data: offlinePaymentOptions,
@@ -238,7 +251,12 @@ const CheckoutPage = () => {
             ),
         { enabled: false, onError: onErrorResponse }
     )
-    const { data: distanceData, refetch: refetchDistance,isLoading:distanceLoading } = useQuery(
+
+    const {
+        data: distanceData,
+        refetch: refetchDistance,
+        isLoading: distanceLoading,
+    } = useQuery(
         ['get-distance', restaurantData?.data, address],
         () => GoogleApi.distanceApi(restaurantData?.data, address),
         {
@@ -1049,25 +1067,28 @@ const CheckoutPage = () => {
     }
 
     const hasOnlyPaymentMethod = () => {
-        if(
+        if (
             !global?.cash_on_delivery &&
             global?.customer_wallet_status !== 1 &&
             global?.offline_payment_status !== 1 &&
             global?.digital_payment &&
-            global?.active_payment_method_list?.length===1
-        ){
-            setPaymenMethod("digital_payment");
-            setSelected({ name: global?.active_payment_method_list[0]?.gateway })
+            global?.active_payment_method_list?.length === 1
+        ) {
+            setPaymenMethod('digital_payment')
+            setSelected({
+                name: global?.active_payment_method_list[0]?.gateway,
+            })
             setPaymentMethodDetails({
                 name: global?.active_payment_method_list[0]?.gateway,
-                image: global?.active_payment_method_list[0]?.gateway_image_full_url
-            });
+                image: global?.active_payment_method_list[0]
+                    ?.gateway_image_full_url,
+            })
         }
     }
 
     useEffect(() => {
         hasOnlyPaymentMethod()
-    }, [global]);
+    }, [global])
 
     return (
         <Grid
@@ -1224,7 +1245,8 @@ const CheckoutPage = () => {
                                 </Box>
                             )}
 
-                            {(restaurantData?.data?.is_extra_packaging_active && global?.extra_packaging_charge)
+                            {restaurantData?.data?.is_extra_packaging_active &&
+                            global?.extra_packaging_charge
                                 ? !restaurantData?.data
                                       ?.extra_packaging_status &&
                                   restaurantData?.data
@@ -1281,43 +1303,40 @@ const CheckoutPage = () => {
                                 : null}
                         </Stack>
 
-                            <OrderCalculation
-                                subscriptionStates={subscriptionStates}
-                                cartList={
-                                    page === 'campaign'
-                                        ? campFoodList
-                                        : cartList
-                                }
-                                restaurantData={restaurantData}
-                                couponDiscount={couponDiscount}
-                                taxAmount={taxAmount}
-                                distanceData={distanceData}
-                                total_order_amount={total_order_amount}
-                                global={global}
-                                couponInfo={couponInfo}
-                                orderType={orderType}
-                                deliveryTip={deliveryTip}
-                                origin={restaurantData?.data}
-                                destination={address}
-                                extraCharge={extraCharge}
-                                additionalCharge={global?.additional_charge}
-                                totalAmount={totalAmount}
-                                walletBalance={walletAmount}
-                                usePartialPayment={usePartialPayment}
-                                placeOrder={placeOrder}
-                                orderLoading={orderLoading}
-                                offlinePaymentLoading={offlinePaymentLoading}
-                                setCouponDiscount={setCouponDiscount}
-                                counponRemove={counponRemove}
-                                offlineFormRef={offlineFormRef}
-                                setOfflineCheck={setOfflineCheck}
-                                page={page}
-                                paymentMethodDetails={paymentMethodDetails}
-                                cashbackAmount={cashbackAmount}
-                                extraPackagingCharge={extraPackagingCharge}
-                                distanceLoading={distanceLoading}
-                            />
-
+                        <OrderCalculation
+                            subscriptionStates={subscriptionStates}
+                            cartList={
+                                page === 'campaign' ? campFoodList : cartList
+                            }
+                            restaurantData={restaurantData}
+                            couponDiscount={couponDiscount}
+                            taxAmount={taxAmount}
+                            distanceData={distanceData}
+                            total_order_amount={total_order_amount}
+                            global={global}
+                            couponInfo={couponInfo}
+                            orderType={orderType}
+                            deliveryTip={deliveryTip}
+                            origin={restaurantData?.data}
+                            destination={address}
+                            extraCharge={extraCharge}
+                            additionalCharge={global?.additional_charge}
+                            totalAmount={totalAmount}
+                            walletBalance={walletAmount}
+                            usePartialPayment={usePartialPayment}
+                            placeOrder={placeOrder}
+                            orderLoading={orderLoading}
+                            offlinePaymentLoading={offlinePaymentLoading}
+                            setCouponDiscount={setCouponDiscount}
+                            counponRemove={counponRemove}
+                            offlineFormRef={offlineFormRef}
+                            setOfflineCheck={setOfflineCheck}
+                            page={page}
+                            paymentMethodDetails={paymentMethodDetails}
+                            cashbackAmount={cashbackAmount}
+                            extraPackagingCharge={extraPackagingCharge}
+                            distanceLoading={distanceLoading}
+                        />
                     </Stack>
                 </CustomPaperBigCard>
             </Grid>

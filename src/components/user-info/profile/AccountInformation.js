@@ -9,7 +9,12 @@ import {
     Stack,
     Button,
 } from '@mui/material'
-import { SaveButton, ButtonBox, CustomDivWithBorder, CustomProfileTextfield } from './Profile.style'
+import {
+    SaveButton,
+    ButtonBox,
+    CustomDivWithBorder,
+    CustomProfileTextfield,
+} from './Profile.style'
 import { useFormik } from 'formik'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
@@ -29,12 +34,12 @@ const AccountInformation = ({ data, formSubmit }) => {
     const { f_name, l_name, phone, email } = data
     const profileFormik = useFormik({
         initialValues: {
-            f_name: f_name ? f_name : '',
-            l_name: l_name ? l_name : '',
+            name: f_name ? `${f_name} ${l_name}` : '',
             email: email ? email : '',
             phone: phone ? phone : '',
             password: '',
             confirm_password: '',
+            button_type: 'change_password',
         },
         validationSchema: Yup.object({
             password: Yup.string()
@@ -50,9 +55,7 @@ const AccountInformation = ({ data, formSubmit }) => {
         onSubmit: async (values, helpers) => {
             try {
                 formSubmitOnSuccess(values)
-                profileFormik.values.password = ""
-                profileFormik.values.confirm_password = ""
-            } catch (err) { }
+            } catch (err) {}
         },
     })
     const formSubmitOnSuccess = (values) => {
@@ -60,6 +63,7 @@ const AccountInformation = ({ data, formSubmit }) => {
         setConfirmShowPassword(false)
         formSubmit(values)
     }
+
     return (
         <>
             <Typography
@@ -71,18 +75,13 @@ const AccountInformation = ({ data, formSubmit }) => {
             </Typography>
             <CustomDivWithBorder>
                 <form noValidate onSubmit={profileFormik.handleSubmit}>
-                    <Grid
-                        container
-                        md={12}
-                        xs={12}
-                        spacing={2}
-                    >
+                    <Grid container md={12} xs={12} spacing={2}>
                         <Grid item md={5} xs={12}>
                             <CustomProfileTextfield
                                 required
                                 id="password"
                                 variant="outlined"
-                                placeholder={t("6+ Character")}
+                                placeholder={t('8+ Character')}
                                 value={profileFormik.values.password}
                                 onChange={profileFormik.handleChange}
                                 name="password"
@@ -104,7 +103,8 @@ const AccountInformation = ({ data, formSubmit }) => {
                                                 aria-label="toggle password visibility"
                                                 onClick={() =>
                                                     setShowPassword(
-                                                        (prevState) => !prevState
+                                                        (prevState) =>
+                                                            !prevState
                                                     )
                                                 }
                                                 //   onMouseDown={handleMouseDownPassword}
@@ -126,7 +126,7 @@ const AccountInformation = ({ data, formSubmit }) => {
                                 required
                                 id="confirm_password"
                                 label={t('Confirm Password')}
-                                placeholder={t("6+ Character")}
+                                placeholder={t('8+ Character')}
                                 variant="outlined"
                                 name="confirm_password"
                                 type={showConfirmPassword ? 'text' : 'password'}
@@ -135,7 +135,9 @@ const AccountInformation = ({ data, formSubmit }) => {
                                 InputLabelProps={{ shrink: true }}
                                 error={
                                     profileFormik.touched.confirm_password &&
-                                    Boolean(profileFormik.errors.confirm_password)
+                                    Boolean(
+                                        profileFormik.errors.confirm_password
+                                    )
                                 }
                                 helperText={
                                     profileFormik.touched.confirm_password &&
@@ -149,7 +151,8 @@ const AccountInformation = ({ data, formSubmit }) => {
                                                 aria-label="toggle password visibility"
                                                 onClick={() =>
                                                     setConfirmShowPassword(
-                                                        (prevState) => !prevState
+                                                        (prevState) =>
+                                                            !prevState
                                                     )
                                                 }
                                                 //   onMouseDown={handleMouseDownPassword}
@@ -168,7 +171,12 @@ const AccountInformation = ({ data, formSubmit }) => {
                         </Grid>
                         <Grid item xs={12} md={2}>
                             <Stack>
-                                <SaveButton fullWidth variant="contained" type="submit">
+                                <SaveButton
+                                    sx={{ padding: '10px 20px' }}
+                                    fullWidth
+                                    variant="contained"
+                                    type="submit"
+                                >
                                     {t('Change')}
                                 </SaveButton>
                             </Stack>

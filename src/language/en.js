@@ -3,9 +3,13 @@ export const english = {
         'This charge includes extra vehicle charge',
     'and bad weather charge': 'and bad weather charge',
     only: 'only',
+    'for demo propose use otp 123456': 'for demo propose use otp 123456',
+    'Nutrition Details': 'Nutrition Details',
     'Highlights for you': 'Highlights for you',
+    'Allergic Ingredients': 'Allergic Ingredients',
     'items available': 'items available',
     'Welcome to React': 'Welcome to React and react-i18next',
+    'Or Login with': 'Or Login with',
     'Dont have a cutlery? Restaurant will provide you.':
         'Dont have a cutlery? Restaurant will provide you.',
     'Minimum Order': 'Minimum Order',

@@ -1,26 +1,26 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useQuery } from "react-query";
-import { useRouter } from "next/router";
-import { onErrorResponse } from "../../ErrorResponse";
-import { Grid, IconButton, Stack, useMediaQuery } from "@mui/material";
-import { useTheme } from "@mui/styles";
-import { RestaurantsApiNearBy } from "@/hooks/react-query/restaurants/getNearByRestaurants";
-import AllNearbyRestaurants from "./AllNearbyRestaurants";
-import MapComponentFindNear from "./MapComponentFindNear";
-import { RTL } from "@/components/RTL/RTL";
+import React, { useEffect, useRef, useState } from 'react'
+import { useQuery } from 'react-query'
+import { useRouter } from 'next/router'
+import { onErrorResponse } from '../../ErrorResponse'
+import { Grid, IconButton, Stack, useMediaQuery } from '@mui/material'
+import { useTheme } from '@mui/styles'
+import { RestaurantsApiNearBy } from '@/hooks/react-query/restaurants/getNearByRestaurants'
+import AllNearbyRestaurants from './AllNearbyRestaurants'
+import MapComponentFindNear from './MapComponentFindNear'
+import { RTL } from '@/components/RTL/RTL'
 
 const NearByRestaurant = () => {
     const theme = useTheme()
     const router = useRouter()
     const offset = 1
     const page_limit = 20
-    const type = "all"
-    const filterType = "all"
-    const searchKey = ""
-    let currentLocation = undefined;
+    const type = 'all'
+    const filterType = 'all'
+    const searchKey = ''
+    let currentLocation = undefined
     let languageDirection = undefined
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
-    const seletedRestaurentRef = useRef(null);
+    const seletedRestaurentRef = useRef(null)
     const [restaurants, setRestaurants] = useState(null)
     const [allRestaurants, setAllrestaurants] = useState(null)
     const [hoveredMarkerId, setHoveredMarkerId] = useState(null)
@@ -47,7 +47,7 @@ const NearByRestaurant = () => {
             onSuccess: (fetchData) => {
                 setRestaurants(fetchData?.data?.restaurants)
                 setAllrestaurants(fetchData?.data?.restaurants)
-            }
+            },
         }
     )
     const handleRouteToRestaurant = (restaurant) => {
@@ -64,8 +64,8 @@ const NearByRestaurant = () => {
     }, [])
     const customMapStyle = {
         width: '100%',
-        height: isXSmall ? '55vh' : '65vh',
-        borderRadius: isXSmall ? '0px' : "8px",
+        height: isXSmall ? '40vh' : '65vh',
+        borderRadius: isXSmall ? '0px' : '8px',
     }
     return (
         <RTL direction={languageDirection}>
@@ -95,8 +95,7 @@ const NearByRestaurant = () => {
                 </Grid>
             </Grid>
         </RTL>
+    )
+}
 
-    );
-};
-
-export default NearByRestaurant;
+export default NearByRestaurant

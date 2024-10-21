@@ -2,8 +2,6 @@ import React from 'react'
 import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
 import CustomImageContainer from '../../CustomImageContainer'
 import { useSelector } from 'react-redux'
-import test_image from '../../../../public/static/testImage.svg'
-import FoodDetailModal from '../../foodDetail-modal/FoodDetailModal'
 
 const BannerCard = (props) => {
     const {
@@ -19,7 +17,7 @@ const BannerCard = (props) => {
     const globalImageUrl = banner?.available_date_ends
         ? global?.base_urls?.campaign_image_url
         : global?.base_urls?.banner_image_url
-    const bannerImage =banner?.image_full_url
+    const bannerImage = banner?.image_full_url
 
     return (
         <CustomStackFullWidth onClick={() => handleBannerClick(banner)}>

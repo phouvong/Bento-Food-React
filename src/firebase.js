@@ -5,15 +5,16 @@ import {
     onMessage,
     isSupported,
 } from 'firebase/messaging'
+import { getAuth } from 'firebase/auth'
 import { useStoreFcm } from './hooks/react-query/push-notification/usePushNotification'
 
 const firebaseConfig = {
-    apiKey: '',
-    authDomain: '',
-    projectId: '',
-    storageBucket: '',
-    messagingSenderId: '',
-    appId: '',
+    apiKey: 'AIzaSyD0Z911mOoWCVkeGdjhIKwWFPRgvd6ZyAw',
+    authDomain: 'stackmart-500c7.firebaseapp.com',
+    projectId: 'stackmart-500c7',
+    storageBucket: 'stackmart-500c7.appspot.com',
+    messagingSenderId: '491987943015',
+    appId: '1:491987943015:web:d8bc7ab8dbc9991c8f1ec2',
     measurementId: '',
 }
 const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp()
@@ -32,7 +33,8 @@ const messaging = (async () => {
 
 export const fetchToken = async (setTokenFound, setFcmToken) => {
     return getToken(await messaging, {
-        vapidKey: '',
+        vapidKey:
+            'BIYqKZ2ZlXRJYZX_iU7oYymqHZ1B0d8MVsYMoEPX_eFtezlxZ_V4JooCxS8ks857ylCVLewTtgHFxc6I8iBi7h4',
     })
         .then((currentToken) => {
             if (currentToken) {
@@ -62,3 +64,4 @@ export const onMessageListener = async () =>
             })
         })()
     )
+export const auth = getAuth(firebaseApp)

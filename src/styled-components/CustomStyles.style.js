@@ -18,8 +18,9 @@ import {
     Tabs,
     ListItem,
     Select,
-    alpha, Accordion
-} from "@mui/material";
+    alpha,
+    Accordion,
+} from '@mui/material'
 import Link from '@mui/material/Link'
 import imgB from '../../public/static/Privacy/RectangleP.png'
 //import { Link } from 'react-router-dom'
@@ -86,9 +87,9 @@ export const CustomPaperBigCard = styled(Paper)(
         padding,
         width,
         noboxshadow,
-        border
+        border,
     }) => ({
-        margin: "1px",
+        margin: '1px',
         backgroundColor: backgroundColor || theme.palette.background.paper,
         padding: nopadding === 'true' ? 'none' : padding ? padding : '1.875rem',
         width: width ? width : '100%',
@@ -99,7 +100,7 @@ export const CustomPaperBigCard = styled(Paper)(
         boxShadow:
             noboxshadow === 'true'
                 ? 'none'
-                : `0px 0px 2px rgba(145, 158, 171, 0.2), 0px 5px 20px ${theme.palette.paperBoxShadow}`
+                : `0px 0px 2px rgba(145, 158, 171, 0.2), 0px 5px 20px ${theme.palette.paperBoxShadow}`,
         // : `0px 0px 2px rgba(145, 158, 171, 0.2), 0px 5px 20px ${theme.palette.paperBoxShadow}`,
         // marginBottom: '30px',
     })
@@ -197,7 +198,6 @@ export const CustomBoxTab = styled(Box)({
     borderRadius: '15px',
 })
 export const CustomTabs = styled(Tabs)(({ theme }) => ({
-
     padding: '5px',
     borderRadius: '15px',
 }))
@@ -228,8 +228,8 @@ export const CustomTypographyBold = styled(Typography)(
     ({ theme, marginTop, textAlign, fontSize, fontWeight }) => ({
         fontWeight: fontWeight ?? 'bold',
         color: theme.palette.neutral[1000],
-        textAlign: textAlign ?? "inherit",
-        fontSize: fontSize ?? "20px"
+        textAlign: textAlign ?? 'inherit',
+        fontSize: fontSize ?? '20px',
     })
 )
 export const CustomTypographyAlign = styled(Typography)(({ theme, align }) => ({
@@ -342,12 +342,11 @@ export const CustomBoxNav = styled(Box)(({ theme, isSmall }) => ({
 export const CustomLink = styled(Link)(({ theme, color }) => ({
     color: color ? color : 'primary.main',
     cursor: 'pointer',
-    fontWeight: '400',
-    textDecoration: 'underline',
+    fontWeight: '600',
+    //textDecoration: 'underline',
     '&:hover': {
         //backgroundColor: alpha(theme.palette.common.white, 0.25),
         color: theme.palette.primary.dark,
-
     },
 }))
 export const CustomOtp = styled(OutlinedInput)(({ theme }) => ({
@@ -367,21 +366,21 @@ export const CustomStackForLoaction = styled(Stack)(({ theme }) => ({
 }))
 export const CustomOverLay = styled(Stack)(
     ({ theme, hover, border_radius }) => ({
-        background: "rgba(75, 86, 107, 0.5)",
-        borderRadius: border_radius ? border_radius : "5px 5px 0px 0px",
-        width: "100%",
+        background: 'rgba(75, 86, 107, 0.5)',
+        borderRadius: border_radius ? border_radius : '5px 5px 0px 0px',
+        width: '100%',
         opacity: hover ? 1 : 0,
         inset: 0,
-        position: "absolute",
+        position: 'absolute',
         top: 0,
         zIndex: 1,
-        transition: "all 0.3s ease-in-out",
-        "&:hover": {
+        transition: 'all 0.3s ease-in-out',
+        '&:hover': {
             opacity: 1,
-            transform: 'scale(1.1)'
+            transform: 'scale(1.1)',
         },
     })
-);
+)
 export const CustomOverlayBox = styled(Box)(({ theme, borderradius }) => ({
     position: 'absolute',
     bottom: 0,
@@ -396,7 +395,7 @@ export const CustomOverlayBox = styled(Box)(({ theme, borderradius }) => ({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 9,
-    borderRadius: borderradius || "8px",
+    borderRadius: borderradius || '8px',
 }))
 export const EmptyMessageContainer = styled(CustomStackFullWidth)(
     ({ theme }) => ({
@@ -411,11 +410,10 @@ export const CustomViewAll = styled(Stack)(({ theme, marginRight }) => ({
     paddingBottom: '5px',
     fontSize: '14px',
     cursor: 'pointer',
-    marginInlineEnd: marginRight ? marginRight : "1rem",
+    marginInlineEnd: marginRight ? marginRight : '1rem',
     [theme.breakpoints.down('md')]: {
-        marginInlineEnd: marginRight ? ".3rem" : "0",
+        marginInlineEnd: marginRight ? '.3rem' : '0',
     },
-
 }))
 export const CustomFab = styled(Fab)(({ theme }) => ({
     width: '33px',
@@ -441,8 +439,8 @@ export const CustomImageContainerStyled = styled(Box)(
         smMaxWidth,
         mdHeight,
         cursor,
-         aspectRatio,
-         boxShadow
+        aspectRatio,
+        boxShadow,
     }) => ({
         //maxWidth:'20rem',
         display: 'inline-flex',
@@ -453,7 +451,7 @@ export const CustomImageContainerStyled = styled(Box)(
         maxWidth: maxWidth,
         marginBottom: marginBottom,
         position: 'relative',
-        boxShadow:boxShadow,
+        boxShadow: boxShadow,
         borderRadius: borderRadu,
         cursor: cursor ? cursor : 'inherit',
         [theme.breakpoints.down('md')]: {
@@ -515,13 +513,19 @@ export const BackImage = styled(Stack)(({ theme }) => ({
 }))
 export const List = styled(MuiList)(({ theme }) => ({}))
 export const SliderCustom = styled(Stack)(
-    ({ theme, languageDirection, gap, paddingBottom, isCenter ,ads}) => ({
-        alignItems: "center",
+    ({ theme, languageDirection, gap, paddingBottom, isCenter, ads }) => ({
+        alignItems: 'center',
         paddingY: '1rem',
         '& .slick-slider': {
             '& .slick-list': {
                 '& .slick-track': {
-                    float: isCenter ? 'center' : languageDirection === 'rtl' ? ads ? 'left':'right' : 'left',
+                    float: isCenter
+                        ? 'center'
+                        : languageDirection === 'rtl'
+                        ? ads
+                            ? 'left'
+                            : 'right'
+                        : 'left',
                     gap: gap ? gap : '5px',
                     paddingBottom: paddingBottom || 0,
                 },
@@ -607,23 +611,21 @@ export const NoDataFoundWrapper = styled(CustomStackFullWidth)(({ theme }) => ({
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-
 }))
 export const CustomAccordion = styled(Accordion)(({ theme, background }) => ({
-    boxShadow: "none !important",
+    boxShadow: 'none !important',
     backgroundColor: background ?? theme.palette.neutral[100],
-    ".MuiAccordionSummary-root": {
-        padding: "0px 0px",
-        minHeight:"0px"
+    '.MuiAccordionSummary-root': {
+        padding: '0px 0px',
+        minHeight: '0px',
     },
-    ".MuiAccordionSummary-content": {
-        width: "100%",
-        display: "inline",
-        marginTop:"12px",
-        marginBottom:"0px"
-
+    '.MuiAccordionSummary-content': {
+        width: '100%',
+        display: 'inline',
+        marginTop: '12px',
+        marginBottom: '0px',
     },
-    ".MuiAccordionDetails-root": {
-        padding: "2px 5px 10px"
-    }
+    '.MuiAccordionDetails-root': {
+        padding: '2px 5px 10px',
+    },
 }))

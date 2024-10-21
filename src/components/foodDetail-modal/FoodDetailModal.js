@@ -1,4 +1,4 @@
-import { Grid, Modal, Tooltip, Typography } from '@mui/material'
+import { alpha, Grid, Modal, Tooltip, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -39,13 +39,13 @@ import { useGetFoodDetails } from '@/hooks/react-query/food/useGetFoodDetails'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import IconButton from '@mui/material/IconButton'
 import Skeleton from '@mui/material/Skeleton'
-import { Stack } from '@mui/system'
+import { Box, Stack } from '@mui/system'
 import useAddCartItem from '../../hooks/react-query/add-cart/useAddCartItem'
 import useCartItemUpdate from '../../hooks/react-query/add-cart/useCartItemUpdate'
 import useDeleteAllCartItem from '../../hooks/react-query/add-cart/useDeleteAllCartItem'
 import { onErrorResponse } from '../ErrorResponse'
 import { handleValuesFromCartItems } from '../checkout-page/CheckoutPage'
-import { getGuestId } from '../checkout-page/functions/getGuestUserId'
+import { getGuestId, getToken } from '../checkout-page/functions/getGuestUserId'
 import LocationModalAlert from '../food-card/LocationModalAlert'
 import { ReadMore } from '../landingpage/ReadMore'
 import {
@@ -983,8 +983,14 @@ const FoodDetailModal = ({
 
     const orderNow = () => {
         if (location) {
-            let checkingFor = 'campaign'
-            handleAddToCartOnDispatch(checkingFor)
+            if (getToken()) {
+                let checkingFor = 'campaign'
+                handleAddToCartOnDispatch(checkingFor)
+            } else {
+                setAuthModalOpen(true)
+                //handleModalClose()
+                //toast.error(t('You are not logged in'))
+            }
         } else {
             setIsLocation(true)
         }
@@ -1081,7 +1087,7 @@ const FoodDetailModal = ({
                                         <SimpleBar
                                             style={{
                                                 maxHeight: '35vh',
-                                                paddingInline: '10px',
+                                                paddingRight: '10px',
                                             }}
                                             className="test123"
                                         >
@@ -1170,6 +1176,100 @@ const FoodDetailModal = ({
                                                         modalData[0]
                                                             ?.description}
                                                 </ReadMore>
+                                                {modalData[0]?.nutritions_name
+                                                    ?.length > 0 && (
+                                                    <>
+                                                        <Typography
+                                                            fontSize="14px"
+                                                            fontWeight="500"
+                                                            mt="5px"
+                                                        >
+                                                            {t(
+                                                                'Nutrition Details'
+                                                            )}
+                                                        </Typography>
+
+                                                        <Stack
+                                                            direction="row"
+                                                            spacing={0.5}
+                                                        >
+                                                            {modalData[0]?.nutritions_name?.map(
+                                                                (
+                                                                    item,
+                                                                    index
+                                                                ) => (
+                                                                    <Typography
+                                                                        fontSize="12px"
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        color={
+                                                                            theme
+                                                                                .palette
+                                                                                .neutral[400]
+                                                                        }
+                                                                    >
+                                                                        {item}
+                                                                        {index !==
+                                                                        modalData[0]
+                                                                            ?.nutritions_name
+                                                                            .length -
+                                                                            1
+                                                                            ? ','
+                                                                            : '.'}
+                                                                    </Typography>
+                                                                )
+                                                            )}
+                                                        </Stack>
+                                                    </>
+                                                )}
+                                                {modalData[0]?.allergies_name
+                                                    ?.length > 0 && (
+                                                    <>
+                                                        <Typography
+                                                            fontSize="14px"
+                                                            fontWeight="500"
+                                                            mt="5px"
+                                                        >
+                                                            {t(
+                                                                'Allergic Ingredients'
+                                                            )}
+                                                        </Typography>
+
+                                                        <Stack
+                                                            direction="row"
+                                                            spacing={0.5}
+                                                        >
+                                                            {modalData[0]?.allergies_name?.map(
+                                                                (
+                                                                    item,
+                                                                    index
+                                                                ) => (
+                                                                    <Typography
+                                                                        fontSize="12px"
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        color={
+                                                                            theme
+                                                                                .palette
+                                                                                .neutral[400]
+                                                                        }
+                                                                    >
+                                                                        {item}
+                                                                        {index !==
+                                                                        modalData[0]
+                                                                            ?.allergies_name
+                                                                            .length -
+                                                                            1
+                                                                            ? ','
+                                                                            : '.'}
+                                                                    </Typography>
+                                                                )
+                                                            )}
+                                                        </Stack>
+                                                    </>
+                                                )}
                                                 <Stack
                                                     spacing={1}
                                                     direction={{

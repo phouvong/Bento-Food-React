@@ -1,7 +1,8 @@
 import React from 'react'
-import { Box } from '@mui/material'
-import { Logo } from '../styled-components/CustomStyles.style'
+import { Logo } from '@/styled-components/CustomStyles.style'
 import { useRouter } from 'next/router'
+import placeholder from '../../public/static/no-image-found.png'
+import CustomImageContainer from '@/components/CustomImageContainer'
 
 const CustomLogo = ({ logoImg, atlText, height, width }) => {
     const router = useRouter()
@@ -14,18 +15,31 @@ const CustomLogo = ({ logoImg, atlText, height, width }) => {
         currentLocation = JSON.parse(localStorage.getItem('currentLatLng'))
         //hostname = window.location.hostnam
     }
+
     const handleClick = () => {
-        const shouldRedirectToHome = zoneid && currentLocation?.lat && currentLocation?.lng;
-        const newPath = shouldRedirectToHome ? '/home' : '/';
+        const shouldRedirectToHome =
+            zoneid && currentLocation?.lat && currentLocation?.lng
+        const newPath = shouldRedirectToHome ? '/home' : '/'
 
         router.push(newPath, undefined, { shallow: true }).then(() => {
-            window.scrollTo(0, 0);
-        });
-    };
+            window.scrollTo(0, 0)
+        })
+    }
+
+    const handleImageError = (e) => {
+        e.target.src = '../../public/static/no-image-found.png'
+    }
+
     return (
         <Logo height={height} width={width} onClick={handleClick}>
-            <img src={logoImg} alt={atlText} />
+            <CustomImageContainer
+                width={width}
+                height={height}
+                src={logoImg}
+                alt={atlText}
+            />
         </Logo>
     )
 }
+
 export default CustomLogo

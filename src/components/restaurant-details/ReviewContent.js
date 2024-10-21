@@ -1,19 +1,22 @@
-import React, { useState } from "react";
-import { Grid, Typography } from "@mui/material";
-import { Box, Stack } from "@mui/system";
-import CustomRatings from "@/components/custom-ratings/CustomRatings";
-import { getDateFormat, handleBadge } from "@/utils/customFunctions";
-import { ReadMore } from "@/components/landingpage/ReadMore";
-import CustomImageContainer from "@/components/CustomImageContainer";
-import { useTheme } from "@mui/styles";
-import { RTL } from "@/components/RTL/RTL";
-import FoodDetailModal from "@/components/foodDetail-modal/FoodDetailModal";
-import { useSelector } from "react-redux";
+import React, { useState } from 'react'
+import { Grid, Typography } from '@mui/material'
+import { Box, Stack } from '@mui/system'
+import CustomRatings from '@/components/custom-ratings/CustomRatings'
+import { getDateFormat, handleBadge } from '@/utils/customFunctions'
+import { ReadMore } from '@/components/landingpage/ReadMore'
+import CustomImageContainer from '@/components/CustomImageContainer'
+import { useTheme } from '@mui/styles'
+import { RTL } from '@/components/RTL/RTL'
+import dynamic from 'next/dynamic'
+const FoodDetailModal = dynamic(() =>
+    import('@/components/foodDetail-modal/FoodDetailModal')
+)
+//import FoodDetailModal from "@/components/foodDetail-modal/FoodDetailModal";
+import { useSelector } from 'react-redux'
 
-const ReviewContent = ({ review,
-                           restaurantName}) => {
+const ReviewContent = ({ review, restaurantName }) => {
     const theme = useTheme()
-    const [openModal,setOpenModal] =useState(false)
+    const [openModal, setOpenModal] = useState(false)
     const { global } = useSelector((state) => state.globalSettings)
 
     let currencySymbol
@@ -25,7 +28,7 @@ const ReviewContent = ({ review,
         currencySymbolDirection = global.currency_symbol_direction
         digitAfterDecimalPoint = global.digit_after_decimal_point
     }
-    const handleModalClose=() => {
+    const handleModalClose = () => {
         setOpenModal(false)
     }
     const languageDirection = localStorage.getItem('direction')
@@ -77,7 +80,7 @@ const ReviewContent = ({ review,
                                 borderColor: (theme) =>
                                     theme.palette.neutral[300],
                             }}
-                            onClick={() =>setOpenModal(true)}
+                            onClick={() => setOpenModal(true)}
                         >
                             <CustomImageContainer
                                 src={review.food_image_full_url}
@@ -100,8 +103,7 @@ const ReviewContent = ({ review,
                     <Grid item xs={12}>
                         <Box
                             sx={{
-                                background:
-                                theme.palette.background.paper,
+                                background: theme.palette.background.paper,
                                 padding: '10px',
                                 borderRadius: '9px',
                             }}
@@ -114,9 +116,7 @@ const ReviewContent = ({ review,
                                 <Typography
                                     fontSize="12px"
                                     fontWeight="500"
-                                    color={
-                                        theme.palette.text.primary
-                                    }
+                                    color={theme.palette.text.primary}
                                 >
                                     {restaurantName}
                                 </Typography>
@@ -125,16 +125,12 @@ const ReviewContent = ({ review,
                                     fontWeight="400"
                                     color="text.secondary"
                                 >
-                                    {getDateFormat(
-                                        review.updated_at
-                                    )}
+                                    {getDateFormat(review.updated_at)}
                                 </Typography>
                             </Stack>
                             <Stack mt="5px">
                                 <ReadMore
-                                    color={
-                                        theme.palette.text.secondary
-                                    }
+                                    color={theme.palette.text.secondary}
                                     limits="160"
                                 >
                                     {review.reply}
@@ -149,7 +145,7 @@ const ReviewContent = ({ review,
             {openModal && (
                 <RTL direction={languageDirection}>
                     <FoodDetailModal
-                        product={{id:review?.food_id}}
+                        product={{ id: review?.food_id }}
                         open={openModal}
                         handleModalClose={handleModalClose}
                         setOpen={setOpenModal}
@@ -157,12 +153,11 @@ const ReviewContent = ({ review,
                         currencySymbol={currencySymbol}
                         digitAfterDecimalPoint={digitAfterDecimalPoint}
                         handleBadge={handleBadge}
-
                     />
                 </RTL>
             )}
         </>
-    );
-};
+    )
+}
 
-export default ReviewContent;
+export default ReviewContent

@@ -17,8 +17,8 @@ const CollapsableMenu = ({ value, toggleDrawers, setOpenDrawer, pathName }) => {
     const theme = useTheme()
     const [open, setOpen] = useState(false)
     const handleClick = () => setOpen(!open)
-    const handleRoute = (id) => {
-        router.push(`${value.path}/${id}`)
+    const handleRoute = (id, name) => {
+        router.push(`${value.path}/${id}?name=${name}`)
         setOpen(false)
         setOpenDrawer(false)
     }
@@ -33,24 +33,36 @@ const CollapsableMenu = ({ value, toggleDrawers, setOpenDrawer, pathName }) => {
             <ListItemButton
                 onClick={handleClick}
                 sx={{
-                    borderBottom:"1px solid",
-                    borderBottomColor:theme=>alpha(theme.palette.neutral[300],.3),
+                    borderBottom: '1px solid',
+                    borderBottomColor: (theme) =>
+                        alpha(theme.palette.neutral[300], 0.3),
                     '&:hover': {
                         backgroundColor: 'primary.main',
                         color: `${textColor}`,
                     },
                 }}
             >
-                <ListItemText primary={<Typography sx={{ fontSize: '12px' }}>{t(value?.text)}</Typography>} />
-                {open ? <ExpandLess sx={{fontSize:"16px"}} /> : <ExpandMore sx={{fontSize:"16px"}} />}
+                <ListItemText
+                    primary={
+                        <Typography sx={{ fontSize: '12px' }}>
+                            {t(value?.text)}
+                        </Typography>
+                    }
+                />
+                {open ? (
+                    <ExpandLess sx={{ fontSize: '16px' }} />
+                ) : (
+                    <ExpandMore sx={{ fontSize: '16px' }} />
+                )}
             </ListItemButton>
             <Collapse in={open} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                     {getDataLimit(value.items)?.map((item, index) => (
                         <ListItemButton
                             sx={{
-                                borderBottom:"1px solid",
-                                borderBottomColor:theme=>alpha(theme.palette.neutral[300],.3),
+                                borderBottom: '1px solid',
+                                borderBottomColor: (theme) =>
+                                    alpha(theme.palette.neutral[300], 0.3),
                                 pl: 4,
                                 '&:hover': {
                                     backgroundColor: (theme) =>
@@ -58,9 +70,15 @@ const CollapsableMenu = ({ value, toggleDrawers, setOpenDrawer, pathName }) => {
                                 },
                             }}
                             key={index}
-                            onClick={() => handleRoute(item.id)}
+                            onClick={() => handleRoute(item.id, item?.name)}
                         >
-                            <ListItemText primary={<Typography sx={{ fontSize: '12px' }}>{item.name}</Typography>}></ListItemText>
+                            <ListItemText
+                                primary={
+                                    <Typography sx={{ fontSize: '12px' }}>
+                                        {item.name}
+                                    </Typography>
+                                }
+                            ></ListItemText>
                         </ListItemButton>
                     ))}
                     <ListItemButton
@@ -75,7 +93,18 @@ const CollapsableMenu = ({ value, toggleDrawers, setOpenDrawer, pathName }) => {
                         }}
                         onClick={handleView}
                     >
-                        <ListItemText primary={<Typography sx={{ fontSize: '12px',textDecoration:"underLine" }}>{t('View all')}</Typography>}></ListItemText>
+                        <ListItemText
+                            primary={
+                                <Typography
+                                    sx={{
+                                        fontSize: '12px',
+                                        textDecoration: 'underLine',
+                                    }}
+                                >
+                                    {t('View all')}
+                                </Typography>
+                            }
+                        ></ListItemText>
                     </ListItemButton>
                 </List>
             </Collapse>

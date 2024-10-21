@@ -2,20 +2,23 @@ import React, { useEffect, useState } from 'react'
 import {
     CustomStackFullWidth,
     SliderCustom,
-} from "@/styled-components/CustomStyles.style"
+} from '@/styled-components/CustomStyles.style'
 import Slider from 'react-slick'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
-import { Typography } from '@mui/material'
 import BannerCard from './Banner/BannerCard'
-import { setBannerFoodByDispatch } from '../../redux/slices/searchFilter'
 import { useRouter } from 'next/router'
-import FoodDetailModal from '../foodDetail-modal/FoodDetailModal'
+import dynamic from 'next/dynamic'
 import { useSelector } from 'react-redux'
 import Skeleton from '@mui/material/Skeleton'
-import { handleBadge } from "@/utils/customFunctions"
+import { handleBadge } from '@/utils/customFunctions'
 import { HandleNext, HandlePrev } from '../CustomSliderIcon'
-const Banner = ({bannerIsLoading}) => {
+
+const FoodDetailModal = dynamic(() =>
+    import('../foodDetail-modal/FoodDetailModal')
+)
+
+const Banner = ({ bannerIsLoading }) => {
     const router = useRouter()
     const { banners } = useSelector((state) => state.storedData)
     const [allBanners, setAllBanners] = useState()
@@ -59,10 +62,11 @@ const Banner = ({bannerIsLoading}) => {
                 {
                     pathname: '/restaurant/[id]',
                     query: {
-                        id: `${banner?.restaurant?.slug
-                            ? banner?.restaurant?.slug
-                            : banner?.restaurant?.id
-                            }`,
+                        id: `${
+                            banner?.restaurant?.slug
+                                ? banner?.restaurant?.slug
+                                : banner?.restaurant?.id
+                        }`,
                     },
                 },
                 undefined,
@@ -71,8 +75,9 @@ const Banner = ({bannerIsLoading}) => {
         } else if (banner?.available_date_ends) {
             router.push(
                 {
-                    pathname: `campaigns/${banner?.slug ? banner?.slug : banner?.id
-                        }`,
+                    pathname: `campaigns/${
+                        banner?.slug ? banner?.slug : banner?.id
+                    }`,
                 },
                 undefined,
                 { shallow: true }
@@ -103,7 +108,7 @@ const Banner = ({bannerIsLoading}) => {
         // className: "center",
         // centerPadding: "300px",
         //draggable:false,
-       // swipeToSlide:true,
+        // swipeToSlide:true,
         responsive: [
             {
                 breakpoint: 1450,
@@ -121,7 +126,6 @@ const Banner = ({bannerIsLoading}) => {
                     //slidesToScroll: 1,
                     infinite: bannerData?.length > 3 ? true : false,
                     autoplay: true,
-
                 },
             },
             {
@@ -129,9 +133,9 @@ const Banner = ({bannerIsLoading}) => {
                 settings: {
                     slidesToShow: 1.7,
                     infinite: bannerData?.length > 3 ? true : false,
-                   // slidesToScroll: 1,
+                    // slidesToScroll: 1,
                     autoplay: true,
-                    centerMode:true,
+                    centerMode: true,
                     // centerPadding: "100px",
                 },
             },
@@ -143,8 +147,8 @@ const Banner = ({bannerIsLoading}) => {
                     infinite: bannerData?.length > 3 ? true : false,
                     dots: true,
                     autoplay: true,
-                    centerMode:true,
-                    centerPadding: "100px",
+                    centerMode: true,
+                    centerPadding: '100px',
                 },
             },
 
@@ -152,11 +156,11 @@ const Banner = ({bannerIsLoading}) => {
                 breakpoint: 600,
                 settings: {
                     slidesToShow: 1.5,
-                   // slidesToScroll: 1,
+                    // slidesToScroll: 1,
                     dots: true,
                     autoplay: true,
-                    centerMode:true,
-                    centerPadding: "80px",
+                    centerMode: true,
+                    centerPadding: '80px',
                 },
             },
             {
@@ -167,8 +171,8 @@ const Banner = ({bannerIsLoading}) => {
                     initialSlide: 1,
                     dots: true,
                     autoplay: true,
-                    centerMode:true,
-                    centerPadding: "30px",
+                    centerMode: true,
+                    centerPadding: '30px',
                 },
             },
         ],
@@ -176,15 +180,18 @@ const Banner = ({bannerIsLoading}) => {
 
     return (
         <CustomStackFullWidth
-            sx={{ 
-                paddingTop: { xs: bannerData?.length > 0 && '15px', md: bannerData?.length > 0 && '10px' }, 
-                paddingBottom: { xs: "30px", md: "20px" } 
+            sx={{
+                paddingTop: {
+                    xs: bannerData?.length > 0 && '15px',
+                    md: bannerData?.length > 0 && '10px',
+                },
+                paddingBottom: { xs: '30px', md: '20px' },
             }}
         >
             {!bannerIsLoading ? (
                 <SliderCustom
                     //languageDirection={languageDirection}
-                    gap='.8rem'
+                    gap=".8rem"
                     onMouseEnter={() => setHoverOn(true)}
                     onMouseLeave={() => setHoverOn(false)}
                 >
@@ -205,24 +212,27 @@ const Banner = ({bannerIsLoading}) => {
                     </Slider>
                 </SliderCustom>
             ) : (
-                <SliderCustom>
+                <SliderCustom gap=".8rem" sx={{ paddingTop: '5px' }}>
                     <Slider {...bannerSettings}>
                         <Skeleton
+                            sx={{ borderRadius: '10px' }}
                             maxWidth="390px"
                             width="100%"
-                            height="151px"
+                            height="179px"
                             variant="rectangular"
                         />
                         <Skeleton
+                            sx={{ borderRadius: '10px' }}
                             maxWidth="390px"
                             width="100%"
-                            height="151px"
+                            height="179px"
                             variant="rectangular"
                         />
                         <Skeleton
+                            sx={{ borderRadius: '10px' }}
                             maxWidth="390px"
                             width="100%"
-                            height="151px"
+                            height="179px"
                             variant="rectangular"
                         />
                     </Slider>

@@ -78,7 +78,6 @@ const InfoCard = (props) => {
         ['profile-info'],
         ProfileApi.profileInfo
     )
-
     const isSender =
         data?.data?.userinfo?.id === userList.last_message.sender_id
     const languageDirection = localStorage.getItem('direction')

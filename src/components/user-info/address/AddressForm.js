@@ -143,7 +143,6 @@ const AddressForm = ({
     useEffect(() => {
         addAddressFormik.setFieldValue('address', deliveryAddress)
     }, [deliveryAddress])
-    useEffect(() => {}, [])
 
     const handleLabel = (item) => {
         if (label !== item.value) {
