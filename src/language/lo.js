@@ -1082,5 +1082,9 @@ export const lao = {
         'ຢ່າງໃດກໍຕາມ, ຈໍານວນເງິນຄືນສູງສຸດແມ່ນ',
     'Extra Packaging': 'ການຫຸ້ມຫໍ່ພິເສດ',
     'Need Extra Packaging': 'ຕ້ອງການການຫຸ້ມຫໍ່ພິເສດ',
+<<<<<<< Updated upstream
     'Order Place': 'ຈາກການອໍເດີ້',
+=======
+    'Order Place': 'ວາງອໍເດີ້',
+>>>>>>> Stashed changes
 }
