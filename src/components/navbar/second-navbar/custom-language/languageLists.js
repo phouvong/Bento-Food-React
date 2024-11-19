@@ -9,12 +9,6 @@ export const languageLists = [
             languageCode: 'lo',
             countryCode: 'LA',
             countryFlag: loFlag.src,
-        },
-    {
-        languageName: 'Arabic',
-        languageCode: 'ar',
-        countryCode: 'SA',
-        countryFlag: arFlag.src,
     },
     {
         languageName: 'English',
@@ -22,16 +16,22 @@ export const languageLists = [
         countryCode: 'US',
         countryFlag: usFlag.src,
     },
-    {
-        languageName: 'Spanish',
-        languageCode: 'es',
-        countryCode: 'es',
-        countryFlag: spanFlag.src,
-    },
-    {
-        languageName: 'Bengali',
-        languageCode: 'bn',
-        countryCode: 'BN',
-        countryFlag: banFlag.src,
-    },
+    //{
+      //      languageName: 'Arabic',
+        //    languageCode: 'ar',
+          //  countryCode: 'SA',
+           // countryFlag: arFlag.src,
+       // },
+    //{
+    //    languageName: 'Spanish',
+    //    languageCode: 'es',
+    //    countryCode: 'es',
+    //    countryFlag: spanFlag.src,
+    //},
+    //{
+    //    languageName: 'Bengali',
+    //    languageCode: 'bn',
+    //    countryCode: 'BN',
+    //    countryFlag: banFlag.src,
+    //},
 ]
