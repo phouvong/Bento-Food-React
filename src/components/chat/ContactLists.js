@@ -1,39 +1,19 @@
-import React from 'react'
-import { List, Stack, Typography, Box } from '@mui/material'
+import { List, Stack, Box } from '@mui/material'
 import {
     CustomListItem,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
+} from '@/styled-components/CustomStyles.style'
 import InfoCard from './InfoCard'
 import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
-import { CustomTypography } from '../custom-tables/Tables.style'
-import { t } from 'i18next'
 import Skeleton from '@mui/material/Skeleton'
-
-import { makeStyles } from '@material-ui/core/styles'
 import { useSelector } from 'react-redux'
-import ChatWithAdmin from './ChatWithAdmin'
-
-// const ContactInformation=({channelUsers, handleChannelOnClick})=>{
-//
-//
-//     return(
-//         <>
-//                 return   <CustomListItem disableGutters cursor='true' onClick={()=>handleChannelOnClick(channelUsers)}>
-//                         {/*<InfoCard name={channelUsers.receiver_type} />*/}
-//                      </CustomListItem>
-//
-//         </>
-//     )
-// }
 
 const ContactLists = ({
     channelList,
     handleChannelOnClick,
     channelLoading,
     selectedId,
-    useType,
 }) => {
     const { global } = useSelector((state) => state.globalSettings)
 
@@ -135,13 +115,6 @@ const ContactLists = ({
                     </List>
                 </SimpleBar>
             )}
-            {/* {channelList.length === 0 && (
-               <Stack width="100%" justifyContent="center" alignItems="center">
-                   <CustomTypography>
-                       {t('You have no channels.')}
-                   </CustomTypography>
-               </Stack>
-            )} */}
         </CustomStackFullWidth>
     )
 }

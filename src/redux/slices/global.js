@@ -7,7 +7,7 @@ const initialState = {
     zoneData: null,
     handleHomePage: false,
     openMapDrawer: false,
-    userLocationUpdate: false
+    userLocationUpdate: false,
 }
 
 export const globalSettingSlice = createSlice({
@@ -16,9 +16,6 @@ export const globalSettingSlice = createSlice({
     reducers: {
         setGlobalSettings: (state, action) => {
             state.global = action.payload
-        },
-        setCustomerProfile: (state, action) => {
-            state.customerProfile = action?.payload
         },
         setCouponInfo: (state, action) => {
             state.couponInfo = action?.payload
@@ -38,15 +35,12 @@ export const globalSettingSlice = createSlice({
         setUserLocationUpdate: (state, action) => {
             state.userLocationUpdate = action.payload
         },
-        
     },
 })
 
 // Action creators are generated for each case reducer function
 export const {
     setGlobalSettings,
-
-    setCustomerProfile,
     setCouponInfo,
     setCouponType,
     setZoneData,

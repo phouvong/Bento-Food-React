@@ -8,13 +8,7 @@ import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { CustomTypography } from './custom-tables/Tables.style'
 
 const useStyles = makeStyles((theme) => ({
-    borderClass: ({
-        theme,
-        focus,
-        languageDirection,
-        rtlChange,
-        borderradius,
-    }) => ({
+    borderClass: ({ theme, focus, languageDirection, borderradius }) => ({
         '&.react-tel-input .special-label': {
             fontSize: '12px',
             fontWeight: 400,
@@ -90,10 +84,8 @@ const CustomPhoneInput = ({
     touched,
     errors,
     rtlChange,
-    width,
     borderradius,
     autoFocus,
-    onKeyDown,
 }) => {
     const { t } = useTranslation()
     const theme = useTheme()
@@ -148,7 +140,6 @@ const CustomPhoneInput = ({
             />
             {touched && errors && (
                 <CustomTypography
-                    // variant="caption"
                     sx={{
                         ml: '10px',
                         fontWeight: 'inherit',

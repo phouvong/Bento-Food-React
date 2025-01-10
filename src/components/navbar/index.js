@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useScrollTrigger } from '@mui/material'
 import { AppBarStyle } from './Navbar.style'
-//import SecondNavbar from './second-navbar/SecondNavbar'
 import TopNav from './top-navbar/TopNav'
-import dynamic from 'next/dynamic'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@emotion/react'
 import { useSelector } from 'react-redux'
@@ -29,9 +27,6 @@ import { onSingleErrorResponse } from '@/components/ErrorResponse'
 import { setGlobalSettings } from '@/redux/slices/global'
 
 const Navigation = () => {
-    // const SecondNavbar = dynamic(() => import('./second-navbar/SecondNavbar'), {
-    //     ssr: false,
-    // })
     const { global } = useSelector((state) => state.globalSettings)
     const router = useRouter()
     const dispatch = useDispatch()
@@ -102,32 +97,18 @@ const Navigation = () => {
             dispatch(setGlobalSettings(res?.data))
         }
     }
-    const { isLoading, data, isError, error, refetch } = useQuery(
-        ['config'],
-        ConfigApi.config,
-        {
-            enabled: false,
-            onError: onSingleErrorResponse,
-            onSuccess: handleConfigData,
-            staleTime: 1000 * 60 * 8,
-            cacheTime: 8 * 60 * 1000,
-        }
-    )
+    const { data, refetch } = useQuery(['config'], ConfigApi.config, {
+        enabled: false,
+        onError: onSingleErrorResponse,
+        onSuccess: handleConfigData,
+        staleTime: 1000 * 60 * 8,
+        cacheTime: 8 * 60 * 1000,
+    })
     useEffect(() => {
         if (!global) {
             refetch()
         }
     }, [data])
-
-    // if (checkMaintenanceMode(global)) {
-    //     return null;
-    // }
-
-    // useEffect(() => {
-    //     if (!global && data) {
-    //         dispatch(setGlobalSettings(data))
-    //     }
-    // }, [data])
 
     useEffect(() => {
         if (global) {

@@ -1,10 +1,10 @@
 import React from 'react'
-import { CustomBoxFullWidth } from '../../styled-components/CustomStyles.style'
+import { CustomBoxFullWidth } from '@/styled-components/CustomStyles.style'
 import { Grid } from '@mui/material'
 import Skeleton from '@mui/material/Skeleton'
 const CustomShimmerCard = () => {
     return (
-        <CustomBoxFullWidth >
+        <CustomBoxFullWidth>
             <Grid container spacing={3}>
                 {[...Array(6)].map((item, index) => {
                     return (
@@ -15,8 +15,7 @@ const CustomShimmerCard = () => {
                                 width="100%"
                                 height="6rem"
                                 style={{
-                                    borderRadius:"6px",
-
+                                    borderRadius: '6px',
                                 }}
                             />
                         </Grid>

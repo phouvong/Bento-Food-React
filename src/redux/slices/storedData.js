@@ -13,6 +13,7 @@ const initialState = {
     popularFood: [],
     suggestedKeywords: [],
     landingPageData: {},
+    addStores: [],
 }
 
 export const storedDataSlice = createSlice({
@@ -47,6 +48,9 @@ export const storedDataSlice = createSlice({
         setLandingPageData: (state, action) => {
             state.landingPageData = action.payload
         },
+        setAddStores: (state, action) => {
+            state.addStores = action.payload
+        },
     },
 })
 
@@ -61,5 +65,6 @@ export const {
     setBestReviewedFood,
     setPopularFood,
     setSuggestedKeywords,
+    setAddStores,
 } = storedDataSlice.actions
 export default storedDataSlice.reducer

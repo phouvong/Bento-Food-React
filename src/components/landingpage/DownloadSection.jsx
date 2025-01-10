@@ -1,23 +1,12 @@
-import React from 'react'
-import { Box, Grid, Stack } from '@mui/material'
+import { Grid, Stack } from '@mui/material'
 import DownloadComponent from './DownloadComponent'
-import LandingDownloadBanner from '../../../public/static/banners/DownloadBanner.png'
-
-import Link from 'next/link'
 import CustomImageContainer from '../CustomImageContainer'
-import { imageNotFoundPlaceholder } from '../../utils/LocalImages'
+import { imageNotFoundPlaceholder } from '@/utils/LocalImages'
 import { useTranslation } from 'react-i18next'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import CustomContainer from '../container'
 
-const DownloadSection = ({
-    global,
-
-    landing_page_links,
-
-    download_app_data,
-    download_app_image_urls,
-}) => {
+const DownloadSection = ({ landing_page_links, download_app_data }) => {
     const { t } = useTranslation()
     return (
         <CustomContainer>

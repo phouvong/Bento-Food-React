@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
     welcomeModal: false,
     isNeedLoad: false,
+    trackOrderStoreData: {},
 }
 export const utilsSlice = createSlice({
     name: 'utils-data',
@@ -14,9 +15,19 @@ export const utilsSlice = createSlice({
         setIsNeedLoad: (state, action) => {
             state.isNeedLoad = action.payload
         },
+        setTrackOrderStoreData: (state, action) => {
+            state.trackOrderStoreData = action.payload
+        },
+        setTrackOrderPhone: (state, action) => {
+            state.trackOrderStoreData = {
+                ...state.trackOrderStoreData,
+                phone: action.payload,
+            }
+        },
     },
 })
 
-export const { setWelcomeModal, setIsNeedLoad } = utilsSlice.actions
+export const { setTrackOrderStoreData, setWelcomeModal, setIsNeedLoad } =
+    utilsSlice.actions
 
 export default utilsSlice.reducer

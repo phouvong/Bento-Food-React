@@ -3,10 +3,8 @@ import { t } from 'i18next'
 import CustomImageContainer from '@/components/CustomImageContainer'
 import Meta from '@/components/Meta'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
-import { Stack } from '@mui/system'
-import { Container, Typography } from '@mui/material'
+import { Container, Typography, Stack } from '@mui/material'
 import MaintenanceImage from '/public/static/maintenance.png'
-import { CustomHeader } from '@/api/Headers'
 import { checkMaintenanceMode } from '@/utils/customFunctions'
 import { useRouter } from 'next/router'
 import CustomDivider from '@/components/CustomDivider'
@@ -52,6 +50,7 @@ const Maintenance = ({ configData }) => {
                         height="100%"
                         objectfit="cover"
                         src={MaintenanceImage.src}
+                        loading="auto"
                     />
                     <Stack spacing={2}>
                         <Typography
@@ -137,12 +136,12 @@ const Maintenance = ({ configData }) => {
 }
 
 export default Maintenance
+
 export const getServerSideProps = async (context) => {
     const { req } = context
     const language = req.cookies.languageSetting
 
     let configData = null
-    let landingPageData = null
 
     try {
         const configRes = await fetch(

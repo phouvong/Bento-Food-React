@@ -1,26 +1,18 @@
-import React from 'react'
 import {
     CustomColouredTypography,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
-import { Container, Stack } from '@mui/material'
+} from '@/styled-components/CustomStyles.style'
 import { useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
-import Router from 'next/router'
-import { capitalize } from '../../utils/capitalize'
-import CustomContainer from "../container";
+import CustomContainer from '../container'
 
-const FooterBottom = (props) => {
+const FooterBottom = () => {
     const { global } = useSelector((state) => state.globalSettings)
-
     const { t } = useTranslation()
-    const handleClick = (href) => {
-        Router.push(href)
-    }
-    const languageDirection = localStorage.getItem('direction')
+
     return (
         <CustomStackFullWidth py="1.5rem">
-            <CustomContainer >
+            <CustomContainer>
                 <CustomStackFullWidth
                     direction={{ xs: 'column', sm: 'row' }}
                     alignItems="center"
@@ -31,14 +23,13 @@ const FooterBottom = (props) => {
                     <CustomColouredTypography
                         fontSize="14px"
                         sx={{
-                            fontWeight: 400
+                            fontWeight: 400,
                         }}
                         color="whiteContainer.main"
                     >
-                        {t("Copyright")} &#9400;{'  '}
+                        {t('Copyright')} &#9400;{'  '}
                         {global?.footer_text || ''}
                     </CustomColouredTypography>
-
                 </CustomStackFullWidth>
             </CustomContainer>
         </CustomStackFullWidth>

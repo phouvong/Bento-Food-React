@@ -1,26 +1,23 @@
 import React from 'react'
-
 import partialImage from './assets/partail.png'
-import { alpha, Button, Typography } from '@mui/material'
+import { alpha, Button, Typography, Stack } from '@mui/material'
 import PartialSvg from './assets/PartialSvg'
-import { Stack } from '@mui/system'
 import { t } from 'i18next'
 import { useTheme } from '@emotion/react'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
-import { getAmount } from '../../utils/customFunctions'
-// import { getAmountWithSign } from '../../../helper-functions/CardHelpers'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
+import { getAmount } from '@/utils/customFunctions'
 
 const PartialPayment = ({
     handlePartialPayment,
     usePartialPayment,
     walletBalance,
-    paymentMethod,
     removePartialPayment,
     switchToWallet,
     remainingBalance,
     totalAmount,
-    global,offLineWithPartial,
+    global,
+    offLineWithPartial,
 }) => {
     const theme = useTheme()
     let currencySymbol
@@ -91,7 +88,9 @@ const PartialPayment = ({
                 justifyContent="space-between"
                 alignItems="center"
             >
-                {!offLineWithPartial && !usePartialPayment && !switchToWallet ? (
+                {!offLineWithPartial &&
+                !usePartialPayment &&
+                !switchToWallet ? (
                     <Typography
                         fontSize="12px"
                         color={theme.palette.primary.main}
@@ -119,30 +118,34 @@ const PartialPayment = ({
                         </Stack>
                         {walletBalance > totalAmount ? (
                             <>
-                                {!offLineWithPartial && remainingBalance && !usePartialPayment && (
-                                    <Typography
-                                        fontSize="12px"
-                                        color={theme.palette.neutral[1000]}
-                                    >
-                                        {t('Remaining Wallet Balance')}:
+                                {!offLineWithPartial &&
+                                    remainingBalance &&
+                                    !usePartialPayment && (
                                         <Typography
-                                            component="span"
                                             fontSize="12px"
+                                            color={theme.palette.neutral[1000]}
                                         >
-                                            {getAmount(
-                                                remainingBalance,
-                                                currencySymbolDirection,
-                                                currencySymbol,
-                                                digitAfterDecimalPoint
-                                            )}
+                                            {t('Remaining Wallet Balance')}:
+                                            <Typography
+                                                component="span"
+                                                fontSize="12px"
+                                            >
+                                                {getAmount(
+                                                    remainingBalance,
+                                                    currencySymbolDirection,
+                                                    currencySymbol,
+                                                    digitAfterDecimalPoint
+                                                )}
+                                            </Typography>
                                         </Typography>
-                                    </Typography>
-                                )}
+                                    )}
                             </>
                         ) : null}
                     </Stack>
                 )}
-                {!offLineWithPartial && !usePartialPayment && !switchToWallet ? (
+                {!offLineWithPartial &&
+                !usePartialPayment &&
+                !switchToWallet ? (
                     <Button variant="contained" onClick={handlePartialPayment}>
                         {t('Use')}
                     </Button>

@@ -1,12 +1,12 @@
 import Router from 'next/router'
-
 import { setWelcomeModal } from '@/redux/slices/utils'
-import { removeToken } from '../redux/slices/userToken'
-import { store } from '../redux/store'
+import { removeToken } from '@/redux/slices/userToken'
+import { store } from '@/redux/store'
 import {
     CustomToaster,
     CustomToasterTokenExpired,
 } from './custom-toaster/CustomToaster'
+
 const handleTokenExpire = (status) => {
     if (status === 401) {
         if (window?.localStorage.getItem('token')) {
@@ -20,11 +20,6 @@ const handleTokenExpire = (status) => {
             Router.push('/home')
         }
     }
-}
-
-const handle404 = () => {
-    CustomToaster('error', '404 not found.')
-    Router.push('/404')
 }
 
 export const onErrorResponse = (error) => {

@@ -1,17 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
 import CustomSearchInput from './CustomSearchInput'
 import { useRouter } from 'next/router'
-import { alpha } from '@mui/material'
 import SearchSuggestionsBottom from '../../search/SearchSuggestionsBottom'
 import { useSelector } from 'react-redux'
-import { Stack } from "@mui/system";
+import { Stack } from '@mui/material'
 
-const SearchBox = ({ query,setOpenSearchBox }) => {
+const SearchBox = ({ query }) => {
     const [focused, setFocused] = React.useState(false)
-    const [openSearchSuggestions, setOpenSearchSuggestions] = useState(false)
-    const [selectedValue, setSelectedValue] = useState('')
-    const [onSearchDiv, setOnSearchDiv] = useState(false)
     const { token } = useSelector((state) => state.userToken)
     const [inputValue, setInputValue] = useState('')
     const router = useRouter()
@@ -21,13 +16,11 @@ const SearchBox = ({ query,setOpenSearchBox }) => {
     const onBlur = () => {
         setFocused(false)
     }
-    useEffect(()=>{
-        if(categoryIsSticky){
-            setFocused(
-                false
-            )
+    useEffect(() => {
+        if (categoryIsSticky) {
+            setFocused(false)
         }
-    },[categoryIsSticky])
+    }, [categoryIsSticky])
 
     const handleSearchedValues = (value) => {
         const searchedValues = JSON.parse(
@@ -62,19 +55,15 @@ const SearchBox = ({ query,setOpenSearchBox }) => {
                     },
                 },
                 undefined,
-                { shallow: router.pathname === '/home' ? true : false }
+                { shallow: router.pathname === '/home' }
             )
             onBlur()
         }
     }
     const handleKeyPress = (value) => {
-        // Trim the input value to remove leading and trailing spaces
         const trimmedValue = value.trim()
 
         if (trimmedValue === '') {
-            // Handle empty or whitespace-only input here (e.g., show an error message)
-            // You can also choose to return early and not perform any action.
-
             return
         }
 
@@ -84,69 +73,56 @@ const SearchBox = ({ query,setOpenSearchBox }) => {
     const handleClickOutside = (event) => {
         if (searchRef.current && !searchRef.current.contains(event.target)) {
             setFocused(false)
-            setInputValue("")
+            setInputValue('')
         }
     }
     useEffect(() => {
-        // Bind the event listener
         document.addEventListener('mousedown', handleClickOutside, {
             passive: true,
         })
 
         return () => {
-            // Unbind the event listener on clean up
             document.removeEventListener('mousedown', handleClickOutside)
         }
     }, [searchRef])
     const handleSearchSuggestionsBottom = () => {
         if (token) {
-            if (focused ) {
+            if (focused) {
                 return (
-                        <SearchSuggestionsBottom
-                            setOnSearchDiv={setOnSearchDiv}
-                            setOpenSearchSuggestions={setOpenSearchSuggestions}
-                            setSelectedValue={setSelectedValue}
-                            routeHandler={routeHandler}
-                            handleFocus={onFocus}
-                            inputValue={inputValue}
-                            searchRef={searchRef}
-                        />
-
+                    <SearchSuggestionsBottom
+                        routeHandler={routeHandler}
+                        handleFocus={onFocus}
+                        inputValue={inputValue}
+                        searchRef={searchRef}
+                    />
                 )
             }
         } else {
             if (inputValue.trim().length >= 1) {
                 return (
-
-                        <SearchSuggestionsBottom
-                            setOnSearchDiv={setOnSearchDiv}
-                            setOpenSearchSuggestions={setOpenSearchSuggestions}
-                            setSelectedValue={setSelectedValue}
-                            routeHandler={routeHandler}
-                            handleFocus={onFocus}
-                            inputValue={inputValue}
-                            searchRef={searchRef}
-                        />
-
+                    <SearchSuggestionsBottom
+                        routeHandler={routeHandler}
+                        handleFocus={onFocus}
+                        inputValue={inputValue}
+                        searchRef={searchRef}
+                    />
                 )
             }
         }
     }
 
     return (
-      <Stack>
-          <CustomSearchInput
-            setInputValue={setInputValue}
-            handleSearchResult={handleKeyPress}
-            handleFocus={onFocus}
-            handleBlur={onBlur}
-            query={query}
-            setFocused={setFocused}
-
-          />
-          {handleSearchSuggestionsBottom()}
-      </Stack>
-
+        <Stack>
+            <CustomSearchInput
+                setInputValue={setInputValue}
+                handleSearchResult={handleKeyPress}
+                handleFocus={onFocus}
+                handleBlur={onBlur}
+                query={query}
+                setFocused={setFocused}
+            />
+            {handleSearchSuggestionsBottom()}
+        </Stack>
     )
 }
 

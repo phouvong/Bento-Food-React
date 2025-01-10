@@ -1,4 +1,9 @@
-export const handleFilterData = (checkedFilterKey,setFilterByData,setOffSet,setForFilter) => {
+export const handleFilterData = (
+    checkedFilterKey,
+    setFilterByData,
+    setOffSet,
+    setForFilter
+) => {
     const activeFilters = checkedFilterKey.filter(
         (filter) => filter.isActive === true
     )
@@ -16,11 +21,17 @@ export const handleFilterData = (checkedFilterKey,setFilterByData,setOffSet,setF
         discount:
             activeFilters.find((filter) => filter.value === 'discount') !==
             undefined,
-        new:activeFilters.find((filter) => filter.value === 'latest') !==
+        new:
+            activeFilters.find((filter) => filter.value === 'latest') !==
             undefined,
-        take_away:activeFilters.find((filter) => filter.value === 'take_away') !==
+        take_away:
+            activeFilters.find((filter) => filter.value === 'take_away') !==
             undefined,
-        delivery:activeFilters.find((filter) => filter.value === 'delivery') !==
+        delivery:
+            activeFilters.find((filter) => filter.value === 'delivery') !==
+            undefined,
+        dine_in:
+            activeFilters.find((filter) => filter.value === 'dine_in') !==
             undefined,
     }
     setFilterByData(newFilteredData)

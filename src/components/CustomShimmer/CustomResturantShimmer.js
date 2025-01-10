@@ -1,12 +1,11 @@
 import React from 'react'
-import { Typography } from '@mui/material'
-import { Box } from '@mui/system'
-import StarIcon from '@mui/icons-material/Star'
+import { Typography, Box } from '@mui/material'
 import Skeleton from '@mui/material/Skeleton'
 import {
     RatingWrapTypography,
     RatingStarIcon,
 } from '../food-card/FoodCard.style'
+
 const CustomResturantShimmer = () => {
     return (
         <Box className="cardpopular">

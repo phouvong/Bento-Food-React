@@ -1,18 +1,11 @@
 import React from 'react'
 import {
-    CustomColouredTypography,
     CustomPaperBigCard,
     CustomStackFullWidth,
     CustomTypographyBold,
-} from '../../styled-components/CustomStyles.style'
+} from '@/styled-components/CustomStyles.style'
 import { Grid, Stack } from '@mui/material'
-import CustomImageContainer from '../CustomImageContainer'
-import { getAmount } from '../../utils/customFunctions'
-import { CustomTypographyGray } from '../error/Errors.style'
 import Divider from '@mui/material/Divider'
-import CustomRatings from '../custom-ratings/CustomRatings'
-import CustomTextFieldWithFormik from '../form-fields/CustomTextFieldWithFormik'
-import LoadingButton from '@mui/lab/LoadingButton'
 import Skeleton from '@mui/material/Skeleton'
 
 const Shimmer = () => {

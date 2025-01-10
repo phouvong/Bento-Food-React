@@ -1,31 +1,18 @@
 import React from 'react'
-import {
-    alpha,
-    Box,
-    Card,
-    CircularProgress,
-    Grid,
-    Paper,
-    Skeleton,
-    Stack,
-} from '@mui/material'
+import { alpha, Box, Grid, Paper, Stack } from '@mui/material'
 import { useQuery } from 'react-query'
-
-//import AddressPage from '../../../pages/customer/address/AddressPage'
-import { AddressApi } from '../../../hooks/react-query/config/addressApi'
+import { AddressApi } from '@/hooks/react-query/config/addressApi'
 import AddNewAddress from './AddNewAddress'
 import AddressPage from './AddressPage'
 import CustomShimmerCard from '../../customShimmerForProfile/CustomShimmerCard'
-import { CustomPaperBigCard } from '../../../styled-components/CustomStyles.style'
 import CustomEmptyResult from '../../empty-view/CustomEmptyResult'
-import noData from '../../../../public/static/nodata.png'
 import { onSingleErrorResponse } from '../../ErrorResponse'
 import { useTheme } from '@mui/material/styles'
-import { noAddressFound } from '../../../utils/LocalImages'
+import { noAddressFound } from '@/utils/LocalImages'
 
 const AddresList = () => {
     const theme = useTheme()
-    const { isLoading, data, isError, error, refetch } = useQuery(
+    const { isLoading, data, refetch } = useQuery(
         ['address-list'],
         AddressApi.addressList,
         {

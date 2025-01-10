@@ -1,7 +1,6 @@
 import React from 'react'
 import FoodCardIncrementAndDecrement from './FoodCardIncrementAndDecrement'
-import { IconButton } from '@mui/material'
-import { Stack } from '@mui/system'
+import { IconButton, Stack } from '@mui/material'
 
 const AfterAddToCart = ({
     incrOpen,
@@ -11,14 +10,11 @@ const AfterAddToCart = ({
     setIncrOpen,
     handleClickQuantityButton,
     position,
-    addToCartLoading,
-                            horizontal
+    horizontal,
 }) => {
-    const handleHover = () => { }
-
     return (
         <Stack>
-            {incrOpen && isInCart && product?.variations?.length===0 && (
+            {incrOpen && isInCart && product?.variations?.length === 0 && (
                 <FoodCardIncrementAndDecrement
                     getQuantity={getQuantity}
                     product={product}
@@ -29,7 +25,7 @@ const AfterAddToCart = ({
                     horizontal={horizontal}
                 />
             )}
-            {isInCart && !incrOpen && product?.variations?.length===0 &&  (
+            {isInCart && !incrOpen && product?.variations?.length === 0 && (
                 <IconButton
                     onClick={(e) => handleClickQuantityButton(e)}
                     sx={{

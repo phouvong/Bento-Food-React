@@ -1,12 +1,10 @@
-import React from 'react'
-import PropTypes from 'prop-types'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
+} from '@/styled-components/CustomStyles.style'
 import Skeleton from '@mui/material/Skeleton'
 
-const GifShimmer = (props) => {
+const GifShimmer = () => {
     return (
         <CustomPaperBigCard>
             <CustomStackFullWidth

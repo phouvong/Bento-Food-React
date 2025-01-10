@@ -1,13 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api'
-import { CircularProgress, IconButton, Stack, useMediaQuery } from '@mui/material'
+import {
+    CircularProgress,
+    IconButton,
+    Stack,
+    useMediaQuery,
+} from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import markerIcon from '../../../../public/static/markerIcon.png'
 import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
 import Skeleton from '@mui/material/Skeleton'
 import MapMarker from './MapMarker'
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
+import AddIcon from '@mui/icons-material/Add'
+import RemoveIcon from '@mui/icons-material/Remove'
 import { IconWrapper, grayscaleMapStyles } from './Map.style'
 
 const GoogleMapComponent = ({
@@ -22,15 +27,16 @@ const GoogleMapComponent = ({
     locationEnabled,
     setPlaceDescription,
     height,
-    isGps
+    isGps,
+    polygonPaths,
 }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const containerStyle = {
         width: '100%',
         height: height ? height : isSmall ? '350px' : '400px',
-        borderRadius: "10px",
-        border: `1px solid ${theme.palette.neutral[300]}`
+        borderRadius: '10px',
+        border: `1px solid ${theme.palette.neutral[300]}`,
     }
 
     const mapRef = useRef(GoogleMap)
@@ -39,8 +45,9 @@ const GoogleMapComponent = ({
             lat: parseFloat(location?.lat),
             lng: parseFloat(location?.lng),
         }),
-        []
+        [location]
     )
+
     const options = useMemo(
         () => ({
             zoomControl: false,
@@ -57,13 +64,15 @@ const GoogleMapComponent = ({
     const [isMounted, setIsMounted] = useState(false)
     const [openInfoWindow, setOpenInfoWindow] = useState(false)
     const [mapSetup, setMapSetup] = useState(false)
-
+    const [polygonInstance, setPolygonInstance] = useState(null)
     useEffect(() => setIsMounted(true), [])
-
     const [map, setMap] = useState(null)
     const [zoom, setZoom] = useState(19)
-    const [centerPosition, setCenterPosition] = useState(center)
+    const [centerPosition, setCenterPosition] = useState(null)
 
+    useEffect(() => {
+        setCenterPosition(center)
+    }, [center])
     const onLoad = useCallback(function callback(map) {
         setZoom(19)
         setMap(map)
@@ -89,23 +98,63 @@ const GoogleMapComponent = ({
 
     const handleZoomIn = () => {
         if (map && zoom <= 21) {
-            setZoom((prevZoom) => Math.min(prevZoom + 1));
+            setZoom((prevZoom) => Math.min(prevZoom + 1))
         }
-    };
+    }
 
     const handleZoomOut = () => {
         if (map && zoom >= 1) {
-            setZoom((prevZoom) => Math.max(prevZoom - 1));
+            setZoom((prevZoom) => Math.max(prevZoom - 1))
         }
-    };
+    }
+    useEffect(() => {
+        if (polygonInstance) {
+            polygonInstance.setMap(null) // Remove the old polygon
+        }
+        if (polygonPaths?.length > 0 && map) {
+            const newPolygon = new window.google.maps.Polygon({
+                paths: polygonPaths,
+                fillColor: 'blue',
+                fillOpacity: 0.3,
+                strokeColor: theme.palette.error.main,
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                map,
+            })
+            setPolygonInstance(newPolygon)
 
+            // Create a LatLngBounds object to fit the polygon
+            const bounds = new window.google.maps.LatLngBounds()
+            polygonPaths.forEach((path) => {
+                bounds.extend(new window.google.maps.LatLng(path.lat, path.lng))
+            })
+
+            // Fit the map to the new polygon bounds
+            map.fitBounds(bounds)
+        }
+    }, [polygonPaths, map])
     return isLoaded ? (
         <CustomStackFullWidth position="relative" className="map">
-            <Stack position="absolute" zIndex={1} right="15px" bottom={isGps ? "18%" : "6%"} direction="column" spacing={1}>
-                <IconWrapper padding={{ xs: "3px", sm: "5px" }} onClick={handleZoomIn} disabled={zoom > 21}>
+            <Stack
+                position="absolute"
+                zIndex={1}
+                right="15px"
+                bottom={isGps ? '18%' : '6%'}
+                direction="column"
+                spacing={1}
+            >
+                <IconWrapper
+                    padding={{ xs: '3px', sm: '5px' }}
+                    onClick={handleZoomIn}
+                    disabled={zoom > 21}
+                >
                     <AddIcon color="primary" />
                 </IconWrapper>
-                <IconWrapper padding={{ xs: "3px", sm: "5px" }} onClick={handleZoomOut} disabled={zoom < 1}>
+                <IconWrapper
+                    padding={{ xs: '3px', sm: '5px' }}
+                    onClick={handleZoomOut}
+                    disabled={zoom < 1}
+                >
                     <RemoveIcon color="primary" />
                 </IconWrapper>
             </Stack>
@@ -124,12 +173,12 @@ const GoogleMapComponent = ({
                     setDisablePickButton(false)
                     setLocationEnabled(true)
                     setLocation({
-                        lat: map.center.lat(),
-                        lng: map.center.lng(),
+                        lat: map?.center?.lat(),
+                        lng: map?.center?.lng(),
                     })
                     setCenterPosition({
-                        lat: map.center.lat(),
-                        lng: map.center.lng(),
+                        lat: map?.center?.lat(),
+                        lng: map?.center?.lng(),
                     })
                     setPlaceDetailsEnabled(false)
                     setPlaceDescription(undefined)

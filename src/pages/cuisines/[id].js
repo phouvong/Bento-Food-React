@@ -1,19 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { Container } from '@mui/material'
-import {
-    CustomPaperBigCard,
-    CustomStackFullWidth,
-} from "@/styled-components/CustomStyles.style"
+import { Stack } from '@mui/material'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import CuisinesDetailsPage from '../../components/cuisines-page/CuisinesDetailsPage'
 import { useRouter } from 'next/router'
-import { useGetCuisinesDetails } from "@/hooks/react-query/cuisines/useGetCuisinesDetails"
-import { CustomHeader } from "@/api/Headers"
-import { landingPageApi } from "@/components/landingpage/Api"
+import { useGetCuisinesDetails } from '@/hooks/react-query/cuisines/useGetCuisinesDetails'
+import { landingPageApi } from '@/components/landingpage/Api'
 import Meta from '../../components/Meta'
-import { t } from 'i18next'
 import CustomContainer from '../../components/container'
-import HomeGuard from "../../components/home-guard/HomeGuard";
-import { Stack } from "@mui/system";
+import HomeGuard from '../../components/home-guard/HomeGuard'
 
 const Index = ({ configData, landingPageData, pathName }) => {
     const [offset, setOffset] = useState(1)
@@ -29,6 +23,7 @@ const Index = ({ configData, landingPageData, pathName }) => {
     useEffect(() => {
         refetch()
     }, [id])
+
     return (
         <>
             <Meta
@@ -36,18 +31,27 @@ const Index = ({ configData, landingPageData, pathName }) => {
                 ogImage={`${configData?.base_urls?.react_landing_page_images}/${landingPageData?.banner_section_full?.banner_section_img_full}`}
                 pathName={pathName}
             />
-        <HomeGuard>
-            <CustomContainer>
-                <CustomStackFullWidth  >
-                    <Stack sx={{ marginTop:{xs: '1.5rem',sm:"2rem",md:"5rem"}, marginBottom: '1rem' }}>
-                        <CuisinesDetailsPage
-                            data={data}
-                            isLoading={isLoading}
-                        />
-                    </Stack>
-                </CustomStackFullWidth>
-            </CustomContainer>
-        </HomeGuard>
+            <HomeGuard>
+                <CustomContainer>
+                    <CustomStackFullWidth>
+                        <Stack
+                            sx={{
+                                marginTop: {
+                                    xs: '1.5rem',
+                                    sm: '2rem',
+                                    md: '5rem',
+                                },
+                                marginBottom: '1rem',
+                            }}
+                        >
+                            <CuisinesDetailsPage
+                                data={data}
+                                isLoading={isLoading}
+                            />
+                        </Stack>
+                    </CustomStackFullWidth>
+                </CustomContainer>
+            </HomeGuard>
         </>
     )
 }
@@ -62,13 +66,13 @@ export const getServerSideProps = async (context) => {
     const configRes = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/config`,
         {
-            method: 'GET',
             headers: {
                 'X-software-id': 33571750,
                 'X-server': 'server',
                 'X-localization': language,
                 origin: process.env.NEXT_CLIENT_HOST_URL,
             },
+            method: 'GET',
         }
     )
     const config = await configRes.json()

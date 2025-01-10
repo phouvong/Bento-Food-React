@@ -1,24 +1,12 @@
-import React, { useState } from 'react'
 import Skeleton from '@mui/material/Skeleton'
 import {
     CustomBoxFullWidth,
     CustomPaperBigCard,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
-import { Box, Grid, Typography, Stack, Paper } from '@mui/material'
-import {
-    CustomCardContent,
-    CustomFoodCard,
-    FoodSubTitleTypography,
-    FoodTitleTypography,
-    RatingWrapTypography,
-    RatingStarIcon,
-    PricingCardActions,
-    StyledButton,
-} from '../food-card/FoodCard.style'
+} from '@/styled-components/CustomStyles.style'
+import { Grid, Stack } from '@mui/material'
 import useMediaQuery from '@mui/material/useMediaQuery'
 const CustomShimmerRestaurant = () => {
-    const [count, setCount] = useState(8)
     const matchesToSmall = useMediaQuery('(min-width:400px)')
     return (
         <CustomBoxFullWidth align="center" sx={{ minHeight: '70vh' }}>
@@ -30,7 +18,7 @@ const CustomShimmerRestaurant = () => {
                 paddingTop="30x"
                 paddingLeft="10px"
             >
-                {[...Array(count)].map((i, index) => {
+                {[...Array(8)].map((i, index) => {
                     return (
                         <Grid
                             item

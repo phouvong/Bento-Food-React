@@ -1,5 +1,5 @@
-import { Modal, Box, IconButton, useTheme, Stack } from '@mui/material'
-import React, { useEffect, useReducer, useRef, useState } from 'react'
+import { Modal, Box, IconButton, Stack } from '@mui/material'
+import React, { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,13 +9,10 @@ import { ProfileApi } from '@/hooks/react-query/config/profileApi'
 import { onErrorResponse, onSingleErrorResponse } from '../ErrorResponse'
 import { setWishList } from '@/redux/slices/wishList'
 import { useWishListGet } from '@/hooks/react-query/config/wish-list/useWishListGet'
-import { toast } from 'react-hot-toast'
 import { loginSuccessFull } from '@/utils/ToasterMessages'
 import { setToken } from '@/redux/slices/userToken'
-import { t } from 'i18next'
 import PhoneInputForm from './sign-in/social-login/PhoneInputForm'
 import ForgotPassword from './forgot-password/ForgotPassword'
-import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import CloseIcon from '@mui/icons-material/Close'
 import { CustomBoxForModal } from './auth.style'
 import { CustomToaster } from '../custom-toaster/CustomToaster'
@@ -26,6 +23,7 @@ import { AuthApi } from '@/hooks/react-query/config/authApi'
 import { getGuestId } from '@/components/checkout-page/functions/getGuestUserId'
 import { auth } from '@/firebase'
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
+import { useRouter } from 'next/router'
 
 const SignInPage = dynamic(() => import('./sign-in'))
 
@@ -50,7 +48,6 @@ export const setUpRecaptcha = () => {
         } else {
             window.recaptchaVerifier.clear()
             window.recaptchaVerifier = null
-            // setUpRecaptcha()
         }
     }
 }
@@ -62,14 +59,12 @@ const AuthModal = ({
     setModalFor,
     cartListRefetch,
 }) => {
-    const { openMapDrawer, global } = useSelector(
-        (state) => state.globalSettings
-    )
+    const { global } = useSelector((state) => state.globalSettings)
 
-    const theme = useTheme()
     const { userInfo: fbUserInfo, jwtToken: fbJwtToken } = useSelector(
         (state) => state.fbCredentialsStore
     )
+    const router = useRouter()
     const [forWidth, setForWidth] = useState(false)
     const [loginInfo, setLoginInfo] = useState({})
     const [signInPage, setSignInPage] = useState(true)
@@ -82,12 +77,10 @@ const AuthModal = ({
     const dispatch = useDispatch()
     const recaptchaWrapperRef = useRef(null)
     const { mutate, isLoading } = useUpdateUserInfo()
-    const {
-        mutate: loginMutation,
-        isLoading: loginIsLoading,
-        error,
-    } = useMutation('sign-in', AuthApi.signIn)
-    console.log({ loginInfo })
+    const { mutate: loginMutation, isLoading: loginIsLoading } = useMutation(
+        'sign-in',
+        AuthApi.signIn
+    )
     const userOnSuccessHandler = (res) => {
         dispatch(setUser(res?.data))
     }
@@ -110,18 +103,21 @@ const AuthModal = ({
     const { refetch } = useWishListGet(onSuccessHandler)
     const handleSuccess = async (value) => {
         localStorage.setItem('token', value)
-        // toast.success(t(loginSuccessFull))
         CustomToaster('success', loginSuccessFull)
         if (zoneid) {
             await refetch()
         }
         await profileRefatch()
         dispatch(setToken(value))
+        if (
+            router.pathname === `/order-history/[id]` ||
+            router.pathname === '/forgot-password'
+        ) {
+            router.push('/home')
+        }
         handleClose?.()
     }
     const handleRegistrationOnSuccess = (token) => {
-        //registration on success func remaining
-        // setOpenModal(false)
         handleSuccess(token)
         handleClose()
     }
@@ -135,7 +131,7 @@ const AuthModal = ({
         })
     }
     const handleSubmitExistingUser = (value) => {
-        let tempValues = {}
+        let tempValues
         if (loginInfo?.is_email) {
             tempValues = {
                 verified: value,

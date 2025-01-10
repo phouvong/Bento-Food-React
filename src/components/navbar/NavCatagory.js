@@ -13,15 +13,14 @@ import {
 } from '@mui/material'
 
 import Link from 'next/link'
-//import menu from '../../../public/static/Menu/image 18.png'
 import { useTheme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
-import { CategoryApi } from '../../hooks/react-query/config/categoryApi'
-import { setFeaturedCategories } from '../../redux/slices/storedData'
+import { CategoryApi } from '@/hooks/react-query/config/categoryApi'
+import { setFeaturedCategories } from '@/redux/slices/storedData'
 import CustomImageContainer from '../CustomImageContainer'
 import { CustomTypographyGray } from '../error/Errors.style'
 import { onErrorResponse } from '../ErrorResponse'
@@ -34,20 +33,12 @@ const useStyles = makeStyles((theme) => ({
         pointerEvents: 'auto',
     },
 }))
-const NavCatagory = ({
-    openModal,
-    setModal,
-    setRestaurantModal,
-    languageDirection,
-}) => {
+const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
     const theme = useTheme()
     const classes = useStyles()
     const { t } = useTranslation()
-    // test mneu drop down start
     const router = useRouter()
-    const { global } = useSelector((state) => state.globalSettings)
     const { featuredCategories } = useSelector((state) => state.storedData)
-    const catImageUrl = `${global?.base_urls?.category_image_url}`
     const dispatch = useDispatch()
     const [anchorEl, setAnchorEl] = useState(null)
 
@@ -84,9 +75,6 @@ const NavCatagory = ({
     const handleClick = () => {
         router.push('/categories')
         handledropClose()
-    }
-    const handleClose = () => {
-        setAnchorEl(null)
     }
 
     return (
@@ -177,7 +165,9 @@ const NavCatagory = ({
                                                             >
                                                                 <ListItemIcon>
                                                                     <CustomImageContainer
-                                                                        src={category.image_full_url}
+                                                                        src={
+                                                                            category.image_full_url
+                                                                        }
                                                                         width="35px"
                                                                         height="35px"
                                                                         loading="lazy"
@@ -252,7 +242,9 @@ const NavCatagory = ({
                                                             >
                                                                 <ListItemIcon>
                                                                     <CustomImageContainer
-                                                                        src={category.image_full_url}
+                                                                        src={
+                                                                            category.image_full_url
+                                                                        }
                                                                         width="35px"
                                                                         height="35px"
                                                                         loading="lazy"
@@ -332,7 +324,9 @@ const NavCatagory = ({
                                                         >
                                                             <ListItemIcon>
                                                                 <CustomImageContainer
-                                                                    src={category.image_full_url}
+                                                                    src={
+                                                                        category.image_full_url
+                                                                    }
                                                                     width="35px"
                                                                     height="35px"
                                                                     loading="lazy"
@@ -401,7 +395,9 @@ const NavCatagory = ({
                                                         >
                                                             <ListItemIcon>
                                                                 <CustomImageContainer
-                                                                    src={category.image_full_url}
+                                                                    src={
+                                                                        category.image_full_url
+                                                                    }
                                                                     width="35px"
                                                                     height="35px"
                                                                     loading="lazy"

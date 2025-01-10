@@ -5,20 +5,19 @@ import FormControl from '@mui/material/FormControl'
 import RadioGroup from '@mui/material/RadioGroup'
 import {
     alpha,
-    Checkbox,
     FormControlLabel,
     styled,
     Typography,
+    Stack,
 } from '@mui/material'
 import Radio from '@mui/material/Radio'
 import { CustomTypographyLabel } from '@/styled-components/CustomTypographies.style'
 import { getAmount } from '@/utils/customFunctions'
-import VariationRequiredWarningAlert from './VariationRequiredWarningAlert'
 import InfoIcon from '@mui/icons-material/Info'
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
 import { useTheme } from '@mui/styles'
-import { Stack } from '@mui/system'
 import MultiCheckBox from '@/components/foodDetail-modal/MultiCheckBox'
+
 const CustomTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} arrow classes={{ popper: className }} />
 ))(({ theme }) => ({
@@ -30,6 +29,7 @@ const CustomTooltip = styled(({ className, ...props }) => (
         color: theme.palette.neutral[100],
     },
 }))
+
 export const ChoiceValues = (props) => {
     const {
         choice,
@@ -40,7 +40,6 @@ export const ChoiceValues = (props) => {
         currencySymbolDirection,
         currencySymbol,
         digitAfterDecimalPoint,
-        variationStock,
         quantity,
         selectedOptions,
         itemIsLoading,
@@ -139,7 +138,6 @@ export const ChoiceValues = (props) => {
                         />
                     </CustomTooltip>
                 )}
-                {/*{choice.required === 'on' ? t('(required)') : t('(optional)')}:*/}
             </FoodTitleTypography>
             <FormControl sx={{ marginInlineStart: '-10px' }}>
                 <RadioGroup
@@ -261,13 +259,6 @@ export const ChoiceValues = (props) => {
                     ))}
                 </RadioGroup>
             </FormControl>
-            {/*{choice?.type === 'multi' && (*/}
-            {/*    <VariationRequiredWarningAlert*/}
-            {/*        alertData={choice}*/}
-            {/*        type="info"*/}
-            {/*        t={t}*/}
-            {/*    />*/}
-            {/*)}*/}
         </CustomStackFullWidth>
     )
 }

@@ -4,12 +4,11 @@ import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import ChatIcon from '@mui/icons-material/Chat'
 import LockIcon from '@mui/icons-material/Lock'
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined'
-import { Avatar, Box, ButtonBase, NoSsr, Stack } from '@mui/material'
+import { Avatar, Box, ButtonBase, NoSsr, Stack, styled } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 import Toolbar from '@mui/material/Toolbar'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { styled } from '@mui/system'
 import { useRouter } from 'next/router'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -18,10 +17,7 @@ import useClickOutside from '../../../utils/use-click-outside'
 import CustomLanguage from '../../CustomLanguage'
 import { RTL } from '../../RTL/RTL'
 import AuthModal from '../../auth'
-import {
-    getGuestId,
-    getToken,
-} from '../../checkout-page/functions/getGuestUserId'
+import { getToken } from '../../checkout-page/functions/getGuestUserId'
 import CustomContainer from '../../container'
 import { CustomTypography } from '../../custom-tables/Tables.style'
 import SearchBox from '../../home/hero-section-with-search/SearchBox'
@@ -52,11 +48,8 @@ export const getSelectedVariations = (variations) => {
                         optionIndex: optionIndex,
                         optionPrice: value?.optionPrice,
                         current_stock: value?.current_stock,
-                        option_id:value?.option_id,
-                        stock_type:value?.stock_type
-
-
-                        // type:item?.
+                        option_id: value?.option_id,
+                        stock_type: value?.stock_type,
                     }
                     selectedItem.push(itemObj)
                 }
@@ -75,7 +68,6 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
     const [modalFor, setModalFor] = useState('sign-in')
     const [openSearchBox, setOpenSearchBox] = useState(false)
     const [authModalOpen, setOpen] = useState(false)
-    const [showSearch, setShowSearch] = useState(false)
     const [openPopover, setOpenPopover] = useState(false)
     const [openWishlistModal, setOpenWishlistModal] = useState(false)
     const { userData } = useSelector((state) => state.user)
@@ -126,8 +118,7 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
         languageDirection = localStorage.getItem('direction')
         location = localStorage.getItem('location')
     }
-    const customerbaseUrl = global?.base_urls?.customer_image_url
-    const guestId = getGuestId()
+
     const handleClick = (value) => {
         router.push({
             pathname: '/info',
@@ -141,7 +132,8 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
         if (router.pathname !== '/checkout') {
             dispatch(setOfflineWithPartials(false))
         }
-    }, [])
+    }, [router.pathname])
+
     const handleAuthBasedOnRoute = () => {
         return (
             <RTL direction={languageDirection}>
@@ -253,7 +245,10 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
         if ((router.pathname === '/home' && location) || openSearchBox) {
             return (
                 <Box sx={{ minWidth: '450px', marginInlineEnd: '20px' }}>
-                    <SearchBox query={query} setOpenSearchBox={setOpenSearchBox} />
+                    <SearchBox
+                        query={query}
+                        setOpenSearchBox={setOpenSearchBox}
+                    />
                 </Box>
             )
         } else if (

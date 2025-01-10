@@ -4,11 +4,10 @@ import Typography from '@mui/material/Typography'
 import {
     CustomColouredTypography,
     ImageContainer,
-} from '../../styled-components/CustomStyles.style'
+} from '@/styled-components/CustomStyles.style'
 
 export const CustomPaperCard = styled(Paper)(
     ({ theme, minHeight, minHeightForCustomCard }) => ({
-        // eslint-disable-next-line no-mixed-operators
         minHeight: (minHeight && '16vh') || (minHeightForCustomCard && '30vh'),
         position: 'relative',
         width: '100%',
@@ -20,7 +19,6 @@ export const CustomPaperCard = styled(Paper)(
             '0px 0px 2px rgba(145, 158, 171, 0.2), 0px 12px 24px -4px rgba(145, 158, 171, 0.1)',
         border: '1px solid rgba(65, 83, 179, 0.3)',
         [theme.breakpoints.up('sm')]: {
-            // eslint-disable-next-line no-mixed-operators
             minHeight:
                 (minHeight && '14vh') || (minHeightForCustomCard && '20vh'),
         },
@@ -96,6 +94,4 @@ export const CustomImageContainerForCustomInfoCard = styled(ImageContainer)(
 export const CustomButtonForCustomCard = styled(Button)(({ theme }) => ({
     width: '71%',
 }))
-export const CustomButton = styled(Button)(({ theme }) => ({
-
-}))
+export const CustomButton = styled(Button)(({ theme }) => ({}))

@@ -8,7 +8,7 @@ export const english = {
     'Highlights for you': 'Highlights for you',
     'Allergic Ingredients': 'Allergic Ingredients',
     'items available': 'items available',
-    'Welcome to React': 'Welcome to React and react-i18next',
+    'Welcome to React and react-i18next': 'Welcome to React and react-i18next',
     'Or Login with': 'Or Login with',
     'Dont have a cutlery? Restaurant will provide you.':
         'Dont have a cutlery? Restaurant will provide you.',
@@ -25,7 +25,7 @@ export const english = {
     'Please add manually or collect promo from':
         'Please add manually or collect promo from',
     'Payment Verification Failed !': 'Payment Verification Failed !',
-    'Chef has started cooking': 'Chef has started cooking ',
+    'Chef has started cooking ': 'Chef has started cooking ',
     'Tell us what’s wrong with the order ?':
         'Tell us what’s wrong with the order ?',
     'You payment is declined by admin. Please contact with admin for further query':
@@ -43,12 +43,11 @@ export const english = {
     'You’ll get your order daily at': 'You’ll get your order daily at',
     'You’ll get your order timely': 'You’ll get your order timely',
     Upcoming: 'Upcoming',
-    //"Get your recent food from the restaurant you recently visited": "Get your recent food from the restaurant you recently visited",
     'Add Cutlery': 'Add Cutlery',
     '(Order Amount)': '(Order Amount)',
-    'Todays Trends': 'Today’s Trends',
+    'Today’s Trends': 'Today’s Trends',
     'Popular  Foods Nearby': 'Popular  Foods Nearby',
-    'Whats on Your Mind?': "What's on Your Mind?",
+    "What's on Your Mind?": "What's on Your Mind?",
     'has been copied': 'has been copied',
     'No Contact Info Added': 'No Contact Info Added',
     'Track Your Order': 'Track Your Order',
@@ -105,7 +104,7 @@ export const english = {
     'Special Food Offers': 'Special Food Offers',
     'Want to login to your services ?': 'Want to login to your services ?',
     'Login here': 'Login here',
-    Dashboard: 'Dashboardd',
+    Dashboardd: 'Dashboardd',
     New: 'New',
     'Start a new message': 'Start a new message',
     'Earn money to your wallet by completing the offer & challenged':
@@ -129,7 +128,6 @@ export const english = {
     'I agree that placing the order places me under':
         'I agree that placing the order places me under',
     'Terms and Conditions': 'Terms and Conditions',
-
     'added via': 'added via',
     'No Save Address Found': 'No Save Address Found',
     'How to use': 'How to use',
@@ -148,7 +146,7 @@ export const english = {
     Action: 'Action',
     'My Account': 'My Account',
     Mails: 'Mails',
-    Notification: 'Notifications',
+    Notifications: 'Notifications',
     Restaurants: 'Restaurants',
     Categories: 'Categories',
     'SOME COMPONENTS': 'SOME COMPONENTS',
@@ -242,12 +240,11 @@ export const english = {
     Deny: 'Deny',
     Accept: 'Accept',
     'Paid by wallet': 'Paid by wallet',
-
     'Delivery instruction': 'Delivery instruction',
     'Unavailable item note': 'Unavailable item note',
     Cutlery: 'Cutlery',
     'Ex: Please provide an extra napkin': 'Ex: Please provide an extra napkin',
-    'Pay after service': 'Cash On Delivery',
+    'Cash On Delivery': 'Cash On Delivery',
     Select: 'Select',
     'Pay via Wallet': 'Pay via Wallet',
     'Add Payment Method': 'Add Payment Method',
@@ -256,7 +253,6 @@ export const english = {
     Name: 'Name',
     'Identity Number': 'Identity Number',
     'Order Otp': 'Order Otp',
-
     'Search a category': 'Search a category',
     'Search location here...': 'Search location here...',
     'Pick Form Map': 'Pick Form Map',
@@ -271,23 +267,18 @@ export const english = {
     'Last name is required': 'Last name is required',
     'Address Form': 'Address Form',
     'items selected': 'items selected',
-
     'Image Format - JPG, Pong, ZPEG, GIF Image Size - Maximum Size 2Mb Image Ratio - 1: 1':
         'Image Format - JPG, Pong, ZPEG, GIF Image Size - Maximum Size 2Mb Image Ratio - 1: 1',
-
     'Order Id': 'Order Id',
     'Order Amount': 'Order Amount',
     'Track Order': 'Track Order',
-    // Pending: 'Pending',
-
-    Home: 'Home',
     'Features Catagories': 'Features Catagories',
     Food: 'Food',
     Campaigns: 'Campaigns',
     'Best Reviewed Foods': 'Best Reviewed Foods',
     'View all': 'View all',
-    'New on Stackfood': 'New On StackFood',
-    'Popular Restaurant ': 'Popular Restaurant',
+    'New On StackFood': 'New On StackFood',
+    'Popular Restaurant': 'Popular Restaurant',
     'Popular Food Nearby': 'Popular Food Nearby',
     Nearby: 'Nearby',
     'Best Resturants': 'Best Resturants',
@@ -307,7 +298,6 @@ export const english = {
     view: 'view',
     'New Arrivals': 'New Arrivals',
     'Ratings 4 +': 'Ratings 4 +',
-
     'We found': 'We found',
     'foods for you': 'foods for you',
     restaurants: 'restaurants',
@@ -323,7 +313,6 @@ export const english = {
     'Minimum Order Value': 'Minimum Order Value',
     'Delivery Time': 'Delivery Time',
     Ratings: 'Ratings',
-
     Rating: 'Rating',
     Offer: 'Offer',
     'Expired on': 'Expired on',
@@ -333,16 +322,14 @@ export const english = {
     'Only for some specific zones': 'Only for some specific zones',
     Restaurant: 'Restaurant',
     Max: 'Max',
-    Copied: 'Code copied!',
+    'Code copied!': 'Code copied!',
     'Active Order': 'Active Order',
     'Past Order': 'Past Order',
-
     'Resturant Informations': 'Resturant Informations',
     'Payment Status': 'Payment Status',
     'Order Status': 'Order Status',
     Amount: 'Amount',
     'Payment method': 'Payment method',
-
     'Order placed': 'Order placed',
     Order: 'Order',
     'Follow us on': 'Follow us on',
@@ -373,7 +360,7 @@ export const english = {
     ' Add new address': ' Add new address',
     ' Add New +': ' Add New +',
     'Address Type': 'Address Type',
-    home: 'Home',
+    Home: 'Home',
     Office: 'Office',
     Others: 'Others',
     'Contact Person Name': 'Contact Person Name',
@@ -384,7 +371,7 @@ export const english = {
     'BEST TACOS AROUND': 'BEST TACOS AROUND',
     'Fast Home Delivery': 'Fast Home Delivery',
     'DISCOUNT UPTO 20%': 'DISCOUNT UPTO 20%',
-    'for Chinese, Japanies & Asian foods':
+    'for Chinese, Japanese & Asian foods':
         'for Chinese, Japanese & Asian foods',
     Foods: 'Foods',
     'Starts From:': 'Starts From:',
@@ -399,8 +386,6 @@ export const english = {
     'Owner Information': 'Owner Information',
     'Delivery Man Image': 'Delivery Man Image',
     'Loyalty Points !': 'Loyalty Points !',
-    loyalty: 'Loyalty Points',
-
     'Search your desired foods ': 'Search your desired foods ',
     'file Upload': 'file Upload',
     'Delivery Man Type': 'Delivery Man Type',
@@ -457,7 +442,6 @@ export const english = {
         'Identity number Is A Required Field',
     'Delivery man image is required': 'Delivery man image is required',
     'Logged in successfully': 'Logged in successfully',
-
     'Terms & Conditions': 'Terms & Conditions',
     'Privacy Policy': 'Privacy Policy',
     'Quick Links': 'Quick Links',
@@ -601,14 +585,12 @@ export const english = {
     'Select a Payment Method to Proceed': 'Select a Payment Method to Proceed',
     'Pay Via Online': 'Pay Via Online',
     '% off on all items!': '% off on all items!',
-
-    'off on all items': 'off on all items!',
+    'off on all items!': 'off on all items!',
     Register: 'Register',
     'Use Current Location': 'Use Current Location',
     Profile: 'Profile',
     'Stay upto date with restaurants and foods around you. Subscribe with email.':
         'Stay upto date with restaurants and foods around you. Subscribe with email.',
-
     'Personal Info': 'Personal Info',
     'Fast Name': 'Fast Name',
     'Not Changeable': 'Not Changeable',
@@ -632,12 +614,10 @@ export const english = {
     OFF: 'OFF',
     'Days since Joining': 'Days since Joining',
     'Amount in Wallet': 'Amount in Wallet',
-
     'Delivery fee': 'Delivery fee',
     'You have earned': 'You have earned',
     'Minimum purchase value': 'Minimum purchase value',
     'Max Discount': 'Max Discount',
-
     'Cart is Empty': 'Cart is Empty',
     'in your cart': 'in your cart',
     Price: 'Price',
@@ -668,7 +648,6 @@ export const english = {
     'point.': 'point.',
     'It will add to your balance when the order is delivered.':
         'It will add to your balance when the order is delivered.',
-
     'You must be login to access this page.':
         'You must be login to access this page.',
     'You must pick a zone to access this page.':
@@ -694,7 +673,6 @@ export const english = {
     'Recommend Products': 'Recommend Products',
     'Add fund': 'Add fund',
     'Order Now': 'Order Now',
-
     'To select from saved addresses, you need to sign in.':
         'To select from saved addresses, you need to sign in.',
     'Due Payment': 'Due Payment',
@@ -755,11 +733,10 @@ export const english = {
     cash_on_delivery: 'cash_on_delivery',
     delivered: 'delivered',
     Messages: 'Messages',
-    // "away":"away"
     Comment: 'Comment',
     handover: 'handover',
     'You have no channels.': 'You have no channels.',
-    admin: 'Admin',
+    Admin: 'Admin',
     'delivery man': 'delivery man',
     vendor: 'vendor',
     'Delete My Account': 'Delete My Account',
@@ -798,18 +775,15 @@ export const english = {
     'items.': 'items.',
     'Suggested Searches': 'Suggested Searches',
     'Popular Cuisine': 'Popular Cuisine',
-    //"Selected Address":'Selected Address',
     'Enter the verification code (OTP) sent to':
         'Enter the verification code (OTP) sent to',
     'Cancellation policy': 'Cancellation policy',
-
     'Selected variation named': 'Selected variation named',
     'must be in between Minimum': 'must be in between Minimum',
     'and Maximum': 'and Maximum',
     'Add Ons (Optional)': 'Add Ons (Optional)',
     'Social Register': 'Social Register',
     'Social Login': 'Social Login',
-
     'Continue with facebook': 'Continue with facebook',
     'Password can not be updated while you are logged in by using social logins.':
         'Password can not be updated while you are logged in by using social logins.',
@@ -882,7 +856,7 @@ export const english = {
     'Created at:': 'Created at:',
     'Subscription date:': 'Subscription date:',
     'Subscription type:': 'Subscription type:',
-    'Subscription Schedule: ': 'Subscription Schedule:',
+    ' Subscription Schedule:': 'Subscription Schedule:',
     'Delivery Log': 'Delivery Log',
     'Pause Log': 'Pause Log',
     'Cancellation note can not be empty.':
@@ -901,7 +875,6 @@ export const english = {
     'My Coupons': 'My Coupons',
     'Search location': 'Search location',
     'Order scheduled': 'Order scheduled',
-
     'Current orders can not be reordered as some changes occurred to the items.':
         'Current orders can not be reordered as some changes occurred to the items.',
     'No logs found': 'No logs found',
@@ -972,7 +945,6 @@ export const english = {
     'Explore More': 'Explore More',
     'Best Reviewed': 'Best Reviewed',
     'Popular Foods': 'Popular Foods',
-    // "Todays Trends": "Todays Trends",
     'Delete this address?': 'Delete this address?',
     No: 'No',
     'If you delete your account. All your data & history in this profile will be deleted':
@@ -1047,6 +1019,8 @@ export const english = {
     'Proceed To Checkout': 'Proceed To Checkout',
     'Search restaurants....': 'Search restaurants....',
     'Select your location': 'Select your location',
+    'Your Order is Pending, Please Wait for Restaurant Confirmation':
+        'Your Order is Pending, Please Wait for Restaurant Confirmation',
     'insufficient amount': 'insufficient amount',
     'Please exchange more than ': 'Please exchange more than ',
     ' points': ' points',
@@ -1086,4 +1060,14 @@ export const english = {
         'However, the maximum cashback amount is',
     'Extra Packaging': 'Extra Packaging',
     'Need Extra Packaging': 'Need Extra Packaging',
+    'Whats on Your Mind?': 'Whats on Your Mind?',
+    'Want to Dine in?': 'Want to Dine in?',
+    'Todays Trends': 'Todays Trends',
+    'New on': 'New on',
+    'View Restaurants': 'View Restaurants',
+    'Dine In': 'Dine In',
+    'See our most popular restaurant and foods':
+        'See our most popular restaurant and foods',
+    'Currently Open': 'Currently Open',
+    'View From Map': 'View From Map',
 }

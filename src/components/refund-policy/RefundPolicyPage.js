@@ -1,9 +1,7 @@
-import React, {useEffect} from 'react'
+import React from 'react'
 import { Box, Grid, Typography } from '@mui/material'
-import { useSelector } from 'react-redux'
 import { StyleThemBox } from '../food-card/FoodCard.style'
 import { useTranslation } from 'react-i18next'
-import {useRouter} from "next/router";
 import {useTheme} from "@mui/material/styles";
 
 

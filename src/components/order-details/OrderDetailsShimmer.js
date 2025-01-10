@@ -2,7 +2,7 @@ import React from 'react'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
+} from '@/styled-components/CustomStyles.style'
 import Skeleton from '@mui/material/Skeleton'
 import { Grid } from '@mui/material'
 

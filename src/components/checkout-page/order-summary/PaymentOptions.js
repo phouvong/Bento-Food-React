@@ -1,33 +1,24 @@
 import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
 import { Grid, Stack, Typography } from '@mui/material'
-import {
-    PaymentButton,
-    PaymentOptionGrid,
-    PymentTitle,
-} from '../CheckOut.style'
-import cash from '../../../../public/static/buttonImg/cashonbtn.png'
-import digital from '../../../../public/static/buttonImg/digitalbtn.png'
-import wallet from '../../../../public/static/buttonImg/walletbtn.png'
+import { PymentTitle } from '../CheckOut.style'
 import { useTranslation } from 'react-i18next'
 import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined'
 import {
-    CustomCheckBoxStack,
     CustomPaperBigCard,
     CustomStackFullWidth,
 } from '../../../styled-components/CustomStyles.style'
 import CustomImageContainer from '../../CustomImageContainer'
-import placeholder from '../../../../public/static/no-image-found.png'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { useTheme } from '@mui/material/styles'
-import Divider from '@mui/material/Divider'
 import CustomDivider from '../../CustomDivider'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import CustomModal from '../../custom-modal/CustomModal'
 import AllPaymentMethod from '../AllPaymentMethod'
 import OfflinePayment from '../assets/OfflinePayment'
-import { useDispatch, useSelector } from "react-redux";
-import { setOfflineInfoStep, setOfflineMethod } from "@/redux/slices/OfflinePayment"
+import { useDispatch, useSelector } from 'react-redux'
+import {
+    setOfflineInfoStep,
+    setOfflineMethod,
+} from '@/redux/slices/OfflinePayment'
 
 const PaymentOptions = (props) => {
     const theme = useTheme()
@@ -44,12 +35,14 @@ const PaymentOptions = (props) => {
         setSwitchToWallet,
         offlinePaymentOptions,
     } = props
-    const { t } = useTranslation();
-    const dispatch = useDispatch();
+    const { t } = useTranslation()
+    const dispatch = useDispatch()
     const [openModal, setOpenModal] = useState(false)
-    const { offLineWithPartial } = useSelector((state) => state.offlinePayment);
-    const [isCheckedOffline, setIsCheckedOffline] = useState(selected?.method === "offline_payment" ? true : false);
-    const { offlineInfoStep } = useSelector((state) => state.offlinePayment);
+    const { offLineWithPartial } = useSelector((state) => state.offlinePayment)
+    const [isCheckedOffline, setIsCheckedOffline] = useState(
+        selected?.method === 'offline_payment'
+    )
+    const { offlineInfoStep } = useSelector((state) => state.offlinePayment)
     useEffect(() => {
         if (offlineInfoStep === 2) {
             dispatch(setOfflineInfoStep(1))
@@ -61,8 +54,6 @@ const PaymentOptions = (props) => {
         }
     }, [selected])
 
-
-    const imageUrl = global?.base_urls?.gateway_image_url
     const getPaymentMethod = (item) => {
         setSelected(item)
     }
@@ -78,14 +69,14 @@ const PaymentOptions = (props) => {
             setSwitchToWallet(true)
             dispatch(setOfflineInfoStep(0))
             setIsCheckedOffline(false)
-        } else if (selected?.method === "offline_payment") {
-            setPaymenMethod(selected);
-            setPaymentMethodDetails(selected);
+        } else if (selected?.method === 'offline_payment') {
+            setPaymenMethod(selected)
+            setPaymentMethodDetails(selected)
             dispatch(setOfflineMethod(selected))
-            setOpenModal(false);
-            setSwitchToWallet(false);
-            dispatch(setOfflineInfoStep(1));
-            setIsCheckedOffline(true);
+            setOpenModal(false)
+            setSwitchToWallet(false)
+            dispatch(setOfflineInfoStep(1))
+            setIsCheckedOffline(true)
         } else {
             setPaymenMethod(selected?.name)
             setPaymentMethodDetails(selected)
@@ -127,7 +118,7 @@ const PaymentOptions = (props) => {
                             alignItems="center"
                         >
                             {paymentMethodDetails?.name === 'wallet' ||
-                                paymentMethodDetails?.name ===
+                            paymentMethodDetails?.name ===
                                 'cash_on_delivery' ? (
                                 <CustomImageContainer
                                     maxWidth="100%"
@@ -138,28 +129,39 @@ const PaymentOptions = (props) => {
                                 />
                             ) : (
                                 <>
-                                    {paymentMethodDetails?.method === 'offline_payment' ? (<OfflinePayment />)
-                                        : (
-                                            <CustomImageContainer
-                                                maxWidth="100%"
-                                                width="unset"
-                                                height="32px"
-                                                objectfit="contain"
-                                                src={paymentMethodDetails?.image}
-                                            />
-                                        )
-
-                                    }
+                                    {paymentMethodDetails?.method ===
+                                    'offline_payment' ? (
+                                        <OfflinePayment />
+                                    ) : (
+                                        <CustomImageContainer
+                                            maxWidth="100%"
+                                            width="unset"
+                                            height="32px"
+                                            objectfit="contain"
+                                            src={paymentMethodDetails?.image}
+                                        />
+                                    )}
                                 </>
-                            )
-                            }
+                            )}
                             <Typography
                                 fontSize="14px"
                                 fontWeight="500"
                                 color={theme.palette.primary.main}
                                 textTransform="capitalize"
                             >
-                                {paymentMethodDetails?.method ? `${t(paymentMethodDetails?.method?.replaceAll('_', ' '))} (${t(paymentMethodDetails?.name)})` : `${t(paymentMethodDetails?.name?.replaceAll('_', ' '))}`}
+                                {paymentMethodDetails?.method
+                                    ? `${t(
+                                          paymentMethodDetails?.method?.replaceAll(
+                                              '_',
+                                              ' '
+                                          )
+                                      )} (${t(paymentMethodDetails?.name)})`
+                                    : `${t(
+                                          paymentMethodDetails?.name?.replaceAll(
+                                              '_',
+                                              ' '
+                                          )
+                                      )}`}
                             </Typography>
                         </Stack>
                     ) : (

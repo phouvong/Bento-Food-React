@@ -16,8 +16,8 @@ import { useSelector } from 'react-redux'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
-} from '../../../styled-components/CustomStyles.style'
-import { getAmount } from '../../../utils/customFunctions'
+} from '@/styled-components/CustomStyles.style'
+import { getAmount } from '@/utils/customFunctions'
 import Meta from '../../Meta'
 import HowItWorks from './HowItWorks'
 import ReferAFriend from './ReferAFriend'
@@ -39,7 +39,6 @@ const ReferCodePage = () => {
         currencySymbolDirection = global.currency_symbol_direction
         digitAfterDecimalPoint = global.digit_after_decimal_point
     }
-    const referral = t('referral')
     const get = t('Get')
     const join = t('on joining')
     const copyReferCode = async (text) => {
@@ -57,7 +56,7 @@ const ReferCodePage = () => {
         await copyReferCode(refer_code)
         CustomToaster('success', t('Referral Code Copied'))
     }
-    const referImage1 = <ReferAFriend />
+
     return (
         <>
             <Meta
@@ -101,7 +100,6 @@ const ReferCodePage = () => {
                                         sm: '16px',
                                         md: '16px',
                                     }}
-                                    // width="323px"
                                     align="center"
                                 >
                                     <Typography component="span">
@@ -164,7 +162,6 @@ const ReferCodePage = () => {
                                                 disableTouchListener
                                                 title={t('Copied')}
                                             >
-                                                {/*<Button onClick={handleTooltipOpen}>Click</Button>*/}
                                                 <IconButton
                                                     onClick={() =>
                                                         handleTooltipOpen(
@@ -186,7 +183,6 @@ const ReferCodePage = () => {
                                                                     'right',
                                                             }}
                                                         />
-                                                        {/*<Typography color={theme.palette.neutral[1000]} variant="subtitle2">{t("Tap to copy")}</Typography>*/}
                                                     </Stack>
                                                 </IconButton>
                                             </Tooltip>

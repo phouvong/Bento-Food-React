@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Box } from '@mui/system'
-import { Stack, Typography } from '@mui/material'
+import { Stack, Typography, Box } from '@mui/material'
 import { t } from 'i18next'
 import { useTheme } from '@mui/styles'
 import {
@@ -20,15 +19,14 @@ import FoodCardShimmer from '@/components/food-card/FoodCarShimmer'
 import { RTL } from '@/components/RTL/RTL'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
-const AddsSection = () => {
+const AddsSection = ({ data, isLoading }) => {
     const [hoverOn, setHoverOn] = useState(false)
     const [renderComp, setRenderComp] = useState(1)
     const languageDirection = localStorage.getItem('direction')
     const [isAutoPlay, setIsAutoPlay] = useState(true)
     const sliderRef = useRef(null)
-    const [currentSlide, setCurrentSlide] = useState(0)
     const [activeSlideData, setActiveSlideData] = useState(null)
-    const { data, isLoading } = useGetAdds()
+
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
 
@@ -40,7 +38,6 @@ const AddsSection = () => {
         slidesToScroll: 1,
         nextArrow: hoverOn && <HandleNext overLay={true} />,
         prevArrow: hoverOn && <HandlePrev />,
-        beforeChange: (oldIndex, newIndex) => setCurrentSlide(newIndex),
         afterChange: (currentSlide) => {
             if (sliderRef.current && sliderRef.current.innerSlider) {
                 const activeSlideIndex =
@@ -49,13 +46,10 @@ const AddsSection = () => {
                 setActiveSlideData(activeSlide)
                 if (activeSlide?.add_type === 'video_promotion') {
                     sliderRef?.current?.slickPause()
-                } else {
-                    // setIsAutoPlay(true)
                 }
             }
         },
         responsive: [
-            // Same responsive breakpoints as in your original code
             {
                 breakpoint: 2000,
                 settings: {

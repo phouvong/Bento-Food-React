@@ -1,14 +1,12 @@
 import React from 'react'
 import CustomContainer from '../container'
-import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style"
-import { alpha, Stack } from '@mui/material'
-import { DiscountBannerBox, LandingPageTypography } from './landingPageStyle'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
+import { Stack } from '@mui/material'
+import { DiscountBannerBox } from './landingPageStyle'
 import Card from '@mui/material/Card'
 import Skeleton from '@mui/material/Skeleton'
-import { useTheme } from '@mui/material/styles'
 
-const DiscountBanner = ({ discount_banner, global, discount_banner_url }) => {
-    const theme = useTheme()
+const DiscountBanner = ({ discount_banner }) => {
     return (
         <CustomContainer>
             <CustomStackFullWidth
@@ -18,7 +16,7 @@ const DiscountBanner = ({ discount_banner, global, discount_banner_url }) => {
                     discount_banner && (
                         <DiscountBannerBox
                             sx={{
-                                backgroundImage: `url(${`${discount_banner}`})`,
+                                backgroundImage: `url(${discount_banner})`,
                             }}
                         ></DiscountBannerBox>
                     )

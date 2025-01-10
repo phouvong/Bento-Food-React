@@ -6,8 +6,7 @@ import {
     CustomPaperBigCard,
     CustomStackFullWidth,
 } from '@/styled-components/CustomStyles.style'
-import { Stack } from '@mui/system'
-import { useRouter } from 'next/router'
+import { Stack } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
 import { useSelector } from 'react-redux'
@@ -16,25 +15,23 @@ import DeliverymanForm from './DeliverymanForm'
 import GroupButtonsRateAndReview from './GroupButtonsRateAndReview'
 import ItemForm from './ItemForm'
 import Shimmer from './Shimmer'
+
 const RateAndReview = ({
     id,
     onClose,
     refetchTrackData,
     is_reviewed,
     is_dm_reviewed,
-                           refetch
+    refetch,
 }) => {
     const { deliveryManInfo } = useSelector((state) => state.searchFilterStore)
     const [type, setType] = useState('items')
     const [reviewItems, setReviewItems] = useState(null)
     const [completeReview, setCompleteReview] = useState(false)
     const [reviewedItem, setReviewedItem] = useState()
-    const router = useRouter()
     const {
         isFetching,
         data,
-        isError,
-        error,
         refetch: refetchOrderReview,
     } = useQuery(['order-review', id], () => OrderApi.orderReview(id))
 
@@ -64,7 +61,6 @@ const RateAndReview = ({
             setCompleteReview(true)
             onClose()
         } else if (!deliveryManInfo && reviewItems?.length === 0) {
-            //setCompleteReview(true);
             onClose()
         }
     }, [reviewItems, is_dm_reviewed, deliveryManInfo])

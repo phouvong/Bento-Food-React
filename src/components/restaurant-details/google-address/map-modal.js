@@ -1,17 +1,9 @@
 import CloseIcon from '@mui/icons-material/Close'
-import {
-    Box,
-    Button,
-    Modal,
-    Stack,
-    TextField,
-    Typography,
-    styled,
-} from '@mui/material'
+import { Box, Modal, Stack, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
 import { useSelector } from 'react-redux'
-import { GoogleApi } from '../../../hooks/react-query/config/googleApi'
+import { GoogleApi } from '@/hooks/react-query/config/googleApi'
 import MapComponent from './MapComponent'
 
 const style = {
@@ -26,102 +18,49 @@ const style = {
     background: '#FFFFFF',
     borderRadius: '5px',
 }
-const CssTextField = styled(TextField)({
-    '& label.Mui-focused': {
-        color: '#EF7822',
-    },
-    '& .MuiInput-underline:after': {
-        borderBottomColor: '#EF7822',
-    },
-    '& .MuiOutlinedInput-root': {
-        '& fieldset': {
-            borderColor: '#EF7822',
-        },
-        '&:hover fieldset': {
-            borderColor: '#EF7822',
-        },
-        '&.Mui-focused fieldset': {
-            borderColor: '#EF7822',
-        },
-    },
-})
+
 const MapModal = ({ open, handleClose, latitude, longitude, address }) => {
     const { global } = useSelector((state) => state.globalSettings)
-
     const [searchKey, setSearchKey] = useState('')
     const [enabled, setEnabled] = useState(false)
-    const [predictions, setPredictions] = useState([])
-    const [placeDetailsEnabled, setPlaceDetailsEnabled] = useState(false)
     const [locationEnabled, setLocationEnabled] = useState(false)
     const [placeId, setPlaceId] = useState('')
     const [location, setLocation] = useState(global?.default_location)
     const [zoneId, setZoneId] = useState(undefined)
-    const [isLoadingCurrentLocation, setLoadingCurrentLocation] =
-        useState(false)
-    const [currentLocation, setCurrentLocation] = useState(undefined)
 
-    const {
-        isLoading,
-        data: places,
-        isError,
-        error,
-        // refetch: placeApiRefetch,
-    } = useQuery(
+    const { data: places, error } = useQuery(
         ['places', searchKey],
         async () => GoogleApi.placeApiAutocomplete(searchKey),
         { enabled },
         {
             retry: 1,
-            // cacheTime: 0,
         }
     )
     if (error) {
-        setPredictions([])
         setEnabled(false)
     }
 
-    const {
-        isLoading: isLoading2,
-        data: placeDetails,
-        isError: isErrorTwo,
-        error: errorTwo,
-        refetch: placeApiRefetchOne,
-    } = useQuery(
+    const { data: placeDetails } = useQuery(
         ['placeDetails', placeId],
         async () => GoogleApi.placeApiDetails(placeId),
-        { enabled: placeDetailsEnabled },
+        { enabled: false },
         {
             retry: 1,
-            // cacheTime: 0,
         }
     )
 
-    const {
-        isLoading: locationLoading,
-        data: zoneData,
-        isError: isErrorLocation,
-        error: errorLocation,
-        refetch: locationRefetch,
-    } = useQuery(
+    const { data: zoneData } = useQuery(
         ['zoneId', location],
         async () => GoogleApi.getZoneId(location),
         { enabled: locationEnabled },
         {
             retry: 1,
-            // cacheTime: 0,
         }
     )
 
-    if (isErrorLocation) {
-    }
-
-    // if (zoneData) {
-
-    // }
     useEffect(() => {
         if (zoneData) {
             setZoneId(zoneData?.data?.zone_id)
-            //  setLocation(undefined)
             setLocationEnabled(false)
         }
         if (!zoneData) {
@@ -135,25 +74,12 @@ const MapModal = ({ open, handleClose, latitude, longitude, address }) => {
         }
     }, [placeDetails])
     useEffect(() => {
-        if (places) {
-            setPredictions(places?.data?.predictions)
-        }
-    }, [places])
-    useEffect(() => {
         if (typeof window !== 'undefined') {
             if (zoneId) {
                 localStorage.setItem('zoneid', zoneId)
             }
         }
     }, [zoneId])
-
-    const [isDisablePickButton, setDisablePickButton] = useState(false)
-    const PrimaryButton = styled(Button)(({ theme }) => ({
-        color: '#fff',
-        '&:hover': {
-            backgroundColor: theme.palette.action.hover,
-        },
-    }))
 
     return (
         <Modal

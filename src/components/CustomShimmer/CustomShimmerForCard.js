@@ -1,30 +1,15 @@
 import React from 'react'
-import { Box, Grid, Typography, Stack, Paper, styled } from '@mui/material'
-import {
-    CustomBoxFullWidth,
-    CustomPaperBigCard,
-    CustomStackFullWidth,
-    CustomPaper,
-    CustomTypographyAlign,
-} from '../../styled-components/CustomStyles.style'
+import { Stack } from '@mui/material'
 import {
     CustomCardContent,
     CustomFoodCard,
-    FoodSubTitleTypography,
-    FoodTitleTypography,
     RatingWrapTypography,
     RatingStarIcon,
     PricingCardActions,
-    StyledButton,
 } from '../food-card/FoodCard.style'
 import Skeleton from '@mui/material/Skeleton'
 
 const CustomShimmerForCard = () => {
-    // const CustomStack = styled(Stack)((theme) => ({
-    //     maxWidth: '250px',
-    //     width: '100%',
-    //     height: '250px',
-    // }))
     return (
         <CustomFoodCard>
             <Stack>
@@ -35,12 +20,7 @@ const CustomShimmerForCard = () => {
                 />
             </Stack>
             <CustomCardContent>
-                <Skeleton
-                    variant="text"
-                    animation="wave"
-                    height={20}
-
-                />
+                <Skeleton variant="text" animation="wave" height={20} />
 
                 <Skeleton
                     variant="text"

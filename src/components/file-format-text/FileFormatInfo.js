@@ -1,6 +1,5 @@
-import React from 'react'
-import { CustomBoxImageText } from '../../gurbage/admin/components/forms/FormWithFormik.style'
 import Typography from '@mui/material/Typography'
+import { CustomBoxImageText } from '@/components/file-previewer/FilePreviewer.style'
 
 const FileFormatInfo = (props) => {
     const { text } = props

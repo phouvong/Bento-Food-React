@@ -90,10 +90,7 @@ const CustomLoginPhoneNInput = ({
     touched,
     errors,
     rtlChange,
-    width,
     borderradius,
-    autoFocus,
-    onKeyDown,
 }) => {
     const { t } = useTranslation()
     const theme = useTheme()
@@ -118,15 +115,6 @@ const CustomLoginPhoneNInput = ({
     const changeHandler = (phone) => {
         onHandleChange(phone)
     }
-    // const handleChange = (newValue) => {
-    //     const validationError = validatePhoneNumber(newValue);
-    //     if (validationError) {
-    //         setError(validationError); // Set error if validation fails
-    //     } else {
-    //         setError(''); // Clear error if validation passes
-    //         setValue(newValue); // Update value if valid
-    //     }
-    // };
 
     return (
         <CustomStackFullWidth
@@ -151,7 +139,6 @@ const CustomLoginPhoneNInput = ({
                 onChange={changeHandler}
                 inputProps={{
                     required: true,
-                    // autoFocus: !!autoFocus,
                 }}
                 specialLabel={t('Phone')}
                 country={defaultCountry}

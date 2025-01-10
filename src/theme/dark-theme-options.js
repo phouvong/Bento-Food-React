@@ -49,11 +49,11 @@ const skeletonColorAfter =
     'linear-gradient(78.58deg, #F5F6F8 3.23%, #FDFDFD 53.13%, #F6F7F8 100%)'
 
 const primary = {
-    main: '#FF4940',
+    main: '#FF7918',
     light: '#ff6700',
     dark: '#a3460a',
     contrastText: neutral[900],
-    midPrimary: '#ffedf1',
+    midPrimary: '#031C3A',
     overLay: '#000000',
 }
 const paperBoxShadow = '#000000'
@@ -102,6 +102,7 @@ const error = {
 
 const text = {
     primary: '#EDF2F7',
+    info: '#0788FF',
     secondary: '#A0AEC0',
     disabled: 'rgba(255, 255, 255, 0.48)',
     footerText: '#F5F6F8',

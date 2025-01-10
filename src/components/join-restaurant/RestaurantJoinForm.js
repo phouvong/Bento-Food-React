@@ -1,5 +1,5 @@
 import React from 'react'
-import { CustomBoxFullWidth } from '../../styled-components/CustomStyles.style'
+import { CustomBoxFullWidth } from '@/styled-components/CustomStyles.style'
 import { useFormik } from 'formik'
 import { Grid } from '@mui/material'
 import RestaurantDetailsForm from './RestaurantDetailsForm'

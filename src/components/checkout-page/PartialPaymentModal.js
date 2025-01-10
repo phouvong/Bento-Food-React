@@ -1,16 +1,12 @@
 import React from 'react'
-
-import { Stack } from '@mui/system'
-import CloseIcon from '@mui/icons-material/Close'
 import note from './assets/note.png'
 import CustomImageContainer from '../CustomImageContainer'
-import { Button, Typography } from '@mui/material'
+import { Button, Typography, Stack } from '@mui/material'
 import { t } from 'i18next'
 import { useTheme } from '@emotion/react'
-
 import PartialSvg from './assets/PartialSvg'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
-import { getAmount } from '../../utils/customFunctions'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
+import { getAmount } from '@/utils/customFunctions'
 
 const PartialPaymentModal = (props) => {
     const {

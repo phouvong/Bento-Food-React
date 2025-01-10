@@ -1,7 +1,5 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import { Box, Drawer } from '@mui/material'
-import { Scrollbar } from '../../Scrollbar'
+import { Drawer } from '@mui/material'
 
 const HomeLayoutSidebar = (props) => {
     return (

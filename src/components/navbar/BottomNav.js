@@ -26,7 +26,7 @@ const BottomNav = (props) => {
 
     let zoneid = undefined
     if (typeof window !== 'undefined') {
-        zoneid = localStorage.getItem('zoneid')
+        localStorage.getItem('zoneid')
     }
     let token = undefined
     if (typeof window != 'undefined') {

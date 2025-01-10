@@ -2,25 +2,25 @@ import React, { useEffect, useState } from 'react'
 import {
     alpha,
     Autocomplete,
-    Button,
     CircularProgress,
     circularProgressClasses,
     IconButton,
     NoSsr,
     Stack,
     Typography,
+    Box,
 } from '@mui/material'
 
 import GpsFixedIcon from '@mui/icons-material/GpsFixed'
 import MapModal from './google-map/MapModal'
 import { useQuery } from 'react-query'
-import { GoogleApi } from "@/hooks/react-query/config/googleApi"
+import { GoogleApi } from '@/hooks/react-query/config/googleApi'
 import { useGeolocated } from 'react-geolocated'
 import CloseIcon from '@mui/icons-material/Close'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
 import { CustomTypography } from '../custom-tables/Tables.style'
-import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style"
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import {
     CssTextField,
     CustomBox,
@@ -30,14 +30,13 @@ import {
 import { useTheme } from '@mui/material/styles'
 import { toast } from 'react-hot-toast'
 import { useDispatch, useSelector } from 'react-redux'
-import { setUserLocationUpdate, setZoneData } from '../../redux/slices/global'
+import { setUserLocationUpdate, setZoneData } from '@/redux/slices/global'
 import { onErrorResponse, onSingleErrorResponse } from '../ErrorResponse'
 import LocationEnableCheck from './LocationEnableCheck'
-import { Box } from '@mui/system'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { retry } from '@reduxjs/toolkit/query'
-import { AnimationDots } from "../products-page/AnimationDots";
+import { AnimationDots } from '../products-page/AnimationDots'
 import { CustomToaster } from '../custom-toaster/CustomToaster'
+
 export function FacebookCircularProgress(props) {
     return (
         <Box sx={{ position: 'relative' }}>
@@ -46,7 +45,7 @@ export function FacebookCircularProgress(props) {
                 sx={{
                     color: (theme) =>
                         theme.palette.grey[
-                        theme.palette.mode === 'light' ? 200 : 800
+                            theme.palette.mode === 'light' ? 200 : 800
                         ],
                 }}
                 size={25}
@@ -79,13 +78,7 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
     const [open, setOpen] = useState(false)
     const router = useRouter()
     const theme = useTheme()
-    //getting current location
-    const {
-        coords,
-        isGeolocationAvailable,
-        isGeolocationEnabled,
-        getPosition,
-    } = useGeolocated({
+    const { coords, isGeolocationEnabled } = useGeolocated({
         positionOptions: {
             enableHighAccuracy: false,
         },
@@ -93,12 +86,11 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
         isGeolocationEnabled: true,
     })
 
-
     const handleOpen = () => setOpen(true)
     const handleClose = () => {
         setOpen(false)
         if (router.pathname !== '/') {
-            handleModalClose()
+            handleModalClose?.()
         }
     }
     const [location, setLocation] = useState('')
@@ -114,13 +106,8 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
     const [placeDescription, setPlaceDescription] = useState(undefined)
     const [placeDetailsEnabled, setPlaceDetailsEnabled] = useState(false)
     const { userLocationUpdate } = useSelector((state) => state.globalSettings)
-    const [errorText, setErrorText] = React.useState()
     const dispatch = useDispatch()
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
-    const handleClickLocationOpen = () => {
-        setOpenLocation(true)
-        setLocation({ lat: coords?.latitude, lng: coords?.longitude })
-    }
 
     const handleCloseLocation = () => {
         setOpenLocation(false)
@@ -140,26 +127,15 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
         }
     }
 
-    const {
-        isLoading,
-        data: places,
-        isError,
-        error,
-        // refetch: placeApiRefetch,
-    } = useQuery(
+    const { data: places } = useQuery(
         ['places', searchKey],
         async () => GoogleApi.placeApiAutocomplete(searchKey),
         { enabled },
         {
             retry: 1,
-            // cacheTime: 0,
         }
     )
-    const {
-        data: geoCodeResults,
-        isFetching,
-        // refetch: placeApiRefetch,
-    } = useQuery(
+    const { data: geoCodeResults, isFetching } = useQuery(
         ['geocode-api', location],
         async () => GoogleApi.geoCodeApi(location),
         {
@@ -168,12 +144,10 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
         }
     )
 
-    if (geoCodeResults) {
-    }
     const onZoneSuccessHandler = (res) => {
         if (res?.data?.zone_data?.length > 0) {
-            handleModalClose()
-            CustomToaster('success', 'New location has been set.');
+            handleModalClose?.()
+            CustomToaster('success', 'New location has been set.')
             dispatch(setUserLocationUpdate(!userLocationUpdate))
             router.push('/home')
         }
@@ -199,36 +173,20 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
     }, [zoneData])
 
     //********************Pick Location */
-    const {
-        isLoading: isLoading2,
-        data: placeDetails,
-        isError: isErrorTwo,
-        error: errorTwo,
-        refetch: placeApiRefetchOne,
-    } = useQuery(
+    const { data: placeDetails } = useQuery(
         ['placeDetails', placeId],
         async () => GoogleApi.placeApiDetails(placeId),
         { enabled: placeDetailsEnabled },
         {
             retry: 1,
-            // cacheTime: 0,
         }
     )
 
     useEffect(() => {
         if (placeDetails) {
             setLocation(placeDetails?.data?.result?.geometry?.location)
-            //  setZoneIdEnabled(true)
         }
     }, [placeDetails])
-    //************************End Pick Location */
-    // useEffect(() => {
-    //     if (zoneData) {
-
-    //         setZoneId(zoneData?.data?.zone_id)
-
-    //     }
-    // }, [zoneData])
 
     useEffect(() => {
         if (places) {
@@ -240,22 +198,13 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
             setCurrentLocation(
                 geoCodeResults?.data?.results[0]?.formatted_address
             )
-            // localStorage.setItem(
-            //     'currentLatLng',
-            //     JSON.stringify(
-            //         geoCodeResults?.data?.results[0]?.geometry?.location
-            //     )
-            // )
         }
     }, [geoCodeResults])
     useEffect(() => {
         if (placeDescription) {
             setCurrentLocation(placeDescription)
-            //localStorage.setItem('location', placeDescription)
         }
     }, [placeDescription])
-
-    const orangeColor = theme.palette.primary.main
 
     let languageDirection = undefined
 
@@ -270,7 +219,6 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
             })
         }
         setGeoLocationEnable(true)
-        setErrorText('hello')
         setZoneIdEnabled(true)
 
         if (currentLocation && location) {
@@ -351,7 +299,6 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
                                                 languageDirection={
                                                     languageDirection
                                                 }
-                                                //variant="outlined"
                                                 id="outlined-basic"
                                                 {...params}
                                                 placeholder={t(
@@ -455,7 +402,7 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
                             </CustomSearchField>
                             {mobileview === 'false' && (
                                 <>
-                                    {isFetching ?
+                                    {isFetching ? (
                                         <StyledButton
                                             radiuschange="true"
                                             sx={{
@@ -465,15 +412,17 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
                                                     sm: '134px',
                                                     md: '134px',
                                                 },
-                                            }} >
-                                            <Stack
-                                                py="5px">
+                                            }}
+                                        >
+                                            <Stack py="5px">
                                                 <AnimationDots size="0px" />
                                             </Stack>
-                                        </StyledButton> :
+                                        </StyledButton>
+                                    ) : (
                                         <StyledButton
-                                            languageDirection={languageDirection}
-
+                                            languageDirection={
+                                                languageDirection
+                                            }
                                             radiuschange="true"
                                             onClick={() => setLocationEnable()}
                                             disabled={!location}
@@ -493,9 +442,9 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
                                                 {' '}
                                                 {t('Set Location')}
                                             </Typography>
-                                        </StyledButton>}
+                                        </StyledButton>
+                                    )}
                                 </>
-
                             )}
                         </CustomStackFullWidth>
                         {mobileview === 'false' && (
@@ -509,21 +458,22 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
                                 gap="20px"
                                 justifyContent="center"
                             >
-                                {isFetching ? <StyledButton
-
-                                    sx={{
-                                        fontWeight: '400',
-                                        width: {
-                                            xs: '137px',
-                                            sm: '134px',
-                                            md: '134px',
-                                        },
-                                    }} >
-                                    <Stack
-                                        py="5px">
-                                        <AnimationDots size="0px" />
-                                    </Stack>
-                                </StyledButton> : (
+                                {isFetching ? (
+                                    <StyledButton
+                                        sx={{
+                                            fontWeight: '400',
+                                            width: {
+                                                xs: '137px',
+                                                sm: '134px',
+                                                md: '134px',
+                                            },
+                                        }}
+                                    >
+                                        <Stack py="5px">
+                                            <AnimationDots size="0px" />
+                                        </Stack>
+                                    </StyledButton>
+                                ) : (
                                     <StyledButton
                                         onClick={() => setLocationEnable()}
                                         disabled={!location}
@@ -534,7 +484,8 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
                                         >
                                             {t('Set Location')}
                                         </Typography>
-                                    </StyledButton>)}
+                                    </StyledButton>
+                                )}
                                 <StyledButton onClick={handleOpen}>
                                     <Typography
                                         fontWeight="400"
@@ -555,15 +506,16 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
                 </CustomBox>
             </Stack>
             {open && <MapModal open={open} handleClose={handleClose} />}
-            {!isGeolocationEnabled && <LocationEnableCheck
-                openLocation={openLocation}
-                handleCloseLocation={handleCloseLocation}
-                isGeolocationEnabled={isGeolocationEnabled}
-                t={t}
-                coords={coords}
-                handleAgreeLocation={handleAgreeLocation}
-            />}
-
+            {!isGeolocationEnabled && (
+                <LocationEnableCheck
+                    openLocation={openLocation}
+                    handleCloseLocation={handleCloseLocation}
+                    isGeolocationEnabled={isGeolocationEnabled}
+                    t={t}
+                    coords={coords}
+                    handleAgreeLocation={handleAgreeLocation}
+                />
+            )}
         </NoSsr>
     )
 }

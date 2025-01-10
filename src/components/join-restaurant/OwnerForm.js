@@ -1,9 +1,6 @@
 import React from 'react'
-import {
-    CustomBoxFullWidth,
-    CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
-import { Grid, Stack, Typography } from '@mui/material'
+import { CustomBoxFullWidth } from '@/styled-components/CustomStyles.style'
+import { Grid, Typography } from '@mui/material'
 import CustomTextFieldWithFormik from '../form-fields/CustomTextFieldWithFormik'
 import CustomPhoneInput from '../CustomPhoneInput'
 import { useTranslation } from 'react-i18next'

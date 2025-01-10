@@ -8,33 +8,24 @@ import {
     Grid,
     IconButton,
     Typography,
+    Stack,
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import { Stack } from '@mui/system'
 import { t } from 'i18next'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { CustomTypographyLabel } from '../../styled-components/CustomTypographies.style'
-import { getAmount } from '../../utils/customFunctions'
+import { CustomTypographyLabel } from '@/styled-components/CustomTypographies.style'
+import { getAmount } from '@/utils/customFunctions'
 import { useIsMount } from '../first-render-useeffect-controller/useIsMount'
 
 const IncDecAddOn = ({
-    setTotalPrice,
-    setVarPrice,
     changeAddOns,
     add_on,
-    setProductAddOns,
-    product_add_ons,
     setAddOns,
     add_ons,
-    productQuantity,
     product,
     cartList,
-    selectedChoice,
     itemIsLoading,
-
-    // setCheckAddOn,
-    // checkAddOne
 }) => {
     const [checkAddOne, setCheckAddOn] = useState(false)
     const [addOn, setAddOn] = useState(null)
@@ -54,7 +45,6 @@ const IncDecAddOn = ({
 
     useEffect(() => {
         if (itemIsLoading) {
-            //setAddOn({ ...add_on, quantity: quantity })
             setCheckAddOn(false)
             setQuantity(0)
         } else {
@@ -127,7 +117,7 @@ const IncDecAddOn = ({
     const decrementAddOnQty = () => {
         setQuantity((prevState) => prevState - 1)
     }
-    const buttonColor = theme.palette.neutral[1000]
+
     return (
         <>
             {addOn && (

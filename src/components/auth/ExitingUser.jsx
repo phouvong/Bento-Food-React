@@ -1,9 +1,6 @@
 import React, { memo, useState } from 'react'
-import { PrimaryButton } from '@/components/products-page/FoodOrRestaurant'
-import { Stack } from '@mui/system'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
-import { Avatar, Typography } from '@mui/material'
-import { Accessibility } from '@mui/icons-material'
+import { Avatar, Typography, Stack } from '@mui/material'
 import { t } from 'i18next'
 import { useTheme } from '@mui/styles'
 import {
@@ -12,13 +9,7 @@ import {
 } from '@/styled-components/CustomButtons.style'
 import { useSelector } from 'react-redux'
 
-const ExitingUser = ({
-    setModalFor,
-    formSubmitHandler,
-    userInfo,
-    loginIsLoading,
-    loginInfo,
-}) => {
+const ExitingUser = ({ formSubmitHandler, loginIsLoading, loginInfo }) => {
     const [isYes, setIsYes] = useState(null)
     const theme = useTheme()
     const { global } = useSelector((state) => state.globalSettings)

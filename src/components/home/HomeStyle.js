@@ -1,7 +1,5 @@
 import { styled } from '@mui/material/styles'
-
-import { Box, Card, Typography } from '@mui/material'
-import { Stack } from '@mui/system'
+import { Box, Card, Typography, Stack } from '@mui/material'
 import map from '../../assets/images/map.png'
 
 export const LeftArrowStyle = styled(Box)(
@@ -31,7 +29,6 @@ export const RightArrowStyle = styled(Box)(
 )
 
 export const HomeTitleTypography = styled(Typography)(({ theme }) => ({
-    // fontSize: '26px',
     fontWeight: '800',
     color: `${theme.palette.mode === 'dark' && '#fff'}`,
 }))
@@ -52,7 +49,6 @@ export const HomeTextTypography = styled(Typography)(({ theme }) => ({
 export const PopularRestaurantCard = styled(Card)(({ theme }) => ({
     margin: '20px 0',
     padding: '30px',
-    // border: '.5px solid #ef7822',
     boxShadow: `${
         theme.palette.mode === 'light' &&
         '0px 0px 2px rgba(239, 120, 34, 0.1),0px 6px 12px rgba(239, 120, 34, 0.08)'
@@ -79,9 +75,6 @@ export const FoodDetailModalStyle = styled(Box)(({ theme }) => ({
     [theme.breakpoints.down('md')]: {
         width: '85%',
     },
-    // [theme.breakpoints.down('sm')]: {
-    //     width: '70%',
-    // },
     [theme.breakpoints.down('xs')]: {
         width: '85%',
     },
@@ -138,7 +131,7 @@ export const MapSetionWrapper = styled(Stack)(({ theme }) => ({
         height: '340px',
     },
     '.map-overly': {
-        height: '440px',
+        height: '425px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -169,6 +162,5 @@ export const VisitAgainWrapper = styled(Stack)(({ theme }) => ({
     },
     '& .slick-track': {
         gap: '30px',
-        // transform: "translate3d(-884px, 0px, 0px) !important"
     },
 }))

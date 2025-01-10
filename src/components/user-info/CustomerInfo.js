@@ -2,12 +2,11 @@ import { Avatar, Typography, useTheme } from '@mui/material'
 import { t } from 'i18next'
 import moment from 'moment'
 import { useSelector } from 'react-redux'
-import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style"
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
+
 const CustomerInfo = () => {
     const theme = useTheme()
     const { userData } = useSelector((state) => state.user)
-    const { global } = useSelector((state) => state.globalSettings)
-    const customerbaseUrl = global?.base_urls?.customer_image_url
 
     return (
         <CustomStackFullWidth
@@ -36,7 +35,7 @@ const CustomerInfo = () => {
                     fontWeight="400"
                     color={theme.palette.neutral[500]}
                     sx={{ direction: theme.direction === 'rtl' ? 'rtl' : '' }}
-                    textAlign={theme.direction === 'rtl'?"end":"start"}
+                    textAlign={theme.direction === 'rtl' ? 'end' : 'start'}
                 >
                     {userData?.phone}
                 </Typography>

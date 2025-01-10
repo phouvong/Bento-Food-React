@@ -2,43 +2,31 @@ import React, { useEffect } from 'react'
 import RestaurantDetails from '../../../components/restaurant-details/RestaurantDetails'
 import Meta from '../../../components/Meta'
 import MainApi from '../../../api/MainApi'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
-import { CustomHeader } from '../../../api/Headers'
-import { setGlobalSettings } from "@/redux/slices/global"
+import { setGlobalSettings } from '@/redux/slices/global'
 
 const index = ({ restaurantData, configData }) => {
-    const { global } = useSelector((state) => state.globalSettings)
-    const restaurantCoverUrl = global?.base_urls?.restaurant_cover_photo_url
-    const restaurantCoverPhoto = `${restaurantCoverUrl}/${restaurantData?.cover_photo}`
-    const router = useRouter();
-    const dispatch = useDispatch();
+    const router = useRouter()
+    const dispatch = useDispatch()
 
     const { restaurant_zone_id } = router.query
-    const origin =
-        typeof window !== 'undefined' && window.location.origin
-            ? window.location.origin
-            : ''
     let zoneId = undefined
     if (typeof window !== 'undefined') {
         zoneId = localStorage.getItem('zoneid')
-
-        //hostname = window.location.hostnam
     }
     useEffect(() => {
         dispatch(setGlobalSettings(configData))
     }, [])
 
     useEffect(() => {
-
         if (configData) {
             if (configData.maintenance_mode) {
-                router.push('/maintenance');
-                //return;
+                router.push('/maintenance')
             }
-            // dispatch(setGlobalSettings(configData));
         }
-    }, [configData, router]);
+    }, [configData, router])
+
     useEffect(() => {
         if (!zoneId) {
             localStorage.setItem(
@@ -51,8 +39,9 @@ const index = ({ restaurantData, configData }) => {
     return (
         <>
             <Meta
-                title={`${restaurantData?.meta_title ?? restaurantData.name
-                    } - ${configData?.business_name}`}
+                title={`${
+                    restaurantData?.meta_title ?? restaurantData.name
+                } - ${configData?.business_name}`}
                 ogImage={`${configData?.base_urls?.restaurant_image_url}/${restaurantData?.meta_image}`}
                 description={restaurantData?.meta_description}
             />

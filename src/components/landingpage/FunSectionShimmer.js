@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {Stack, useMediaQuery} from "@mui/material";
 import Skeleton from "@mui/material/Skeleton";
 import {useTheme} from "@emotion/react";

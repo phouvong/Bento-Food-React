@@ -1,10 +1,8 @@
 import React from 'react'
-import { Stack } from '@mui/system'
+import { Stack } from '@mui/material'
 import HeroSectionWithSearch from '../home/hero-section-with-search'
 
-const SearchBoxPopover = (props) => {
-    const { anchorEl, onClose, open, searchRef, query } = props
-
+const SearchBoxPopover = ({ searchRef, query }) => {
     return (
         <Stack
             ref={searchRef}

@@ -13,51 +13,39 @@ import {
     OrderFoodName,
     OrderFoodSubtitle,
     OrderSummaryGrid,
-} from '../../components/checkout-page/CheckOut.style'
-import { CustomTypographyBold } from '../../styled-components/CustomStyles.style'
+} from '@/components/checkout-page/CheckOut.style'
+import { CustomTypographyBold } from '@/styled-components/CustomStyles.style'
 import delivery from '../../../public/static/bannerslider/delivery.png'
 import {
     getAmount,
     getSelectedAddOn,
     getTotalPrice,
     getVariation,
-} from '../../utils/customFunctions'
+} from '@/utils/customFunctions'
 import DeleteIcon from '@mui/icons-material/Delete'
 import {
     decrementProductQty,
     incrementProductQty,
     removeProduct,
-} from '../../redux/slices/cart'
+} from '@/redux/slices/cart'
 import RemoveIcon from '@mui/icons-material/Remove'
 import AddIcon from '@mui/icons-material/Add'
 import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
 import { useQuery } from 'react-query'
-import { RestaurantsApi } from '../../hooks/react-query/config/restaurantApi'
-import CustomImageContainer from "../CustomImageContainer";
+import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
+import CustomImageContainer from '../CustomImageContainer'
 
 const CustomDrawerCart = () => {
     const router = useRouter()
     const dispatch = useDispatch()
     const [open, setDrawerOpen] = useState(false)
     const { cartList } = useSelector((state) => state.cart)
-    const { global, token } = useSelector((state) => state.globalSettings)
 
-    const [authModalOpen, setOpen] = useState(false)
-    const handleOpenAuthModal = () => setOpen(true)
-    const handleCloseAuthModal = () => setOpen(false)
-
-
-    const {
-        isLoading,
-        data: restaurantData,
-        isError,
-        error,
-        refetch,
-    } = useQuery([`restaurant-details`], () =>
-        RestaurantsApi.restaurantDetails(cartList[0].restaurant_id)
+    const { data: restaurantData, refetch } = useQuery(
+        [`restaurant-details`],
+        () => RestaurantsApi.restaurantDetails(cartList[0].restaurant_id)
     )
-
 
     const DrawerHeader = styled('div')(({ theme }) => ({
         marginTop: '60px',
@@ -131,7 +119,8 @@ const CustomDrawerCart = () => {
                                         }}
                                     >
                                         <img
-                                            src={delivery.src}
+                                            src={delivery?.src}
+                                            alt=""
                                             loading="lazy"
                                         />
                                         <span
@@ -158,15 +147,11 @@ const CustomDrawerCart = () => {
                                     {cartList?.map((item) => (
                                         <React.Fragment key={item.id}>
                                             <Grid item md={4} xs={4}>
-                                                <CustomImageContainer  height="90px"
-                                                                       width="90px"
-                                                                       src={`${item.image}`}/>
-                                                {/*<img*/}
-                                                {/*    height="90px"*/}
-                                                {/*    width="90px"*/}
-                                                {/*    src={`${item.image}`}*/}
-                                                {/*    loading="lazy"*/}
-                                                {/*/>*/}
+                                                <CustomImageContainer
+                                                    height="90px"
+                                                    width="90px"
+                                                    src={`${item.image}`}
+                                                />
                                             </Grid>
                                             <Grid item md={8} xs={8}>
                                                 <Grid
@@ -243,7 +228,6 @@ const CustomDrawerCart = () => {
                                                                             )
                                                                         )
                                                                     }
-                                                                    //onClick={decrementPrice}
                                                                 />
                                                             </IconButton>
                                                         )}

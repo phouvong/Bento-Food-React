@@ -1,9 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import SmsIcon from '@mui/icons-material/Sms';
 import { Avatar } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import SmsSvg from './SmsSvg';

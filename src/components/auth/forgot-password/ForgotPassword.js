@@ -1,21 +1,19 @@
 import React, { useState } from 'react'
-import { Box, Stack } from '@mui/material'
+import { Stack } from '@mui/material'
 import ForgotPasswordNumberForm from './ForgotPasswordNumberForm'
 import OtpForm from './OtpForm'
 import NewPassword from './NewPassword'
 import { useOtp } from '@/hooks/react-query/config/forgot-password/useOtp'
-// import { setUpRecaptcha } from '@/components/auth'
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
 import { auth } from '@/firebase'
 import { onErrorResponse } from '@/components/ErrorResponse'
-import { useFireBaseOtpVerify } from '@/hooks/react-query/useFireBaseVerfify'
 import { useSelector } from 'react-redux'
 import { useFireBaseResetPass } from '@/hooks/react-query/useFireBaseResetPass'
 import { getGuestId } from '@/components/checkout-page/functions/getGuestUserId'
 
 const ForgotPassword = ({ setModalFor }) => {
     const [page, setPage] = useState(0)
-    const { global, token } = useSelector((state) => state.globalSettings)
+    const { global } = useSelector((state) => state.globalSettings)
     const [verificationId, setVerificationId] = useState(null)
     const [data, setData] = useState({
         phone: '',
@@ -30,7 +28,6 @@ const ForgotPassword = ({ setModalFor }) => {
     const goBack = () => {
         setPage((currPage) => currPage - 1)
     }
-    console.log({ page })
     const handleFirstForm = (values) => {
         setData({
             phone: values.phone,
@@ -38,7 +35,6 @@ const ForgotPassword = ({ setModalFor }) => {
         })
     }
     const setUpRecaptcha = () => {
-        // Check if reCAPTCHA is already initialized
         if (!window.recaptchaVerifier) {
             window.recaptchaVerifier = new RecaptchaVerifier(
                 'recaptcha-container',
@@ -54,7 +50,6 @@ const ForgotPassword = ({ setModalFor }) => {
                 auth
             )
         } else {
-            // Only reset without re-initializing
             window.recaptchaVerifier?.reset()
         }
     }
@@ -139,11 +134,7 @@ const ForgotPassword = ({ setModalFor }) => {
         }
     }
 
-    return (
-        // <Box minHeight="50vh" marginTop="200px">
-        <Stack>{pageShow()}</Stack>
-        // </Box>
-    )
+    return <Stack>{pageShow()}</Stack>
 }
 
 export default ForgotPassword

@@ -21,6 +21,11 @@ export const mockData = [
     },
     {
         id: 4,
+        category_name: 'Dine In',
+        value: 'dine_in',
+    },
+    {
+        id: 5,
         category_name: 'Popular',
         value: 'popular',
     },

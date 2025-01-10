@@ -5,7 +5,6 @@ import CustomModal from '../custom-modal/CustomModal'
 import { ScrollToBottom } from './ChatView'
 import ImagePreviewOnModal from '../image-preview-on-modal'
 
-import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
 
 const ChatMessages = ({ conversationData, scrollBottom }) => {

@@ -19,5 +19,9 @@ export const mockData = [
         name: 'Take away',
         value: 'take_away',
     },
-
+    {
+        id: 4,
+        name: 'Dine In',
+        value: 'dine_in',
+    },
 ]

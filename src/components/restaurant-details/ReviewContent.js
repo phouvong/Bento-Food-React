@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import { Grid, Typography } from '@mui/material'
-import { Box, Stack } from '@mui/system'
+import { Grid, Typography, Box, Stack } from '@mui/material'
 import CustomRatings from '@/components/custom-ratings/CustomRatings'
 import { getDateFormat, handleBadge } from '@/utils/customFunctions'
 import { ReadMore } from '@/components/landingpage/ReadMore'
@@ -11,7 +10,6 @@ import dynamic from 'next/dynamic'
 const FoodDetailModal = dynamic(() =>
     import('@/components/foodDetail-modal/FoodDetailModal')
 )
-//import FoodDetailModal from "@/components/foodDetail-modal/FoodDetailModal";
 import { useSelector } from 'react-redux'
 
 const ReviewContent = ({ review, restaurantName }) => {

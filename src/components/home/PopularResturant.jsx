@@ -1,25 +1,19 @@
 import React, { memo } from 'react'
-import { Typography, Button, Grid, Box, CircularProgress } from '@mui/material'
+import { Typography, Button, Grid } from '@mui/material'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
-import { RestaurantsApi } from '../../hooks/react-query/config/restaurantApi'
-import { useQuery } from 'react-query'
 import { useSelector } from 'react-redux'
 import RestaurantCard from '../restaurant-details/RestaurantCard'
-import RestaurantBoxCard from '../restaurant-details/RestaurantBoxCard'
 import { useRouter } from 'next/router'
-import { HomeTitleTypography, PopularRestaurantCard } from './HomeStyle'
 import { useTranslation } from 'react-i18next'
 import CustomShimmerPopular from '../CustomShimmer/CustomShimmerPopular'
 import {
     CustomColouredTypography,
     CustomPaperBigCard,
     CustomStackFullWidth,
-} from "@/styled-components/CustomStyles.style"
-import { CustomTypography } from '../custom-tables/Tables.style'
+} from '@/styled-components/CustomStyles.style'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
-import { onSingleErrorResponse } from '../ErrorResponse'
 
 const PopularResturant = ({ data, latestRestaurantData }) => {
     const theme = useTheme()
@@ -102,7 +96,9 @@ const PopularResturant = ({ data, latestRestaurantData }) => {
                                                     }
                                                     active={restaurant.active}
                                                     open={restaurant.open}
-                                                    opening_time={restaurant?.current_opening_time}
+                                                    opening_time={
+                                                        restaurant?.current_opening_time
+                                                    }
                                                 />
                                             ))}
                                     </>

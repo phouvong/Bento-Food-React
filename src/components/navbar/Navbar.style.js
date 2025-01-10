@@ -1,46 +1,20 @@
 import Drawer from '@mui/material/Drawer'
 import {
     AppBar,
-    Link,
-    Paper,
     styled,
     Link as MenuLink,
     Button,
-    Card,
     Switch,
     Stack,
-    IconButton, alpha
-} from "@mui/material";
-// import { hover } from '@testing-library/user-event/dist/hover'
+    IconButton,
+    alpha,
+} from '@mui/material'
 
-export const NavbarRoot = styled(AppBar)(
-    ({ theme, notFound, iconicSidebar }) => ({
-        paddingTop: '0.1rem',
-        paddingBottom: '0.1rem',
-        [theme.breakpoints.up('lg')]: {
-            left: notFound ? 'none' : iconicSidebar ? '5rem' : '17.5rem',
-            width: `calc(100% - ${notFound ? 'none' : iconicSidebar ? '5rem' : '17.5rem'
-                })`,
-        },
-        backgroundColor: theme.palette.neutral[100],
-        ...(theme.palette.mode === 'light'
-            ? {
-                boxShadow: theme.shadows[3],
-            }
-            : {
-                backgroundColor: theme.palette.background.paper,
-                borderBottomColor: theme.palette.divider,
-                borderBottomStyle: 'solid',
-                borderBottomWidth: '0.063rem',
-                boxShadow: 'none',
-            }),
-    })
-)
 export const CustomDrawer = styled(Drawer)(({ theme }) => ({
     zIndex: 1172,
     '& .MuiDrawer-paper': {
-        maxWidth: "265px",
-        width: "100%",
+        maxWidth: '265px',
+        width: '100%',
         top: '30px',
         borderBottomRightRadius: '10px',
         borderBottomLeftRadius: '10px',
@@ -50,45 +24,32 @@ export const CustomDrawer = styled(Drawer)(({ theme }) => ({
 export const ButtonContainer = styled(Stack)(({ theme, marginBottom }) => ({
     marginLeft: '15px',
     marginRight: '15px',
-    marginTop: "auto",
-    position: "sticky",
-    marginBottom: marginBottom ?? "40px"
-    // //alignItems:"end",
-    // justifyContent:"flex-end",
+    marginTop: 'auto',
+    position: 'sticky',
+    marginBottom: marginBottom ?? '40px',
 }))
 
-export const SearchProduct = styled(Paper)(({ theme, borderColor }) => ({
-    width: '95%',
-    margin: 'auto',
-    border: 'none',
-    background: '#F3F2F2',
-    borderRadius: '30px',
-    marginTop: '15px',
-    borderColor: '#EF7822',
-    p: '2px 4px',
-    display: 'flex',
-    alignItems: 'center',
-}))
 export const AppBarStyle = styled(AppBar)(({ theme, scrolling, isSmall }) => ({
     background: 'transparent !important',
     boxShadow: 'none !important',
-    top: !scrolling ? "0" : isSmall ? "0" : "-50px",
-    WebkitAnimation: !isSmall && scrolling ? "fadeInUp 0.4s" : "fadeInDown 0.4s",
-    animation: !isSmall && scrolling ? "fadeInUp 0.4s" : "fadeInDown 0.4s",
-    "@keyframes fadeInUp": {
-        "0%": {
-            transform: "translateY(30px)",
+    top: !scrolling ? '0' : isSmall ? '0' : '-50px',
+    WebkitAnimation:
+        !isSmall && scrolling ? 'fadeInUp 0.4s' : 'fadeInDown 0.4s',
+    animation: !isSmall && scrolling ? 'fadeInUp 0.4s' : 'fadeInDown 0.4s',
+    '@keyframes fadeInUp': {
+        '0%': {
+            transform: 'translateY(30px)',
         },
-        "100%": {
-            transform: "translateY(0)",
+        '100%': {
+            transform: 'translateY(0)',
         },
     },
-    "@keyframes fadeInDown": {
-        "0%": {
-            transform: "translateY(-30px)",
+    '@keyframes fadeInDown': {
+        '0%': {
+            transform: 'translateY(-30px)',
         },
-        "100%": {
-            transform: "translateY(0)",
+        '100%': {
+            transform: 'translateY(0)',
         },
     },
 }))
@@ -113,7 +74,7 @@ export const TopBarButton = styled(Button)(({ theme, formMobileMenu }) => ({
     padding: formMobileMenu === 'true' ? '7px 5px' : '',
     color: theme.palette.neutral[100],
     backgroundColor: theme.palette.navbarBg,
-    minWidth: "40px",
+    minWidth: '40px',
     maxWidth: '200px',
 }))
 export const CustomSwitch = styled(Switch)(({ theme, noimage }) => ({
@@ -132,8 +93,8 @@ export const CustomSwitch = styled(Switch)(({ theme, noimage }) => ({
                     noimage === 'true'
                         ? null
                         : `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="15" width="15" viewBox="0 0 20 20"><path fill="${encodeURIComponent(
-                            theme.palette.primary.main
-                        )}" d="M9.305 1.667V3.75h1.389V1.667h-1.39zm-4.707 1.95l-.982.982L5.09 6.072l.982-.982-1.473-1.473zm10.802 0L13.927 5.09l.982.982 1.473-1.473-.982-.982zM10 5.139a4.872 4.872 0 00-4.862 4.86A4.872 4.872 0 0010 14.862 4.872 4.872 0 0014.86 10 4.872 4.872 0 0010 5.139zm0 1.389A3.462 3.462 0 0113.471 10a3.462 3.462 0 01-3.473 3.472A3.462 3.462 0 016.527 10 3.462 3.462 0 0110 6.528zM1.665 9.305v1.39h2.083v-1.39H1.666zm14.583 0v1.39h2.084v-1.39h-2.084zM5.09 13.928L3.616 15.4l.982.982 1.473-1.473-.982-.982zm9.82 0l-.982.982 1.473 1.473.982-.982-1.473-1.473zM9.305 16.25v2.083h1.389V16.25h-1.39z"/></svg>')`,
+                              theme.palette.primary.main
+                          )}" d="M9.305 1.667V3.75h1.389V1.667h-1.39zm-4.707 1.95l-.982.982L5.09 6.072l.982-.982-1.473-1.473zm10.802 0L13.927 5.09l.982.982 1.473-1.473-.982-.982zM10 5.139a4.872 4.872 0 00-4.862 4.86A4.872 4.872 0 0010 14.862 4.872 4.872 0 0014.86 10 4.872 4.872 0 0010 5.139zm0 1.389A3.462 3.462 0 0113.471 10a3.462 3.462 0 01-3.473 3.472A3.462 3.462 0 016.527 10 3.462 3.462 0 0110 6.528zM1.665 9.305v1.39h2.083v-1.39H1.666zm14.583 0v1.39h2.084v-1.39h-2.084zM5.09 13.928L3.616 15.4l.982.982 1.473-1.473-.982-.982zm9.82 0l-.982.982 1.473 1.473.982-.982-1.473-1.473zM9.305 16.25v2.083h1.389V16.25h-1.39z"/></svg>')`,
             },
             '& + .MuiSwitch-track': {
                 backgroundColor:
@@ -202,26 +163,20 @@ export const CustomNavSearchIcon = styled(IconButton)(({ theme }) => ({
     alignItems: 'center',
     justifyContent: 'center',
 }))
-export const CustomStack = styled(Stack)(({ theme }) => ({
-    alignSelf: 'center',
-    width: '30px',
-    height: '30px',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    marginLeft: ' auto !important',
-}))
-export const LefRightBorderBox = styled(Stack)(({ theme, languageDirection, location, isMobile }) => ({
-    borderRight: (isMobile || !location) ? "none" : `1px solid ${alpha(
-        theme.palette.primary.main,
-        0.2
-    )}`,
-    borderLeft: (isMobile || !location) ? "location" : `1px solid ${alpha(
-        theme.palette.primary.main,
-        0.2
-    )}`,
-    height: !isMobile && '64px',
-    alignItems: 'center',
-    justifyContent: "center",
-    paddingInline: ".5rem"
-}))
+
+export const LefRightBorderBox = styled(Stack)(
+    ({ theme, languageDirection, location, isMobile }) => ({
+        borderRight:
+            isMobile || !location
+                ? 'none'
+                : `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+        borderLeft:
+            isMobile || !location
+                ? 'location'
+                : `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+        height: !isMobile && '64px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingInline: '.5rem',
+    })
+)

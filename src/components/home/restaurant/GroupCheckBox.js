@@ -1,30 +1,27 @@
-import React, { useState } from 'react'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Checkbox from '@mui/material/Checkbox'
-import { CustomTypographyLabel } from '../../../styled-components/CustomTypographies.style'
-import { Skeleton, Stack } from '@mui/material'
+import { CustomTypographyLabel } from '@/styled-components/CustomTypographies.style'
 import FormGroup from '@mui/material/FormGroup'
 import { t } from 'i18next'
-import { styled } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import { useTheme } from "@mui/styles";
+import { styled } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/styles'
 
-const CustomFormGroup=styled(FormGroup)(({theme,rowWise,isSmall})=>({
-    display:"flex",
-    flexDirection:rowWise?"row":"column",
+const CustomFormGroup = styled(FormGroup)(({ theme, rowWise, isSmall }) => ({
+    display: 'flex',
+    flexDirection: rowWise ? 'row' : 'column',
     maxWidth: isSmall ? '170px' : '350px',
     width: '100%',
     justifyContent: 'space-between',
-
 }))
 
 const GroupCheckBox = ({
     checkboxData,
-    handleFilterData,
     setCheckedFilterKey,
-                           rowWise,handleDropClose
+    rowWise,
+    handleDropClose,
 }) => {
-    const theme=useTheme()
+    const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const handleChange = (event, id) => {
         let newArr = checkboxData.map((item) =>
@@ -32,12 +29,11 @@ const GroupCheckBox = ({
         )
         setCheckedFilterKey(newArr)
         handleDropClose()
-        //
     }
 
     return (
         <div>
-            <CustomFormGroup  rowWise={rowWise} isSmall={isSmall}>
+            <CustomFormGroup rowWise={rowWise} isSmall={isSmall}>
                 {checkboxData?.map((item) => {
                     return (
                         <FormControlLabel

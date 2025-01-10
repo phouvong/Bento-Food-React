@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
 import { Box, FormControlLabel } from '@mui/material'
 import { FoodTitleTypography } from '../food-card/FoodCard.style'
 import FormControl from '@mui/material/FormControl'
 import RadioGroup from '@mui/material/RadioGroup'
 import Radio from '@mui/material/Radio'
-import { CustomTypographyLabel } from '../../styled-components/CustomTypographies.style'
+import { CustomTypographyLabel } from '@/styled-components/CustomTypographies.style'
 
 const VariationButtons = ({ modalData, changeChoices }) => {
     const [value, setValue] = useState(
@@ -60,13 +59,6 @@ const VariationButtons = ({ modalData, changeChoices }) => {
                                 handleChange(e, choiceIndex, choice)
                             }
                             value={value[choiceIndex].value}
-                            // onChange={(e) =>
-                            //     handleChange(
-                            //         e,
-                            //         choice.title
-                            //     )
-                            // }
-                            //    onChange={() => changeChange(choice)}
                             name="radio-buttons-group"
                             sx={{
                                 marginLeft: '20px',
@@ -80,13 +72,7 @@ const VariationButtons = ({ modalData, changeChoices }) => {
                             {choice.options?.map((option) => (
                                 <FormControlLabel
                                     value={option}
-                                    control={
-                                        <Radio
-                                        // onChange={() =>
-                                        //     handleChoiceOptions(choice)
-                                        // }
-                                        />
-                                    }
+                                    control={<Radio />}
                                     label={
                                         <CustomTypographyLabel>
                                             {option}

@@ -1,49 +1,32 @@
 import React, { memo, useRef, useState } from 'react'
 import Slider from 'react-slick'
-import { Box, Stack, Typography } from '@mui/material'
-import { IconButton, Grid, CircularProgress } from '@mui/material'
+import { Stack, Typography } from '@mui/material'
+import { Grid } from '@mui/material'
 
 import { useSelector } from 'react-redux'
-import feature7 from '../../../../public/static/featurecatagori/image 17.png'
 import FoodCard from '../../food-card/FoodCard'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
-
-import FoodCardMoreButton from '../../food-card/FoodCardMoreButton'
 import { useTranslation } from 'react-i18next'
-
-import { AllRoutes } from '../../../AllRoutes'
 import {
     CustomStackFullWidth,
-    CustomViewAll,
     SliderCustom,
-} from '../../../styled-components/CustomStyles.style'
-import { useRouter } from 'next/router'
+} from '@/styled-components/CustomStyles.style'
 import CustomImageContainer from '../../CustomImageContainer'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { CustomTypography } from '../../custom-tables/Tables.style'
-import {
-    CustomGridWithBgColor,
-    CustomIconButton,
-    CustomSideOverLay,
-} from './FoodCampaign.style'
-import { onSingleErrorResponse } from '../../ErrorResponse'
-import { foodCount } from '../../../utils/customFunctions'
+import { CustomGridWithBgColor } from './FoodCampaign.style'
 import fire_image from '../../../../public/static/fire.svg'
 import FoodCardShimmer from '../../food-card/FoodCarShimmer'
 import { HandleNext, HandlePrev } from '../../CustomSliderIcon'
 import Skeleton from '@mui/material/Skeleton'
-//import SliderCustom from "../../custom-slider/SliderCustom";
-const FoodCampaign = ({ data, isLoading }) => {
+const FoodCampaign = ({ isLoading }) => {
     const [hoverOn, setHoverOn] = useState(false)
     const { t } = useTranslation()
-    const router = useRouter()
     const { global } = useSelector((state) => state.globalSettings)
     const theme = useTheme()
     const { campaignFoods } = useSelector((state) => state.storedData)
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
-    const isMedium = useMediaQuery(theme.breakpoints.up('sm'))
     const foodCampaignSliderRef = useRef(null)
     const languageDirection = localStorage.getItem('direction')
     const settings = {
@@ -60,7 +43,6 @@ const FoodCampaign = ({ data, isLoading }) => {
                     slidesToShow: 4.5,
                     slidesToScroll: 1,
                     infinite: false,
-                    // dots: true
                 },
             },
             {
@@ -69,7 +51,6 @@ const FoodCampaign = ({ data, isLoading }) => {
                     slidesToShow: 4.1,
                     slidesToScroll: 1,
                     infinite: false,
-                    // dots: true
                 },
             },
             {
@@ -78,7 +59,6 @@ const FoodCampaign = ({ data, isLoading }) => {
                     slidesToShow: 4.5,
                     slidesToScroll: 1,
                     infinite: false,
-                    // dots: true
                 },
             },
             {
@@ -87,7 +67,6 @@ const FoodCampaign = ({ data, isLoading }) => {
                     slidesToShow: 4.5,
                     slidesToScroll: 1,
                     infinite: false,
-                    // dots: true
                 },
             },
             {
@@ -96,7 +75,6 @@ const FoodCampaign = ({ data, isLoading }) => {
                     slidesToShow: 4.5,
                     slidesToScroll: 1,
                     infinite: false,
-                    // dots: true
                 },
             },
             {
@@ -105,7 +83,6 @@ const FoodCampaign = ({ data, isLoading }) => {
                     slidesToShow: 4.2,
                     slidesToScroll: 1,
                     infinite: false,
-                    // dots: true
                 },
             },
             {
@@ -114,7 +91,6 @@ const FoodCampaign = ({ data, isLoading }) => {
                     slidesToShow: 3.9,
                     slidesToScroll: 1,
                     infinite: false,
-                    // dots: true
                 },
             },
             {
@@ -123,7 +99,6 @@ const FoodCampaign = ({ data, isLoading }) => {
                     slidesToShow: 3.5,
                     slidesToScroll: 1,
                     infinite: false,
-                    // dots: true
                 },
             },
             {
@@ -132,7 +107,6 @@ const FoodCampaign = ({ data, isLoading }) => {
                     slidesToShow: 3,
                     slidesToScroll: 1,
                     infinite: false,
-                    // dots: true
                 },
             },
             {
@@ -140,7 +114,6 @@ const FoodCampaign = ({ data, isLoading }) => {
                 settings: {
                     slidesToShow: 2.6,
                     slidesToScroll: 1,
-                    // initialSlide: 2
                     infinite: false,
                 },
             },
@@ -166,8 +139,6 @@ const FoodCampaign = ({ data, isLoading }) => {
                 settings: {
                     slidesToShow: 1.5,
                     slidesToScroll: 1,
-
-                    // dots: true
                     initialSlide: 0,
                     infinite: false,
                 },
@@ -179,7 +150,9 @@ const FoodCampaign = ({ data, isLoading }) => {
         <>
             <Grid
                 container
-                paddingTop={campaignFoods?.length > 0 && { xs: "0.5rem", sm: "1.9rem" }}
+                paddingTop={
+                    campaignFoods?.length > 0 && { xs: '0.5rem', sm: '1.9rem' }
+                }
             >
                 <CustomGridWithBgColor
                     foodsize={campaignFoods?.length}
@@ -193,29 +166,35 @@ const FoodCampaign = ({ data, isLoading }) => {
                     onMouseEnter={() => setHoverOn(true)}
                     onMouseLeave={() => setHoverOn(false)}
                 >
-                    {campaignFoods?.length > 0 &&
-                        <Stack direction="row" alignItems="center" paddingBottom="20px" paddingInlineStart="5px" spacing={1}>
+                    {campaignFoods?.length > 0 && (
+                        <Stack
+                            direction="row"
+                            alignItems="center"
+                            paddingBottom="20px"
+                            paddingInlineStart="5px"
+                            spacing={1}
+                        >
                             <CustomImageContainer
                                 src={fire_image.src}
                                 width="26px"
                                 height="26px"
                             />
                             <Typography
-                                fontSize={{ xs: "16px", md: "20px" }}
-                                fontWeight={{ xs: "500", md: "700" }}
+                                fontSize={{ xs: '16px', md: '20px' }}
+                                fontWeight={{ xs: '500', md: '700' }}
                                 color={theme.palette.neutral[1000]}
                             >
                                 {t('Todays Trends')}
                             </Typography>
-
-                        </Stack>}
+                        </Stack>
+                    )}
 
                     <CustomStackFullWidth justifyContent="right">
                         {!isLoading ? (
                             <CustomStackFullWidth>
                                 <SliderCustom
                                     gap="12px"
-                                    paddingBottom={isSmall ? "10px" : "20px"}
+                                    paddingBottom={isSmall ? '10px' : '20px'}
                                     languageDirection={languageDirection}
                                 >
                                     <Slider
@@ -228,7 +207,7 @@ const FoodCampaign = ({ data, isLoading }) => {
                                                 product?.variations[0]
                                                     ?.values ||
                                                 product?.variations?.length ===
-                                                0
+                                                    0
                                             ) {
                                                 return (
                                                     <FoodCard
@@ -244,9 +223,6 @@ const FoodCampaign = ({ data, isLoading }) => {
                                                 )
                                             }
                                         })}
-                                        {/*{foodCount(campaignFoods) > 5 && (*/}
-                                        {/*    <FoodCardMoreButton route="/campaigns" />*/}
-                                        {/*)}*/}
                                     </Slider>
                                 </SliderCustom>
                             </CustomStackFullWidth>

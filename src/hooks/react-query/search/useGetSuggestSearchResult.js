@@ -1,6 +1,6 @@
 import MainApi from '../../../api/MainApi'
 import { useQuery } from 'react-query'
-import { onSingleErrorResponse } from '../../../components/ErrorResponse'
+import { onSingleErrorResponse } from '@/components/ErrorResponse'
 
 export const getData = async (searchValue) => {
     if (searchValue.trim().length >= 1) {

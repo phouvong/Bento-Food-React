@@ -33,6 +33,7 @@ import { PrimaryButton } from '../../products-page/FoodOrRestaurant'
 import WalletShimmer from '../wallets/WalletShimmer'
 import { WalletBox } from '../wallets/Wallets.style'
 import LoyalityPage from './LoyalityPage'
+
 const LoyalityList = () => {
     const theme = useTheme()
     const { t } = useTranslation()
@@ -43,7 +44,7 @@ const LoyalityList = () => {
     const [loyalityModal, setLoyalityModal] = useState(false)
 
     const handleLoyalityModal = () => setLoyalityModal(true)
-    const { isLoading, data, isError, error, refetch } = useQuery(
+    const { data, refetch } = useQuery(
         ['loyality-list'],
         () => LoyalityApi.loayalityList(offset),
         {
@@ -184,12 +185,12 @@ const LoyalityList = () => {
                             </Typography>
                         </Box>
                         {data ? (
-                            data?.data?.data?.map((loyality,index) => (
+                            data?.data?.data?.map((loyality, index) => (
                                 <LoyalityPage
                                     key={loyality.id}
                                     data={{ loyality }}
                                     profileDataLoading={profileDataLoading}
-                                    isLast={data?.data?.data?.length-1}
+                                    isLast={data?.data?.data?.length - 1}
                                     index={index}
                                 />
                             ))

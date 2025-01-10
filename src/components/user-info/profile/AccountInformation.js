@@ -1,17 +1,7 @@
 import React, { useState } from 'react'
-import {
-    Grid,
-    Box,
-    TextField,
-    Typography,
-    Card,
-    OutlinedInput,
-    Stack,
-    Button,
-} from '@mui/material'
+import { Grid, Typography, Stack } from '@mui/material'
 import {
     SaveButton,
-    ButtonBox,
     CustomDivWithBorder,
     CustomProfileTextfield,
 } from './Profile.style'
@@ -19,11 +9,9 @@ import { useFormik } from 'formik'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { useTranslation } from 'react-i18next'
-import ValidationSechemaProfile from './Validation'
 import * as Yup from 'yup'
 import InputAdornment from '@mui/material/InputAdornment'
 import IconButton from '@mui/material/IconButton'
-import { AccountCircle } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 
 const AccountInformation = ({ data, formSubmit }) => {

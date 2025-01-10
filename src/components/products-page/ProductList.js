@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Grid } from '@mui/material'
+import { Grid } from '@mui/material'
 import FoodCard from '../food-card/FoodCard'
 import { useSelector } from 'react-redux'
 import CustomePagination from '../pagination/Pagination'

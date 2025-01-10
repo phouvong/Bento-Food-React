@@ -13,9 +13,7 @@ import { useTheme } from '@emotion/react'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import RemoveIcon from '@mui/icons-material/Remove'
-import { IconButton, Typography, alpha } from '@mui/material'
-import useMediaQuery from '@mui/material/useMediaQuery'
-import { Stack } from '@mui/system'
+import { IconButton, Typography, alpha, Stack } from '@mui/material'
 import { t } from 'i18next'
 import toast from 'react-hot-toast'
 import { useDispatch } from 'react-redux'
@@ -31,12 +29,10 @@ const FoodCardIncrementAndDecrement = ({
     getQuantity,
     product,
     setIncrOpen,
-    incrOpen,
     isInCart,
     horizontal,
 }) => {
     const theme = useTheme()
-    const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const dispatch = useDispatch()
     const { mutate: updateMutate, isLoading: updatedLoading } =
         useCartItemUpdate()
@@ -102,14 +98,12 @@ const FoodCardIncrementAndDecrement = ({
                         onSuccess: cartUpdateHandleSuccess,
                         onError: onErrorResponse,
                     })
-                    // dispatch(incrementProductQty(isInCart))
                 }
             } else {
                 updateMutate(itemObject, {
                     onSuccess: cartUpdateHandleSuccess,
                     onError: onErrorResponse,
                 })
-                //dispatch(incrementProductQty(isInCart))
             }
         }
     }
@@ -159,11 +153,9 @@ const FoodCardIncrementAndDecrement = ({
             onSuccess: cartUpdateHandleSuccessDecrement,
             onError: onErrorResponse,
         })
-        //dispatch(decrementProductQty(isInCart))
     }
     const handleSuccess = () => {
         dispatch(removeProduct(isInCart))
-        //toast.success(t(cart_item_remove));
     }
     const handleRemove = () => {
         const cartIdAndGuestId = {
@@ -175,10 +167,6 @@ const FoodCardIncrementAndDecrement = ({
             onError: onErrorResponse,
         })
     }
-    // const handleRemove = (e) => {
-    //     e.stopPropagation()
-    //     dispatch(removeProduct(isInCart))
-    // }
     return (
         <Stack
             sx={{
@@ -216,8 +204,6 @@ const FoodCardIncrementAndDecrement = ({
                 alignItems="center"
                 gap="8px"
                 onMouseEnter={handleHover}
-
-                // height={{ xs: '15px', sm: '20px', md: '25px' }}
             >
                 {getQuantity(product?.id) === 1 ? (
                     <IconButton
@@ -239,10 +225,6 @@ const FoodCardIncrementAndDecrement = ({
                     <>
                         <IconButton
                             disabled={updatedLoading}
-                            // disabled={
-                            //   state.modalData[0]?.totalPrice === 0 ||
-                            //   state.modalData[0]?.quantity <= 1
-                            // }
                             size="small"
                             color="primary"
                             sx={{

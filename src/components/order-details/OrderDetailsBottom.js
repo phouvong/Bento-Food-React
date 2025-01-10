@@ -1,28 +1,26 @@
 import React, { useEffect, useState } from 'react'
-import { CustomPaperBigCard } from '../../styled-components/CustomStyles.style'
 import { CustomButton } from '../custom-cards/CustomCards.style'
-import { Grid, Stack } from '@mui/material'
+import { Stack } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import Router from 'next/router'
 import { useMutation } from 'react-query'
-import { OrderApi } from "@/hooks/react-query/config/orderApi"
-import CustomDialogConfirm from '../custom-dialog/confirm/CustomDialogConfirm'
+import { OrderApi } from '@/hooks/react-query/config/orderApi'
 import { onErrorResponse } from '../ErrorResponse'
 import { toast } from 'react-hot-toast'
 import { useTheme } from '@mui/material/styles'
 import CustomModal from '../custom-modal/CustomModal'
 import CancelOrder from './CancelOrder'
-import { useGetOrderCancelReason } from "@/hooks/react-query/config/order-cancel/useGetCanelReasons"
+import { useGetOrderCancelReason } from '@/hooks/react-query/config/order-cancel/useGetCanelReasons'
 import DigitalPaymentManage from './DigitalPaymentManage'
-import { getGuestId } from "../checkout-page/functions/getGuestUserId";
+import { getGuestId, getToken } from '../checkout-page/functions/getGuestUserId'
 
 const OrderDetailsBottom = ({
     id,
     refetchOrderDetails,
     refetchTrackData,
     trackData,
-    isTrackOrder
+    isTrackOrder,
 }) => {
     const [openModal, setOpenModal] = useState(false)
     const [openModalForPayment, setModalOpenForPayment] = useState()
@@ -40,10 +38,9 @@ const OrderDetailsBottom = ({
         Router.push({
             pathname: '/info',
             query: {
-                page: "order",
+                page: 'order',
                 orderId: id,
-                isTrackOrder: true
-
+                isTrackOrder: true,
             },
         })
     }
@@ -73,33 +70,49 @@ const OrderDetailsBottom = ({
 
     return (
         <>
-            <Stack width="100%" gap="15px" flexDirection="row" justifyContent={{ xs: "center", sm: "flex-end", md: "flex-end" }}>
+            <Stack
+                width="100%"
+                gap="15px"
+                flexDirection="row"
+                justifyContent={{
+                    xs: 'center',
+                    sm: 'flex-end',
+                    md: 'flex-end',
+                }}
+            >
                 {trackData &&
-                    trackData?.data?.order_status === 'confirmed' && !isTrackOrder ? (
+                getToken() &&
+                trackData?.data?.order_status === 'confirmed' &&
+                !isTrackOrder &&
+                trackData?.data?.order_type !== 'dine_in' &&
+                trackData?.data?.order_type !== 'take_away' ? (
                     <CustomButton
                         variant="contained"
                         onClick={handleTrackOrderClick}
                     >
-                        <Typography variant="h5">
-                            {t('Track Order')}
-                        </Typography>
+                        <Typography variant="h5">{t('Track Order')}</Typography>
                     </CustomButton>
                 ) : (
-                    <>{!isTrackOrder &&
-                        <CustomButton
-                            variant="contained"
-                            onClick={handleTrackOrderClick}
-                        >
-                            <Typography variant="h5">
-                                {t('Track Order')}
-                            </Typography>
-                        </CustomButton>}</>
-
+                    <>
+                        {!isTrackOrder &&
+                            getToken() &&
+                            trackData?.data?.order_type !== 'dine_in' &&
+                            trackData?.data?.order_type !== 'take_away' && (
+                                <CustomButton
+                                    variant="contained"
+                                    onClick={handleTrackOrderClick}
+                                >
+                                    <Typography variant="h5">
+                                        {t('Track Order')}
+                                    </Typography>
+                                </CustomButton>
+                            )}
+                    </>
                 )}
                 {trackData &&
-                    trackData?.data?.order_status === 'pending' &&
-                    trackData?.data?.payment_method === 'digital_payment' &&
-                    trackData?.data?.payment_status === 'unpaid' ? (
+                trackData?.data?.order_status === 'pending' &&
+                trackData?.data?.payment_method === 'digital_payment' &&
+                trackData?.data?.payment_status === 'unpaid' ? (
                     <CustomButton
                         variant="outlined"
                         onClick={() => setModalOpenForPayment(true)}
@@ -114,7 +127,9 @@ const OrderDetailsBottom = ({
                         </Typography>
                     </CustomButton>
                 ) : (
-                    trackData?.data?.order_status === 'pending' && !isTrackOrder &&  trackData?.data?.subscription === null&& (
+                    trackData?.data?.order_status === 'pending' &&
+                    !isTrackOrder &&
+                    trackData?.data?.subscription === null && (
                         <CustomButton
                             variant="outlined"
                             onClick={() => setOpenModal(true)}
@@ -135,7 +150,7 @@ const OrderDetailsBottom = ({
                 setModalOpen={setOpenModal}
                 maxWidth="350px"
 
-            // onSuccess={handleOnSuccess}
+                // onSuccess={handleOnSuccess}
             >
                 <CancelOrder
                     cancelReason={cancelReason}

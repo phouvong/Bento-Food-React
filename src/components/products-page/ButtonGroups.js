@@ -1,11 +1,9 @@
 import React, { useState } from 'react'
-import PropTypes from 'prop-types'
-import { Button, ButtonGroup, Stack } from '@mui/material'
+import { Stack } from '@mui/material'
 import { PrimaryButton } from './FoodOrRestaurant'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@mui/material/styles'
-import { CustomTypography } from '../custom-tables/Tables.style'
-import { CustomColouredTypography } from '../../styled-components/CustomStyles.style'
+import { CustomColouredTypography } from '@/styled-components/CustomStyles.style'
 import { useSelector } from 'react-redux'
 
 const ButtonGroups = ({ handleSortBy }) => {

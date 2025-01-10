@@ -8,7 +8,7 @@ import MailIcon from '@mui/icons-material/Mail'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { LoadingButton } from '@mui/lab'
-import { Grid, alpha, styled } from '@mui/material'
+import { Grid, alpha, styled, Stack } from '@mui/material'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
 import FormControl from '@mui/material/FormControl'
@@ -19,20 +19,19 @@ import InputAdornment from '@mui/material/InputAdornment'
 import InputLabel from '@mui/material/InputLabel'
 import TextField from '@mui/material/TextField'
 import { useTheme } from '@mui/material/styles'
-import { Stack } from '@mui/system'
 import { useFormik } from 'formik'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
-import { useVerifyPhone } from '../../../hooks/react-query/otp/useVerifyPhone'
-import { setToken } from '../../../redux/slices/userToken'
+import { useVerifyPhone } from '@/hooks/react-query/otp/useVerifyPhone'
+import { setToken } from '@/redux/slices/userToken'
 import {
     CustomColouredTypography,
     CustomLink,
     CustomStackFullWidth,
-} from '../../../styled-components/CustomStyles.style'
+} from '@/styled-components/CustomStyles.style'
 import CustomImageContainer from '../../CustomImageContainer'
 import CustomPhoneInput from '../../CustomPhoneInput'
 import { onErrorResponse, onSingleErrorResponse } from '../../ErrorResponse'
@@ -42,12 +41,10 @@ import { CustomTypography } from '../../custom-tables/Tables.style'
 import SignUpValidation from '../SignUpValidation'
 import OtpForm from '../forgot-password/OtpForm'
 import { CustomSigninOutLine } from '../sign-in'
-import SocialLogins from '../sign-in/social-login/SocialLogins'
 import { getGuestId } from '@/components/checkout-page/functions/getGuestUserId'
 import { getLoginUserCheck } from '@/components/auth/loginHelper'
 import { useFireBaseOtpVerify } from '@/hooks/react-query/useFireBaseVerfify'
 
-// const CustomSignUpTextField =Styled()
 export const CustomSignUpTextField = styled(TextField)(({ theme }) => ({
     '& .MuiInputBase-input': {
         padding: '12.5px 0px !important',
@@ -84,26 +81,14 @@ export const CustomSignUpTextField = styled(TextField)(({ theme }) => ({
     },
 }))
 
-const SignUpPage = ({
-    setSignInPage,
-    handleClose,
-    setModalFor,
-    setJwtToken,
-    setUserInfo,
-    handleSuccess,
-    verificationId,
-    sendOTP,
-}) => {
+const SignUpPage = ({ handleClose, setModalFor, verificationId, sendOTP }) => {
     const { t } = useTranslation()
     const dispatch = useDispatch()
     const router = useRouter()
     const theme = useTheme()
     const [showConfirmPassword, setConfirmShowPassword] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
-    const [loading, setLoading] = useState(true)
     const { global } = useSelector((state) => state.globalSettings)
-    const businessLogo = global?.base_urls?.business_logo_url
-    const [isChecked, setIsChecked] = useState(false)
     const [openOtpModal, setOpenOtpModal] = useState(false)
     const [otpData, setOtpData] = useState({ type: '' })
     const [mainToken, setMainToken] = useState(null)
@@ -139,7 +124,6 @@ const SignUpPage = ({
             if (typeof window !== 'undefined') {
                 localStorage.setItem('token', response?.token)
             }
-            //toast.success(t('Signup successfully.'))
             CustomToaster('success', 'Signup successfully.')
             dispatch(setToken(response?.token))
             handleClose?.()
@@ -226,7 +210,6 @@ const SignUpPage = ({
     }
     const handleClick = () => {
         window.open('/terms-and-conditions')
-        // handleClose()
     }
     const languageDirection = localStorage.getItem('direction')
     return (
@@ -422,7 +405,7 @@ const SignUpPage = ({
                                                 '&.Mui-focused': {
                                                     color: (theme) =>
                                                         theme.palette
-                                                            .neutral[1000], // Set label color to black when focused
+                                                            .neutral[1000],
                                                 },
                                             }}
                                             htmlFor="password"
@@ -555,7 +538,7 @@ const SignUpPage = ({
                                                 '&.Mui-focused': {
                                                     color: (theme) =>
                                                         theme.palette
-                                                            .neutral[1000], // Set label color to black when focused
+                                                            .neutral[1000],
                                                 },
                                             }}
                                             htmlFor="outlined-adornment-password"
@@ -606,7 +589,6 @@ const SignUpPage = ({
                                                                     !prevState
                                                             )
                                                         }
-                                                        //   onMouseDown={handleMouseDownPassword}
                                                         edge="end"
                                                     >
                                                         {showConfirmPassword ? (
@@ -805,22 +787,6 @@ const SignUpPage = ({
                         </Stack>
                     </form>
                 </CustomStackFullWidth>
-                {/*{global?.social_login.length > 0 && (*/}
-                {/*    <CustomStackFullWidth*/}
-                {/*        alignItems="center"*/}
-                {/*        justifyContent="center"*/}
-                {/*        spacing={1}*/}
-                {/*    >*/}
-                {/*        <SocialLogins*/}
-                {/*            socialLogins={global?.social_login}*/}
-                {/*            handleParentModalClose={handleClose}*/}
-                {/*            setJwtToken={setJwtToken}*/}
-                {/*            setUserInfo={setUserInfo}*/}
-                {/*            handleSuccess={handleSuccess}*/}
-                {/*            setModalFor={setModalFor}*/}
-                {/*        />*/}
-                {/*    </CustomStackFullWidth>*/}
-                {/*)}*/}
                 <Box>
                     <CustomTypography align="center" fontSize="14px">
                         {t('Already have an account?')}

@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query'
 
 import MainApi from '../../../api/MainApi'
-import { onSingleErrorResponse } from '../../../components/ErrorResponse'
+import { onSingleErrorResponse } from '@/components/ErrorResponse'
 
 export const getData = async (pageParams) => {
     const { restaurantId, page_limit, offset, searchKey } = pageParams

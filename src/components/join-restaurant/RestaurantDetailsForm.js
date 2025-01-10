@@ -1,5 +1,5 @@
 import React from 'react'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { Grid } from '@mui/material'
 import CustomTextFieldWithFormik from '../form-fields/CustomTextFieldWithFormik'
 import { useTranslation } from 'react-i18next'
@@ -59,7 +59,7 @@ const RestaurantDetailsForm = ({
                     <CustomTextFieldWithFormik
                         required="true"
                         type="number"
-                            label={t('Minimum Delivery Time')}
+                        label={t('Minimum Delivery Time')}
                         touched={RestaurantJoinFormik.touched.min_delivery_time}
                         errors={RestaurantJoinFormik.errors.min_delivery_time}
                         fieldProps={RestaurantJoinFormik.getFieldProps(

@@ -1,8 +1,6 @@
-import React, { useState } from 'react'
 import {
     Box,
     Button,
-    Divider,
     IconButton,
     Stack,
     Typography,
@@ -15,7 +13,7 @@ import { t } from 'i18next'
 import { useTheme } from '@emotion/react'
 import CloseIcon from '@mui/icons-material/Close'
 import CustomModal from '../custom-modal/CustomModal'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import GuestModalSvg from './GuestModalSvg'
 
 const WrapperBox = styled(Stack)(({ theme }) => ({
@@ -42,13 +40,29 @@ const GuestCheckoutModal = ({
     setModalFor,
     setSideDrawerOpen,
     handleOpenAuthModal,
-    authModalOpen,
 }) => {
     const router = useRouter()
     const theme = useTheme()
 
     const handleClick = () => {
-        router.push('/checkout?page=cart', undefined, { shallow: true })
+        const queryParams = { page: 'cart' }
+
+        // Check if "isDineIn" is present in the current route's query
+        if (router.query.isDineIn) {
+            queryParams.isDineIn = router.query.isDineIn
+        }
+
+        // Push the route with query parameters
+        router.push(
+            {
+                pathname: '/checkout',
+                query: queryParams,
+            },
+            undefined,
+            { shallow: true }
+        )
+
+        // Close the side drawer
         setSideDrawerOpen(false)
     }
 
@@ -66,11 +80,7 @@ const GuestCheckoutModal = ({
     }
     return (
         <>
-            <CustomModal
-                openModal={open}
-                setModalOpen={setOpen}
-                //handleClose={() => setOpen(false)}
-            >
+            <CustomModal openModal={open} setModalOpen={setOpen}>
                 <WrapperBox>
                     <CustomStackFullWidth
                         direction="row"

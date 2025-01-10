@@ -3,32 +3,25 @@ import { ListItemIcon, MenuItem, Stack, Typography, alpha } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import i18n from 'i18next'
 import cookie from 'js-cookie'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useSettings } from '../contexts/use-settings'
+import { useSettings } from '@/contexts/use-settings'
 import {
     setCountryCode,
     setCountryFlag,
     setLanguage,
-} from '../redux/slices/languageChange'
-import { CustomColouredTypography } from '../styled-components/CustomStyles.style'
-import { isRTLLanguage, languageValue } from '../utils/customFunctions'
+} from '@/redux/slices/languageChange'
+import { CustomColouredTypography } from '@/styled-components/CustomStyles.style'
+import { isRTLLanguage, languageValue } from '@/utils/customFunctions'
 import { CustomToaster } from './custom-toaster/CustomToaster'
 import { LefRightBorderBox, TopBarButton } from './navbar/Navbar.style'
 import { languageLists } from './navbar/second-navbar/custom-language/languageLists'
 import { StyledMenu } from './navbar/top-navbar/TopNav.style'
-const CustomLanguage = ({
-    formMobileMenu,
-    language,
-    countryCode,
-    isMobile,
-}) => {
+const CustomLanguage = ({ formMobileMenu, language, isMobile }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
 
     const [anchorEl, setAnchorEl] = useState(null)
-    const anchorRef = useRef(null)
-    const { global } = useSelector((state) => state.globalSettings)
     const { countryFlag } = useSelector((state) => state.languageChange)
     let location = undefined
     if (typeof window !== 'undefined') {
@@ -104,7 +97,7 @@ const CustomLanguage = ({
                 >
                     <Stack flexDirection="row" gap="5px">
                         {(!location || isMobile) && (
-                            <img width="20px" src={countryFlag} />
+                            <img width="20" alt="" src={countryFlag} />
                         )}
                         <CustomColouredTypography
                             color={theme.palette.neutral[600]}
@@ -141,7 +134,7 @@ const CustomLanguage = ({
                         }}
                     >
                         <ListItemIcon>
-                            <img width="20px" src={lan?.countryFlag} />
+                            <img width="20" alt="" src={lan?.countryFlag} />
                         </ListItemIcon>
                         <Typography
                             fontSize={{ xs: '14px', sm: '16px' }}

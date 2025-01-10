@@ -1,33 +1,38 @@
-import React, { useEffect, useState } from 'react'
-import { Card, CardMedia, IconButton, Typography, useMediaQuery, styled, useTheme } from '@mui/material'
-import { CustomCardMedia, CustomChip, OfferTypography, TypographyText } from './FoodCard.style'
+import React from 'react'
+import {
+    Typography,
+    useMediaQuery,
+    styled,
+    useTheme,
+    Box,
+    Stack,
+} from '@mui/material'
 import { t } from 'i18next'
 import CustomImageContainer from '../CustomImageContainer'
-import { Box, Stack } from '@mui/system'
 import { useSelector } from 'react-redux'
-import { getAmount, isAvailable } from '../../utils/customFunctions'
-import { CustomOverLay, CustomOverlayBox } from '../../styled-components/CustomStyles.style'
-import test_image from '../../../public/static/testImage.svg'
+import { isAvailable } from '@/utils/customFunctions'
+import {
+    CustomOverLay,
+    CustomOverlayBox,
+} from '@/styled-components/CustomStyles.style'
 import { CustomStackForFoodModal } from '../foodDetail-modal/FoodModalStyle'
 import FoodRating from './FoodRating'
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
-import FavoriteIcon from '@mui/icons-material/Favorite'
 import QuickView from './QuickView'
-import { useRouter } from "next/router";
+import { useRouter } from 'next/router'
 const CardWrapper = styled(Box)(({ theme }) => ({
     position: 'relative',
     maxHeight: '160px',
     [theme.breakpoints.down('sm')]: {
-        maxHeight: '140px'
+        maxHeight: '140px',
     },
     img: {
-        transition: "all ease 0.4s",
+        transition: 'all ease 0.4s',
     },
-    borderRadius: "8px",
+    borderRadius: '8px',
     overflow: 'hidden',
-    "&:hover": {
+    '&:hover': {
         img: {
-            transform: "scale(1.04)",
+            transform: 'scale(1.04)',
         },
     },
 }))
@@ -56,9 +61,9 @@ const ProductCardMedia = (props) => {
         isTransformed,
         isRestaurantDetails,
         rating_count,
-        horizontal
+        horizontal,
     } = props
-    const [languageDirection, setLanguageDirection] = useState('ltr')
+
     const { global } = useSelector((state) => state.globalSettings)
     const theme = useTheme()
     const router = useRouter()
@@ -72,11 +77,6 @@ const ProductCardMedia = (props) => {
         currencySymbolDirection = global.currency_symbol_direction
         digitAfterDecimalPoint = global.digit_after_decimal_point
     }
-    useEffect(() => {
-        if (localStorage.getItem('direction')) {
-            setLanguageDirection(localStorage.getItem('direction'))
-        }
-    }, []);
 
     return (
         <>
@@ -86,14 +86,13 @@ const ProductCardMedia = (props) => {
                         {isAvailable(
                             available_time_starts,
                             available_time_ends
-                        ) &&
+                        ) && (
                             <Stack
                                 position="absolute"
                                 bottom="10%"
                                 left="0"
                                 zIndex="1"
                             >
-
                                 {handleBadge(
                                     product,
                                     currencySymbol,
@@ -101,23 +100,26 @@ const ProductCardMedia = (props) => {
                                     digitAfterDecimalPoint,
                                     available_date_ends
                                 )}
-
                             </Stack>
-                        }
-                        {(isRestaurantDetails && isSmall && product?.avg_rating !== 0 &&
+                        )}
+                        {isRestaurantDetails &&
+                            isSmall &&
+                            product?.avg_rating !== 0 &&
                             isAvailable(
                                 available_time_starts,
                                 available_time_ends
-                            )) && <Stack
-                                position="absolute"
-                                top="5%"
-                                right="5%"
-                                zIndex="1"
-                            >
-
-                                <FoodRating product_avg_rating={rating_count} />
-
-                            </Stack>}
+                            ) && (
+                                <Stack
+                                    position="absolute"
+                                    top="5%"
+                                    right="5%"
+                                    zIndex="1"
+                                >
+                                    <FoodRating
+                                        product_avg_rating={rating_count}
+                                    />
+                                </Stack>
+                            )}
                         {!isAvailable(
                             available_time_starts,
                             available_time_ends
@@ -128,13 +130,18 @@ const ProductCardMedia = (props) => {
                                 </Typography>
                             </CustomOverlayBox>
                         ) : (
-                            <CustomOverLay hover={isTransformed} border_radius="10px">
+                            <CustomOverLay
+                                hover={isTransformed}
+                                border_radius="10px"
+                            >
                                 <QuickView
                                     id={id}
                                     isInList={isInList}
                                     quickViewHandleClick={onClick}
                                     addToWishlistHandler={addToFavorite}
-                                    removeFromWishlistHandler={deleteWishlistItem}
+                                    removeFromWishlistHandler={
+                                        deleteWishlistItem
+                                    }
                                     isInCart={isInCart}
                                     product={product}
                                     getQuantity={getQuantity}
@@ -147,7 +154,6 @@ const ProductCardMedia = (props) => {
                                     horizontal={horizontal}
                                 />
                             </CustomOverLay>
-
                         )}
                         <CustomImageContainer
                             src={imageUrl}
@@ -158,34 +164,26 @@ const ProductCardMedia = (props) => {
                             objectFit="cover"
                             smHeight="130px"
                         />
-                        {
-                            router.pathname !== `/restaurant/[id]` &&
+                        {router.pathname !== `/restaurant/[id]` && (
                             <CustomStackForFoodModal
                                 padding="12px"
                                 direction="row"
                                 width="100%"
-                                right='0'
+                                right="0"
                                 spacing={1}
                                 justifyContent="flex-end"
                                 alignItems="flex-end"
-
                             >
                                 <Typography
                                     fontSize="12px"
                                     fontWeight={500}
                                     color={theme.palette.whiteContainer.main}
                                 >
-                                    {product?.min_delivery_time}-{product?.max_delivery_time} {t('min')}
+                                    {product?.min_delivery_time}-
+                                    {product?.max_delivery_time} {t('min')}
                                 </Typography>
-                                {/* <Typography
-                                    fontSize="12px"
-
-                                    color={theme.palette.whiteContainer.main}
-                                >
-                                    {t('Free Delivery')}
-                                </Typography> */}
                             </CustomStackForFoodModal>
-                        }
+                        )}
                     </CardWrapper>
                 </Stack>
             )}

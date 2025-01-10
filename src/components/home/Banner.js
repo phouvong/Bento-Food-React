@@ -27,7 +27,6 @@ const Banner = ({ bannerIsLoading }) => {
     const [openModal, setOpenModal] = useState(false)
     const { global } = useSelector((state) => state.globalSettings)
     const [hoverOn, setHoverOn] = useState(false)
-    const globalImageUrl = global?.base_urls?.banner_image_url
     let currencySymbol
     let currencySymbolDirection
     let digitAfterDecimalPoint
@@ -91,31 +90,21 @@ const Banner = ({ bannerIsLoading }) => {
         setOpenModal(false)
         setFoodBannerData(null)
     }
-    let languageDirection = undefined
-    if (typeof window !== 'undefined') {
-        languageDirection = localStorage.getItem('direction')
-    }
 
     const bannerSettings = {
-        infinite: bannerData?.length > 3 ? true : false,
+        infinite: bannerData?.length > 3,
         speed: 600,
         slidesToShow: 3,
         autoplay: true,
         dots: true,
         nextArrow: hoverOn && <HandleNext />,
         prevArrow: hoverOn && <HandlePrev />,
-        // centerMode:true,
-        // className: "center",
-        // centerPadding: "300px",
-        //draggable:false,
-        // swipeToSlide:true,
         responsive: [
             {
                 breakpoint: 1450,
                 settings: {
                     slidesToShow: 3,
-                    //slidesToScroll: 1,
-                    infinite: bannerData?.length > 3 ? true : false,
+                    infinite: bannerData?.length > 3,
                     autoplay: true,
                 },
             },
@@ -123,8 +112,7 @@ const Banner = ({ bannerIsLoading }) => {
                 breakpoint: 1024,
                 settings: {
                     slidesToShow: 2.3,
-                    //slidesToScroll: 1,
-                    infinite: bannerData?.length > 3 ? true : false,
+                    infinite: bannerData?.length > 3,
                     autoplay: true,
                 },
             },
@@ -132,31 +120,26 @@ const Banner = ({ bannerIsLoading }) => {
                 breakpoint: 850,
                 settings: {
                     slidesToShow: 1.7,
-                    infinite: bannerData?.length > 3 ? true : false,
-                    // slidesToScroll: 1,
+                    infinite: bannerData?.length > 3,
                     autoplay: true,
                     centerMode: true,
-                    // centerPadding: "100px",
                 },
             },
             {
                 breakpoint: 790,
                 settings: {
                     slidesToShow: 1.5,
-                    //slidesToScroll: 1,
-                    infinite: bannerData?.length > 3 ? true : false,
+                    infinite: bannerData?.length > 3,
                     dots: true,
                     autoplay: true,
                     centerMode: true,
                     centerPadding: '100px',
                 },
             },
-
             {
                 breakpoint: 600,
                 settings: {
                     slidesToShow: 1.5,
-                    // slidesToScroll: 1,
                     dots: true,
                     autoplay: true,
                     centerMode: true,
@@ -167,7 +150,6 @@ const Banner = ({ bannerIsLoading }) => {
                 breakpoint: 500,
                 settings: {
                     slidesToShow: 1,
-                    ///slidesToScroll: 1,
                     initialSlide: 1,
                     dots: true,
                     autoplay: true,
@@ -190,7 +172,6 @@ const Banner = ({ bannerIsLoading }) => {
         >
             {!bannerIsLoading ? (
                 <SliderCustom
-                    //languageDirection={languageDirection}
                     gap=".8rem"
                     onMouseEnter={() => setHoverOn(true)}
                     onMouseLeave={() => setHoverOn(false)}
@@ -202,10 +183,6 @@ const Banner = ({ bannerIsLoading }) => {
                                     banner={banner}
                                     key={banner?.id}
                                     handleBannerClick={handleBannerClick}
-                                    openModal={openModal}
-                                    setOpenModal={setOpenModal}
-                                    handleModalClose={handleModalClose}
-                                    FoodBannerData={FoodBannerData}
                                 />
                             )
                         })}

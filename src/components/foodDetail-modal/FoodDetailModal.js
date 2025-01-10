@@ -1,4 +1,4 @@
-import { alpha, Grid, Modal, Tooltip, Typography } from '@mui/material'
+import { Grid, Modal, Tooltip, Typography, Stack } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -33,13 +33,11 @@ import UpdateToCartUi from './UpdateToCartUi'
 import VariationsManager from './VariationsManager'
 
 import { CustomToaster } from '@/components/custom-toaster/CustomToaster'
-import { useIsMount } from '@/components/first-render-useeffect-controller/useIsMount'
 import HalalSvg from '@/components/food-card/HalalSvg'
 import { useGetFoodDetails } from '@/hooks/react-query/food/useGetFoodDetails'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import IconButton from '@mui/material/IconButton'
 import Skeleton from '@mui/material/Skeleton'
-import { Box, Stack } from '@mui/system'
 import useAddCartItem from '../../hooks/react-query/add-cart/useAddCartItem'
 import useCartItemUpdate from '../../hooks/react-query/add-cart/useCartItemUpdate'
 import useDeleteAllCartItem from '../../hooks/react-query/add-cart/useDeleteAllCartItem'
@@ -70,19 +68,16 @@ const FoodDetailModal = ({
     handleBadge,
     campaign,
 }) => {
-    const isMount = useIsMount()
     const router = useRouter()
     const { t } = useTranslation()
     const dispatch = useDispatch()
     const theme = useTheme()
+    const { global } = useSelector((state) => state.globalSettings)
     const [selectedOptions, setSelectedOptions] = useState([])
     const [isLocation, setIsLocation] = useState(false)
     const [totalPrice, setTotalPrice] = useState(null)
-    const [varPrice, setVarPrice] = useState(null)
-    const [totalWithoutDiscount, setTotalWithoutDiscount] = useState(null)
     const [modalFor, setModalFor] = useState('sign-in')
     const [add_on, setAddOns] = useState([])
-    const [product_add_ons, setProductAddOns] = useState(product?.add_ons)
     const { cartList } = useSelector((state) => state.cart)
     const [quantity, setQuantity] = useState(1)
     const [clearCartModal, setClearCartModal] = React.useState(false)
@@ -90,8 +85,6 @@ const FoodDetailModal = ({
     const { token } = useSelector((state) => state.userToken)
     const { wishLists } = useSelector((state) => state.wishList)
     const [modalData, setModalData] = useState([])
-    const [variationStock, setVariationStock] = useState(false)
-    const [errorCode, setErrorCode] = useState('')
     const { mutate: addToCartMutate, isLoading: addToCartLoading } =
         useAddCartItem()
     const { mutate: updateMutate } = useCartItemUpdate()
@@ -104,10 +97,8 @@ const FoodDetailModal = ({
                 setModalData,
                 productUpdate,
                 setTotalPrice,
-                setVarPrice,
                 setQuantity,
-                setSelectedOptions,
-                setTotalWithoutDiscount
+                setSelectedOptions
             )
             setAddOns([])
             setSelectedOptions([])
@@ -127,10 +118,8 @@ const FoodDetailModal = ({
                 setModalData,
                 productUpdate,
                 setTotalPrice,
-                setVarPrice,
                 setQuantity,
-                setSelectedOptions,
-                setTotalWithoutDiscount
+                setSelectedOptions
             )
         }
 
@@ -141,7 +130,6 @@ const FoodDetailModal = ({
             refetch()
         }
     }, [])
-    const notify = (i) => toast(i)
     let location = undefined
     if (typeof window !== 'undefined') {
         location = localStorage.getItem('location')
@@ -197,7 +185,6 @@ const FoodDetailModal = ({
                     variations: item?.item?.variations,
                     selectedAddons: add_on,
                     selectedOptions: selectedOptions,
-                    //itemBasePrice: item?.item?.price,
                     itemBasePrice: getConvertDiscount(
                         item?.item?.discount,
                         item?.item?.discount_type,
@@ -209,7 +196,6 @@ const FoodDetailModal = ({
             dispatch(setCart(product))
             CustomToaster('success', 'Item added to cart')
             handleClose()
-            //dispatch()
         }
     }
 
@@ -245,7 +231,6 @@ const FoodDetailModal = ({
             }
             dispatch(cart(setItemIntoCart()))
             CustomToaster('success', 'Item updated successfully')
-            //toast.success(t('Item updated successfully'))
             handleModalClose?.()
         }
     }
@@ -304,14 +289,12 @@ const FoodDetailModal = ({
                     error?.response?.data?.errors?.forEach((item) => {
                         CustomToaster('error', item?.message)
                         if (item?.code === 'stock_out') {
-                            setErrorCode(item?.code)
                             refetch()
                         }
                     })
                 },
             })
         } else {
-            let isOrderNow = false
             let totalQty = 0
             const itemObject = {
                 guest_id: getGuestId(),
@@ -363,14 +346,12 @@ const FoodDetailModal = ({
                     error?.response?.data?.errors?.forEach((item) => {
                         CustomToaster('error', item?.message)
                         if (item?.code === 'stock_out') {
-                            setErrorCode(item?.code)
                             refetch()
                         }
                     })
                 },
             })
         }
-        // handleClose?.()
     }
 
     const addOrUpdateToCartByDispatch = () => {
@@ -526,10 +507,6 @@ const FoodDetailModal = ({
                 let itemCount = 0
 
                 requiredItemsList?.forEach((item, index) => {
-                    // if(item)
-                })
-
-                requiredItemsList?.forEach((item, index) => {
                     const isExistInSelection = selectedOptions?.find(
                         (sitem) => sitem.choiceIndex === item.indexNumber
                     )
@@ -610,7 +587,6 @@ const FoodDetailModal = ({
     }
     const clearCartAlert = () => {
         deleteCartItemMutate(getGuestId(), {
-            //onSuccess: handleSuccess,
             onError: onErrorResponse,
         })
         dispatch(setClearCart())
@@ -659,11 +635,6 @@ const FoodDetailModal = ({
                                 prevState -
                                 Number.parseInt(option.optionPrice) * quantity
                         )
-                        setVarPrice(
-                            (prevPrice) =>
-                                prevPrice -
-                                Number.parseInt(option.optionPrice) * quantity
-                        )
                     } else {
                         const isItemExistFromSameVariation =
                             selectedOptions.find(
@@ -698,16 +669,6 @@ const FoodDetailModal = ({
                                     Number.parseInt(option.optionPrice) *
                                         quantity
                             )
-                            setVarPrice(
-                                (prevPrice) =>
-                                    prevPrice -
-                                    Number.parseInt(
-                                        isItemExistFromSameVariation.optionPrice
-                                    ) *
-                                        quantity +
-                                    Number.parseInt(option.optionPrice) *
-                                        quantity
-                            )
                         } else {
                             const newObj = {
                                 choiceIndex: choiceIndex,
@@ -723,12 +684,6 @@ const FoodDetailModal = ({
                             setTotalPrice(
                                 (prevState) =>
                                     prevState +
-                                    Number.parseInt(option.optionPrice) *
-                                        quantity
-                            )
-                            setVarPrice(
-                                (prevPrice) =>
-                                    prevPrice +
                                     Number.parseInt(option.optionPrice) *
                                         quantity
                             )
@@ -749,11 +704,6 @@ const FoodDetailModal = ({
                             prevState +
                             Number.parseInt(option.optionPrice) * quantity
                     )
-                    setVarPrice(
-                        (prevPrice) =>
-                            prevPrice +
-                            Number.parseInt(option.optionPrice) * quantity
-                    )
                 }
             } else {
                 // uncheck or unselect variation handle
@@ -771,11 +721,6 @@ const FoodDetailModal = ({
                 setTotalPrice(
                     (prevState) =>
                         prevState -
-                        Number.parseInt(option.optionPrice) * quantity
-                )
-                setVarPrice(
-                    (prevPrice) =>
-                        prevPrice -
                         Number.parseInt(option.optionPrice) * quantity
                 )
             }
@@ -799,11 +744,6 @@ const FoodDetailModal = ({
                         prevState +
                         Number.parseInt(option.optionPrice) * quantity
                 )
-                setVarPrice(
-                    (prevPrice) =>
-                        prevPrice +
-                        Number.parseInt(option.optionPrice) * quantity
-                )
             } else {
                 const filtered = selectedOptions.filter((item) => {
                     if (item.choiceIndex === choiceIndex) {
@@ -818,11 +758,6 @@ const FoodDetailModal = ({
                 setTotalPrice(
                     (prevState) =>
                         prevState -
-                        Number.parseInt(option.optionPrice) * quantity
-                )
-                setVarPrice(
-                    (prevPrice) =>
-                        prevPrice -
                         Number.parseInt(option.optionPrice) * quantity
                 )
             }
@@ -868,12 +803,6 @@ const FoodDetailModal = ({
     const decrementPrice = () => {
         setQuantity((prevQty) => prevQty - 1)
     }
-    // const isShowStockText = (option) => {
-    //
-    //     return selectedOptions?.some((item) => {
-    //         return item?.option_id === option.option_id && quantity  > option.current_stock;
-    //     });
-    // };
 
     const incrementPrice = () => {
         const isLimitedOrDaily = modalData[0]?.stock_type !== 'unlimited'
@@ -895,7 +824,6 @@ const FoodDetailModal = ({
                 (min, item) => Math.min(min, parseInt(item.current_stock)),
                 Infinity
             )
-            //setVariationStock(minStock);
 
             // If stock type is limited or daily, check against minStock
             if (quantity >= modalData[0]?.item_stock && isLimitedOrDaily) {
@@ -919,24 +847,17 @@ const FoodDetailModal = ({
         }
     }
 
-    const {
-        mutate: addFavoriteMutation,
-        isLoading,
-        error,
-        data,
-    } = useMutation(
+    const { mutate: addFavoriteMutation } = useMutation(
         'add-favourite',
         () => ProductsApi.addFavorite(product.id),
         {
             onSuccess: (response) => {
                 if (response?.data) {
                     dispatch(addWishList(product))
-                    // toast.success(response.data.message)
                     CustomToaster('success', response.data.message)
                 }
             },
             onError: (error) => {
-                //toast.error(error.response.data.message)
                 CustomToaster('error', error.response.data.message)
             },
         }
@@ -945,7 +866,6 @@ const FoodDetailModal = ({
     const addToFavorite = () => {
         if (token) {
             addFavoriteMutation()
-            // notify(data.message)
         } else CustomToaster('error', 'You are not logged in')
     }
 
@@ -965,14 +885,8 @@ const FoodDetailModal = ({
     const isInCart = (id) => {
         if (productUpdate) {
             const isInCart = cartList.filter((item) => item.id === id)
-            if (isInCart.length > 0) {
-                return true
-            } else {
-                return false
-            }
+            return isInCart.length > 0
         }
-
-        // return !!cartList.find((item) => item.id === id)
     }
 
     const isInList = (id) => {
@@ -988,8 +902,6 @@ const FoodDetailModal = ({
                 handleAddToCartOnDispatch(checkingFor)
             } else {
                 setAuthModalOpen(true)
-                //handleModalClose()
-                //toast.error(t('You are not logged in'))
             }
         } else {
             setIsLocation(true)
@@ -1027,11 +939,8 @@ const FoodDetailModal = ({
                     const requiredSelected = selectedOptions?.filter(
                         (item) => item?.type === 'required'
                     )
-                    if (singleVariation?.length === requiredSelected?.length) {
-                        isdisabled = true
-                    } else {
-                        isdisabled = false
-                    }
+                    isdisabled =
+                        singleVariation?.length === requiredSelected?.length
                 }
             })
         } else {
@@ -1039,9 +948,6 @@ const FoodDetailModal = ({
         }
         return isdisabled
     }
-    // if(!modalData){
-    //     return
-    // }
 
     const isUpdateDisabled = () => {
         if (selectedOptions && selectedOptions.length > 0) {
@@ -1103,19 +1009,23 @@ const FoodDetailModal = ({
                                                         {modalData.length > 0 &&
                                                             modalData[0]?.name}
                                                     </Typography>
-                                                    <VagSvg
-                                                        color={
-                                                            Number(
-                                                                modalData[0]
-                                                                    ?.veg
-                                                            ) === 0
-                                                                ? theme.palette
-                                                                      .nonVeg
-                                                                : theme.palette
-                                                                      .success
-                                                                      .light
-                                                        }
-                                                    />
+                                                    {global?.toggle_veg_non_veg ? (
+                                                        <VagSvg
+                                                            color={
+                                                                Number(
+                                                                    modalData[0]
+                                                                        ?.veg
+                                                                ) === 0
+                                                                    ? theme
+                                                                          .palette
+                                                                          .nonVeg
+                                                                    : theme
+                                                                          .palette
+                                                                          .success
+                                                                          .light
+                                                            }
+                                                        />
+                                                    ) : null}
                                                     {modalData[0]
                                                         ?.halal_tag_status ===
                                                         1 &&
@@ -1320,9 +1230,6 @@ const FoodDetailModal = ({
                                                 modalData[0]?.variations
                                                     ?.length > 0 && (
                                                     <VariationsManager
-                                                        variationStock={
-                                                            variationStock
-                                                        }
                                                         quantity={quantity}
                                                         selectedOptions={
                                                             selectedOptions
@@ -1361,14 +1268,8 @@ const FoodDetailModal = ({
                                                         setTotalPrice={
                                                             setTotalPrice
                                                         }
-                                                        setVarPrice={
-                                                            setVarPrice
-                                                        }
                                                         changeAddOns={
                                                             changeAddOns
-                                                        }
-                                                        setProductAddOns={
-                                                            setProductAddOns
                                                         }
                                                         product={modalData[0]}
                                                         setAddOns={setAddOns}

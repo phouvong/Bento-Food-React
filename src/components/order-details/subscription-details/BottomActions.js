@@ -1,17 +1,13 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import { CustomPaperBigCard } from "@/styled-components/CustomStyles.style";
-import { Button, Grid } from "@mui/material";
-import { PrimaryButton } from "../../products-page/FoodOrRestaurant";
-import CustomModal from "../../custom-modal/CustomModal";
-import Logs from "./Logs";
-import ModalView from "./ModalView";
-import { useCancelSubscription } from "@/hooks/react-query/subscription/useCancelSubscription";
-import { toast } from "react-hot-toast";
-import { onErrorResponse } from "../../ErrorResponse";
-import moment from "moment";
+import React, { useState } from 'react'
+import { Button, Grid } from '@mui/material'
+import { PrimaryButton } from '../../products-page/FoodOrRestaurant'
+import CustomModal from '../../custom-modal/CustomModal'
+import ModalView from './ModalView'
+import { useCancelSubscription } from '@/hooks/react-query/subscription/useCancelSubscription'
+import { toast } from 'react-hot-toast'
+import { onErrorResponse } from '../../ErrorResponse'
 
-const BottomActions = props => {
+const BottomActions = (props) => {
     const { t, subscriptionId, refetchAll, minDate, maxDate } = props
     const [openPause, setOpenPause] = useState(false)
     const [openCancel, setOpenCancel] = useState(false)
@@ -36,20 +32,19 @@ const BottomActions = props => {
                     onError: onErrorResponse,
                 })
                 setOpenPause(false)
-            }
-            else {
+            } else {
                 toast.error(t('Start date and end date can not be empty.'), {
                     style: {
-                        textTransform: 'none'
-                    }
+                        textTransform: 'none',
+                    },
                 })
             }
-
-        }
-        else {
+        } else {
             //for cancel subscription
             const handleSuccess = () => {
-                toast.success(t('This Subscription order cancelled successfully'))
+                toast.success(
+                    t('This Subscription order cancelled successfully')
+                )
                 refetchAll?.()
             }
             params.subscriptionId = subscriptionId
@@ -69,7 +64,7 @@ const BottomActions = props => {
                 <Grid item xs={12} sm={12}>
                     <PrimaryButton
                         variant="contained"
-                        sx={{ width: '100%',borderRadius: '5px' }}
+                        sx={{ width: '100%', borderRadius: '5px' }}
                         onClick={() => setOpenPause(true)}
                     >
                         {t('Pause Subscription')}
@@ -81,44 +76,43 @@ const BottomActions = props => {
                         variant="outlined"
                         sx={{
                             width: '100%',
-                            color: (theme) =>
-                                theme.palette.primary.main,
-                            borderRadius: '5px'
+                            color: (theme) => theme.palette.primary.main,
+                            borderRadius: '5px',
                         }}
                     >
                         {t('Cancel Subscription')}
                     </Button>
                 </Grid>
             </Grid>
-            {openPause &&
-                <CustomModal openModal={openPause}
-                    setModalOpen={setOpenPause}>
-                    <ModalView title='Are you sure to pause subscription?'
+            {openPause && (
+                <CustomModal openModal={openPause} setModalOpen={setOpenPause}>
+                    <ModalView
+                        title="Are you sure to pause subscription?"
                         minDate={minDate}
                         maxDate={maxDate}
                         t={t}
                         handleCancel={() => setOpenPause(false)}
                         handleSuccess={handleSuccessCancelClick}
                     />
-                </CustomModal>}
-            {openCancel &&
-                <CustomModal openModal={openCancel}
-                    setModalOpen={setOpenCancel}>
+                </CustomModal>
+            )}
+            {openCancel && (
+                <CustomModal
+                    openModal={openCancel}
+                    setModalOpen={setOpenCancel}
+                >
                     <ModalView
-                        title='Are you sure to cancel subscription?'
+                        title="Are you sure to cancel subscription?"
                         t={t}
                         handleCancel={() => setOpenCancel(false)}
                         handleSuccess={handleSuccessCancelClick}
                     />
-                </CustomModal>}
-
-
+                </CustomModal>
+            )}
         </>
-    );
-};
+    )
+}
 
-BottomActions.propTypes = {
+BottomActions.propTypes = {}
 
-};
-
-export default BottomActions;
+export default BottomActions

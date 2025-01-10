@@ -1,28 +1,21 @@
-import React, { useEffect, useState } from 'react'
-import { alpha, Grid, Stack, Typography } from '@mui/material'
-import toast from 'react-hot-toast'
+import React, { useEffect } from 'react'
+import { Grid, Stack, Typography } from '@mui/material'
 import { useQuery } from 'react-query'
-import { CouponApi } from "@/hooks/react-query/config/couponApi"
+import { CouponApi } from '@/hooks/react-query/config/couponApi'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@mui/material/styles'
 import CustomEmptyResult from '../../empty-view/CustomEmptyResult'
 import { useSelector } from 'react-redux'
-import noData from '../../../../public/static/nodata.png'
 import { onSingleErrorResponse } from '../../ErrorResponse'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
-} from "@/styled-components/CustomStyles.style"
-import CouponSvg from './couponSvg'
-import { renderToStaticMarkup } from 'react-dom/server'
+} from '@/styled-components/CustomStyles.style'
 import CouponCard from './CouponCard'
 import Skeleton from '@mui/material/Skeleton'
-import * as PropTypes from 'prop-types'
-import { Scrollbar } from '../../Scrollbar'
-import ScrollerProvider from '../../scroller-provider'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import Meta from '../../Meta'
-import { noDataFound } from "@/utils/LocalImages"
+import { noDataFound } from '@/utils/LocalImages'
 
 const CouponList = () => {
     const { t } = useTranslation()
@@ -37,12 +30,10 @@ const CouponList = () => {
     let digitAfterDecimalPoint
 
     if (global) {
-        currencySymbol = global.currency_symbol
-        currencySymbolDirection = global.currency_symbol_direction
-        digitAfterDecimalPoint = global.digit_after_decimal_point
     }
     const { isLoading, data, isError, error, refetch, isRefetching } = useQuery(
-        ['coupon-list'], CouponApi.couponList,
+        ['coupon-list'],
+        CouponApi.couponList,
         {
             enabled: false,
             onError: onSingleErrorResponse,
@@ -64,15 +55,17 @@ const CouponList = () => {
             <CustomPaperBigCard
                 padding={isXSmall ? '10px 10px' : '30px 40px'}
                 border={false}
-
-                sx={{ minHeight: !isXSmall && '558px', boxShadow: isXSmall && 'unset' }}
+                sx={{
+                    minHeight: !isXSmall && '558px',
+                    boxShadow: isXSmall && 'unset',
+                }}
             >
                 <CustomStackFullWidth spacing={2}>
-                    {!isXSmall &&
+                    {!isXSmall && (
                         <Typography fontWeight="600" fontSize="16px">
                             {t('My Coupons')}
                         </Typography>
-                    }
+                    )}
                     <Grid
                         container
                         rowSpacing={2}
@@ -117,13 +110,14 @@ const CouponList = () => {
                                 </Grid>
                             </Grid>
                         )}
-                        {((data?.data?.length === 0 && !isLoading) || (data === undefined && !isLoading)) && (
+                        {((data?.data?.length === 0 && !isLoading) ||
+                            (data === undefined && !isLoading)) && (
                             <Stack
                                 justifyContent="center"
                                 alignItems="center"
                                 width="100%"
                                 minHeight="30vh"
-                                pt={{ xs: "40px", md: "110px" }}
+                                pt={{ xs: '40px', md: '110px' }}
                             >
                                 <CustomEmptyResult
                                     label="No Coupon Found"

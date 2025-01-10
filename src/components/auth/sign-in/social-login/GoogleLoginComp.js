@@ -1,24 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
 import jwt_decode from 'jwt-decode'
-import { usePostEmail } from '@/hooks/react-query/social-login/usePostEmail'
 import CustomModal from '../../../custom-modal/CustomModal'
-import PhoneInputForm from './PhoneInputForm'
 import OtpForm from '../../forgot-password/OtpForm'
 import { toast } from 'react-hot-toast'
 import { useVerifyPhone } from '@/hooks/react-query/otp/useVerifyPhone'
 import { onErrorResponse } from '../../../ErrorResponse'
 import { googleClientId } from '@/utils/staticCredentials'
-import { alpha, styled, Typography } from '@mui/material'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import { Stack } from '@mui/system'
+import { styled, Typography, Stack } from '@mui/material'
 import { t } from 'i18next'
 import CustomImageContainer from '../../../CustomImageContainer'
 import googleLatest from '../../../../../public/static/Google Logo.png'
-import { CustomStackFullWidth } from '../../../../styled-components/CustomStyles.style'
 import { getGuestId } from '@/components/checkout-page/functions/getGuestUserId'
-// import { gapi } from 'gapi-scrip
-// import { gapi } from 'gapi-script'
+
 export const CustomGoogleButton = styled(Stack)(({ theme, width }) => ({
     width: '100%',
     backgroundColor: theme.palette.neutral[100],
@@ -28,23 +21,20 @@ export const CustomGoogleButton = styled(Stack)(({ theme, width }) => ({
     padding: '10px',
     color: theme.palette.neutral[600],
     boxShadow: `0px 2px 3px 0px rgba(0, 0, 0, 0.17), 0px 0px 3px 0px rgba(0, 0, 0, 0.08)`,
-    //maxWidth: '355px',
-
     transition: 'box-shadow 0.3s',
     '&:hover': {
         boxShadow: `0px 5px 10px 0px rgba(0, 0, 0, 0.3), 0px 2px 5px 0px rgba(0, 0, 0, 0.15)`,
     },
 }))
+
 const GoogleLoginComp = (props) => {
     const {
         handleSuccess,
-        global,
         handleParentModalClose,
         setJwtToken,
         setUserInfo,
         setModalFor,
         setMedium,
-        isSingle,
         loginMutation,
         setLoginInfo,
         setForWidth,
@@ -55,9 +45,6 @@ const GoogleLoginComp = (props) => {
     const [openOtpModal, setOpenOtpModal] = useState(false)
     const [otpData, setOtpData] = useState({ phone: '' })
     const [mainToken, setMainToken] = useState(null)
-    const router = useRouter()
-
-    // const { mutate } = usePostEmail()
 
     const clientId = googleClientId
     const handleToken = (response) => {
@@ -130,7 +117,6 @@ const GoogleLoginComp = (props) => {
     }
 
     useEffect(() => {
-        /* global google */
         if (typeof window !== undefined) {
             window?.google?.accounts?.id?.initialize({
                 client_id: clientId,
@@ -149,15 +135,6 @@ const GoogleLoginComp = (props) => {
         }
     }, [])
 
-    // const handleOnError = (res) => {
-    //
-    // }
-    const handleRegistrationOnSuccess = (token) => {
-        //registration on success func remaining
-        setOpenModal(false)
-        handleSuccess(token)
-        handleParentModalClose()
-    }
     const onSuccessHandler = (res) => {
         toast.success(res?.message)
         setOpenOtpModal(false)

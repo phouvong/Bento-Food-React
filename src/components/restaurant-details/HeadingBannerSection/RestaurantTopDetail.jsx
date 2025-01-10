@@ -1,25 +1,20 @@
-import {alpha, Box, Button, Grid, Stack, Typography} from '@mui/material'
+import { alpha, Box, Grid, Stack } from '@mui/material'
 import React, { useState } from 'react'
 import location from '../../../assets/images/icons/location.png'
-import favorite from '../../../assets/images/icons/favorite.png'
-import { getAmount, isAvailable } from "@/utils/customFunctions"
+import { getAmount, isAvailable } from '@/utils/customFunctions'
 import { useDispatch, useSelector } from 'react-redux'
 import { useMutation } from 'react-query'
-import { RestaurantsApi } from "@/hooks/react-query/config/restaurantApi"
+import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
 import { useTranslation } from 'react-i18next'
 import { RatingStarIcon, TypographyText } from '../../food-card/FoodCard.style'
 import Link from 'next/link'
 import TimerIcon from '@mui/icons-material/Timer'
-import {
-    addWishListRes,
-    removeWishListRes,
-} from "@/redux/slices/wishList"
-import { useWishListResDelete } from "@/hooks/react-query/config/wish-list/useWishListResDelete"
-import { CustomColouredTypography } from "@/styled-components/CustomStyles.style"
-import DeleteIcon from '@mui/icons-material/Delete'
+import { addWishListRes, removeWishListRes } from '@/redux/slices/wishList'
+import { useWishListResDelete } from '@/hooks/react-query/config/wish-list/useWishListResDelete'
+import { CustomColouredTypography } from '@/styled-components/CustomStyles.style'
 import MapModal from '../google-address/map-modal'
 import { CustomTypography } from '../../custom-tables/Tables.style'
-import { CustomTypographyGray } from "@/styled-components/CustomTypographies.style"
+import { CustomTypographyGray } from '@/styled-components/CustomTypographies.style'
 import { toast } from 'react-hot-toast'
 import CustomImageContainer from '../../CustomImageContainer'
 import { useTheme } from '@mui/material/styles'
@@ -42,7 +37,8 @@ const RestaurantTopDetail = ({
     id,
     active,
     open,
-    schedules,cuisine
+    schedules,
+    cuisine,
 }) => {
     const { t } = useTranslation()
     const theme = useTheme()
@@ -81,7 +77,7 @@ const RestaurantTopDetail = ({
             if (response?.data) {
                 dispatch(
                     addWishListRes({
-                        logo,
+                        logo_full_url,
                         name,
                         rating_count,
                         avg_rating,
@@ -137,7 +133,7 @@ const RestaurantTopDetail = ({
         if (active) {
             if (schedules.length > 0) {
                 const todayInNumber = moment().weekday()
-                let isOpen = false
+                let isOpen
                 let filteredSchedules = schedules.filter(
                     (item) => item.day === todayInNumber
                 )
@@ -147,11 +143,7 @@ const RestaurantTopDetail = ({
                         isAvailableNow.push(item)
                     }
                 })
-                if (isAvailableNow.length > 0) {
-                    isOpen = true
-                } else {
-                    isOpen = false
-                }
+                isOpen = isAvailableNow.length > 0
                 if (!isOpen) {
                     return <ClosedNowOverlay t={t} theme={theme} />
                 }
@@ -187,24 +179,32 @@ const RestaurantTopDetail = ({
                 <Grid item xs={6} sm={8} md={matches ? 8 : 9}>
                     <Stack>
                         <CustomTypography variant="p">{name}</CustomTypography>
-                        <Stack direction="row" spacing={.5} width="100%" flexWrap="wrap">
-                        {cuisine?.map((item,index)=>{
-                            return(
-                                    <CustomTypographyGray variant="p" key={index}
-                                                          sx={{
-                                                              overflow: 'hidden',
-                                                              textOverflow: 'ellipsis',
-                                                              display: '-webkit-box',
-                                                              WebkitLineClamp: '2',
-                                                              WebkitBoxOrient: 'vertical',
-
-
-                                                          }}
+                        <Stack
+                            direction="row"
+                            spacing={0.5}
+                            width="100%"
+                            flexWrap="wrap"
+                        >
+                            {cuisine?.map((item, index) => {
+                                return (
+                                    <CustomTypographyGray
+                                        variant="p"
+                                        key={index}
+                                        sx={{
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: '2',
+                                            WebkitBoxOrient: 'vertical',
+                                        }}
                                     >
-                                        {item?.name} {(cuisine.length-1)===index ?"":","}
+                                        {item?.name}{' '}
+                                        {cuisine.length - 1 === index
+                                            ? ''
+                                            : ','}
                                     </CustomTypographyGray>
-                            )
-                        })}
+                                )
+                            })}
                         </Stack>
                         <Stack
                             direction="row"
@@ -350,7 +350,7 @@ const RestaurantTopDetail = ({
                             sx={{
                                 cursor: 'pointer',
                                 background: (theme) =>
-                                    alpha(theme.palette.primary.main,.5),
+                                    alpha(theme.palette.primary.main, 0.5),
                                 padding: '8px',
                                 borderRadius: '.5rem',
                                 width: '40px',

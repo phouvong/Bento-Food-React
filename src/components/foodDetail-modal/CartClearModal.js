@@ -1,10 +1,8 @@
 import { Button, Grid, Modal, Paper, Typography } from '@mui/material'
 import React from 'react'
-import { CatMessageStyle } from '../food-card/FoodCard.style'
 import { styled, useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
-import { CustomTypography } from '../custom-tables/Tables.style'
-import { CustomColouredTypography } from '../../styled-components/CustomStyles.style'
+import { CustomColouredTypography } from '@/styled-components/CustomStyles.style'
 import Image from 'next/image'
 import warningImage from '../../assets/images/warning.png'
 
@@ -17,7 +15,7 @@ export const CustomStyledBox = styled(Paper)(({ theme }) => ({
     boxShadow: 24,
     padding: '1.5rem',
     [theme.breakpoints.down('sm')]: {
-        width: "90%",
+        width: '90%',
     },
 }))
 
@@ -25,14 +23,11 @@ const CartClearModal = ({
     clearCartModal,
     setClearCartModal,
     clearCartAlert,
-    addToCard,
 }) => {
     const handleClose = () => setClearCartModal(false)
     const { t } = useTranslation()
     const handleClearCartButton = () => {
         clearCartAlert()
-        // addToCard()
-        // handleClose()
     }
     const theme = useTheme()
 
@@ -73,7 +68,9 @@ const CartClearModal = ({
                             fullWidth
                             variant="outlined"
                             onClick={handleClose}
-                           sx={{color:(theme)=> theme.palette.primary.main}}
+                            sx={{
+                                color: (theme) => theme.palette.primary.main,
+                            }}
                         >
                             {t('Cancel')}
                         </Button>

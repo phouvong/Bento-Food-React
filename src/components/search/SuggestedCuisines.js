@@ -1,17 +1,10 @@
-import React, { useEffect } from 'react'
 import { Stack, Typography } from '@mui/material'
 import CustomImageContainer from '../CustomImageContainer'
-import { useGetCuisines } from '../../hooks/react-query/cuisines/useGetCuisines'
 import { useSelector } from 'react-redux'
 import { t } from 'i18next'
 
 const SuggestedCuisines = ({ routeHandler }) => {
-    const { global } = useSelector((state) => state.globalSettings)
     const { cuisines } = useSelector((state) => state.storedData)
-    // const { data, refetch } = useGetCuisines()
-    // useEffect(async () => {
-    //     await refetch()
-    // }, [])
 
     return (
         <>

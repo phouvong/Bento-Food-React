@@ -1,13 +1,5 @@
-import {
-    alpha,
-    Button,
-    Paper,
-    styled,
-    TextField,
-    Typography,
-} from '@mui/material'
-import { Box } from '@mui/system'
-import { CustomButtonPrimary } from "@/styled-components/CustomButtons.style"
+import { alpha, Paper, styled, TextField, Typography, Box } from '@mui/material'
+import { CustomButtonPrimary } from '@/styled-components/CustomButtons.style'
 
 export const CustomBox = styled(Box)(({ theme }) => ({
     width: '100%',
@@ -25,19 +17,18 @@ export const CustomSearchField = styled(Paper)(({ theme }) => ({
 export const StyledButton = styled(CustomButtonPrimary)(
     ({ theme, radiuschange, languageDirection }) => ({
         color: `${theme.palette.whiteContainer.main} !important`,
-        //textColor:'red',
         width: '500px',
         padding: '11px 7px 12px 7px',
 
         marginLeft: languageDirection === 'rtl' && '15px',
         borderTopLeftRadius:
             (languageDirection === 'ltr' || !languageDirection) &&
-                radiuschange === 'true'
+            radiuschange === 'true'
                 ? '0px'
                 : '6px',
         borderBottomLeftRadius:
             (languageDirection === 'ltr' || !languageDirection) &&
-                radiuschange === 'true'
+            radiuschange === 'true'
                 ? '0px'
                 : '6px',
         borderTopRightRadius:
@@ -74,12 +65,12 @@ export const CssTextField = styled(TextField)(
                 mobileview === 'true'
                     ? '5px'
                     : (languageDirection === 'ltr' || !languageDirection) &&
-                    '0px',
+                      '0px',
             borderBottomRightRadius:
                 mobileview === 'true'
                     ? '5px'
                     : (languageDirection === 'ltr' || !languageDirection) &&
-                    '0px',
+                      '0px',
             borderTopLeftRadius:
                 mobileview === 'true'
                     ? '5px'
@@ -88,8 +79,6 @@ export const CssTextField = styled(TextField)(
                 mobileview === 'true'
                     ? '5px'
                     : languageDirection === 'rtl' && '0px',
-            // border: '2px solid',
-            // borderColor: theme.palette.primary.main,
             '& fieldset': {
                 borderColor: theme.palette.primary.main,
             },
@@ -102,13 +91,7 @@ export const CssTextField = styled(TextField)(
         },
     })
 )
-
-export const CustomCardLinkSection = styled(Paper)(({ theme }) => ({
-    width: '100%',
-    border: 'none',
-}))
 export const CustomButton = styled(Paper)(({ theme, backgroundColor }) => ({
-    width: '153px',
     height: '50px',
     borderRadius: '5px',
     overflow: 'hidden',
@@ -125,4 +108,3 @@ export const HeroCardTypography = styled(Typography)(({ theme, fontsize }) => ({
     fontWeight: 600,
     letterSpacing: '0.05em',
 }))
-export const LandingHeroBox = styled(Box)(({ theme, fontsize }) => ({}))

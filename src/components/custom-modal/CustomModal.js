@@ -1,5 +1,5 @@
 import { Clear } from '@mui/icons-material'
-import { Box, Modal, Stack, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Modal, Stack, useTheme } from '@mui/material'
 import { CustomModalWrapper } from './CustomModal.style'
 
 const CustomModal = ({
@@ -12,11 +12,10 @@ const CustomModal = ({
     closeButton,
 }) => {
     const theme = useTheme()
-    const matches = useMediaQuery(theme.breakpoints.up('sm'))
     const handleClose = (event, reason) => {
-        if (reason && reason == 'backdropClick') {
+        if (reason && reason === 'backdropClick') {
             if (disableAutoFocus) {
-                return
+                return true
             } else {
                 setModalOpen(false)
             }

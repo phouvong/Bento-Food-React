@@ -1,11 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import {
-    calculateItemBasePrice,
-    getConvertDiscount,
-    getIndexFromArrayByComparision,
-    handleIncrementedTotal,
-} from '../../utils/customFunctions'
-import _ from 'lodash'
+import { getIndexFromArrayByComparision } from '@/utils/customFunctions'
 const initialState = {
     cartItem: null,
     cartList: [],
@@ -15,18 +9,13 @@ const initialState = {
     walletAmount: null,
     subscriptionSubTotal: null,
 }
-
+const isEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 export const cartSlice = createSlice({
     name: 'cart',
     initialState,
     reducers: {
         cart: (state, action) => {
             state.cartList = action.payload
-            // Redux Toolkit allows us to write "mutating" logic in reducers. It
-            // doesn't actually mutate the state because it uses the Immer library,
-            // which detects changes to a "draft state" and produces a brand new
-            // immutable state based off those changes
-            // state.cartList += 1
         },
         setType: (state = initialState, action) => {
             state.type = action.payload
@@ -39,7 +28,7 @@ export const cartSlice = createSlice({
             if (state.cartList.length > 0) {
                 for (let i = 0; i < state.cartList.length; i++) {
                     if (
-                        _.isEqual(
+                        isEqual(
                             state.cartList[i].variations,
                             action.payload.variations
                         ) &&
@@ -93,35 +82,26 @@ export const cartSlice = createSlice({
             const index = state.cartList.findIndex(
                 (item, index) => index === action.payload.indexNumber
             )
-            const newData = state.cartList.map((item, i) =>
+            state.cartList = state.cartList.map((item, i) =>
                 i === index ? action.payload.newObj : item
             )
-            state.cartList = newData
         },
         setUpdateCart: (state = initialState, action) => {
-            const newData = state.cartList.map((item) =>
+            state.cartList = state.cartList.map((item) =>
                 item.id === action.payload.id
                     ? {
-                        ...item,
-                        totalPrice: action.payload.totalPrice,
-                        quantity: action.payload.quantity,
-                    }
+                          ...item,
+                          totalPrice: action.payload.totalPrice,
+                          quantity: action.payload.quantity,
+                      }
                     : item
             )
-            state.cartList = newData
         },
         addProductToCart: (state, action) => {
             // state.value += action.payload
         },
         incrementProductQty: (state = initialState, action) => {
-
             let newData
-            // const totalPrice = handleIncrementedTotal(
-            //     action.payload.itemBasePrice,
-            //     action.payload.quantity+1,
-            //     action.payload.discount,
-            //     action.payload.discount_type
-            // )
             if (action.payload.variations.length > 0) {
                 let index = getIndexFromArrayByComparision(
                     state.cartList,
@@ -130,10 +110,10 @@ export const cartSlice = createSlice({
                 newData = state.cartList.map((item, i) =>
                     i === index
                         ? {
-                            ...item,
-                            totalPrice: action.payload.totalPrice,
-                            quantity: action.payload.quantity,
-                        }
+                              ...item,
+                              totalPrice: action.payload.totalPrice,
+                              quantity: action.payload.quantity,
+                          }
                         : item
                 )
                 state.cartList = newData
@@ -141,10 +121,10 @@ export const cartSlice = createSlice({
                 newData = state.cartList.map((item) =>
                     item.id === action.payload.id
                         ? {
-                            ...item,
-                            totalPrice: action.payload.totalPrice,
-                            quantity: action.payload.quantity,
-                        }
+                              ...item,
+                              totalPrice: action.payload.totalPrice,
+                              quantity: action.payload.quantity,
+                          }
                         : item
                 )
                 state.cartList = newData
@@ -152,12 +132,6 @@ export const cartSlice = createSlice({
         },
         decrementProductQty: (state = initialState, action) => {
             let newData
-            // const totalPrice = handleIncrementedTotal(
-            //     action.payload.itemBasePrice,
-            //     action.payload.quantity - 1,
-            //     action.payload.discount,
-            //     action.payload.discount_type
-            // )
             if (action.payload.variations.length > 0) {
                 const index = getIndexFromArrayByComparision(
                     state.cartList,
@@ -166,10 +140,10 @@ export const cartSlice = createSlice({
                 newData = state.cartList.map((item, i) =>
                     i === index
                         ? {
-                            ...item,
-                            totalPrice: action.payload.totalPrice,
-                            quantity: action.payload.quantity,
-                        }
+                              ...item,
+                              totalPrice: action.payload.totalPrice,
+                              quantity: action.payload.quantity,
+                          }
                         : item
                 )
                 state.cartList = newData
@@ -177,10 +151,10 @@ export const cartSlice = createSlice({
                 newData = state.cartList.map((item) =>
                     item.id === action.payload.id
                         ? {
-                            ...item,
-                            totalPrice: action.payload.totalPrice,
-                            quantity: action.payload.quantity,
-                        }
+                              ...item,
+                              totalPrice: action.payload.totalPrice,
+                              quantity: action.payload.quantity,
+                          }
                         : item
                 )
                 state.cartList = newData
@@ -227,19 +201,15 @@ export const cartSlice = createSlice({
 export const {
     cart,
     setCart,
-    addProductToCart,
     incrementProductQty,
     decrementProductQty,
     removeProduct,
     setClearCart,
     setReorderCartItemByDispatch,
     setSubscriptionSubTotal,
-    setVariationToCart,
-    setUpdateVariationToCart,
     setCampCart,
     setType,
     setCartItemByDispatch,
-    setUpdateCart,
     setTotalAmount,
     setWalletAmount,
 } = cartSlice.actions

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { Box, Stack, styled } from '@mui/material'
+import { Box, styled } from '@mui/material'
 import ChatMessages from './ChatMessages'
 import ChatMessageAdd from './ChatMessageAdd'
 

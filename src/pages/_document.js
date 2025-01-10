@@ -2,7 +2,6 @@ import { Children } from 'react'
 import Document, { Html, Head, Main, NextScript } from 'next/document'
 import createEmotionServer from '@emotion/server/create-instance'
 import createEmotionCache from '../utils/create-emotion-cache'
-import DynamicFavicon from '../components/favicon/DynamicFavicon'
 
 class CustomDocument extends Document {
     render() {
@@ -18,10 +17,6 @@ class CustomDocument extends Document {
                         rel="stylesheet"
                         href="https://fonts.googleapis.com/css2?family=Rubik:wght@100;200;300;400;500;600;700;800;900&display=swap"
                     />
-                    {/*<link*/}
-                    {/*    rel="stylesheet"*/}
-                    {/*    href="https://fonts.googleapis.com/css?family=Roboto+Mono|Roboto+Slab|Roboto:300,400,500,700&display=optional"*/}
-                    {/*/>*/}
 
                     <meta name="theme-color" content="#111827" />
                     <script

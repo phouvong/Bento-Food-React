@@ -55,26 +55,26 @@ const divider = '#E6E8F0'
 // main: '#EF7822',
 // secondary main: '#ff903f',
 const primary = {
-    main: '#FF4940',
+    main: '#FF7918',
     light: 'rgba(255, 121, 24, 0.60)',
     dark: '#a3460a',
     contrastText: '#FFFFFF',
-    midPrimary: ' #ffedf1',
+    midPrimary: ' #FFF5ED',
     overLay: '#000000',
 }
 const searchBoxBg = primary.main
 const secondary = {
-    main: '#931631',
-    light: '#db001d',
-    semiLight: '#fff6f7',
-    dark: '#a24c52',
+    main: '#934916',
+    light: '#db5c00',
+    semiLight: '#FFFAF6',
+    dark: '#a2684c',
     contrastText: '#FFFFFF',
 }
 const whiteContainer = {
     main: '#F9FAFC',
     light: '#EF7822',
-    dark: '#ff3f55',
-    contrastText: '#ef223a',
+    dark: '#ff903f',
+    contrastText: '#EF7822',
 }
 const whiteText = {
     main: '#FFFFFF',
@@ -131,6 +131,7 @@ const customColor = {
 const text = {
     primary: '#121828',
     secondary: '#65748B',
+    info: '#0788FF',
     custom: '#242424',
     disabled: 'rgba(55, 65, 81, 0.48)',
     footerText: '#F5F6F8',

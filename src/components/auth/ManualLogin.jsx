@@ -3,7 +3,6 @@ import {
     CustomColouredTypography,
     CustomStackFullWidth,
 } from '@/styled-components/CustomStyles.style'
-import CustomPhoneInput from '@/components/CustomPhoneInput'
 import FormControl from '@mui/material/FormControl'
 import InputLabel from '@mui/material/InputLabel'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -13,8 +12,6 @@ import { alpha, Stack } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import LockIcon from '@mui/icons-material/Lock'
 import { CustomTypography } from '@/components/custom-tables/Tables.style'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Checkbox from '@mui/material/Checkbox'
 import Typography from '@mui/material/Typography'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { CustomSigninOutLine } from '@/components/auth/sign-in'
@@ -35,10 +32,8 @@ const ManualLogin = (props) => {
         isLoading,
         rememberMeHandleChange,
         handleClick,
-        gotoForgotPassword,
         setModalFor,
         setForWidth,
-        fireBaseId,
     } = props
     const theme = useTheme()
     const [isPhone, setIsPhone] = useState('')
@@ -188,7 +183,6 @@ const ManualLogin = (props) => {
                                             (prevState) => !prevState
                                         )
                                     }
-                                    //   onMouseDown={handleMouseDownPassword}
                                     edge="end"
                                 >
                                     {showPassword ? (
@@ -268,7 +262,6 @@ const ManualLogin = (props) => {
                         rememberMeHandleChange={rememberMeHandleChange}
                     />
                     <Typography
-                        //onClick={gotoForgotPassword}
                         onClick={handlePasswordClick}
                         sx={{
                             fontSize: '12px',
@@ -287,7 +280,6 @@ const ManualLogin = (props) => {
                     onClick={handleClick}
                     sx={{
                         cursor: 'pointer',
-                        // textDecoration: 'underline',
                         fontWeight: '400',
                         fontSize: '12px',
                         [theme.breakpoints.down('sm')]: {

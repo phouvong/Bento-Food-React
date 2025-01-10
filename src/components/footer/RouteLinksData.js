@@ -1,43 +1,15 @@
 export const RouteLinksData = [
-    // {
-    //     name: 'Refund Policy',
-    //     value: 'refund_policy',
-    //     link: '/refund-policy',
-    // },
-    // {
-    //     name: 'Loyalty Points',
-    //     value: 'loyalty_points',
-    //     link: '/customer/loyality',
-    // },
-    // {
-    //     name: 'My Wallet',
-    //     value: 'my_wallet',
-    //     link: '/customer/wallets',
-    // },
-    // {
-    //     name: 'Campaigns',
-    //     value: 'campaigns',
-    //     link: '/campaigns',
-    // },
-    // {
-    //     name: 'Loyalty Points',
-    //     value: 'loyalty_points',
-    //     link: '/customer/loyality',
-    // },
-    // {
-    //     name: 'My Wallet',
-    //     value: 'my_wallet',
-    //     link: '/customer/wallets',
-    // },
     {
         name: 'Open Restaurant',
         value: 'restaurant_owner',
-        link: `${process.env.NEXT_PUBLIC_BASE_URL}/restaurant/apply`,
+        // link: `${process.env.NEXT_PUBLIC_BASE_URL}/restaurant/apply`,
+        link: '/restaurant-registration?active=active',
     },
     {
         name: 'Become a delivery man',
         value: 'delivery_man',
-        link: `${process.env.NEXT_PUBLIC_BASE_URL}/deliveryman/apply`,
+        // link: `${process.env.NEXT_PUBLIC_BASE_URL}/deliveryman/apply`,
+        link: '/deliveryman-registration',
     },
     {
         name: 'Profile',

@@ -87,7 +87,6 @@
 //         // setMapSetup(false)
 //     }, [])
 
-
 //
 //     return isLoaded ? (
 //         <Stack className="map">
@@ -214,7 +213,6 @@
 // export default MapForAddress
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api'
-import { CircularProgress } from '@mui/material'
 import { Stack } from '@mui/material'
 
 const containerStyle = {
@@ -265,14 +263,11 @@ const MapForAddress = ({
         setMap(map)
     }, [])
     useEffect(() => {
-
         if (location) {
-
             setCenterPosition(location)
             setIsMounted(true)
         }
         if (map?.center && mapSetup) {
-
             setCenterPosition({
                 lat: map.center.lat(),
                 lng: map.center.lng(),
@@ -299,7 +294,6 @@ const MapForAddress = ({
             onUnmount={onUnmount}
             options={options}
             onMouseDown={(e) => {
-
                 setMapSetup(true)
                 setIsMounted(false)
                 //    setDisablePickButton(true)
@@ -307,7 +301,6 @@ const MapForAddress = ({
                 // setPlaceDetailsEnabled(false)
             }}
             onMouseUp={(e) => {
-
                 setMapSetup(false)
                 // setDisablePickButton(false)
                 setLocationEnabled(true)
@@ -327,7 +320,6 @@ const MapForAddress = ({
             }}
             // onZoomChanged={() => {
 
-
             //     if (map) {
 
             //         setLocationEnabled(true)
@@ -346,6 +338,7 @@ const MapForAddress = ({
             {!locationLoading && (
                 <img
                     src="http://maps.google.com/mapfiles/kml/paddle/blu-blank.png"
+                    alt=""
                     style={{
                         zIndex: 3,
                         position: 'absolute',

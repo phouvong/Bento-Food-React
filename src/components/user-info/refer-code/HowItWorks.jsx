@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, AlertTitle, Chip, Stack, Typography, alpha, styled, useMediaQuery, useTheme } from '@mui/material'
+import { Chip, Stack, Typography, alpha, styled, useTheme } from '@mui/material'
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { t } from 'i18next';
 

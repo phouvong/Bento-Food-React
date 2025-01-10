@@ -1,12 +1,21 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import NotAvailableCard from './NotAvailableCard'
 import { Button, Stack } from '@mui/material'
 import { CustomTypography } from '../custom-tables/Tables.style'
-import { isAvailable } from "@/utils/customFunctions"
+import { isAvailable } from '@/utils/customFunctions'
 
 const AddUpdateOrderToCart = (props) => {
-    const { isUpdateDisabled,modalData, isInCart, addToCard, t, product, orderNow,addToCartLoading,getFullFillRequirements } = props
+    const {
+        isUpdateDisabled,
+        modalData,
+        isInCart,
+        addToCard,
+        t,
+        product,
+        orderNow,
+        addToCartLoading,
+        getFullFillRequirements,
+    } = props
     return (
         <Stack spacing={1}>
             <NotAvailableCard
@@ -22,7 +31,7 @@ const AddUpdateOrderToCart = (props) => {
                 <>
                     {isInCart(product?.id) && (
                         <Button
-                             disabled={!isUpdateDisabled()}
+                            disabled={!isUpdateDisabled()}
                             onClick={() => addToCard()}
                             variant="contained"
                             fullWidth
@@ -34,7 +43,6 @@ const AddUpdateOrderToCart = (props) => {
                         <>
                             {!product?.available_date_starts ? (
                                 <Button
-                                    // disabled={quantity <= 0}
                                     onClick={() => addToCard()}
                                     variant="contained"
                                     fullWidth
@@ -56,7 +64,7 @@ const AddUpdateOrderToCart = (props) => {
                                         !isAvailable(
                                             modalData[0].available_time_starts,
                                             modalData[0].available_time_ends
-                                        )|| !getFullFillRequirements()
+                                        ) || !getFullFillRequirements()
                                     }
                                     onClick={() => orderNow()}
                                     variant="contained"

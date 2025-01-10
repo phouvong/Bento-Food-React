@@ -11,13 +11,13 @@ import { useTranslation } from 'react-i18next'
 import {
     CustomTypographyAlign,
     ImageContainer,
-} from '../../../styled-components/CustomStyles.style'
+} from '@/styled-components/CustomStyles.style'
 import closeIcon from '../../../assets/images/icons/close.png'
 import PropTypes from 'prop-types'
 import {
     CustomButtonCancel,
     CustomButtonWarning,
-} from '../../../styled-components/CustomButtons.style'
+} from '@/styled-components/CustomButtons.style'
 import { CustomPaperForCustomDialogDelete } from './CustomDialogDelete.style'
 
 const CustomDialogDelete = (props) => {

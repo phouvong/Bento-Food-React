@@ -1,10 +1,7 @@
-import { Grid, Stack } from '@mui/material'
-import React from 'react'
-import CustomImageContainer from '../CustomImageContainer';
+import { Stack } from '@mui/material'
+import CustomImageContainer from '../CustomImageContainer'
 
-const PromotionalBanner = ({global}) => {
-
-    const globalImageUrl = global?.base_urls?.banner_image_url
+const PromotionalBanner = ({ global }) => {
     return (
         <Stack padding={{xs:"30px 0px 5px", md:"40px 0 15px"}} >
             <CustomImageContainer

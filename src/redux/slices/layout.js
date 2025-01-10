@@ -11,10 +11,6 @@ export const layoutSlice = createSlice({
         setIconicSidebar: (state, action) => {
             state.iconicSidebar = action.payload
         },
-
-        // incrementByAmount: (state, action) => {
-        //     state.value += action.payload
-        // },
     },
 })
 

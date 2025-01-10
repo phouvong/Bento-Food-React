@@ -1,8 +1,6 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { Button, Grid, Stack, Typography } from "@mui/material";
 import {
-    CustomColouredTypography,
     CustomStackFullWidth,
     CustomTypographyBold,
 } from "@/styled-components/CustomStyles.style"
@@ -19,7 +17,6 @@ import { ReviewApi } from './ReviewApi'
 import { useFormik } from 'formik'
 import toast from 'react-hot-toast'
 import { onErrorResponse } from '../ErrorResponse'
-import { CustomTypography } from '../custom-tables/Tables.style'
 import StarIcon from '@mui/icons-material/Star';
 import { useTheme } from "@mui/styles";
 import { setDeliveryManInfoByDispatch } from "@/redux/slices/searchFilter";

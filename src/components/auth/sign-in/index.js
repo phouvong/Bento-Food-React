@@ -3,13 +3,11 @@ import Typography from '@mui/material/Typography'
 
 import OutlinedInput from '@mui/material/OutlinedInput'
 import { useDispatch, useSelector } from 'react-redux'
-import { useMutation, useQuery } from 'react-query'
-import { useTheme } from '@mui/material/styles'
+import { useQuery } from 'react-query'
 import { useWishListGet } from '@/hooks/react-query/config/wish-list/useWishListGet'
 import 'react-phone-input-2/lib/material.css'
 import { useTranslation } from 'react-i18next'
 import {
-    CustomColouredTypography,
     CustomLink,
     CustomStackFullWidth,
 } from '@/styled-components/CustomStyles.style'
@@ -19,7 +17,7 @@ import { useRouter } from 'next/router'
 import { setWishList } from '@/redux/slices/wishList'
 import CustomImageContainer from '../../CustomImageContainer'
 import { CustomTypography } from '../../custom-tables/Tables.style'
-import { CustomBoxForModal, LoginWrapper } from '../auth.style'
+import { LoginWrapper } from '../auth.style'
 import { ProfileApi } from '@/hooks/react-query/config/profileApi'
 import { setUser } from '@/redux/slices/customer'
 import { RTL } from '../../RTL/RTL'
@@ -30,7 +28,6 @@ import OtpForm from '../forgot-password/OtpForm'
 import { useVerifyPhone } from '@/hooks/react-query/otp/useVerifyPhone'
 import { setToken } from '@/redux/slices/userToken'
 import { getGuestId } from '../../checkout-page/functions/getGuestUserId'
-import { auth } from '@/firebase'
 import { Stack, alpha, styled } from '@mui/material'
 import { CustomToaster } from '@/components/custom-toaster/CustomToaster'
 import OtpLogin from '@/components/auth/OtpLogin'
@@ -38,7 +35,6 @@ import ManualLogin from '@/components/auth/ManualLogin'
 import SocialLogin from '@/components/auth/SocialLogin'
 import Line from '@/components/auth/Line'
 import googleLatest from '../../../../public/static/fi_6993593.png'
-import { t } from 'i18next'
 import { CustomGoogleButton } from '@/components/auth/sign-in/social-login/GoogleLoginComp'
 
 import {
@@ -51,7 +47,6 @@ import {
     getLoginUserCheck,
 } from '@/components/auth/loginHelper'
 import { checkInput, formatPhoneNumber } from '@/utils/customFunctions'
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
 import { useFireBaseOtpVerify } from '@/hooks/react-query/useFireBaseVerfify'
 
 export const CustomSigninOutLine = styled(OutlinedInput)(
@@ -88,9 +83,7 @@ export const CustomSigninOutLine = styled(OutlinedInput)(
 )
 
 const SignInPage = ({
-    setSignInPage,
     handleClose,
-    signInSuccess,
     setModalFor,
     cartListRefetch,
     setJwtToken,
@@ -108,10 +101,8 @@ const SignInPage = ({
 }) => {
     const [showPassword, setShowPassword] = useState(false)
     const { t } = useTranslation()
-    const theme = useTheme()
     const dispatch = useDispatch()
     const { global } = useSelector((state) => state.globalSettings)
-    const businessLogo = global?.base_urls?.business_logo_url
     const router = useRouter()
     const guestId = getGuestId()
     const [isRemember, setIsRemember] = useState(false)
@@ -180,17 +171,16 @@ const SignInPage = ({
     const userOnSuccessHandler = (res) => {
         dispatch(setUser(res.data))
         handleClose?.()
-        //handleClose()
     }
-    const {
-        data,
-        isError,
-        refetch: profileRefatch,
-    } = useQuery(['profile-info'], ProfileApi.profileInfo, {
-        enabled: false,
-        onSuccess: userOnSuccessHandler,
-        onError: onSingleErrorResponse,
-    })
+    const { refetch: profileRefatch } = useQuery(
+        ['profile-info'],
+        ProfileApi.profileInfo,
+        {
+            enabled: false,
+            onSuccess: userOnSuccessHandler,
+            onError: onSingleErrorResponse,
+        }
+    )
     const onSuccessHandler = (res) => {
         dispatch(setWishList(res))
     }
@@ -211,12 +201,11 @@ const SignInPage = ({
             CustomToaster('success', loginSuccessFull)
             dispatch(setToken(response.token))
             if (
-                router.pathname === '/order' ||
+                router.pathname === `/order-history/[id]` ||
                 router.pathname === '/forgot-password'
             ) {
                 router.push('/home')
             }
-            //dispatch(cart(setItemIntoCart()));
         }
     }
 
@@ -263,9 +252,6 @@ const SignInPage = ({
         router.push('/forgot-password')
         handleClose()
     }
-    const handleCheckbox = (e) => {
-        loginFormik.setFieldValue('tandc', e.target.checked)
-    }
 
     const rememberMeHandleChange = (e) => {
         if (e.target.checked) {
@@ -282,7 +268,6 @@ const SignInPage = ({
         useFireBaseOtpVerify()
 
     const handleLoginInfo = (res, values) => {
-        // Common logic to set login info based on response
         setLoginInfo({
             ...res,
             phone: values.phone,
@@ -635,6 +620,7 @@ const SignInPage = ({
                                 direction="row"
                                 spacing={1}
                                 onClick={selectedOtp}
+                                sx={{ cursor: 'pointer' }}
                             >
                                 <CustomImageContainer
                                     src={googleLatest.src}

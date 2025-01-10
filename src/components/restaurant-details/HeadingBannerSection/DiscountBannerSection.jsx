@@ -1,14 +1,15 @@
 import React from 'react'
-import { getAmount } from "@/utils/customFunctions"
+import { getAmount } from '@/utils/customFunctions'
 import {
     CustomColouredTypography,
     CustomStackFullWidth,
-} from "@/styled-components/CustomStyles.style"
+} from '@/styled-components/CustomStyles.style'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@mui/material/styles'
 import { useSelector } from 'react-redux'
-import { Box } from '@mui/system'
+import { Box } from '@mui/material'
 import { styled } from '@mui/material/styles'
+
 const Wrapper = styled(Box)(({ theme }) => ({
     position: 'relative',
     height: '200px',
@@ -23,7 +24,6 @@ const InnerBox = styled(Box)(({ theme }) => ({
 }))
 
 const DiscountBannerSection = ({ discountBanner, discount }) => {
-    const { discountE } = discount
     const { global } = useSelector((state) => state.globalSettings)
     const { t } = useTranslation()
     const theme = useTheme()
@@ -36,15 +36,16 @@ const DiscountBannerSection = ({ discountBanner, discount }) => {
         currencySymbolDirection = global.currency_symbol_direction
         digitAfterDecimalPoint = global.digit_after_decimal_point
     }
-    const discountTime= t("Discount available from")
-    const discountPercent=t("% off on all foods")
-    const enjoy=t("Enjoy")
-    const min =t("Minimum purchase value")
-    const max=t("Max Discount")
+    const discountTime = t('Discount available from')
+    const discountPercent = t('% off on all foods')
+    const enjoy = t('Enjoy')
+    const min = t('Minimum purchase value')
+    const max = t('Max Discount')
+
     return (
         <>
             <Wrapper>
-                <img src={discountBanner.src} height="100%" width="100%" />
+                <img src={discountBanner.src} alt="" />
                 <InnerBox>
                     {discount && (
                         <CustomStackFullWidth

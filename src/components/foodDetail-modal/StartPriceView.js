@@ -1,33 +1,15 @@
 import React from 'react'
-import { alpha, Chip, Stack, Typography } from "@mui/material";
-import { getAmount, getConvertDiscount } from '../../utils/customFunctions'
-import {
-    CustomChip,
-    FoodTitleTypography,
-    PricingCardActions,
-} from '../food-card/FoodCard.style'
+import { alpha, Stack, Typography } from '@mui/material'
+import { getAmount, getConvertDiscount } from '@/utils/customFunctions'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
-import { CustomTypography } from '../custom-tables/Tables.style'
-import { Box } from '@mui/system'
 import { useTheme } from '@mui/material/styles'
 
 const StartPriceView = (props) => {
     const theme = useTheme()
-    const {
-        data,
-        hideStartFromText,
-        fontSize,
-        marginFoodCard,
-        handleBadge,
-        available_date_ends,
-        selectedOptions
-    } = props
+    const { data, hideStartFromText, selectedOptions } = props
     const { t } = useTranslation()
     const { global } = useSelector((state) => state.globalSettings)
-    const bgColor = theme.palette.secondary.light
-    const chipColor = theme.palette.neutral[100]
-    const languageDirection = localStorage.getItem('direction')
     let currencySymbol
     let currencySymbolDirection
     let digitAfterDecimalPoint
@@ -63,24 +45,9 @@ const StartPriceView = (props) => {
         }
     }
 
-    const handleDiscountedPriceView = () => {
-        if (data?.discount > 0) {
-            return (
-                <CustomTypography variant={fontSize ? fontSize : 'h4'}>
-                    {data?.price > 0 &&
-                        getAmount(
-                            data.price,
-                            currencySymbolDirection,
-                            currencySymbol,
-                            digitAfterDecimalPoint
-                        )}
-                </CustomTypography>
-            )
-        }
-    }
     return (
         <Stack
-             direction="row"
+            direction="row"
             gap={hideStartFromText === 'false' ? 1 : 0.5}
             alignItems="center"
             flexWrap="wrap"
@@ -127,11 +94,25 @@ const StartPriceView = (props) => {
                         )}
                     </Typography>
                 )}
-
             </Typography>
-            {data?.item_stock===0 && selectedOptions?.length===0 &&  data?.stock_type !=="unlimited" && <Stack backgroundColor={alpha(theme.palette.error.light,.2)} padding='3px 6px' borderRadius="10px" alignItems="center" justifyContent="center" >
-                <Typography color={theme.palette.error.main} fontSize="12px">{t("Out Of Stock")}</Typography>
-            </Stack>}
+            {data?.item_stock === 0 &&
+                selectedOptions?.length === 0 &&
+                data?.stock_type !== 'unlimited' && (
+                    <Stack
+                        backgroundColor={alpha(theme.palette.error.light, 0.2)}
+                        padding="3px 6px"
+                        borderRadius="10px"
+                        alignItems="center"
+                        justifyContent="center"
+                    >
+                        <Typography
+                            color={theme.palette.error.main}
+                            fontSize="12px"
+                        >
+                            {t('Out Of Stock')}
+                        </Typography>
+                    </Stack>
+                )}
         </Stack>
     )
 }

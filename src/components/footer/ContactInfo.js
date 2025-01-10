@@ -2,16 +2,15 @@ import styled from '@emotion/styled'
 import ApartmentIcon from '@mui/icons-material/Apartment'
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone'
 import MailIcon from '@mui/icons-material/Mail'
-import { Skeleton, Stack, Typography, useMediaQuery } from '@mui/material'
+import { Skeleton, Stack, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import Link from 'next/link'
 import { useState } from 'react'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import ContactAddressMap from '../help-page/ContactAddressMap'
 
 const ContactInfo = ({ global }) => {
     const theme = useTheme()
-    const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const [open, setOpen] = useState(false)
     const [hovered, setHovered] = useState(null)
 

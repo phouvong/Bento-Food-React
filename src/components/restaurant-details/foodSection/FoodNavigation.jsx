@@ -1,8 +1,6 @@
-import { useMediaQuery } from '@mui/material'
-import { Box } from '@mui/system'
-import { useState } from 'react'
+import { Box } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { CustomTabs } from '../../../styled-components/CustomStyles.style'
+import { CustomTabs } from '@/styled-components/CustomStyles.style'
 import { RTL } from '../../RTL/RTL'
 import { RestaurantDetailsNavButton } from '../../food-card/FoodCard.style'
 
@@ -10,16 +8,10 @@ const FoodNavigation = ({
     catetoryMenus,
     setCategoryId,
     category_id,
-    page_limit,
-    setPageLimit,
     id,
     usein,
 }) => {
     const { t } = useTranslation()
-    const matches = useMediaQuery('(min-width:600px)')
-
-    const [gridItem, setGridItem] = useState(10)
-
     const handleCategoryId = (catId) => {
         setCategoryId(catId)
     }
@@ -38,7 +30,7 @@ const FoodNavigation = ({
                     scrollButtons="auto"
                     aria-label="scrollable auto tabs example"
                 >
-                    <Box >
+                    <Box>
                         <RestaurantDetailsNavButton
                             sx={{
                                 color: (theme) =>
@@ -56,7 +48,6 @@ const FoodNavigation = ({
                                         (usein === 'restaurant' ? 0 : id)
                                             ? theme.palette.primary.main
                                             : 'inherit',
-
                                 },
                             }}
                             onClick={() => handleCategoryId(id)}

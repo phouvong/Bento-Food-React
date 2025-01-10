@@ -2,7 +2,7 @@ import { ACTIONS } from '@/components/auth/states'
 
 export const getActiveLoginStatus = (state, setForWidth, loginDispatch) => {
     const { otp, manual, social } = state.activeLoginType
-    let newStatus = ''
+    let newStatus
 
     switch (true) {
         case otp && manual && social:
@@ -55,7 +55,6 @@ export const getLoginUserCheck = (
         Number.parseInt(response?.data?.is_phone_verified) === 1
     const isEmailVerified =
         Number.parseInt(response?.data?.is_email_verified) === 1
-    console.log({ isEmailVerified })
 
     if (isPhoneVerified && isEmailVerified) {
         handleTokenAfter(response?.data)

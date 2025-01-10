@@ -1,6 +1,6 @@
 import MainApi from '../../../../api/MainApi'
-import { useInfiniteQuery, useQuery } from 'react-query'
-import { onErrorResponse } from '../../../../components/ErrorResponse'
+import { useInfiniteQuery } from 'react-query'
+import { onErrorResponse } from '@/components/ErrorResponse'
 
 const getData = async (params, pageParam) => {
     const { channelId, apiFor, page_limit, offset } = params

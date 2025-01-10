@@ -5,32 +5,24 @@ import { useMutation } from 'react-query'
 import { toast } from 'react-hot-toast'
 import AccountInformation from './AccountInformation'
 import BasicInformationForm from './BasicInformationForm'
-import CustomAlert from '../../alert/CustomAlert'
-import { useTranslation } from 'react-i18next'
-import {
-    onErrorResponse,
-    onSingleErrorResponse,
-} from '@/components/ErrorResponse'
+import { onSingleErrorResponse } from '@/components/ErrorResponse'
 import { useDispatch, useSelector } from 'react-redux'
 import { setEditProfile } from '@/redux/slices/editProfile'
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
 import { auth } from '@/firebase'
 import { useFireBaseOtpVerify } from '@/hooks/react-query/useFireBaseVerfify'
 const BasicInformation = ({ data, refetch, deleteUserHandler }) => {
-    const { t } = useTranslation()
     const dispatch = useDispatch()
     const [open, setOpen] = React.useState(false)
     const [openEmail, setOpenEmail] = React.useState(false)
     const [verificationId, setVerificationId] = useState(null)
     const [resData, setResData] = React.useState([])
-    const [loginValue, setLoginValue] = useState(null)
     const { global } = useSelector((state) => state.globalSettings)
     const recaptchaWrapperRef = useRef(null)
-    const {
-        mutate: profileUpdateByMutate,
-        isLoading,
-        error,
-    } = useMutation('profileUpdate', ProfileApi.profileUpdate)
+    const { mutate: profileUpdateByMutate } = useMutation(
+        'profileUpdate',
+        ProfileApi.profileUpdate
+    )
 
     const { mutate: fireBaseOtpMutation, isLoading: fireIsLoading } =
         useFireBaseOtpVerify()

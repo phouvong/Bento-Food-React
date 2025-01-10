@@ -1,26 +1,18 @@
-import CustomImageContainer from '@/components/CustomImageContainer'
 import { onErrorResponse } from '@/components/ErrorResponse'
 import CustomRatings from '@/components/custom-ratings/CustomRatings'
 import DotSpin from '@/components/home/restaurant/DotSpin'
-import { ReadMore } from '@/components/landingpage/ReadMore'
 import { ReviewApi } from '@/hooks/react-query/config/reviewlist'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
-import {
-    getDateFormat,
-    getNumberWithConvertedDecimalPoint,
-    handleBadge,
-} from '@/utils/customFunctions'
-import { Grid, Typography, alpha } from '@mui/material'
+import { getNumberWithConvertedDecimalPoint } from '@/utils/customFunctions'
+import { Grid, Typography, alpha, Box, Stack } from '@mui/material'
 import LinearProgress, {
     linearProgressClasses,
 } from '@mui/material/LinearProgress'
 import { styled } from '@mui/material/styles'
 import { useTheme } from '@mui/styles'
-import { Box, Stack } from '@mui/system'
 import { t } from 'i18next'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useQuery } from 'react-query'
-import { useSelector } from 'react-redux'
 import SimpleBar from 'simplebar-react'
 import 'simplebar/dist/simplebar.min.css'
 import ReviewContent from '@/components/restaurant-details/ReviewContent'
@@ -45,10 +37,8 @@ const RestaurantReviewModal = ({
     id,
     restaurantDetails,
 }) => {
-    const [review_count, setReview_Count] = useState({})
     const theme = useTheme()
-    const { global } = useSelector((state) => state.globalSettings)
-    const { isLoading, data, isError, error, refetch } = useQuery(
+    const { isLoading, data } = useQuery(
         [`review-list`, id],
         () => ReviewApi.reviewList(id),
         {
@@ -89,16 +79,9 @@ const RestaurantReviewModal = ({
                     ratingCounts.totalCount += 1
                     break
                 default:
-                    // Handle unexpected rating value if necessary
                     break
             }
         })
-
-        // Now, we update the state just once after all counts are computed
-        setReview_Count((prevReviewCount) => ({
-            ...prevReviewCount,
-            ...ratingCounts,
-        }))
     }
     useEffect(() => {
         if (data) {
@@ -129,7 +112,6 @@ const RestaurantReviewModal = ({
                     padding="2rem"
                     borderRadius="8px"
                     color={theme.palette.text.primary}
-                    // margin=".5rem"
                 >
                     <Grid container gap={{ xs: 2, md: 0 }}>
                         <Grid item xs={12} sm={12} md={6}>

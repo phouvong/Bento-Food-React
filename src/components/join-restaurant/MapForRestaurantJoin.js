@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import {
-    CustomBoxFullWidth,
-    CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
-import MapComponent from '../restaurant-details/google-address/MapComponent'
-import MapModal from '../restaurant-details/google-address/map-modal'
+import { CustomBoxFullWidth } from '@/styled-components/CustomStyles.style'
 import CustomMapSearch from './CustomMapSearch'
 import { useSelector } from 'react-redux'
 import { useQuery } from 'react-query'
-import { GoogleApi } from '../../hooks/react-query/config/googleApi'
+import { GoogleApi } from '@/hooks/react-query/config/googleApi'
 import GoogleMapComponent from '../landingpage/google-map/GoogleMapComponent'
 import CustomTextFieldWithFormik from '../form-fields/CustomTextFieldWithFormik'
 import { useTranslation } from 'react-i18next'
@@ -33,34 +28,20 @@ const MapForRestaurantJoin = ({
     const [locationEnabled, setLocationEnabled] = useState(false)
     const [isDisablePickButton, setDisablePickButton] = useState(false)
     const { t } = useTranslation()
-    const {
-        isLoading,
-        data: places,
-        isError,
-        error,
-        // refetch: placeApiRefetch,
-    } = useQuery(
+    const { data: places } = useQuery(
         ['places', searchKey],
         async () => GoogleApi.placeApiAutocomplete(searchKey),
         { enabled },
         {
             retry: 1,
-            // cacheTime: 0,
         }
     )
-    const {
-        isLoading: isLoading2,
-        data: placeDetails,
-        isError: isErrorTwo,
-        error: errorTwo,
-        refetch: placeApiRefetchOne,
-    } = useQuery(
+    const { data: placeDetails } = useQuery(
         ['placeDetails', placeId],
         async () => GoogleApi.placeApiDetails(placeId),
         { enabled: placeDetailsEnabled },
         {
             retry: 1,
-            // cacheTime: 0,
         }
     )
     const {

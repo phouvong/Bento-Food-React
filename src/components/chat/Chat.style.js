@@ -8,14 +8,7 @@ export const CustomBoxFullWidth = styled(Box)(({ theme }) => ({
     width: '100%',
     overflow: 'hidden',
 }))
-export const CustomInnerBoxFullWidth = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-}))
+
 export const ChatSidebarDesktop = styled(Drawer)(({ theme }) => ({
     flexShrink: 0,
     width: 260,
@@ -44,16 +37,7 @@ export const ChatSidebarMobile = styled(Drawer)({
         width: '100%',
     },
 })
-export const ChatContentWrapper = styled(Box)(({ theme }) => ({
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-    display: 'flex',
-    padding: '1rem',
-}))
 
-export const ContactListWrapper = styled(Box)(({ theme }) => ({
-    //display:'block'
-}))
 export const ChatUserTop = styled(Stack)(({ theme, mdUp }) => ({
     alignItems: 'center',
     justifyContent: 'flex-start',

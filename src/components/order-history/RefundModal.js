@@ -1,17 +1,12 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import Dialog from '@mui/material/Dialog'
-import { Button, Drawer, Stack } from "@mui/material";
-import DialogTitle from '@mui/material/DialogTitle'
+import { Drawer, Stack } from "@mui/material";
 import Typography from '@mui/material/Typography'
-import DialogActions from '@mui/material/DialogActions'
 
 import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style"
-import { WrapperForCustomDialogConfirm } from '../custom-dialog/confirm/CustomDialogConfirm.style'
 import CustomSelectWithFormik from '../custom-select/CustomSelectWithFormik'
 import DialogContent from '@mui/material/DialogContent'
 import { useFormik } from 'formik'
-import ValidationSchemaForRestaurant from '../join-restaurant/ValidationSchemaForRestaurant'
 import MultiFileUploader from '../multi-file-uploader/MultiFileUploader'
 import CustomTextFieldWithFormik from '../form-fields/CustomTextFieldWithFormik'
 import LoadingButton from '@mui/lab/LoadingButton'

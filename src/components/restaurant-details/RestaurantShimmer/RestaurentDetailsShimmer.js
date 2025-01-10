@@ -4,7 +4,7 @@ import FoodCardHorizontalShimmer from '../../food-card/FoodCardHorizontalShimmer
 import FoodCardShimmer from '../../food-card/FoodCarShimmer'
 import CustomEmptyResult from '../../empty-view/CustomEmptyResult'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { noFoodFoundImage } from '../../../utils/LocalImages'
+import { noFoodFoundImage } from '@/utils/LocalImages'
 
 const RestaurantDetailsShimmer = ({ showComponent }) => {
     const matches = useMediaQuery('(max-width:825px)')

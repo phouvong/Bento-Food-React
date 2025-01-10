@@ -1,37 +1,53 @@
 import React, { useState } from 'react'
-import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import CustomImageContainer from '../../CustomImageContainer'
-import { Button, Grid, Stack, TextField, Typography, useTheme } from '@mui/material'
-import { t } from 'i18next';
-import * as Yup from "yup";
-import { useFormik } from 'formik';
-import { LoadingButton } from '@mui/lab';
-import { useOfflinePaymentUpdate } from '../../../hooks/react-query/offline-payment/useOfflinePaymentUpdate';
-import toast from 'react-hot-toast';
-import { getGuestId } from '../../checkout-page/functions/getGuestUserId';
-import { useSelector } from 'react-redux';
-import OfflinePaymentImage from "../assets/offlinePayments.svg";
+import {
+    Button,
+    Grid,
+    Stack,
+    TextField,
+    Typography,
+    useTheme,
+} from '@mui/material'
+import { t } from 'i18next'
+import * as Yup from 'yup'
+import { useFormik } from 'formik'
+import { LoadingButton } from '@mui/lab'
+import { useOfflinePaymentUpdate } from '@/hooks/react-query/offline-payment/useOfflinePaymentUpdate'
+import toast from 'react-hot-toast'
+import { getGuestId } from '../../checkout-page/functions/getGuestUserId'
+import { useSelector } from 'react-redux'
+import OfflinePaymentImage from '../assets/offlinePayments.svg'
 
-const OfflinePaymentDetailsEdit = ({ trackOrderData, setOpenOfflineModal, refetchTrackData }) => {
-    const theme = useTheme();
-    const borderColor = theme.palette.neutral[400];
-    const { mutate: offlineMutate, isLoading: offlinePaymentLoading } = useOfflinePaymentUpdate();
+const OfflinePaymentDetailsEdit = ({
+    trackOrderData,
+    setOpenOfflineModal,
+    refetchTrackData,
+}) => {
+    const theme = useTheme()
+    const borderColor = theme.palette.neutral[400]
+    const { mutate: offlineMutate, isLoading: offlinePaymentLoading } =
+        useOfflinePaymentUpdate()
     const { token } = useSelector((state) => state.userToken)
-    const [customerNote, setCustomerNote] = useState(trackOrderData?.offline_payment?.data?.customer_note)
+    const [customerNote, setCustomerNote] = useState(
+        trackOrderData?.offline_payment?.data?.customer_note
+    )
 
-    const initialValues = { "customer_note": customerNote };
+    const initialValues = { customer_note: customerNote }
     trackOrderData?.offline_payment?.input?.forEach((item) => {
-        initialValues[item.user_input] = item?.user_data;
-    });
+        initialValues[item.user_input] = item?.user_data
+    })
 
     // Create a validation schema using Yup.
     const validationSchema = Yup.object().shape({
         // Define validation rules for each field dynamically.
         ...trackOrderData?.offline_payment?.input?.reduce((acc, item) => {
-            acc[item.user_input] = Yup.string().required('This field is required');
-            return acc;
+            acc[item.user_input] = Yup.string().required(
+                'This field is required'
+            )
+            return acc
         }, {}),
-    });
+    })
 
     const handleCancel = () => {
         setOpenOfflineModal(false)
@@ -39,23 +55,22 @@ const OfflinePaymentDetailsEdit = ({ trackOrderData, setOpenOfflineModal, refetc
 
     const handleSuccess = (response) => {
         if (response) {
-            refetchTrackData();
-            handleCancel();
+            refetchTrackData()
+            handleCancel()
         }
-        toast.success(t("Payment Information Updated"));
-
+        toast.success(t('Payment Information Updated'))
     }
     // Initialize Formik form.
     const formik = useFormik({
         initialValues,
         validationSchema,
         onSubmit: (values) => {
-            let newData = {}
+            let newData
             if (token) {
                 newData = {
                     ...values,
                     method_id: trackOrderData?.offline_payment?.data?.method_id,
-                    order_id: trackOrderData?.id
+                    order_id: trackOrderData?.id,
                 }
             } else {
                 newData = {
@@ -65,14 +80,14 @@ const OfflinePaymentDetailsEdit = ({ trackOrderData, setOpenOfflineModal, refetc
                     guest_id: getGuestId(),
                 }
             }
-            offlineMutate(newData, { onSuccess: handleSuccess });
+            offlineMutate(newData, { onSuccess: handleSuccess })
         },
-    });
+    })
     return (
         <CustomStackFullWidth
             justifyContent="center"
             alignItems="center"
-            padding={{ xs: "16px 20px", sm: "20px 26px" }}
+            padding={{ xs: '16px 20px', sm: '20px 26px' }}
             gap="1rem"
         >
             <CustomImageContainer width="120px" src={OfflinePaymentImage.src} />
@@ -81,7 +96,7 @@ const OfflinePaymentDetailsEdit = ({ trackOrderData, setOpenOfflineModal, refetc
                 fontWeight="700"
                 color={theme.palette.neutral[1000]}
             >
-                {`${t("Update Payment Info")}`}
+                {`${t('Update Payment Info')}`}
             </Typography>
             <form onSubmit={formik.handleSubmit}>
                 <Grid container spacing={2}>
@@ -89,16 +104,24 @@ const OfflinePaymentDetailsEdit = ({ trackOrderData, setOpenOfflineModal, refetc
                         <Grid item xs={12} md={6} key={item.user_input}>
                             <TextField
                                 fullWidth
-                                label={item.user_input.replaceAll("_", " ")}
+                                label={item.user_input.replaceAll('_', ' ')}
                                 id={item.user_input}
                                 name={item.user_input}
                                 onChange={formik.handleChange}
                                 onBlur={formik.handleBlur}
                                 value={formik.values[item.user_input]}
-                                error={formik.touched[item.user_input] && Boolean(formik.errors[item.user_input])}
-                                helperText={formik.touched[item.user_input] && formik.errors[item.user_input]}
+                                error={
+                                    formik.touched[item.user_input] &&
+                                    Boolean(formik.errors[item.user_input])
+                                }
+                                helperText={
+                                    formik.touched[item.user_input] &&
+                                    formik.errors[item.user_input]
+                                }
                                 InputLabelProps={{
-                                    style: { color: theme.palette.neutral[1000] }, // Change to your desired label color
+                                    style: {
+                                        color: theme.palette.neutral[1000],
+                                    }, // Change to your desired label color
                                 }}
                             />
                         </Grid>
@@ -112,7 +135,7 @@ const OfflinePaymentDetailsEdit = ({ trackOrderData, setOpenOfflineModal, refetc
                             name="customer_note"
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
-                            value={formik.values["customer_note"]}
+                            value={formik.values['customer_note']}
                             multiline
                             rows={4}
                             InputLabelProps={{
@@ -130,25 +153,25 @@ const OfflinePaymentDetailsEdit = ({ trackOrderData, setOpenOfflineModal, refetc
                     spacing={1}
                     justifyContent="flex-end"
                     gap="20px"
-                    paddingTop={{ xs: "15px", sm: "20px", md: "25px" }}
+                    paddingTop={{ xs: '15px', sm: '20px', md: '25px' }}
                 >
                     <Button
                         onClick={() => handleCancel()}
                         sx={{
                             border: `1px solid ${borderColor}`,
-                            borderRadius: "5px",
+                            borderRadius: '5px',
                             color: borderColor,
-                            padding: "8px 16px",
+                            padding: '8px 16px',
                         }}
                     >
-                        {t("Cancel")}
+                        {t('Cancel')}
                     </Button>
                     <LoadingButton
                         type="submit"
                         variant="contained"
                         loading={offlinePaymentLoading}
                     >
-                        {t("Update")}
+                        {t('Update')}
                     </LoadingButton>
                 </Stack>
             </form>

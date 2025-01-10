@@ -1,11 +1,9 @@
-import React from 'react'
 import * as Yup from 'yup'
 import { useTranslation } from 'react-i18next'
 
 const SignUpvalidation = () => {
     const { t } = useTranslation()
     return Yup.object({
-        //name: Yup.string().required(t('Name is required')),
         email: Yup.string().email('Must be a valid email').max(255),
 
         phone: Yup.string()

@@ -1,11 +1,7 @@
 import React from 'react'
-import { Box, Typography, Container, Stack } from '@mui/material'
-import {
-    CustomBoxFullWidth,
-    CustomPaperBigCard,
-} from '../../styled-components/CustomStyles.style'
+import { Container, Stack } from '@mui/material'
+import { CustomPaperBigCard } from '@/styled-components/CustomStyles.style'
 import ReviewLists from './ReviewLists'
-import WishlistPage from '../wishlist-page/WishlistPage'
 
 const ReviewPage = ({ id }) => {
     return (

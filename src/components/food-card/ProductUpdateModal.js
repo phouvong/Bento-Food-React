@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 import { RTL } from '../RTL/RTL'
 import dynamic from 'next/dynamic'
 const FoodDetailModal = dynamic(() =>
     import('../foodDetail-modal/FoodDetailModal')
 )
+
 const ProductUpdateModal = ({
     openModal,
     setOpenModal,
@@ -29,7 +29,6 @@ const ProductUpdateModal = ({
         setOpenModal(false)
     }
     useEffect(() => {
-        // Perform localStorage action
         if (typeof window !== 'undefined') {
             setLanguageDirection(localStorage.getItem('direction') || 'ltr')
         }

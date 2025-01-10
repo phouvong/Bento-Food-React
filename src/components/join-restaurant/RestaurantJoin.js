@@ -2,10 +2,10 @@ import React, { useEffect } from 'react'
 import {
     CustomPaperBigCard,
     FlexContainerCenter,
-} from '../../styled-components/CustomStyles.style'
+} from '@/styled-components/CustomStyles.style'
 import RestaurantJoinForm from './RestaurantJoinForm'
-import { useGetZone } from '../../hooks/react-query/config/get-zone/useGetZone'
-import { useRestaurantJoin } from '../../hooks/react-query/config/restaurant-store/useRestaurantStore'
+import { useGetZone } from '@/hooks/react-query/config/get-zone/useGetZone'
+import { useRestaurantJoin } from '@/hooks/react-query/config/restaurant-store/useRestaurantStore'
 import { toast } from 'react-hot-toast'
 import { useRouter } from 'next/router'
 import { Typography } from '@mui/material'
@@ -17,7 +17,7 @@ const RestaurantJoin = () => {
     const router = useRouter()
     const { refetch, data } = useGetZone()
     const { t } = useTranslation()
-    const { isLoading, mutate, onError } = useRestaurantJoin()
+    const { mutate } = useRestaurantJoin()
     let zoneid = undefined
 
     if (typeof window !== 'undefined') {

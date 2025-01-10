@@ -4,7 +4,6 @@ import { useWishListDelete } from '@/hooks/react-query/config/wish-list/useWishL
 import { setCart, setClearCart } from '@/redux/slices/cart'
 import { addWishList, removeWishListFood } from '@/redux/slices/wishList'
 import { getConvertDiscount, handleBadge } from '@/utils/customFunctions'
-import { useTheme } from '@mui/material/styles'
 import React, { memo, useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
@@ -24,6 +23,7 @@ import dynamic from 'next/dynamic'
 const FoodDetailModal = dynamic(() =>
     import('../foodDetail-modal/FoodDetailModal')
 )
+
 const FoodCard = ({
     product,
     horizontal,
@@ -32,24 +32,11 @@ const FoodCard = ({
     isShop,
     isRestaurantDetails,
     inWishListPage,
-    inWishListModal,
-    setOpenWishlistModal,
     campaign,
 }) => {
-    const theme = useTheme()
     const dispatch = useDispatch()
-    const {
-        name,
-        image_full_url,
-        restaurant_name,
-        avg_rating,
-        price,
-        discount,
-        discount_type,
-        available_time_ends,
-        available_time_starts,
-        restaurant_discount,
-    } = product
+    const { image_full_url, available_time_ends, available_time_starts } =
+        product
 
     const [openModal, setOpenModal] = React.useState(false)
     const [openAddressModalAlert, setOpenAddressModalAlert] = useState(false)
@@ -79,9 +66,7 @@ const FoodCard = ({
         currencySymbolDirection = global.currency_symbol_direction
         digitAfterDecimalPoint = global.digit_after_decimal_point
     }
-    const discountPrice =
-        price -
-        (discount_type === 'percent' ? (price * discount) / 100 : discount)
+
     const handleFoodDetailModal = (e) => {
         e.stopPropagation()
         setOpenModal(true)
@@ -91,12 +76,7 @@ const FoodCard = ({
         setOpenModal(false)
     }
 
-    const {
-        mutate: addFavoriteMutation,
-        isLoading,
-        error,
-        data,
-    } = useMutation(
+    const { mutate: addFavoriteMutation } = useMutation(
         'add-favourite',
         () => ProductsApi.addFavorite(product.id),
         {
@@ -116,7 +96,6 @@ const FoodCard = ({
         e.stopPropagation()
         if (token) {
             addFavoriteMutation()
-            // notify(data.message)
         } else toast.error(t('You are not logged in'))
     }
 
@@ -162,7 +141,6 @@ const FoodCard = ({
                         item?.item?.restaurant_discount,
                         item?.item?.quantity
                     ),
-                    //totalPrice: item?.price,
                     quantity: item?.quantity,
                     itemBasePrice: getConvertDiscount(
                         item?.item?.discount,
@@ -175,7 +153,6 @@ const FoodCard = ({
             dispatch(setCart(product))
             toast.success(t('Item added to cart'))
             setClearCartModal(false)
-            //dispatch()
         }
     }
     const addToCartHandler = () => {
@@ -273,7 +250,6 @@ const FoodCard = ({
             variations: [],
         }
         deleteCartItemMutate(getGuestId(), {
-            //onSuccess: handleSuccess,
             onError: onErrorResponse,
         })
         dispatch(setClearCart())
@@ -344,6 +320,7 @@ const FoodCard = ({
                     addToCartLoading={addToCartLoading}
                     isRestaurantDetails={isRestaurantDetails}
                     horizontal={horizontal}
+                    global={global}
                 />
             )}
             {openModal && (

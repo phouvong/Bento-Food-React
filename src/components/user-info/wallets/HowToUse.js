@@ -1,7 +1,7 @@
 import React from 'react'
 import { List, ListItem, Typography } from '@mui/material'
 import { t } from 'i18next'
-import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 
 const HowToUse = () => {
     return (

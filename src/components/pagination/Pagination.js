@@ -1,9 +1,7 @@
 import React from 'react'
-import { Box, Pagination, useMediaQuery, useTheme } from "@mui/material";
-import { styled } from "@mui/system";
+import { Box, Pagination, useMediaQuery, useTheme, styled } from '@mui/material'
 
 export const StyledPagination = styled(Pagination)(({ theme }) => ({
-
     '& .MuiPaginationItem-root': {
         fontWeight: '700',
         color: theme.palette.neutral[400],
@@ -13,26 +11,25 @@ export const StyledPagination = styled(Pagination)(({ theme }) => ({
         color: theme.palette.neutral[100],
         fontWeight: '700',
     },
-}));
+}))
 export default function CustomePagination({
     total_size,
     page_limit,
     offset,
     setOffset,
 }) {
-    const theme = useTheme();
-    const isXsmall = useMediaQuery(theme.breakpoints.down("sm"))
+    const theme = useTheme()
+    const isXsmall = useMediaQuery(theme.breakpoints.down('sm'))
     return (
         <Box
             sx={{
                 display: 'flex',
                 justifyContent: 'center',
-                paddingBlockStart: "25px"
+                paddingBlockStart: '25px',
             }}
         >
             <StyledPagination
-                size={isXsmall ? "medium" : "large"}
-
+                size={isXsmall ? 'medium' : 'large'}
                 variant="outlined"
                 count={Math.ceil(total_size / page_limit)}
                 onChange={(e, value) => {

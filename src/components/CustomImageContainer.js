@@ -1,37 +1,39 @@
-import React, { useEffect, useState } from "react";
-import { CustomImageContainerStyled } from "@/styled-components/CustomStyles.style";
-import placeholder from "../../public/static/notimage.png";
+import React, { useEffect, useState } from 'react'
+import { CustomImageContainerStyled } from '@/styled-components/CustomStyles.style'
+import placeholder from '../../public/static/notimage.png'
 
 const CustomImageContainer = ({
-                                  cursor,
-                                  mdHeight,
-                                  maxWidth,
-                                  height,
-                                  width,
-                                  objectFit,
-                                  minwidth,
-                                  src,
-                                  alt,
-                                  borderRadius,
-                                  marginBottom,
-                                  smHeight,
-                                  smMb,
-                                  smMaxWidth,
-                                  smWidth,
-                                  test_image, aspectRatio,
-                                  boxShadow
-                              }) => {
-    const [imageFile, setState] = useState(null);
-    const [newObjectFit, setNewObjectFit] = useState(objectFit);
+    cursor,
+    mdHeight,
+    maxWidth,
+    height,
+    width,
+    objectFit,
+    minwidth,
+    src,
+    alt,
+    borderRadius,
+    marginBottom,
+    smHeight,
+    smMb,
+    smMaxWidth,
+    smWidth,
+    test_image,
+    aspectRatio,
+    boxShadow,
+    loading,
+}) => {
+    const [imageFile, setState] = useState(null)
+    const [newObjectFit, setNewObjectFit] = useState(objectFit)
     useEffect(() => {
         if (src) {
-            setState(src);
+            setState(src)
         } else {
-            setState(placeholder.src);
-            setNewObjectFit("contain");
+            setState(placeholder.src)
+            setNewObjectFit('contain')
         }
-    }, [src]);
-    const errorHeight = smHeight ? smHeight : "104px";
+    }, [src])
+
     return (
         <CustomImageContainerStyled
             height={height}
@@ -55,14 +57,14 @@ const CustomImageContainer = ({
                 alt={alt}
                 onError={(e) => {
                     // currentTarget.onerror = null; // prevents looping
-                    setState(test_image ? test_image.src : placeholder.src);
+                    setState(test_image ? test_image.src : placeholder.src)
                     e.target.style =
-                        "objectFit:contain !important;width:auto !important;";
-                    e.target.style.margin = "auto";
+                        'objectFit:contain !important;width:auto !important;'
+                    e.target.style.margin = 'auto'
                 }}
-                loading="lazy"
+                loading={loading || 'lazy'}
             />
         </CustomImageContainerStyled>
-    );
-};
-export default CustomImageContainer;
+    )
+}
+export default CustomImageContainer

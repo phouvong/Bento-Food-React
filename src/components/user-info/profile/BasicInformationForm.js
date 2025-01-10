@@ -1,12 +1,5 @@
-import React, { useRef, useState } from 'react'
-import {
-    Box,
-    Button,
-    Grid,
-    Stack,
-    TextField,
-    useMediaQuery,
-} from '@mui/material'
+import React, { useRef } from 'react'
+import { Box, Grid, Stack, useMediaQuery } from '@mui/material'
 import {
     ButtonBox,
     CancelButton,
@@ -30,40 +23,32 @@ import OtpForm from '@/components/auth/forgot-password/OtpForm'
 const BasicInformationForm = ({
     data,
     formSubmit,
-    deleteUserHandler,
     open,
     setOpen,
     setOpenEmail,
     openEmail,
-    fireBaseId,
     resData,
     handleCloseEmail,
     handleClosePhone,
 }) => {
-    console.log({ data })
-    const is_verified = true
     const imageContainerRef = useRef()
     const theme = useTheme()
-
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const { t } = useTranslation()
-    let { f_name, l_name, phone, email, image } = data
-    console.log('gggg', phone)
+    let { f_name, l_name, phone, email, image_full_url } = data
     const { global } = useSelector((state) => state.globalSettings)
     const customerImageUrl = global?.base_urls?.customer_image_url
     const profileFormik = useFormik({
         initialValues: {
             name: f_name ? `${f_name} ${l_name}` : '',
-            // l_name: l_name ? l_name : '',
             email: email ? email : '',
             phone: phone ? phone : '',
-            image: image ? image : '',
+            image: image_full_url ? image_full_url : '',
             password: '',
             confirm_password: '',
         },
         validationSchema: ValidationSechemaProfile(),
         onSubmit: async (values) => {
-            console.log('ffffff', values)
             try {
                 formSubmitOnSuccess(values)
             } catch (err) {}
@@ -81,10 +66,9 @@ const BasicInformationForm = ({
     const handleReset = () => {
         profileFormik.setValues({
             name: f_name ? `${f_name}${l_name}` : '',
-            // name: l_name ? l_name : '',
             email: email ? email : '',
             phone: phone ? phone : '',
-            image: image ? image : '',
+            image: imaimage_full_urlge ? image_full_url : '',
         })
     }
     const handleVerified = (type) => {
@@ -187,26 +171,6 @@ const BasicInformationForm = ({
                                 touched={profileFormik.touched.name}
                             />
                         </Grid>
-                        {/*<Grid item md={6} xs={12}>*/}
-                        {/*    <CustomProfileTextfield*/}
-                        {/*        id="outlined-basic"*/}
-                        {/*        variant="outlined"*/}
-                        {/*        name="l_name"*/}
-                        {/*        value={profileFormik.values.l_name}*/}
-                        {/*        onChange={profileFormik.handleChange}*/}
-                        {/*        label={t('Last Name')}*/}
-                        {/*        required*/}
-                        {/*        error={*/}
-                        {/*            profileFormik.touched.l_name &&*/}
-                        {/*            Boolean(profileFormik.errors.l_name)*/}
-                        {/*        }*/}
-                        {/*        helperText={*/}
-                        {/*            profileFormik.touched.l_name &&*/}
-                        {/*            profileFormik.errors.l_name*/}
-                        {/*        }*/}
-                        {/*        touched={profileFormik.touched.l_name}*/}
-                        {/*    />*/}
-                        {/*</Grid>*/}
                         <Grid item md={6} xs={12}>
                             <Stack position="relative">
                                 <CustomProfileTextfield
@@ -345,22 +309,6 @@ const BasicInformationForm = ({
                                             )}
                                         </>
                                     )}
-
-                                    {/*{!data?.is_email_verified === 0 ? (*/}
-                                    {/*    <VerifiedIcon />*/}
-                                    {/*) : (*/}
-                                    {/*    <ReportProblemIcon*/}
-                                    {/*        onClick={() =>*/}
-                                    {/*            handleVerified('email')*/}
-                                    {/*        }*/}
-                                    {/*        sx={{*/}
-                                    {/*            color: (theme) =>*/}
-                                    {/*                theme.palette.error.pureRed,*/}
-                                    {/*            width: '1.2rem',*/}
-                                    {/*            cursor: 'pointer',*/}
-                                    {/*        }}*/}
-                                    {/*    />*/}
-                                    {/*)}*/}
                                 </Stack>
                             </Stack>
                         </Grid>

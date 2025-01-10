@@ -1,27 +1,24 @@
 import React, { useState } from 'react'
-import { CustomFoodCard, CustomFoodCardNew } from './FoodCard.style'
+import { CustomFoodCardNew } from './FoodCard.style'
 import {
-    Chip,
     IconButton,
     Tooltip,
     Typography,
     useMediaQuery,
+    Stack,
 } from '@mui/material'
 import ProductCardMedia from './ProductCardMedia'
 import VagSvg from '../foodDetail-modal/VagSvg'
-import { Stack } from '@mui/system'
 import { useTheme } from '@mui/material/styles'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import StartPriceView from '../foodDetail-modal/StartPriceView'
-import { getReviewCount } from '../../utils/customFunctions'
+import { getReviewCount } from '@/utils/customFunctions'
 import FoodRating from './FoodRating'
 import { t } from 'i18next'
 import HalalSvg from '@/components/food-card/HalalSvg'
 const FoodVerticalCard = (props) => {
     const {
         product,
-        setOpenModal,
-        productImageUrl,
         handleFoodDetailModal,
         deleteWishlistItem,
         isInList,
@@ -37,6 +34,7 @@ const FoodVerticalCard = (props) => {
         hasBackGroundSection,
         isRestaurantDetails,
         horizontal,
+        global,
     } = props
 
     const [isTransformed, setIstransformed] = useState(false)
@@ -110,16 +108,16 @@ const FoodVerticalCard = (props) => {
                             >
                                 {product?.name}
                             </Typography>
-                            {/* <Typography fontSize={{ xs: "13px", sm: "14px", md: "15px" }} fontWeight={500} whiteSpace="nowrap">
-                                {product?.name.length > 13 ? `${product?.name.slice(0, 13)}... ` : product?.name}
-                            </Typography> */}
-                            <VagSvg
-                                color={
-                                    Number(product?.veg) === 0
-                                        ? theme.palette.nonVeg
-                                        : theme.palette.success.light
-                                }
-                            />
+                            {global?.toggle_veg_non_veg ? (
+                                <VagSvg
+                                    color={
+                                        Number(product?.veg) === 0
+                                            ? theme.palette.nonVeg
+                                            : theme.palette.success.light
+                                    }
+                                />
+                            ) : null}
+
                             {product?.halal_tag_status === 1 &&
                                 product?.is_halal === 1 && (
                                     <Tooltip
@@ -162,7 +160,6 @@ const FoodVerticalCard = (props) => {
                         handleBadge={handleBadge}
                         available_date_ends={product?.available_date_ends}
                     />
-                    {/* </Stack> */}
                 </CustomStackFullWidth>
             </CustomStackFullWidth>
         </CustomFoodCardNew>

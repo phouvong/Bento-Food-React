@@ -1,25 +1,18 @@
 import { styled } from '@mui/material/styles'
 import {
     Autocomplete,
-    Box,
     Button,
-    Card,
-    Divider,
     Grid,
-    IconButton,
-    InputBase,
-    MenuItem,
     Paper,
     Stack,
     TextField,
-    Typography
-} from "@mui/material";
+    Typography,
+} from '@mui/material'
 import LoadingButton from '@mui/lab/LoadingButton'
-import { DateCalendar } from "@mui/x-date-pickers";
 
 export const DeliveryTitle = styled(Typography)(({ theme }) => ({
     textAlign: 'center',
-    color: theme.palette.neutral[500],
+    color: theme.palette.neutral[1000],
     fontSize: '16px',
     fontWeight: '700',
     paddingBottom: '20px',
@@ -28,71 +21,28 @@ export const DeliveryCaption = styled(Typography)(
     ({ theme, no_margin_top, no_margin_bottom }) => ({
         fontSize: '16px',
         fontWeight: '700',
-        // color: '#414141',
         color: `${theme.palette.mode === 'dark' ? '#fff' : '#414141'}`,
         paddingTop: no_margin_top
             ? no_margin_top === 'true'
                 ? 'none'
                 : '20px'
             : '20px',
-        paddingBottom: no_margin_bottom
-            ? (no_margin_bottom = 'true' ? 'none' : '20px')
-            : '15px',
+        paddingBottom: no_margin_bottom ? ('true' ? 'none' : '20px') : '15px',
     })
 )
 
-export const PrefarableCaption = styled(Typography)(({ theme }) => ({
-    fontSize: '16px',
-    fontWeight: '700',
-    color: `${theme.palette.mode === 'dark' ? '#fff' : '#414141'}`,
-    paddingTop: '30px',
-    paddingBottom: '20px',
-
-    [theme.breakpoints.up('xs')]: {
-        textAlign: 'center',
-    },
-    [theme.breakpoints.up('md')]: {
-        textAlign: 'inherit',
-    },
-}))
-
-export const SaveAddressBox = styled(Button)(() => ({
-
-}))
-
-export const AddNewButton = styled(Button)(() => ({
-    color: '#EF7822',
-    fontSize: '14px',
-    fontWeight: '700',
-    background: 'rgba(239, 120, 34, 0.1)',
-    borderRadious: '5px',
-}))
-export const DeliveryDetailsGrid = styled(Grid)(() => ({
-    // background: '#FFFFFF',
-    boxShadow: ' 0px 0px 10px rgba(0, 0, 0, 0.05)',
-    borderRadius: '5px 5px 0px 0px',
-    padding: '25px',
-}))
-export const CheckoutBox = styled(Card)(() => ({
-    padding: '30px',
-    // paddingBottom: '180px',
-}))
-export const StyledPaper = styled(Paper)(() => ({
-    padding: '30px',
-}))
+export const SaveAddressBox = styled(Button)(() => ({}))
 
 export const OrderSummaryGrid = styled(Grid)(() => ({
     padding: '10px',
 }))
 export const PreferableTimeInput = styled(Autocomplete)(({ theme }) => ({
-    // border: '1px solid rgba(251, 222, 201)',
     borderRadius: '10px',
     '&.MuiAutocomplete-option': {
         backgroundColor: theme.palette.primary.main,
     },
 }))
 export const CouponGrid = styled(Grid)(() => ({
-    // background: '#FFFFFF',
     boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
     borderRadius: '5px 5px 0px 0px',
     padding: '25px',
@@ -113,25 +63,15 @@ export const CouponTitle = styled(Typography)(({ theme }) => ({
 }))
 
 export const CouponButton = styled(LoadingButton)(({ theme }) => ({
-    // background: '#EF7822',
-    // color: 'white',
     fontSize: '12px',
     height: '34px',
     borderRadius: '5px',
-    padding:"8px 16px"
-    // [theme.breakpoints.up('xs')]: {
-    //     width: '110px',
-    //     height: '37px',
-    // },
-    // [theme.breakpoints.up('md')]: {
-    //     width: '162px',
-    // },
+    padding: '8px 16px',
 }))
 export const InputField = styled(Paper)(() => ({
     border: '1px solid rgba(251, 222, 201)',
 }))
 export const PaymentOptionGrid = styled(Grid)(({ theme }) => ({
-    // background: '#FFFFFF',
     boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
     borderRadius: '5px 5px 0px 0px',
     padding: '25px',
@@ -150,10 +90,7 @@ export const PymentTitle = styled(Typography)(({ theme }) => ({
     fontWeight: '700',
     color: `${theme.palette.mode === 'dark' ? '#fff' : '#414141'}`,
 }))
-export const ButtonGrid = styled(Grid)(() => ({
-    display: 'flex',
-    justifyContent: 'space-between',
-}))
+
 export const PaymentButton = styled(Button)(({ theme, selected }) => ({
     backgroundColor: selected ? 'rgba(45, 200, 88, 0.1)' : '',
     height: '60px',
@@ -169,18 +106,11 @@ export const ConditionTypography = styled(Typography)(() => ({
     paddingTop: '15px',
     paddingBottom: '20px',
 }))
-export const PlaceOrderButton = styled(Button)(() => ({
-    // background: '#EF7822',
-    borderRadius: '5px',
-    border: '1px solid rgba(239, 120, 34, 0.3)',
-    // color: 'white',
-    // width: '100%',
-}))
+
 export const OrderSummary = styled(Typography)(({ theme }) => ({
     color: `${theme.palette.mode === 'dark' ? '#fff' : '#414141'}`,
     fontSize: '18px',
     fontWeight: '700',
-    //paddingBottom: '25px',
     textTransform: 'capitalize',
     marginLeft: 'auto',
     marginRight: 'auto',
@@ -212,12 +142,18 @@ export const TotalGrid = styled(Grid)(() => ({
     padding: '0px',
 }))
 export const TimeSlot = styled(Stack)(({ theme, selected, value }) => ({
-    cursor: "pointer",
+    cursor: 'pointer',
     padding: '8px 16px',
     alignItems: 'center',
-    color: selected === value ? `${theme.palette.text.footerText} !important` : `${theme.palette.neutral[600]} !important`,
-    background: selected === value ? theme.palette.customColor.twelve : theme.palette.neutral[200],
-    borderRadius: "8px",
+    color:
+        selected === value
+            ? `${theme.palette.text.footerText} !important`
+            : `${theme.palette.neutral[600]} !important`,
+    background:
+        selected === value
+            ? theme.palette.customColor.twelve
+            : theme.palette.neutral[200],
+    borderRadius: '8px',
     '&:hover': {
         color: `${theme.palette.text.footerText} !important`,
         background: theme.palette.customColor.twelve,
@@ -226,5 +162,4 @@ export const TimeSlot = styled(Stack)(({ theme, selected, value }) => ({
 
 export const TomorrowSlot = styled(TextField)(({ theme }) => ({
     backgroundColor: theme.palette.neutral[200],
-
 }))

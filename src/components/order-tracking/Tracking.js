@@ -1,18 +1,16 @@
-import React from 'react';
-import { CssBaseline, Container } from '@mui/material';
-import TrackingPage from './TrackingPage';
-import {ConfigApi} from "../../hooks/react-query/config/useConfig";
+import React from 'react'
+import { CssBaseline, Container } from '@mui/material'
+import TrackingPage from './TrackingPage'
 
-const Tracking = ({data}) => {
-
+const Tracking = ({ data }) => {
     return (
         <>
             <CssBaseline />
             <Container maxWidth="lg" sx={{ mb: { xs: '72px', md: '0' } }}>
-                <TrackingPage  data={data}/>
+                <TrackingPage data={data} />
             </Container>
         </>
-    );
-};
+    )
+}
 
-export default Tracking;
+export default Tracking

@@ -1,6 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit'
-import wishList from '../../components/wishlist-page/WishList'
-import wishlist from '../../pages/wishlist'
 
 const initialState = {
     wishLists: {
@@ -17,21 +15,10 @@ export const wishListSlice = createSlice({
             state.wishLists = action.payload
         },
         addWishList: (state, action) => {
-            // const { name } = action.payload
-            // const duplicate = state.wishLists?.food?.find((obj) => obj.name === name)
             wishLists: state.wishLists.food.push(action.payload)
-            // return duplicate
-            //     ? { wishLists: state.wishLists}
-            //     : { wishLists: state.wishLists.food.push(action.payload)}
         },
         addWishListRes: (state, action) => {
-
-            // const { name } = action.payload
-            // const duplicate = state.wishLists?.food?.find((obj) => obj.name === name)
             wishLists: state.wishLists.restaurant.push(action.payload)
-            // return duplicate
-            //     ? { wishLists: state.wishLists}
-            //     : { wishLists: state.wishLists.food.push(action.payload)}
         },
         removeWishListFood: (state = initialState, action) => {
             let tempWishList = state.wishLists.food?.filter(

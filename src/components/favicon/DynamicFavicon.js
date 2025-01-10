@@ -1,7 +1,5 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import Head from 'next/head'
-import logo from '../../../public/logo.png'
 import {useSelector} from "react-redux";
 const DynamicFavicon = (props) => {
     const { global } = useSelector((state) => state.globalSettings)

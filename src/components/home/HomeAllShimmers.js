@@ -1,12 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import {CustomStackFullWidth} from "../../styled-components/CustomStyles.style";
-import CustomShimmerForBanner from "../CustomShimmer/CustomShimmerForBanner";
-import CustomShimmerCategories from "../CustomShimmer/CustomShimmerCategories";
-import CustomShimmerForCampaigns from "../CustomShimmer/CustomShimmerForCampaigns";
-import CustomShimmerForBestFood from "../CustomShimmer/CustomShimmerForBestFood";
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
+import CustomShimmerCategories from '../CustomShimmer/CustomShimmerCategories'
+import CustomShimmerForCampaigns from '../CustomShimmer/CustomShimmerForCampaigns'
 
-const HomeAllShimmers = props => {
+const HomeAllShimmers = (props) => {
     return (
         <CustomStackFullWidth>
             <CustomShimmerCategories
@@ -15,14 +11,10 @@ const HomeAllShimmers = props => {
                 smItemCount="5"
             />
             <CustomShimmerForCampaigns />
-            {/*<CustomShimmerForBestFood />*/}
-
         </CustomStackFullWidth>
-    );
-};
+    )
+}
 
-HomeAllShimmers.propTypes = {
+HomeAllShimmers.propTypes = {}
 
-};
-
-export default HomeAllShimmers;
+export default HomeAllShimmers

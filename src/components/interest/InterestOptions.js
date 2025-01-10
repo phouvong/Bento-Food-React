@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
@@ -17,7 +16,6 @@ import { useTheme } from '@mui/material/styles'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { usePostSelectedCategory } from "@/hooks/react-query/interest/usePostSelectedCategory"
 import Router from 'next/router'
-import { onErrorResponse } from '../ErrorResponse'
 import { toast } from 'react-hot-toast'
 import InterestShimmer from './InterestShimmer'
 import { setFeaturedCategories } from "@/redux/slices/storedData"

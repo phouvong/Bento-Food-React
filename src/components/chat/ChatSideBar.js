@@ -1,5 +1,4 @@
 import React from 'react'
-import { Typography } from '@mui/material'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { ChatSidebarDesktop, ChatSidebarMobile } from './Chat.style'
 import ChatContent from './ChatContent'

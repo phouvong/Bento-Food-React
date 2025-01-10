@@ -1,7 +1,6 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import { english } from './en'
-import { lao } from './lo'
 import { bengali } from './bn'
 import { arabic } from './ar'
 import { spanish } from './es'
@@ -13,9 +12,6 @@ const resources = {
     en: {
         translation: english,
     },
-    lo: {
-        translation: lao,
-        },
     bn: {
         translation: bengali,
     },

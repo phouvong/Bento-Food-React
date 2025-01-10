@@ -4,9 +4,9 @@ import FoodNavigation from './FoodNavigation'
 import FoodCard from '../../food-card/FoodCard'
 
 import { useSelector } from 'react-redux'
-import { ProductApis } from '../../../hooks/react-query/config/productsApi'
+import { ProductApis } from '@/hooks/react-query/config/productsApi'
 import { useQuery } from 'react-query'
-import { CategoryApi } from '../../../hooks/react-query/config/categoryApi'
+import { CategoryApi } from '@/hooks/react-query/config/categoryApi'
 import CustomePagination from '../../pagination/Pagination'
 import { useTranslation } from 'react-i18next'
 import CustomShimmerForCard from '../../CustomShimmer/CustomShimmerForCard'
@@ -15,25 +15,19 @@ import { CustomTypography } from '../../custom-tables/Tables.style'
 import {
     CustomColouredTypography,
     CustomStackFullWidth,
-} from '../../../styled-components/CustomStyles.style'
+} from '@/styled-components/CustomStyles.style'
 
 import Skeleton from '@mui/material/Skeleton'
 import CustomSearch from '../../custom-search/CustomSearch'
-import noData from '../.././../../public/static/food.png'
 import CustomEmptyResult from '../../empty-view/CustomEmptyResult'
-import { RTL } from '../../RTL/RTL'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { foodCount } from '../../../utils/customFunctions'
-import { noFoodFoundImage } from '../../../utils/LocalImages'
+import { foodCount } from '@/utils/customFunctions'
+import { noFoodFoundImage } from '@/utils/LocalImages'
 
 const RestaurantFoodItems = ({ category_ids, restaurant_id }) => {
     const matches = useMediaQuery('(max-width:1180px)')
     const { t } = useTranslation()
-    const [openSearchSuggestions, setOpenSearchSuggestions] = useState(false)
-    const [onSearchdiv, setOnSearchdiv] = useState(false)
-    const [selectedBtn, setSelectedBtn] = useState(1)
     const [catetoryMenus, setCategoryMenus] = useState([])
-    //   const [selectedFoodMenu, setSelectedFoodMenu] = useState(0)
     const [category_id, setCategoryId] = useState(0)
     const [type, setType] = useState('all')
     const [isSearch, setIsSearch] = useState('')
@@ -48,11 +42,9 @@ const RestaurantFoodItems = ({ category_ids, restaurant_id }) => {
     const { global } = useSelector((state) => state.globalSettings)
     const categorySearch = ''
     const {
-        isLoading: isLoadingCategoryData,
         data: categoryData,
         isError,
         error,
-        // refetch: placeApiRefetch,
     } = useQuery(['category'], () => CategoryApi.categories(categorySearch))
 
     useEffect(() => {
@@ -71,8 +63,6 @@ const RestaurantFoodItems = ({ category_ids, restaurant_id }) => {
     const {
         isLoading: isLoadingLatestFood,
         data: latestFoodData,
-        isError: isErrorLatestFood,
-        error: LatestFood,
         refetch,
         isRefetching: isRefetchingLatestFood,
     } = useQuery(
@@ -122,10 +112,6 @@ const RestaurantFoodItems = ({ category_ids, restaurant_id }) => {
         }
     )
 
-    let languageDirection = undefined
-    if (typeof window !== 'undefined') {
-        languageDirection = localStorage.getItem('direction')
-    }
     useEffect(() => {
         searchKey === '' && refetch()
     }, [category_id, type, offset])
@@ -178,7 +164,6 @@ const RestaurantFoodItems = ({ category_ids, restaurant_id }) => {
                     setPageLimit={setPageLimit}
                     usein="restaurant"
                     id={0}
-                    //  setType={setType}
                 />
             </Grid>
             <Grid item xs={12} sm={6} md={6}>
@@ -187,8 +172,6 @@ const RestaurantFoodItems = ({ category_ids, restaurant_id }) => {
                     handleSearchResult={handleSearchResult}
                     label={t('Search foods in restaurant')}
                     isLoading={isLoadingSearchFood}
-                    setOnSearchdiv={setOnSearchdiv}
-                    setOpenSearchSuggestions={setOpenSearchSuggestions}
                     searchFrom="restaurantDetails"
                 />
             </Grid>
@@ -282,12 +265,6 @@ const RestaurantFoodItems = ({ category_ids, restaurant_id }) => {
                             label="No Data Found"
                             image={noFoodFoundImage}
                         />
-                        {/*<Image*/}
-                        {/*    src={notFoundImage}*/}
-                        {/*    alt={t('Empty image')}*/}
-                        {/*    width={200}*/}
-                        {/*    height={200}*/}
-                        {/*/>*/}
                     </CustomStackFullWidth>
                 )}
             </Grid>

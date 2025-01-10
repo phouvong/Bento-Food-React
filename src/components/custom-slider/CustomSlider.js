@@ -1,5 +1,4 @@
-import React, { useEffect, useRef } from 'react'
-import PropTypes from 'prop-types'
+import React from 'react'
 import { Slider, Stack, Typography } from '@mui/material'
 import { useIsMount } from '../first-render-useeffect-controller/useIsMount'
 import { useSelector } from 'react-redux'

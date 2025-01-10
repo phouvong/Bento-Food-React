@@ -24,6 +24,7 @@ import storedDataSliceReducer from './slices/storedData'
 import userTokenReducer from './slices/userToken'
 import utilsReducers from './slices/utils'
 import wishListSlice from './slices/wishList'
+import storeResDataReducer from './slices/storeRegistrationData'
 const persistConfig = {
     key: 'stack-food',
     storage: storage,
@@ -32,7 +33,6 @@ const persistConfig = {
         'storedData',
         'scrollPosition',
         'globalSettings',
-
     ],
 }
 const reducers = combineReducers({
@@ -58,6 +58,7 @@ const reducers = combineReducers({
     isEditProfile: editProfileReducer,
     cashbackList: cashbackReducer,
     utilsData: utilsReducers,
+    storeRegData: storeResDataReducer,
 })
 const persistedReducer = persistReducer(persistConfig, reducers)
 export const store = configureStore({
@@ -65,15 +66,5 @@ export const store = configureStore({
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: false,
-            // serializableCheck: {
-            //     ignoredActions: [
-            //         FLUSH,
-            //         REHYDRATE,
-            //         PAUSE,
-            //         PERSIST,
-            //         PURGE,
-            //         REGISTER,
-            //     ],
-            // },
         }),
 })

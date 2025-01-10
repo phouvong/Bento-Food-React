@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Grid, useTheme, useMediaQuery, Stack, Typography, IconButton } from '@mui/material'
 import { useQuery } from 'react-query'
 

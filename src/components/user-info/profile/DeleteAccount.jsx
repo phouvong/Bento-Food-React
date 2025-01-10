@@ -1,7 +1,6 @@
 import React from 'react'
 import CustomContainer from '../../container'
-import { Box, Button, Stack, Typography, useTheme } from '@mui/material'
-import CustomImageContainer from '../../CustomImageContainer'
+import { Button, Stack, Typography, useTheme } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import { t } from 'i18next'
 

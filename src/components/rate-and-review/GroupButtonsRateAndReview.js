@@ -1,7 +1,5 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import { ButtonGroup, Stack, Tabs, Typography } from "@mui/material";
-import { RestaurantDetailsNavButton } from '../food-card/FoodCard.style'
+import { Stack, Typography } from "@mui/material";
 import { useTranslation } from 'react-i18next'
 import { useTheme } from "@mui/styles";
 

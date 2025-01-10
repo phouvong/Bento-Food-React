@@ -5,10 +5,12 @@ body {
     margin: 0;
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-        'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
-        'Helvetica Neue', 'Signika Negative', sans-serif;
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    'Helvetica Neue', 'Signika Negative', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip !important;
+
 }
 
 .footer-wrap,
@@ -21,25 +23,12 @@ body {
     display: none !important;
     height: 0px !important;
 }
-/*.rc-anchor-light {*/
-/*    display: none !important;*/
-/*    background: #f9f9f9;*/
-/*    color: #000;*/
-/*}*/
 
-/*.rc-anchor-normal {*/
-/*    height: 0 !important;*/
-/*    width:0 !important;*/
-/*}*/
-/*.rc-anchor-light.rc-anchor-normal{*/
-/*    opacity: 0 !important;*/
-/*}*/
+.gm-style-iw-chr button {
 
- .gm-style-iw-chr button {
+    height: 25px !important;
 
-     height: 25px !important;
-
- }
+}
 .gm-style-iw-chr button span{
     height: 20px !important;
     width: 16px !important;
@@ -55,7 +44,7 @@ body {
 
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-        monospace;
+    monospace;
 }
 
 :root {

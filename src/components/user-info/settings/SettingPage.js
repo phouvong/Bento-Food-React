@@ -1,46 +1,32 @@
 import {
-    Box,
-    Container,
-    FormControlLabel,
-    FormGroup,
     Grid,
     Stack,
     Typography,
-    Button,
     MenuItem,
     ListItemIcon,
-    Menu,
     Card,
     useMediaQuery,
 } from '@mui/material'
 import React, { useState, useEffect } from 'react'
-import Switch, { SwitchProps } from '@mui/material/Switch'
-import { alpha, styled, useTheme } from '@mui/material/styles'
-import { pink } from '@mui/material/colors'
-import ReactCountryFlag from 'react-country-flag'
+import { useTheme } from '@mui/material/styles'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { useTranslation } from 'react-i18next'
-import { CustomSwitch, TopBarButton } from '../../navbar/Navbar.style'
+import { TopBarButton } from '../../navbar/Navbar.style'
 import { useDispatch, useSelector } from 'react-redux'
 import { StyledMenu } from '../../navbar/top-navbar/TopNav.style'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
-} from '../../../styled-components/CustomStyles.style'
+} from '@/styled-components/CustomStyles.style'
 import Meta from '../../Meta'
-import { rtlLanguageList } from '../../navbar/second-navbar/custom-language/rtlLanguageList'
-import {
-    setCountryCode,
-    setLanguage,
-} from '../../../redux/slices/languageChange'
-import { isRTLLanguage } from '../../../utils/customFunctions'
+import { setCountryCode, setLanguage } from '@/redux/slices/languageChange'
+import { isRTLLanguage } from '@/utils/customFunctions'
 import { languageLists } from '../../navbar/second-navbar/custom-language/languageLists'
 import cookie from 'js-cookie'
 import ThemeSwitches from '@/components/navbar/top-navbar/ThemeSwitches'
 import { useSettings } from '@/contexts/use-settings'
 import CustomImageContainer from '@/components/CustomImageContainer'
 
-const label = { inputProps: { 'aria-label': 'Switch demo' } }
 const SettingPage = () => {
     const theme = useTheme()
     const { settings, saveSettings } = useSettings()
@@ -49,7 +35,6 @@ const SettingPage = () => {
     const dispatch = useDispatch()
     const [anchorEl, setAnchorEl] = useState(null)
     const [theme_mode, setThemeMode] = useState('')
-    // const [language, setLanguage] = useState('')
     const { global } = useSelector((state) => state.globalSettings)
     const { countryCode, language } = useSelector(
         (state) => state.languageChange
@@ -77,21 +62,12 @@ const SettingPage = () => {
     }
 
     const open = Boolean(anchorEl)
-    const changeThemeMode = (e) => {
-        if (e.target.checked) {
-            localStorage.setItem('mode', 'light')
-        } else {
-            localStorage.setItem('mode', 'dark')
-        }
-        window.location.reload()
-    }
     const handleLanguage = (ln) => {
         dispatch(setLanguage(ln?.languageCode))
         dispatch(setCountryCode(ln?.countryCode))
         localStorage.setItem('language', ln?.languageCode)
         localStorage.setItem('country', ln?.countryCode)
         cookie.set('languageSetting', ln?.languageCode)
-        // i18n.changeLanguage(ln)
         localStorage.setItem(
             'direction',
             isRTLLanguage(ln?.languageCode) ? 'rtl' : 'ltr'
@@ -101,22 +77,19 @@ const SettingPage = () => {
     }
 
     const languageValue = (language) => {
-        let selectedLanguage = languageLists?.find((item) => {
+        return languageLists?.find((item) => {
             if (item?.languageCode === language) {
                 return item.languageName
             }
         })
-        return selectedLanguage
     }
 
     const selectedCountryFlag = (countryCode) => {
-        let flag = languageLists.find((item) => {
+        return languageLists.find((item) => {
             if (item?.countryCode === countryCode) {
                 return item?.countryFlag
             }
         })
-
-        return flag
     }
     const activeFlag = selectedCountryFlag(countryCode)
 
@@ -195,14 +168,7 @@ const SettingPage = () => {
                                     {t('Language')}
                                 </Typography>
 
-                                {/* <ButtonGroup
-                          size="small"
-                          // variant="text"
-                          aria-label="top button group"
-                      >
-                      </ButtonGroup> */}
                                 <TopBarButton
-                                    // id="demo-customized-button"
                                     variant="text"
                                     size="small"
                                     aria-controls={
@@ -263,7 +229,8 @@ const SettingPage = () => {
                                         >
                                             <ListItemIcon>
                                                 <img
-                                                    width="20px"
+                                                    alt=""
+                                                    width="20"
                                                     src={lan?.countryFlag}
                                                 />
                                             </ListItemIcon>

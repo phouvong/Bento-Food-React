@@ -1,10 +1,9 @@
 import React from 'react'
 import {
-    CustomPaperBigCard,
     CustomStackFullWidth,
     CustomBoxFullWidth,
-} from '../../styled-components/CustomStyles.style'
-import { Grid, Stack } from '@mui/material'
+} from '@/styled-components/CustomStyles.style'
+import { Grid } from '@mui/material'
 import Skeleton from '@mui/material/Skeleton'
 
 const CustomShimmerForForm = () => {

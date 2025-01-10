@@ -1,5 +1,5 @@
 import MainApi from '../../../api/MainApi'
-import { getToken } from "../../../components/checkout-page/functions/getGuestUserId";
+import { getToken } from '@/components/checkout-page/functions/getGuestUserId'
 
 let token = undefined
 if (typeof window != 'undefined') {
@@ -17,24 +17,27 @@ export const OrderApi = {
     orderDetails: (order_id, phone, guestId) => {
         const params = !getToken()
             ? `order_id=${order_id}&guest_id=${guestId}&contact_number=${phone}`
-            : `?order_id=${order_id}`;
-        if(order_id){
+            : `?order_id=${order_id}`
+        if (order_id) {
             if (getToken()) {
                 return MainApi.get(`/api/v1/customer/order/details${params}`)
             } else {
                 if (phone) {
-                    return MainApi.get(`/api/v1/customer/order/details?${params}`)
+                    return MainApi.get(
+                        `/api/v1/customer/order/details?${params}`
+                    )
                 }
-
             }
         }
     },
-    orderReview:(order_id)=>{
-        if(order_id){
+    orderReview: (order_id) => {
+        if (order_id) {
             if (getToken()) {
-                return MainApi.get(`/api/v1/customer/getPendingReviews?order_id=${order_id}`)
+                return MainApi.get(
+                    `/api/v1/customer/getPendingReviews?order_id=${order_id}`
+                )
             }
-            }
+        }
     },
     foodLists: (foodId) => {
         return MainApi.post(`/api/v1/customer/food-list?food_id=${foodId}`)
@@ -42,16 +45,14 @@ export const OrderApi = {
     orderTracking: (order_id, phone, guestId) => {
         const params = !getToken()
             ? `?order_id=${order_id}&guest_id=${guestId}&contact_number=${phone}`
-            : `?order_id=${order_id}`;
+            : `?order_id=${order_id}`
         if (getToken()) {
             return MainApi.get(`/api/v1/customer/order/track${params}`)
         } else {
             if (phone) {
                 return MainApi.get(`/api/v1/customer/order/track${params}`)
             }
-
         }
-
     },
     CancelOrder: (formData) => {
         return MainApi.post('/api/v1/customer/order/cancel', formData)

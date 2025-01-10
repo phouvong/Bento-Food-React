@@ -2,14 +2,15 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useQuery } from 'react-query'
 import { useRouter } from 'next/router'
 import { onErrorResponse } from '../../ErrorResponse'
-import { Grid, IconButton, Stack, useMediaQuery } from '@mui/material'
+import { Grid, Stack, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/styles'
 import { RestaurantsApiNearBy } from '@/hooks/react-query/restaurants/getNearByRestaurants'
 import AllNearbyRestaurants from './AllNearbyRestaurants'
 import MapComponentFindNear from './MapComponentFindNear'
 import { RTL } from '@/components/RTL/RTL'
+import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
 
-const NearByRestaurant = () => {
+const NearByRestaurant = ({ dineIn }) => {
     const theme = useTheme()
     const router = useRouter()
     const offset = 1
@@ -29,9 +30,8 @@ const NearByRestaurant = () => {
     }
     if (typeof window !== 'undefined') {
         currentLocation = JSON.parse(localStorage.getItem('currentLatLng'))
-        //hostname = window.location.hostnam
     }
-    const { isLoading, data, isError, error, refetch, isRefetching } = useQuery(
+    const { refetch, isRefetching } = useQuery(
         ['all-restaurant', offset, page_limit],
         () =>
             RestaurantsApiNearBy.restaurants({
@@ -50,6 +50,24 @@ const NearByRestaurant = () => {
             },
         }
     )
+    const {
+        isLoading: dineInLoading,
+        data: newRestuarants,
+
+        refetch: dineInRefetch,
+    } = useQuery(
+        ['dine_in_restaurants'],
+        () => RestaurantsApi?.dine_in_restaurants(),
+        {
+            enabled: false,
+            onError: onErrorResponse,
+            onSuccess: (fetchData) => {
+                setRestaurants(fetchData?.data?.restaurants)
+                setAllrestaurants(fetchData?.data?.restaurants)
+            },
+        }
+    )
+
     const handleRouteToRestaurant = (restaurant) => {
         router.push({
             pathname: `/restaurant/[id]`,
@@ -60,7 +78,11 @@ const NearByRestaurant = () => {
         })
     }
     useEffect(async () => {
-        await refetch()
+        if (dineIn) {
+            await dineInRefetch()
+        } else {
+            await refetch()
+        }
     }, [])
     const customMapStyle = {
         width: '100%',

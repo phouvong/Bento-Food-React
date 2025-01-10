@@ -1,6 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import { Box } from '@mui/material'
 import DeliveryTimeInfo from './DeliveryTimeInfo'
 import moment from 'moment'
 

@@ -1,18 +1,12 @@
 import React from 'react'
-import { alpha, Avatar, Badge, Stack, styled, Typography } from '@mui/material'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
-import { CustomTypography } from '../custom-tables/Tables.style'
-import {
-    FormatedDateWithTime,
-    getDateFormat,
-} from '../../utils/customFunctions'
+import { alpha, Avatar, Badge, Stack, styled } from '@mui/material'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { useQuery } from 'react-query'
-import { ProfileApi } from '../../hooks/react-query/config/profileApi'
+import { ProfileApi } from '@/hooks/react-query/config/profileApi'
 import { useSelector } from 'react-redux'
 import { useTheme } from '@mui/material/styles'
 import { t } from 'i18next'
-import adminImage from '../../../public/static/food.png'
-import { CustomTypographyEllipsis } from '../../styled-components/CustomTypographies.style'
+import { CustomTypographyEllipsis } from '@/styled-components/CustomTypographies.style'
 import moment from 'moment/moment'
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -46,7 +40,6 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 
 const InfoCard = (props) => {
     const {
-        name,
         messageTime,
         receiver,
         userList,
@@ -54,18 +47,9 @@ const InfoCard = (props) => {
         currentId,
         selectedId,
         last_message,
-        email,
     } = props
     const theme = useTheme()
     const { global } = useSelector((state) => state.globalSettings)
-    const ChatImageUrl = () => {
-        if (userList.receiver_type === 'vendor') {
-            return global?.base_urls?.restaurant_image_url
-        }
-        if (userList.receiver_type === 'delivery_man') {
-            return global?.base_urls?.delivery_man_image_url
-        } else global?.base_urls?.business_logo_url
-    }
 
     const userImage =
         userList.receiver_type === 'admin'
@@ -80,7 +64,6 @@ const InfoCard = (props) => {
     )
     const isSender =
         data?.data?.userinfo?.id === userList.last_message.sender_id
-    const languageDirection = localStorage.getItem('direction')
     const isRead = !isLoading && !isSender && unRead > 0
 
     return (
@@ -100,7 +83,6 @@ const InfoCard = (props) => {
             <StyledBadge
                 overlap="circular"
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                //variant="dot"
             >
                 <Avatar
                     src={userImage}
@@ -162,18 +144,6 @@ const InfoCard = (props) => {
                             {!isLoading && !isSender && unRead > 0 && unRead}
                         </Stack>
                     ) : null}
-                </Stack>
-                <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    marginRight={languageDirection === 'rtl' ? '1rem' : '0rem'}
-                >
-                    {/*<Typography variant="h6" fontWeight="400">*/}
-                    {/*    {t(name)}*/}
-                    {/*</Typography>*/}
-                    {/*<Typography variant="h6" fontWeight="400">*/}
-                    {/*    {FormatedDateWithTime(messageTime)}*/}
-                    {/*</Typography>*/}
                 </Stack>
             </CustomStackFullWidth>
         </CustomStackFullWidth>

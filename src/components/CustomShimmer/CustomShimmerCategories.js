@@ -1,14 +1,9 @@
 import React, { useEffect } from 'react'
 import { Grid, Stack } from '@mui/material'
-import {
-    CustomBoxFullWidth,
-    CustomStackFullWidth,
-    CustomTypographyAlign,
-} from '../../styled-components/CustomStyles.style'
+import { CustomBoxFullWidth } from '@/styled-components/CustomStyles.style'
 import Skeleton from '@mui/material/Skeleton'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { CustomColouredPaper } from '../featured-category-item/FeaturedCategory.style'
 
 const CustomShimmerCategories = ({
     noSearchShimmer,

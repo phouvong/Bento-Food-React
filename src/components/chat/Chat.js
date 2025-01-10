@@ -1,6 +1,5 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
-    CustomBoxFullWidth,
     CustomPaperBigCard,
     CustomStackFullWidth,
 } from '@/styled-components/CustomStyles.style'
@@ -18,11 +17,8 @@ import { useSearchList } from '@/hooks/react-query/config/chat/useSearch'
 import { useSelector } from 'react-redux'
 import { useTheme } from '@mui/material/styles'
 import ConversationInfoTop from './ConversationInfoTop'
-import Loading from '../custom-loading/Loading'
 import LoadingBox from './LoadingBox'
 import PushNotificationLayout from '../PushNotificationLayout'
-import { toast } from 'react-hot-toast'
-import { initialState, reducer } from './state'
 import Meta from '../Meta'
 
 const Chat = ({ page }) => {
@@ -108,7 +104,7 @@ const Chat = ({ page }) => {
             setScrollBottom(true)
             const tempReceiver =
                 channelList.length !== 0 &&
-                channelList.filter((item) => item.id == conversationId)
+                channelList.filter((item) => item.id === conversationId)
             setReceiver(tempReceiver[0])
         }
         if (type === 'admin') {
@@ -125,9 +121,9 @@ const Chat = ({ page }) => {
                 channelList.length !== 0 &&
                 channelList.filter((item) => {
                     if (type === 'vendor') {
-                        return item?.receiver?.vendor_id == id
+                        return item?.receiver?.vendor_id === id
                     } else if (type === 'delivery_man') {
-                        return item?.sender?.deliveryman_id == id
+                        return item?.sender?.deliveryman_id === id
                     }
                 })
 
@@ -203,7 +199,7 @@ const Chat = ({ page }) => {
         }
         const handleSuccess = async (res) => {
             await refetch()
-            refetchChannelList()
+            await refetchChannelList()
         }
 
         storeMessageByMutate(newValues, {

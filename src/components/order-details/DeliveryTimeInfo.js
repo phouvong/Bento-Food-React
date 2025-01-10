@@ -1,17 +1,11 @@
-import React from 'react'
 import {
     CustomColouredTypography,
-    CustomPaperBigCard,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
-import { ImageSource } from '../../utils/ImageSource'
+} from '@/styled-components/CustomStyles.style'
 import deliverymangif from '../../../public/static/animation.gif'
-import darkdeliverymangif from '../../../public/static/ordertime.gif'
 import Image from 'next/image'
-import { CustomPaperCard } from '../custom-cards/CustomCards.style'
 import { useTranslation } from 'react-i18next'
 import { Stack, Typography } from '@mui/material'
-import { CustomTypographyGray } from '../../styled-components/CustomTypographies.style'
 import moment from 'moment'
 import { useTheme } from '@mui/material/styles'
 
@@ -19,8 +13,7 @@ const DeliveryTimeInfo = ({ trackData }) => {
     const theme = useTheme()
     const { t } = useTranslation()
     const today = moment(new Date())
-    const orderPendingTime =deliverymangif
-
+    const orderPendingTime = deliverymangif
 
     const differenceInMinutes = () => {
         const deliveryTime = trackData?.data?.restaurant?.delivery_time
@@ -44,7 +37,6 @@ const DeliveryTimeInfo = ({ trackData }) => {
             today.diff(newDeliveryTimeWithAdditionalMin)
         )
         const minutes = duration.asMinutes()
-        //here minutes give negative values for positive changes, that's why the condition given below
         if (minutes <= -1) {
             return Number.parseInt(Math.abs(minutes))
         }
@@ -69,14 +61,33 @@ const DeliveryTimeInfo = ({ trackData }) => {
             </Stack>
 
             <Stack alignItems="center" justifyContent="center" mt="1.5rem">
-                <Typography sx={{fontSize:{xs:"14px",md:"16px"}}} color={theme.palette.neutral[1000]}>
+                <Typography
+                    sx={{ fontSize: { xs: '14px', md: '16px' } }}
+                    color={theme.palette.neutral[1000]}
+                >
                     {t('Chef has started cooking')}
                 </Typography>
             </Stack>
             {trackData && (
                 <Stack direction="row" spacing={0.5}>
-                    <Typography sx={{fontSize:{xs:"14px",md:"26px",fontWeight:"700"}}}>{handleTime()}</Typography>
-                    <CustomColouredTypography color="primary" sx={{fontSize:{xs:"14px",md:"26px"},fontWeight:"700"}}>
+                    <Typography
+                        sx={{
+                            fontSize: {
+                                xs: '14px',
+                                md: '26px',
+                                fontWeight: '700',
+                            },
+                        }}
+                    >
+                        {handleTime()}
+                    </Typography>
+                    <CustomColouredTypography
+                        color="primary"
+                        sx={{
+                            fontSize: { xs: '14px', md: '26px' },
+                            fontWeight: '700',
+                        }}
+                    >
                         {t('mins')}
                     </CustomColouredTypography>
                 </Stack>

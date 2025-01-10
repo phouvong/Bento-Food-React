@@ -1,7 +1,5 @@
 import { Box, Grid, Typography } from '@mui/material'
 import React from 'react'
-import { useSelector } from 'react-redux'
-import img from '../../../public/static/Privacy/RectangleP.png'
 import { StyleThemBox } from '../food-card/FoodCard.style'
 import { t } from 'i18next'
 import { useTheme } from '@mui/material/styles'

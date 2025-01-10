@@ -1,6 +1,5 @@
-import { alpha, Stack, styled, Typography } from '@mui/material'
+import { alpha, Stack, styled, Typography, Box } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import { Box } from '@mui/system'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
@@ -9,54 +8,31 @@ import 'slick-carousel/slick/slick.css'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
-import { DistanceCalculate, getAmount } from '../../utils/customFunctions'
+} from '@/styled-components/CustomStyles.style'
+import { DistanceCalculate, getAmount } from '@/utils/customFunctions'
 import CustomImageContainer from '../CustomImageContainer'
 import { CustomChip } from '../food-card/FoodCard.style'
 import { HomeTextTypography } from '../home/HomeStyle'
-// import 'react-multi-carousel/lib/styles.css'
 import DelivaryTruckIcon from '../../assets/images/icons/DelivaryTruckIcon'
 import DistanceIcon from '../../assets/images/icons/DistanceIcon'
 import RestaurantItemsIcon from '../../assets/images/icons/RestaurantItemsIcon'
-import { CustomTypographyEllipsis } from "@/styled-components/CustomTypographies.style";
 
-export const SliderStack = styled(Stack)(
-    ({ theme, languageDirection, gap, hasDiscount }) => ({
-        '& .slick-slider': {
-            width: hasDiscount ? '60px !important' : '100px !important',
-            alignItems: 'center',
-            '& .slick-list': {
-                width: hasDiscount ? '75px !important ' : '100% !important ',
-                '& .slick-track': {
-                    width: '215px !important',
-                    gap: '0px',
-                },
-            },
-        },
-    })
-)
 const ProfilePhotoWrapper = styled(Stack)(({ theme }) => ({
     justifyContent: 'center',
     alignItems: 'center',
-    // height:"100%",
-    // width:"100%",
     border: `1px solid ${alpha(theme.palette.primary.main, 0.3)}`,
     borderRadius: '100%',
 }))
 
 const LatestRestaurantCard = (props) => {
     const {
-        restaurantImageUrl,
         image,
         logo,
         name,
         id,
         active,
         open,
-        restaurantDiscount,
-        delivery_time,
         characteristics,
-        coupons,
         slug,
         zone_id,
         distance,
@@ -64,6 +40,7 @@ const LatestRestaurantCard = (props) => {
         foods_count,
         delivery_fee,
         hoveredMarkerId,
+        order_details,
     } = props
     const { t } = useTranslation()
     const theme = useTheme()
@@ -197,7 +174,6 @@ const LatestRestaurantCard = (props) => {
     return (
         <>
             <Stack
-                // minWidth={{ xs: "290px", sm: "310px", md: "320px" }}
                 maxWidth={{ xs: '290px', sm: '310px', md: '320px' }}
                 height={{ xs: '195px', md: '210px' }}
                 onClick={handleClick}
@@ -207,7 +183,6 @@ const LatestRestaurantCard = (props) => {
                     nopadding="true"
                     border
                     sx={{
-                        // margin: "20px",
                         padding: '10px',
                         cursor: 'pointer',
                         width: '100%',
@@ -304,20 +279,19 @@ const LatestRestaurantCard = (props) => {
                                     </HomeTextTypography>
                                 </Stack>
 
-                                    <Typography
-                                        align="left"
-                                        fontSize="13px"
-                                        color={theme.palette.neutral[600]}
-                                        sx={{
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: '1',
-                                            WebkitBoxOrient: 'vertical',
-                                            wordWrap: 'break-word',
-                                        }}
-                                        //sx={{WebkitLineClamp:'1 !important'}}
-                                    >
+                                <Typography
+                                    align="left"
+                                    fontSize="13px"
+                                    color={theme.palette.neutral[600]}
+                                    sx={{
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: '1',
+                                        WebkitBoxOrient: 'vertical',
+                                        wordWrap: 'break-word',
+                                    }}
+                                >
                                     {characteristics?.length > 0 &&
                                         characteristics?.map((item, index) => (
                                             <>
@@ -328,12 +302,13 @@ const LatestRestaurantCard = (props) => {
                                                     : ','}
                                             </>
                                         ))}
-                                    </Typography>
+                                </Typography>
 
                                 <Stack flexDirection="row" gap="7px">
                                     {!(
                                         delivery_fee === 'out_of_range' ||
-                                        delivery_fee === '0'
+                                        delivery_fee === '0' ||
+                                        order_details
                                     ) && (
                                         <Stack
                                             flexDirection="row"
@@ -382,29 +357,15 @@ const LatestRestaurantCard = (props) => {
                                             fontSize="12px"
                                             fontWeight={400}
                                         >
-                                            {foods_count.length > 99
-                                                ? `${foods_count}+`
-                                                : `${foods_count}` + `items`}
+                                            {foods_count?.length
+                                                ? foods_count?.length > 99
+                                                    ? `${foods_count?.length}+`
+                                                    : `${foods_count?.length}` +
+                                                      ` items`
+                                                : ''}
                                         </Typography>
                                     </Stack>
                                 </Stack>
-                                {/*<Typography*/}
-                                {/*    align="left"*/}
-                                {/*    fontSize="12px"*/}
-                                {/*    color={theme.palette.neutral[600]}*/}
-                                {/*>*/}
-                                {/*    {delivery_time}*/}
-                                {/*    {freeDelivery && (*/}
-                                {/*        <Typography*/}
-                                {/*            component="span"*/}
-                                {/*            fontSize="12px"*/}
-                                {/*            color={theme.palette.neutral[600]}*/}
-                                {/*            marginLeft="5px"*/}
-                                {/*        >*/}
-                                {/*            {t('Free Delivery')}*/}
-                                {/*        </Typography>*/}
-                                {/*    )}*/}
-                                {/*</Typography>*/}
                             </CustomStackFullWidth>
                         </Stack>
                     </CustomStackFullWidth>

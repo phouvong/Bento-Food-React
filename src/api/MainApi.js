@@ -1,14 +1,5 @@
 import axios from 'axios'
-import { useSelector } from 'react-redux'
-import { toast } from 'react-hot-toast'
-
-import { store } from '../redux/store'
-import { t } from 'i18next'
-import Router from 'next/router'
-
 export const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-
-//const baseUrl = 'http://stackfood.6am.one/react/api/v1/'
 
 const MainApi = axios.create({
     baseURL: baseUrl,
@@ -27,7 +18,6 @@ MainApi.interceptors.request.use(function (config) {
         token = localStorage.getItem('token')
         language = localStorage.getItem('language')
         currentLocation = JSON.parse(localStorage.getItem('currentLatLng'))
-        //hostname = window.location.hostnam
     }
     if (currentLocation) config.headers.latitude = currentLocation.lat
     if (currentLocation) config.headers.longitude = currentLocation.lng

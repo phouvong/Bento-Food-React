@@ -1,19 +1,14 @@
-import React, { useEffect } from 'react'
-import PropTypes from 'prop-types'
-import {
-    CustomPaperBigCard,
-    CustomStackFullWidth,
-} from "@/styled-components/CustomStyles.style"
+import React from 'react'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 
-import { Grid, Stack, useMediaQuery } from "@mui/material";
+import { Grid, Stack } from '@mui/material'
 import FoodOrRestaurant from './FoodOrRestaurant'
 import ProductList from './ProductList'
 import RestaurantsData from '../category/RestaurantsData'
 import CustomEmptyResult from '../empty-view/CustomEmptyResult'
 import { useTheme } from '@mui/material/styles'
 import { AnimationDots } from './AnimationDots'
-import { noFoodFoundImage, noRestaurantsImage } from "@/utils/LocalImages"
-import CustomePagination from "../pagination/Pagination";
+import { noFoodFoundImage, noRestaurantsImage } from '@/utils/LocalImages'
 
 const SearchFilterWithResults = ({
     searchValue,
@@ -26,15 +21,10 @@ const SearchFilterWithResults = ({
     page_limit,
     setOffset,
     global,
-    handleFilter,
-    handleClearAll,
     isNetworkCalling,
-    popularFoodisLoading,
-    restaurantIsLoading,
     page,
-    restaurantType, totalData,
-                                     filterData
-
+    restaurantType,
+    filterData,
 }) => {
     const theme = useTheme()
     return (
@@ -64,15 +54,14 @@ const SearchFilterWithResults = ({
                     spacing={2}
                     paddingTop="1rem"
                 >
-                    {(foodOrRestaurant === 'products' || page)  && (
+                    {(foodOrRestaurant === 'products' || page) && (
                         <>
-                            {(isLoading || isNetworkCalling) ?
-                                <Stack
-                                 width="100%"
-                                 minHeight="500px"
-
-                                > <AnimationDots align="center" /></Stack>
-                            :
+                            {isLoading || isNetworkCalling ? (
+                                <Stack width="100%" minHeight="500px">
+                                    {' '}
+                                    <AnimationDots align="center" />
+                                </Stack>
+                            ) : (
                                 <>
                                     {data?.data?.products?.length > 0 && (
                                         <ProductList
@@ -82,42 +71,43 @@ const SearchFilterWithResults = ({
                                             setOffset={setOffset}
                                         />
                                     )}
-                                    {data?.data?.products?.length === 0 &&  (
+                                    {data?.data?.products?.length === 0 && (
                                         <CustomEmptyResult
                                             label="No food found"
                                             image={noFoodFoundImage}
                                         />
                                     )}
                                 </>
-                            }
-
+                            )}
                         </>
                     )}
                     {foodOrRestaurant === 'restaurants' && (
                         <>
-                            {(isLoading || isNetworkCalling)?(  <Stack
-                                width="100%"
-                                minHeight="500px"
-
-                            > <AnimationDots align="center" /></Stack>):<>
-                                {data && !isLoading && (
-                                    <RestaurantsData
-                                        resData={data}
-                                        offset={offset}
-                                        page_limit={page_limit}
-                                        setOffset={setOffset}
-                                        global={global}
-                                        restaurantType={restaurantType}
-                                    />
-                                )}
-                                {data?.data?.restaurants?.length === 0 && (
-                                    <CustomEmptyResult
-                                        label="No restaurant found"
-                                        image={noRestaurantsImage}
-                                    />
-                                )}
-                            </>}
-
+                            {isLoading || isNetworkCalling ? (
+                                <Stack width="100%" minHeight="500px">
+                                    {' '}
+                                    <AnimationDots align="center" />
+                                </Stack>
+                            ) : (
+                                <>
+                                    {data && !isLoading && (
+                                        <RestaurantsData
+                                            resData={data}
+                                            offset={offset}
+                                            page_limit={page_limit}
+                                            setOffset={setOffset}
+                                            global={global}
+                                            restaurantType={restaurantType}
+                                        />
+                                    )}
+                                    {data?.data?.restaurants?.length === 0 && (
+                                        <CustomEmptyResult
+                                            label="No restaurant found"
+                                            image={noRestaurantsImage}
+                                        />
+                                    )}
+                                </>
+                            )}
                         </>
                     )}
                 </Grid>
@@ -130,7 +120,6 @@ const SearchFilterWithResults = ({
                 {/*    />*/}
                 {/*   </Grid>*/}
                 {/*}*/}
-
             </Grid>
         </CustomStackFullWidth>
     )

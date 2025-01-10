@@ -1,8 +1,7 @@
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined'
-import { Button, Typography } from '@mui/material'
-import { Box } from '@mui/system'
+import { Button, Typography, Box } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import CustomModal from '../../custom-modal/CustomModal'
 import TimeChooser from './TimeChooser'
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { CustomBoxFullWidth } from '../../styled-components/CustomStyles.style'
+import { CustomBoxFullWidth } from '@/styled-components/CustomStyles.style'
 import { Grid } from '@mui/material'
 import Skeleton from '@mui/material/Skeleton'
 const WidgetShimmer = () => {
@@ -15,7 +15,7 @@ const WidgetShimmer = () => {
                                 height="92px"
                                 animation="wave"
                                 style={{
-                                    borderRadius:"5px"
+                                    borderRadius: '5px',
                                 }}
                             />
                         </Grid>

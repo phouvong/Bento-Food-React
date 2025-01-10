@@ -1,7 +1,5 @@
 import { styled } from '@mui/material/styles'
-import { alpha, Typography } from '@mui/material'
-import { Box } from '@mui/system'
-import ImageNotFound from '../../../public/static/no-image-found.png'
+import { alpha, Typography, Box } from '@mui/material'
 
 export const LandingPageTypography = styled(Typography)(
     ({ theme, fontWeight, fontSize, color }) => ({
@@ -11,15 +9,11 @@ export const LandingPageTypography = styled(Typography)(
         textAlign: 'left',
     })
 )
-export const LandingPageTypographyWhite = styled(Typography)(({ theme }) => ({
-    color: `${theme.palette.mode === 'dark' && '#b9b9b9 !important'}`,
-}))
 
 export const DiscountBannerBox = styled(Box)(({ theme }) => ({
     position: 'relative',
     zIndex: 1,
     padding: '10px',
-    //background: 'rgba(255, 255, 255, 0.8)',
     width: '100%',
     height: '250px',
     alignItems: 'center',
@@ -46,24 +40,14 @@ export const DiscountBannerBox = styled(Box)(({ theme }) => ({
 }))
 
 export const LandingHeroBox = styled(Box)(
-    ({
-        theme,
-        heroImg,
-        banner_section_image_base_url,
-        ImageNotFound,
-        isXSmall,
-    }) => ({
-        backgroundImage: `url(${
-            heroImg
-                ? heroImg
-                : ImageNotFound.src
-        })`,
+    ({ theme, heroImg, ImageNotFound, isXSmall }) => ({
+        backgroundImage: `url(${heroImg ? heroImg : ImageNotFound.src})`,
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         display: 'flex',
         backgroundPosition: 'center',
         marginInline: isXSmall && '15px',
         borderRadius: isXSmall && '5px',
-        paddingTop: isXSmall ? "0px":"83px"
+        paddingTop: isXSmall ? '0px' : '83px',
     })
 )

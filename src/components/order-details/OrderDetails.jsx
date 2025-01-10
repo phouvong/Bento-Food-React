@@ -31,7 +31,7 @@ import { useTheme } from '@mui/material/styles'
 import jwt from 'base-64'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from 'react-query'
@@ -79,6 +79,10 @@ import startReview from '../../../public/static/star-review.png'
 import TrackingPage from '../order-tracking/TrackingPage'
 
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
+import LocationIcon from '@/components/order-details/assets/LocationIcon'
+import ContactAddressMap from '@/components/help-page/ContactAddressMap'
+import DeliveryTimeInfo from '@/components/order-details/DeliveryTimeInfo'
+import DIneInOrderTimeInfo from '@/components/order-details/DIneInOrderTimeInfo'
 const CustomTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} arrow classes={{ popper: className }} />
 ))(({ theme }) => ({
@@ -197,6 +201,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
     const [openOfflineModal, setOpenOfflineModal] = useState(orderDetailsModal)
     const [openModal, setOpenModal] = useState(false)
     const [openReviewModal, setOpenReviewModal] = useState(false)
+    const [openRes, setOpenRes] = useState(false)
 
     const guestId = getGuestId()
     const userPhone = phone && jwt.decode(phone)
@@ -489,9 +494,24 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                         fontSize={{ xs: '13px', md: '14px' }}
                                         fontWeight="bold"
                                     >
-                                        {t(
-                                            trackData?.data?.order_status
-                                        ).replaceAll('_', ' ')}
+                                        <>
+                                            {trackData?.data?.order_type ===
+                                                'dine_in' &&
+                                            trackData?.data?.order_status ===
+                                                'delivered'
+                                                ? t('Served')
+                                                : trackData?.data
+                                                      ?.order_type ===
+                                                      'dine_in' &&
+                                                  trackData?.data
+                                                      ?.order_status ===
+                                                      'handover'
+                                                ? t('Ready to serve')
+                                                : t(
+                                                      trackData?.data
+                                                          ?.order_status
+                                                  ).replaceAll('_', ' ')}
+                                        </>
                                     </Typography>
                                 </CustomOrderStatus>
                             )}
@@ -550,7 +570,8 @@ const OrderDetails = ({ OrderIdDigital }) => {
 
                                 {/*</Typography>*/}
                             </Stack>
-                            {trackData?.data?.scheduled !== 0 && (
+                            {(trackData?.data?.scheduled !== 0 ||
+                                trackData?.data?.order_type === 'dine_in') && (
                                 <Stack
                                     flexDirection="row"
                                     gap="5px"
@@ -564,7 +585,10 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                             color: theme.palette.text.secondary,
                                         }}
                                     >
-                                        {t('Scheduled delivery')}
+                                        {trackData?.data?.order_type ===
+                                        'dine_in'
+                                            ? t('Dine-in date:')
+                                            : t('Scheduled delivery')}
                                     </Typography>
                                     <Typography
                                         fontSize="12px"
@@ -722,7 +746,9 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                 {trackData &&
                                     trackData?.data?.subscription === null &&
                                     trackData?.data?.order_status !==
-                                        'pending' && (
+                                        'pending' &&
+                                    trackData?.data?.order_type !==
+                                        'dine_in' && (
                                         <>
                                             {trackData ? (
                                                 <DeliveryTimeInfoVisibility
@@ -769,6 +795,21 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                         />
                                     )}
 
+                                {trackData &&
+                                    trackData?.data?.order_type === 'dine_in' &&
+                                    trackData?.data?.order_status !==
+                                        'canceled' &&
+                                    trackData?.data?.order_status !==
+                                        'refund_requested' &&
+                                    trackData?.data?.order_status !==
+                                        'refunded' &&
+                                    trackData?.data?.order_status !==
+                                        'refunded_canceled' && (
+                                        <DIneInOrderTimeInfo
+                                            trackData={trackData}
+                                        />
+                                    )}
+                                {/*<DeliveryTimeInfo trackData={trackData} />*/}
                                 <ProductDetailsWrapper>
                                     {data?.data?.details?.length > 0 &&
                                         data?.data?.details?.map(
@@ -786,7 +827,11 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                             <Stack>
                                                                 {product.item_campaign_id ? (
                                                                     <CustomImageContainer
-                                                                        src={product.food_details.image_full_url}
+                                                                        src={
+                                                                            product
+                                                                                .food_details
+                                                                                .image_full_url
+                                                                        }
                                                                         height="60px"
                                                                         maxWidth="60px"
                                                                         width="100%"
@@ -796,7 +841,11 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                                     />
                                                                 ) : (
                                                                     <CustomImageContainer
-                                                                        src={product.food_details.image_full_url}
+                                                                        src={
+                                                                            product
+                                                                                .food_details
+                                                                                .image_full_url
+                                                                        }
                                                                         height="60px"
                                                                         maxWidth="60px"
                                                                         width="100%"
@@ -923,8 +972,105 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                             )
                                         )}
                                 </ProductDetailsWrapper>
+
+                                {trackData?.data?.order_reference
+                                    ?.token_number ||
+                                    (trackData?.data?.order_reference
+                                        ?.table_number && (
+                                        <ProductDetailsWrapper>
+                                            <Stack
+                                                sx={{
+                                                    justifyContent:
+                                                        'space-between',
+                                                    alignItems: 'center',
+                                                }}
+                                                direction="row"
+                                                width="100%"
+                                                padding="5px"
+                                            >
+                                                {/* Token Number */}
+                                                {trackData?.data
+                                                    ?.order_reference
+                                                    ?.token_number && (
+                                                    <Stack
+                                                        width="100%"
+                                                        justifyContent="center"
+                                                        alignItems="center"
+                                                    >
+                                                        <Typography
+                                                            fontSize="14px"
+                                                            fontWeight="600"
+                                                            component="span"
+                                                        >
+                                                            {
+                                                                trackData.data
+                                                                    .order_reference
+                                                                    .token_number
+                                                            }
+                                                            <Typography
+                                                                paddingInlineStart="5px"
+                                                                component="span"
+                                                                color={
+                                                                    theme
+                                                                        .palette
+                                                                        .primary
+                                                                        .main
+                                                                }
+                                                                fontSize="12px"
+                                                            >
+                                                                {t(
+                                                                    '(Token No.)'
+                                                                )}
+                                                            </Typography>
+                                                        </Typography>
+                                                    </Stack>
+                                                )}
+
+                                                {/* Divider */}
+                                                {trackData?.data
+                                                    ?.order_reference
+                                                    ?.token_number &&
+                                                    trackData?.data
+                                                        ?.order_reference
+                                                        ?.table_number && (
+                                                        <Stack
+                                                            height="100%"
+                                                            border="1px solid"
+                                                            borderColor={
+                                                                theme.palette
+                                                                    .neutral[400]
+                                                            }
+                                                        />
+                                                    )}
+
+                                                {/* Table Number */}
+                                                {trackData?.data
+                                                    ?.order_reference
+                                                    ?.table_number && (
+                                                    <Typography
+                                                        width="100%"
+                                                        textAlign="center"
+                                                        fontSize="12px"
+                                                        color={
+                                                            theme.palette.info
+                                                                .main
+                                                        }
+                                                    >
+                                                        {`${t('Table No-')} ${
+                                                            trackData.data
+                                                                .order_reference
+                                                                .table_number
+                                                        }`}
+                                                    </Typography>
+                                                )}
+                                            </Stack>
+                                        </ProductDetailsWrapper>
+                                    ))}
+
                                 {trackData &&
-                                    trackData?.data?.delivery_instruction && (
+                                    trackData?.data?.delivery_instruction &&
+                                    trackData?.data?.order_type ===
+                                        'delivery' && (
                                         <Stack gap="10px">
                                             <TitleTypography>
                                                 {t('Instructions')}
@@ -960,7 +1106,9 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                         </Stack>
                                     )}
                                 {trackData &&
-                                    trackData?.data?.unavailable_item_note && (
+                                    trackData?.data?.unavailable_item_note &&
+                                    trackData?.data?.order_type ===
+                                        'delivery' && (
                                         <Stack gap="10px">
                                             <TitleTypography>
                                                 {t('Unavailable item note')}
@@ -1039,9 +1187,11 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                             <Stack>
                                                 {trackData && (
                                                     <CustomImageContainer
-                                                        src={trackData?.data
-                                                            ?.restaurant
-                                                            ?.logo_full_url}
+                                                        src={
+                                                            trackData?.data
+                                                                ?.restaurant
+                                                                ?.logo_full_url
+                                                        }
                                                         height="80px"
                                                         width="80px"
                                                         borderRadius=".5rem"
@@ -1049,7 +1199,13 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                     />
                                                 )}
                                             </Stack>
-                                            <Stack>
+                                            <Stack
+                                                width="100%"
+                                                maxWidth={{
+                                                    xs: '100%',
+                                                    md: '250px',
+                                                }}
+                                            >
                                                 <InfoTypography
                                                     sx={{ fontWeight: '500' }}
                                                 >
@@ -1082,6 +1238,42 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                             ?.address}
                                                 </InfoTypography>
                                             </Stack>
+                                        </Stack>
+                                        <Stack
+                                            paddingBottom="8px"
+                                            sx={{
+                                                marginInlineEnd: {
+                                                    md:
+                                                        trackData?.data
+                                                            ?.order_status !==
+                                                            'delivered' &&
+                                                        trackData?.data
+                                                            ?.order_status !==
+                                                            'failed' &&
+                                                        trackData?.data
+                                                            ?.order_status !==
+                                                            'canceled' &&
+                                                        trackData?.data
+                                                            ?.order_status !==
+                                                            'refunded' &&
+                                                        getToken()
+                                                            ? '-70px'
+                                                            : '0px',
+                                                },
+                                            }}
+                                        >
+                                            {trackData &&
+                                                trackData?.data
+                                                    ?.order_status !==
+                                                    'dine_in' && (
+                                                    <IconButton
+                                                        onClick={() =>
+                                                            setOpenRes(true)
+                                                        }
+                                                    >
+                                                        <LocationIcon />
+                                                    </IconButton>
+                                                )}
                                         </Stack>
 
                                         {trackData &&
@@ -1228,7 +1420,12 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                         <Stack>
                                                             {trackData && (
                                                                 <CustomImageContainer
-                                                                    src={trackData?.data?.delivery_man?.image_full_url}
+                                                                    src={
+                                                                        trackData
+                                                                            ?.data
+                                                                            ?.delivery_man
+                                                                            ?.image_full_url
+                                                                    }
                                                                     height="80px"
                                                                     width="80px"
                                                                     borderRadius=".5rem"
@@ -2289,7 +2486,15 @@ const OrderDetails = ({ OrderIdDigital }) => {
             {/*        />*/}
             {/*    )*/}
             {/*}*/}
-
+            <ContactAddressMap
+                global={global}
+                open={openRes}
+                setOpen={setOpenRes}
+                lat={trackData && trackData?.data?.restaurant?.latitude}
+                lng={trackData && trackData?.data?.restaurant?.longitude}
+                data={[trackData?.data?.restaurant]}
+                order_details
+            />
             <RefundModal
                 open={openModal}
                 onClose={() => setOpenModal(false)}

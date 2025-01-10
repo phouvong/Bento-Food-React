@@ -1,28 +1,29 @@
 import React, { useState } from 'react'
-import {
-    CustomPaperBigCard,
-    CustomStackFullWidth,
-} from "@/styled-components/CustomStyles.style"
-import { Button, IconButton, Stack, Typography } from "@mui/material";
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
+import { IconButton, Stack, Typography } from '@mui/material'
 import CustomImageContainer from '../../CustomImageContainer'
 import percentageCoupon from '../../../../public/static/profile/couponper.svg'
 import CouponVector from './CouponVector'
-import CouponCopy from './CouponCopy'
 import { useTheme } from '@mui/material/styles'
 import { useSelector } from 'react-redux'
-import { getAmount, getProductDiscount } from "@/utils/customFunctions";
+import { getAmount } from '@/utils/customFunctions'
 import { t } from 'i18next'
 import CustomCopyWithTooltip from './CustomCopyWithToolTip'
 import Card from '@mui/material/Card'
 import amount_coupon from '../../../../public/static/profile/amountcoupon.svg'
 import { CouponTypography } from '../loyality/Loyality.style'
-import moment from "moment";
-import LoadingButton from "@mui/lab/LoadingButton";
+import moment from 'moment'
+import LoadingButton from '@mui/lab/LoadingButton'
 
-const CouponCard = ({ coupon,fromCheckout,getCouponCodeFromCard ,loading}) => {
+const CouponCard = ({
+    coupon,
+    fromCheckout,
+    getCouponCodeFromCard,
+    loading,
+}) => {
     const theme = useTheme()
     const valid_until = t('Valid until')
-    const min=t("*min purchase")
+    const min = t('*min purchase')
     const [tooltipOpen, setTooltipOpen] = useState(false)
     const { global } = useSelector((state) => state.globalSettings)
     let currencySymbol
@@ -122,51 +123,76 @@ const CouponCard = ({ coupon,fromCheckout,getCouponCodeFromCard ,loading}) => {
                         {coupon?.coupon_type === 'free_delivery'
                             ? 'Free Delivery'
                             : coupon?.discount_type === 'percent'
-                                ? `${coupon?.discount} %`
-                                : getAmount(
-                                    coupon.discount,
-                                    currencySymbolDirection,
-                                    currencySymbol,
-                                    digitAfterDecimalPoint
-                                )}{' '}
+                            ? `${coupon?.discount} %`
+                            : getAmount(
+                                  coupon.discount,
+                                  currencySymbolDirection,
+                                  currencySymbol,
+                                  digitAfterDecimalPoint
+                              )}{' '}
                         {coupon?.coupon_type === 'free_delivery'
                             ? ''
                             : t('OFF')}
                     </Typography>
                 </Stack>
                 <CouponVector />
-                <CustomStackFullWidth spacing={0.5} padding="8px" justifyContent="center" alignItems="center">
+                <CustomStackFullWidth
+                    spacing={0.5}
+                    padding="8px"
+                    justifyContent="center"
+                    alignItems="center"
+                >
                     {coupon?.coupon_type === 'restaurant_wise' && (
                         <Typography fontSize="12px" fontWeight="500">
                             {coupon?.data}
                         </Typography>
                     )}
-                    <Typography   fontSize="12px" fontWeight="500" textAlign="center" color={theme.palette.neutral[1000]}>
-                        {`${ moment(coupon?.start_date).format('DD MMM, YYYY')} to ${moment(coupon?.expire_date).format('DD MMM, YYYY')}`}
+                    <Typography
+                        fontSize="12px"
+                        fontWeight="500"
+                        textAlign="center"
+                        color={theme.palette.neutral[1000]}
+                    >
+                        {`${moment(coupon?.start_date).format(
+                            'DD MMM, YYYY'
+                        )} to ${moment(coupon?.expire_date).format(
+                            'DD MMM, YYYY'
+                        )}`}
                     </Typography>
-                    <Typography  fontSize="10px" fontWeight="500" color={theme.palette.neutral[500]}>
-                        {`${min} ${ getAmount(
+                    <Typography
+                        fontSize="10px"
+                        fontWeight="500"
+                        color={theme.palette.neutral[500]}
+                    >
+                        {`${min} ${getAmount(
                             coupon?.min_purchase,
                             currencySymbolDirection,
                             currencySymbol,
                             digitAfterDecimalPoint
                         )}`}
                     </Typography>
-                    {fromCheckout &&
-                    <LoadingButton variant="contained"
-                                   // loading={loading}
-                            onClick={()=>getCouponCodeFromCard(coupon?.code)}
-                    sx={{padding:"4px 4px",width:"80px",fontSize:'12px'}}>
-                        {("Apply")}
-                    </LoadingButton>
-                    }
+                    {fromCheckout && (
+                        <LoadingButton
+                            variant="contained"
+                            // loading={loading}
+                            onClick={() => getCouponCodeFromCard(coupon?.code)}
+                            sx={{
+                                padding: '4px 4px',
+                                width: '80px',
+                                fontSize: '12px',
+                            }}
+                        >
+                            {'Apply'}
+                        </LoadingButton>
+                    )}
                 </CustomStackFullWidth>
 
                 <Stack alignSelf="start">
-                    {!fromCheckout &&  <IconButton>
-                        <CustomCopyWithTooltip t={t} value={coupon?.code} />
-                    </IconButton>}
-
+                    {!fromCheckout && (
+                        <IconButton>
+                            <CustomCopyWithTooltip t={t} value={coupon?.code} />
+                        </IconButton>
+                    )}
                 </Stack>
                 {/*<CouponPercentage/>*/}
             </CustomStackFullWidth>

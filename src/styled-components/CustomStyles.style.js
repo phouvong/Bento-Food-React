@@ -1,44 +1,23 @@
 import {
-    Alert,
-    Badge,
     Box,
-    Button,
-    Chip,
-    Container,
-    Divider,
-    FormControlLabel,
     Paper,
     Stack,
     styled,
     TextField,
     Typography,
-    InputBase,
     OutlinedInput,
     Fab,
     Tabs,
     ListItem,
-    Select,
-    alpha,
     Accordion,
+    Button,
 } from '@mui/material'
 import Link from '@mui/material/Link'
-import imgB from '../../public/static/Privacy/RectangleP.png'
-//import { Link } from 'react-router-dom'
-import MuiList from '@mui/material/List'
-import Card from '@mui/material/Card'
 
-export const FlexContainerCol = styled(Box)({
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-})
-export const FlexContainerSpaceBetween = styled(Box)({
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-})
+export const CustomTextField = styled(TextField)(({ theme }) => ({
+    [theme.breakpoints.up('sm')]: {},
+}))
+
 export const FlexContainerCenter = styled(Box)({
     display: 'flex',
     justifyContent: 'center',
@@ -49,32 +28,8 @@ export const FlexContainerCenter = styled(Box)({
     marginRight: 'auto',
     marginLeft: 'auto',
 })
-export const FlexContainer = styled(Box)({
-    display: 'flex',
-    gap: '.5rem',
-    overflowX: 'auto',
-    whiteSpace: 'nowrap',
-    flexWrap: 'nowrap',
-    padding: '8px 0px 8px 5px',
-    typography: 'body1',
-    '& :not(style) + :not(style)': {
-        ml: 1,
-        // mr:2
-    },
-})
-export const CustomTextField = styled(TextField)(({ theme }) => ({
+export const CustomButton = styled(Button)(({ theme }) => ({
     [theme.breakpoints.up('sm')]: {},
-}))
-export const CustomPaper = styled(Paper)(({ theme, width, height }) => ({
-    //backgroundColor: '#D1D5DB',
-    padding: '2rem',
-    maxWidth: width ? width : '600px',
-    width: '100%',
-    minHeight: '300px',
-    height: height ? height : '100%',
-    borderRadius: '20px',
-    justifyContent: 'center',
-    textAlign: 'center',
 }))
 
 export const CustomPaperBigCard = styled(Paper)(
@@ -87,7 +42,6 @@ export const CustomPaperBigCard = styled(Paper)(
         padding,
         width,
         noboxshadow,
-        border,
     }) => ({
         margin: '1px',
         backgroundColor: backgroundColor || theme.palette.background.paper,
@@ -96,38 +50,12 @@ export const CustomPaperBigCard = styled(Paper)(
         height: height ? height : '100%',
         minHeight: minheight && minheight,
         borderRadius: '10px',
-        //border: border ? `1px solid ${alpha(theme.palette.primary.main, 0.2)}` : "none",
         boxShadow:
             noboxshadow === 'true'
                 ? 'none'
                 : `0px 0px 2px rgba(145, 158, 171, 0.2), 0px 5px 20px ${theme.palette.paperBoxShadow}`,
-        // : `0px 0px 2px rgba(145, 158, 171, 0.2), 0px 5px 20px ${theme.palette.paperBoxShadow}`,
-        // marginBottom: '30px',
     })
 )
-
-export const CustomButton = styled(Button)(({ theme }) => ({
-    [theme.breakpoints.up('sm')]: {},
-}))
-export const CustomFullDivider = styled(Divider)(({ theme }) => ({
-    width: '100%',
-}))
-export const LayoutCenter = styled('div')(({ theme }) => ({
-    backgroundColor: theme.palette.background.default,
-    height: '100%',
-    paddingTop: '7.5rem',
-}))
-export const CustomAlert = styled(Alert)(({ theme }) => ({}))
-export const OutletWrapper = styled(Container)(({ theme, iconicSidebar }) => ({
-    display: 'flex',
-    flex: '1 1 auto',
-    width: '100%',
-    paddingTop: '6.25rem',
-    paddingBottom: '10vh',
-    [theme.breakpoints.up('lg')]: {
-        paddingLeft: iconicSidebar ? 180 : 310,
-    },
-}))
 
 export const CustomImageContainer = styled(Box)(({ theme }) => ({
     position: 'relative',
@@ -141,17 +69,7 @@ export const CustomImageContainer = styled(Box)(({ theme }) => ({
         objectFit: 'contained',
     },
 }))
-export const CustomImageContainerWithBorderRadius = styled(Box)(
-    ({ theme }) => ({
-        borderRadius: '0.125rem',
-        position: 'relative',
-        '& img': {
-            width: '100%',
-            height: '100%',
-            objectFit: 'contained',
-        },
-    })
-)
+
 export const ImageContainer = styled(Box)(({ theme }) => ({
     borderRadius: '0.125rem',
     position: 'relative',
@@ -171,31 +89,11 @@ export const CustomColouredTypography = styled(Typography)(
         },
     })
 )
-export const CustomColouredTypographySubtitle = styled(Typography)(
-    ({ theme }) => ({
-        marginTop: '0.563rem',
-        textTransform: 'none',
-        color: theme.palette.neutral[700],
-    })
-)
-
-export const CenteringSingleComponentOnLayout = styled(Box)({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%',
-    width: '100%',
-})
 
 export const CustomStack = styled(Stack)({
     alignItems: 'start',
     width: '100%',
     paddingLeft: '1rem',
-})
-export const CustomBoxTab = styled(Box)({
-    border: '1px solid #ff903f',
-    padding: '5px',
-    borderRadius: '15px',
 })
 export const CustomTabs = styled(Tabs)(({ theme }) => ({
     padding: '5px',
@@ -215,15 +113,6 @@ export const CloseIconWrapper = styled('div')(
     })
 )
 
-export const CustomFormControlLabel = styled(FormControlLabel)(({ theme }) => ({
-    color: theme.palette.neutral[500],
-}))
-
-export const CustomBadge = styled(Badge)(({ theme }) => ({
-    '& .MuiBadge-badge': {
-        fontWeight: 'bold',
-    },
-}))
 export const CustomTypographyBold = styled(Typography)(
     ({ theme, marginTop, textAlign, fontSize, fontWeight }) => ({
         fontWeight: fontWeight ?? 'bold',
@@ -234,10 +123,6 @@ export const CustomTypographyBold = styled(Typography)(
 )
 export const CustomTypographyAlign = styled(Typography)(({ theme, align }) => ({
     textAlign: align,
-}))
-
-export const CustomChip = styled(Chip)(({ theme }) => ({
-    fontWeight: 'bold',
 }))
 
 export const CustomIconButton = styled(Box)(({ theme, marginTop }) => ({
@@ -255,74 +140,7 @@ export const CustomStackFullWidth = styled(Stack)(
         marginTop: marginTop,
     })
 )
-export const CustomBoxWithSpacing = styled(Box)(
-    ({ theme, marginTopBottom }) => ({
-        width: '100%',
-        marginTop: marginTopBottom && `${marginTopBottom}rem`,
-        marginBottom: marginTopBottom && `${marginTopBottom}rem`,
-    })
-)
-// export const CustomLink = styled(Link)(({ theme, width }) => ({
-//     textDecoration: 'none',
-//     width: width ? '100%' : 'auto',
-// }))
-export const CustomSearch = styled('div')(({ theme }) => ({
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: '#F3F2F2',
-    color: 'black',
-    //alpha(theme.palette.common.white, 0.15),
-    '&:hover': {
-        //backgroundColor: alpha(theme.palette.common.white, 0.25),
-        backgroundColor: '#F3F2F2',
-    },
-    marginLeft: 0,
-    marginRight: '10px',
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-        marginLeft: theme.spacing(1),
-        width: 'auto',
-    },
-}))
-export const SearchIconWrapper = styled('div')(
-    ({ theme, languageDirection }) => ({
-        padding: theme.spacing(0, 2),
-        height: '100%',
-        position: 'absolute',
-        pointerEvents: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        left: languageDirection === 'rtl' ? '0px' : '',
-    })
-)
-export const StyledInputBase = styled(InputBase)(({ theme, width }) => ({
-    color: 'inherit',
-    width: '120px',
-    border: '2px solid #EF7822',
-    padding: '5px 0',
-    marginLeft: '5px',
-    borderRadius: '5px',
-    '& .MuiInputBase-input': {
-        fontSize: '1.3rem',
-        textAlign: 'center',
-    },
-}))
-export const SearchInputBase = styled(InputBase)(({ theme }) => ({
-    color: 'inherit',
-    '& .MuiInputBase-input': {
-        padding: theme.spacing(1, 1, 1, 0),
-        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-        transition: theme.transitions.create('width'),
-        width: '100%',
-        [theme.breakpoints.up('sm')]: {
-            width: '40ch',
-            '&:focus': {
-                width: '50ch',
-            },
-        },
-    },
-}))
+
 export const Logo = styled('div')(({ theme, height, width }) => ({
     width: width,
     height: '24px',
@@ -335,27 +153,17 @@ export const Logo = styled('div')(({ theme, height, width }) => ({
         objectFit: 'contain',
     },
 }))
-export const CustomBoxNav = styled(Box)(({ theme, isSmall }) => ({
-    // display: isSmall ? 'none' : 'inline',
-    flexGrow: 1,
-}))
 export const CustomLink = styled(Link)(({ theme, color }) => ({
     color: color ? color : 'primary.main',
     cursor: 'pointer',
     fontWeight: '600',
-    //textDecoration: 'underline',
     '&:hover': {
-        //backgroundColor: alpha(theme.palette.common.white, 0.25),
         color: theme.palette.primary.dark,
     },
-}))
-export const CustomOtp = styled(OutlinedInput)(({ theme }) => ({
-    width: '60px',
 }))
 export const CustomTextFieldContainer = styled(Box)(
     ({ theme, background, noheight }) => ({
         width: '100%',
-        height: !noheight && '5.5rem',
         color: theme.palette.neutral[1000],
     })
 )
@@ -389,7 +197,6 @@ export const CustomOverlayBox = styled(Box)(({ theme, borderradius }) => ({
     width: '100%',
     backgroundColor: 'rgba(0, 0, 0, 0.54)',
     color: 'white',
-    // padding: '10px',
     height: '100%',
     display: 'flex',
     alignItems: 'center',
@@ -397,12 +204,6 @@ export const CustomOverlayBox = styled(Box)(({ theme, borderradius }) => ({
     zIndex: 9,
     borderRadius: borderradius || '8px',
 }))
-export const EmptyMessageContainer = styled(CustomStackFullWidth)(
-    ({ theme }) => ({
-        height: '20vh',
-        width: '25vw',
-    })
-)
 export const CustomViewAll = styled(Stack)(({ theme, marginRight }) => ({
     justifyContent: 'end',
     color: theme.palette.primary.main,
@@ -442,7 +243,6 @@ export const CustomImageContainerStyled = styled(Box)(
         aspectRatio,
         boxShadow,
     }) => ({
-        //maxWidth:'20rem',
         display: 'inline-flex',
         background: 'transparent',
         width: width ? width : '100%',
@@ -480,38 +280,6 @@ export const CustomListItem = styled(ListItem)(
         cursor: cursor && 'pointer',
     })
 )
-export const CustomBoxRelative = styled(Box)(({ theme, maxWidth, height }) => ({
-    position: 'relative',
-    textAlign: 'center',
-    maxWidth: maxWidth,
-    width: '100%',
-    height: height,
-}))
-export const CustomBoxAbsoluteCenter = styled(Box)(({ theme }) => ({
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-}))
-export const ccsSelect = styled(Select)(({ theme }) => ({
-    select: {
-        '&:before': {
-            borderColor: (theme) => theme.palette.primary.main,
-        },
-        '&:after': {
-            borderColor: (theme) => theme.palette.primary.main,
-        },
-    },
-    icon: {
-        fill: (theme) => theme.palette.primary.main,
-    },
-}))
-
-export const BackImage = styled(Stack)(({ theme }) => ({
-    backgroundImage:
-        "url('https://media.geeksforgeeks.org/wp-content/uploads/rk.png')",
-}))
-export const List = styled(MuiList)(({ theme }) => ({}))
 export const SliderCustom = styled(Stack)(
     ({ theme, languageDirection, gap, paddingBottom, isCenter, ads }) => ({
         alignItems: 'center',
@@ -548,42 +316,7 @@ export const SliderCustom = styled(Stack)(
         },
     })
 )
-export const CustomCouponCard = styled(Card)(({ theme }) => ({
-    padding: '.5rem',
-    boxShadow:
-        '0px 0px 2px rgba(0, 0, 0, 0.1), 0px 5px 10px rgba(0, 0, 0, 0.05)',
-    position: ' relative',
-    '&::after': {
-        position: ' absolute',
-        content: '""',
-        height: '40px',
-        right: '-20px',
-        borderRadius: '40px',
-        zIndex: '1',
-        top: '30%',
-        backgroundColor: (theme) => theme.palette.neutral[200],
-        width: '40px',
-    },
-    '&::before': {
-        position: ' absolute',
-        content: '""',
-        height: '40px',
-        left: '-20px',
-        borderRadius: '40px',
-        zIndex: '1',
-        top: '30%',
-        backgroundColor: (theme) => theme.palette.neutral[200],
-        width: '40px',
-        boxShadow:
-            '0px 0px 2px rgba(0, 0, 0, 0.1), 0px 5px 10px rgba(0, 0, 0, 0.05)',
-    },
-}))
 
-export const CustomCheckBoxStack = styled(Stack)(({ theme }) => ({
-    position: 'absolute',
-    top: '2px',
-    right: '6px',
-}))
 export const CustomOutlinedInput = styled(OutlinedInput)(({ theme, type }) => ({
     borderRadius: '7px',
     height: '48px',
@@ -606,12 +339,7 @@ export const CustomOutlinedInput = styled(OutlinedInput)(({ theme, type }) => ({
         display: 'none',
     },
 }))
-export const NoDataFoundWrapper = styled(CustomStackFullWidth)(({ theme }) => ({
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-}))
+
 export const CustomAccordion = styled(Accordion)(({ theme, background }) => ({
     boxShadow: 'none !important',
     backgroundColor: background ?? theme.palette.neutral[100],
@@ -629,3 +357,18 @@ export const CustomAccordion = styled(Accordion)(({ theme, background }) => ({
         padding: '2px 5px 10px',
     },
 }))
+export const WrapperForSideDrawerFilter = styled(Box)(
+    ({ theme, smminwith }) => ({
+        paddingTop: '2rem',
+        paddingBottom: '2rem',
+        paddingLeft: '1rem',
+        paddingRight: '1rem',
+        minWidth: '250px',
+        maxWidth: '350px',
+        width: '350px',
+        [theme.breakpoints.down('sm')]: {
+            minWidth: smminwith ? smminwith : '180px',
+            width: '300px',
+        },
+    })
+)

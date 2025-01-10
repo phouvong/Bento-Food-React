@@ -1,12 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit'
-import products from "../../components/products-page/Products";
 
 const initialState = {
     searchTagData: [],
-    isProductsOrRestaurants: "products",
-    selectedValue: "",
+    isProductsOrRestaurants: 'products',
+    selectedValue: '',
     selectedName: '',
-    sort_by: ""
+    sort_by: '',
+    cuisineData: [],
 }
 
 export const searchTag = createSlice({
@@ -27,14 +27,20 @@ export const searchTag = createSlice({
         },
         setSort_by: (state, action) => {
             state.sort_by = action.payload
-        }
-
-        // incrementByAmount: (state, action) => {
-        //     state.value += action.payload
-        // },
+        },
+        setCuisineData: (state, action) => {
+            state.cuisineData = action.payload
+        },
     },
 })
 
 // Action creators are generated for each case reducer function
-export const { setSort_by, setSearchTagData, setProductsOrRestaurants, setSelectedName, setSelectedValue } = searchTag.actions
+export const {
+    setSort_by,
+    setSearchTagData,
+    setProductsOrRestaurants,
+    setSelectedName,
+    setSelectedValue,
+    setCuisineData,
+} = searchTag.actions
 export default searchTag.reducer

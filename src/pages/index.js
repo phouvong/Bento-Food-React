@@ -2,31 +2,30 @@ import LandingPage from '../components/landingpage'
 import React, { useEffect } from 'react'
 import PushNotificationLayout from '../components/PushNotificationLayout'
 import Meta from '../components/Meta'
-import { setGlobalSettings } from "@/redux/slices/global"
+import { setGlobalSettings } from '@/redux/slices/global'
 import { useDispatch } from 'react-redux'
-import Router, { useRouter } from "next/router";
-import { CustomHeader } from "@/api/Headers"
-import { checkMaintenanceMode } from "@/utils/customFunctions";
+import { useRouter } from 'next/router'
+import { CustomHeader } from '@/api/Headers'
+import { checkMaintenanceMode } from '@/utils/customFunctions'
 
 const Home = ({ configData, landingPageData }) => {
-
     const router = useRouter()
     const dispatch = useDispatch()
 
     useEffect(() => {
         if (configData && landingPageData) {
             if (configData.length === 0 && landingPageData.length === 0) {
-                router.push('/404');
-                return;
+                router.push('/404')
+                return
             }
 
             if (checkMaintenanceMode(configData)) {
-                router.push('/maintenance');
-                return;
+                router.push('/maintenance')
+                return
             }
-            dispatch(setGlobalSettings(configData));
+            dispatch(setGlobalSettings(configData))
         }
-    }, [configData, landingPageData, router, dispatch]);
+    }, [configData, landingPageData, router, dispatch])
 
     return (
         <>
@@ -52,8 +51,8 @@ export const getServerSideProps = async (context) => {
     const { req } = context
     const language = req.cookies.languageSetting
 
-    let configData = null;
-    let landingPageData = null;
+    let configData = null
+    let landingPageData = null
 
     try {
         const configRes = await fetch(
@@ -70,14 +69,17 @@ export const getServerSideProps = async (context) => {
         )
 
         if (!configRes.ok) {
-            console.error('Error fetching config data:', configRes.status, configRes.statusText);
-            throw new Error(`Failed to fetch config data: ${configRes.status}`);
+            console.error(
+                'Error fetching config data:',
+                configRes.status,
+                configRes.statusText
+            )
+            throw new Error(`Failed to fetch config data: ${configRes.status}`)
         }
 
-        configData = await configRes.json();
-
+        configData = await configRes.json()
     } catch (error) {
-        console.error('Error in config data fetch:', error);
+        console.error('Error in config data fetch:', error)
     }
 
     try {
@@ -90,14 +92,19 @@ export const getServerSideProps = async (context) => {
         )
 
         if (!landingPageRes.ok) {
-            console.error('Error fetching landing page data:', landingPageRes.status, landingPageRes.statusText);
-            throw new Error(`Failed to fetch landing page data: ${landingPageRes.status}`);
+            console.error(
+                'Error fetching landing page data:',
+                landingPageRes.status,
+                landingPageRes.statusText
+            )
+            throw new Error(
+                `Failed to fetch landing page data: ${landingPageRes.status}`
+            )
         }
 
-        landingPageData = await landingPageRes.json();
-
+        landingPageData = await landingPageRes.json()
     } catch (error) {
-        console.error('Error in landing page data fetch:', error);
+        console.error('Error in landing page data fetch:', error)
     }
 
     return {

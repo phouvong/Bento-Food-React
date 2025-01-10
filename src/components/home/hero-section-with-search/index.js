@@ -1,16 +1,15 @@
 import React from 'react'
 import CustomContainer from '../../container'
-import { Box, Stack } from '@mui/system'
 import { useTheme } from '@mui/material/styles'
 import ImageNotFound from '../../../../public/static/no-image-found.png'
 import heroImg from '../../../../public/static/heroHome.svg'
 import SearchSection from './SearchSection'
 import FeatureCatagories from '../featured-categories/FeatureCatagories'
-import { useSelector } from 'react-redux'
-import { alpha } from '@mui/material'
+import { alpha, Box, Stack } from '@mui/material'
 
-const HeroSectionWithSearch = ({ query, noCategories, page }) => {
+const HeroSectionWithSearch = ({ query, page }) => {
     const theme = useTheme()
+
     return (
         <Box
             sx={{

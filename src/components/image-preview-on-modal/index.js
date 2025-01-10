@@ -1,5 +1,4 @@
 import React, { useRef } from "react";
-import PropTypes from 'prop-types'
 import CloseIcon from '@mui/icons-material/Close'
 import CustomImageContainer from '../CustomImageContainer'
 import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style"
@@ -7,9 +6,7 @@ import { useTheme } from "@mui/styles";
 import Slider from 'react-slick'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
-import { HandleNext, HandlePrev } from "@/components/CustomSliderIcon";
 import { LeftArrowStyle, RightArrowStyle } from "@/components/home/HomeStyle";
-import { CustomIconButton } from "@/components/home/food-campaign/FoodCampaign.style";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import IconButton from "@mui/material/IconButton";

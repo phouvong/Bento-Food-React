@@ -33,7 +33,6 @@ const RestaurantList = () => {
     const [forFilter, setForFilter] = useState(false)
     const [page_limit, setPageLimit] = useState(16)
     const [offset, setOffset] = useState(1)
-    const matchesToSmall = useMediaQuery('(min-width:400px)')
     const [searchKey, setSearchKey] = useState('')
     const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)
@@ -122,6 +121,7 @@ const RestaurantList = () => {
         })
         //handleDropClose()
     }
+
     return (
         <>
             {languageDirection && (
@@ -169,6 +169,9 @@ const RestaurantList = () => {
                                                     fontSize: '12px',
                                                     padding: '0px 5px',
                                                     height: '30px',
+                                                    '.MuiChip-deleteIcon': {
+                                                        color: `${theme.palette.neutral[400]} !important`,
+                                                    },
                                                 }}
                                                 label={item?.name}
                                                 variant="outlined"

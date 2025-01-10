@@ -1,55 +1,34 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { Grid, NoSsr, Stack, Typography, useMediaQuery } from '@mui/material'
-import ImageNotFound from '../../../public/static/no-image-found.png'
-import { useTranslation } from 'react-i18next'
+import React, { useRef } from 'react'
+import { Stack, Typography, useMediaQuery } from '@mui/material'
 import {
     CustomStackFullWidth,
     SliderCustom,
-} from '../../styled-components/CustomStyles.style'
-import vectorOne from '../../../public/static/shapes/Vector3.png'
-import vectorTwo from '../../../public/static/shapes/Vector4.svg'
+} from '@/styled-components/CustomStyles.style'
 import { CustomTypography } from '../custom-tables/Tables.style'
 import { useTheme } from '@mui/material/styles'
-import Skeleton from '@mui/material/Skeleton'
 import CustomContainer from '../container'
-import { CustomTypographyGray } from '../error/Errors.style'
-import SimpleBar from 'simplebar-react'
 import 'simplebar/dist/simplebar.min.css'
 import { RTL } from '../RTL/RTL'
 import CustomImageContainer from '../CustomImageContainer'
 import FunSectionShimmer from './FunSectionShimmer'
-import { ReadMore } from './ReadMore'
 import LandingFeatureSvg from './Landingfeature'
 import Slider from 'react-slick'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
 
-import { HandleNext, HandlePrev } from '../CustomSliderIcon'
 import { landingFeatureSettings } from './landingFeatureSettings'
 import LandingFeatureSvg1 from './link-section/LandingFeatureSvg1'
 
-const FunFactSection = ({ react_feature, global, isLoading, fun_base_url }) => {
-    const [featureData, setFeatureData] = useState([])
+const FunFactSection = ({ react_feature, isLoading }) => {
     const theme = useTheme()
-    const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
-    const isLarge = useMediaQuery(theme.breakpoints.up('sm'))
-    const { t } = useTranslation()
     const discountRef = useRef(null)
-
     let languageDirection = undefined
 
     if (typeof window !== 'undefined') {
         languageDirection = localStorage.getItem('direction')
     }
 
-    const styles = {
-        maxWidth: 1200,
-        width: '100%',
-
-        // maxHeight: 200,
-        // height: "100%"
-    }
     const mainComponent = () => {
         return (
             <CustomStackFullWidth sx={{ marginTop: '25px' }}>
@@ -62,7 +41,14 @@ const FunFactSection = ({ react_feature, global, isLoading, fun_base_url }) => {
                         <Slider {...landingFeatureSettings} ref={discountRef}>
                             {react_feature?.map((item, index) => {
                                 return (
-                                    <Stack key={index} position="relative" paddingRight={{ xs: "15px", sm: "20px" }}>
+                                    <Stack
+                                        key={index}
+                                        position="relative"
+                                        paddingRight={{
+                                            xs: '15px',
+                                            sm: '20px',
+                                        }}
+                                    >
                                         <Stack
                                             direction="column"
                                             alignItems="center"
@@ -70,7 +56,7 @@ const FunFactSection = ({ react_feature, global, isLoading, fun_base_url }) => {
                                             flexWrap="wrap"
                                         >
                                             <CustomImageContainer
-                                                src={item.image_full_url}
+                                                src={item?.image_full_url}
                                                 alt="icon"
                                                 width="121px"
                                                 height="140px"
@@ -110,45 +96,45 @@ const FunFactSection = ({ react_feature, global, isLoading, fun_base_url }) => {
 
                                         {index % 2 === 0
                                             ? react_feature.length - 1 !==
-                                            index && (
-                                                <Stack
-                                                    position="absolute"
-                                                    left="54%"
-                                                    top={
-                                                        isSmall
-                                                            ? '-14px'
-                                                            : '37px'
-                                                    }
-                                                    maxWidth={{
-                                                        xs: '177px',
-                                                        sm: '344px',
-                                                        md: '344px',
-                                                    }}
-                                                    width="100%"
-                                                >
-                                                    <LandingFeatureSvg width="100%" />
-                                                </Stack>
-                                            )
+                                                  index && (
+                                                  <Stack
+                                                      position="absolute"
+                                                      left="54%"
+                                                      top={
+                                                          isSmall
+                                                              ? '-14px'
+                                                              : '37px'
+                                                      }
+                                                      maxWidth={{
+                                                          xs: '177px',
+                                                          sm: '344px',
+                                                          md: '344px',
+                                                      }}
+                                                      width="100%"
+                                                  >
+                                                      <LandingFeatureSvg width="100%" />
+                                                  </Stack>
+                                              )
                                             : react_feature.length - 1 !==
-                                            index && (
-                                                <Stack
-                                                    position="absolute"
-                                                    left="59%"
-                                                    top={
-                                                        isSmall
-                                                            ? '-11px'
-                                                            : '35px'
-                                                    }
-                                                    maxWidth={{
-                                                        xs: '162px',
-                                                        sm: '309px',
-                                                        md: '309px',
-                                                    }}
-                                                    width="100%"
-                                                >
-                                                    <LandingFeatureSvg1 width="100%" />
-                                                </Stack>
-                                            )}
+                                                  index && (
+                                                  <Stack
+                                                      position="absolute"
+                                                      left="59%"
+                                                      top={
+                                                          isSmall
+                                                              ? '-11px'
+                                                              : '35px'
+                                                      }
+                                                      maxWidth={{
+                                                          xs: '162px',
+                                                          sm: '309px',
+                                                          md: '309px',
+                                                      }}
+                                                      width="100%"
+                                                  >
+                                                      <LandingFeatureSvg1 width="100%" />
+                                                  </Stack>
+                                              )}
                                     </Stack>
                                 )
                             })}

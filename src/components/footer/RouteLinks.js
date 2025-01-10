@@ -2,14 +2,12 @@ import React, { useState } from 'react'
 import {
     CustomColouredTypography,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
+} from '@/styled-components/CustomStyles.style'
 
 import { useTranslation } from 'react-i18next'
 import Router from 'next/router'
-import { toast } from 'react-hot-toast'
 import { Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import { t } from 'i18next'
 import { router } from 'next/client'
 import MapModal from '../landingpage/google-map/MapModal'
 import { CustomToaster } from '../custom-toaster/CustomToaster'
@@ -25,9 +23,6 @@ const RouteLinks = (props) => {
     const [url, setUrl] = useState({})
     const handleClose = () => {
         setOpen(false)
-        // if (router.pathname !== '/') {
-        //     handleModalClose()
-        // }
     }
     const handleClick = (href, value) => {
         if (value === 'loyalty' || value === 'wallets') {
@@ -41,14 +36,10 @@ const RouteLinks = (props) => {
                     { shallow: true }
                 )
             } else {
-                CustomToaster('error', "You must be login to access this page.");
+                CustomToaster('error', 'You must be login to access this page.')
                 // handleOpen()
             }
-        } else if (
-            value === 'popular' ||
-            value === 'latest' ||
-            value === 'best-reviewed-foods'
-        ) {
+        } else if (value === 'popular' || value === 'latest') {
             if (zoneId) {
                 Router.push({
                     pathname: '/home',
@@ -58,7 +49,30 @@ const RouteLinks = (props) => {
                     },
                 })
             } else {
-                CustomToaster("error", "You must pick a zone to access this page.")
+                CustomToaster(
+                    'error',
+                    'You must pick a zone to access this page.'
+                )
+                setUrl({
+                    pathname: '/home',
+                    query: value,
+                })
+                setOpen(true)
+            }
+        } else if (value === 'most-reviewed') {
+            if (zoneId) {
+                Router.push({
+                    pathname: '/home',
+
+                    query: {
+                        page: value,
+                    },
+                })
+            } else {
+                CustomToaster(
+                    'error',
+                    'You must pick a zone to access this page.'
+                )
                 setUrl({
                     pathname: '/home',
                     query: value,
@@ -69,21 +83,25 @@ const RouteLinks = (props) => {
             if (zoneId) {
                 Router.push(href)
             } else {
-                CustomToaster("error", "You must pick a zone to access this page.")
-                setUrl({pathname: '/cuisines'})
+                CustomToaster(
+                    'error',
+                    'You must pick a zone to access this page.'
+                )
+                setUrl({ pathname: '/cuisines' })
                 setOpen(true)
             }
-        }
-        else if (value === 'restaurant_owner') {
+        } else if (value === 'restaurant_owner') {
             window.open(href)
-        }
-        else if (value === 'delivery_man') {
+        } else if (value === 'delivery_man') {
             window.open(href)
         } else if (value === 'track_order') {
             if (zoneId) {
                 Router.push(href)
             } else {
-                CustomToaster("error", "You must pick a zone to access this page.")
+                CustomToaster(
+                    'error',
+                    'You must pick a zone to access this page.'
+                )
                 //toast.error(t('You must pick a zone to access this page.'))
                 setUrl({
                     pathname: '/home',
@@ -95,13 +113,15 @@ const RouteLinks = (props) => {
             Router.push(href, undefined, { shallow: true })
         }
     }
-    const languageDirection = localStorage.getItem('direction')
     const handleClickToRoute = (href) => {
         router.push(href, undefined, { shallow: true })
     }
 
     return (
-        <CustomStackFullWidth spacing={{ xs: 1.2, sm: 2 }} alignItems={isCenter && 'center'}>
+        <CustomStackFullWidth
+            spacing={{ xs: 1.2, sm: 2 }}
+            alignItems={isCenter && 'center'}
+        >
             <Typography
                 color={alpha(theme.palette.whiteContainer.main, 0.8)}
                 fontSize="14px"
@@ -120,7 +140,10 @@ const RouteLinks = (props) => {
                         sx={{
                             cursor: 'pointer',
                             fontWeight: 300,
-                            color: alpha(theme.palette.whiteContainer.main, 0.8),
+                            color: alpha(
+                                theme.palette.whiteContainer.main,
+                                0.8
+                            ),
                             '&:hover': {
                                 color: 'primary.main',
                             },
@@ -164,7 +187,13 @@ const RouteLinks = (props) => {
                     {t('Cancellation Policy')}
                 </CustomColouredTypography>
             )}
-            {open && <MapModal redirectUrl={url} open={open} handleClose={handleClose} />}
+            {open && (
+                <MapModal
+                    redirectUrl={url}
+                    open={open}
+                    handleClose={handleClose}
+                />
+            )}
         </CustomStackFullWidth>
     )
 }

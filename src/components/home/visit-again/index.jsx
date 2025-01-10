@@ -34,8 +34,6 @@ const CustomSlider = styled(Stack)(
     ({ theme, languageDirection, gap, paddingBottom, isCenter, itemLength }) =>
         isCenter
             ? {
-                  // height: "100%",
-                  // paddingY: '1rem',
                   justifyContent: 'center',
                   '& .custom-slide ': {
                       transform: 'scale(.9)',
@@ -95,7 +93,7 @@ const CustomSlider = styled(Stack)(
                   },
               }
 )
-const Puller = styled('div')(({ theme }) => ({
+export const Puller = styled('div')(({ theme }) => ({
     width: '80px',
     height: '4px',
     backgroundColor: theme.palette.neutral[400],
@@ -117,7 +115,6 @@ const VisitAgain = () => {
     const token = getToken()
     const [userData, setUserData] = useState(null)
     const [text, setText] = useState({ title: '', subTitle: '' })
-    const [dataIsLoading, setDataIsLoading] = useState(false)
     const [imageIndex, setImageIndex] = useState(null)
     useEffect(() => {
         setImageIndex(0)
@@ -155,8 +152,7 @@ const VisitAgain = () => {
             subTitle: `${t('Get your desired item from your recent visit!')}`,
         })
     }
-    const { data, isLoading, refetch, isRefetching } =
-        useOrderAgainRestaurants(handleSuccess1)
+    const { isLoading, refetch } = useOrderAgainRestaurants(handleSuccess1)
 
     const {
         isLoading: isloadingRecommended,
@@ -187,16 +183,15 @@ const VisitAgain = () => {
     const settings = {
         speed: 500,
         slidesToShow: 3,
-        centerMode: userData?.length <= 3 ? false : true,
+        centerMode: userData?.length > 3,
         slidesToScroll: 1,
         dots: true,
         initialSlide: 0,
-        infinite: userData?.length <= 3 ? false : true,
+        infinite: userData?.length > 3,
         centerPadding: '0px',
         nextArrow: hoverOn && <HandleNext />,
         prevArrow: hoverOn && <HandlePrev />,
         beforeChange: (current, next) => setImageIndex(next),
-        // rtl:true,
         responsive: [
             {
                 breakpoint: 1600,
@@ -251,7 +246,6 @@ const VisitAgain = () => {
                     slidesToShow: 1.3,
                     initialSlide: 1,
                     dots: false,
-                    // infinite: false,
                 },
             },
             {
@@ -260,7 +254,6 @@ const VisitAgain = () => {
                     slidesToShow: 1.3,
                     initialSlide: 0,
                     dots: false,
-                    // infinite: false,
                 },
             },
             {
@@ -269,7 +262,6 @@ const VisitAgain = () => {
                     slidesToShow: 1.3,
                     initialSlide: 0,
                     dots: false,
-                    // infinite: false,
                 },
             },
         ],
@@ -396,9 +388,7 @@ const VisitAgain = () => {
                                     gap="12px"
                                     paddingBottom={isSmall ? '10px' : '20px'}
                                     languageDirection={languageDirection}
-                                    isCenter={
-                                        userData?.length <= 3 ? false : true
-                                    }
+                                    isCenter={userData?.length > 3}
                                     itemLength={userData?.length}
                                 >
                                     <Slider {...settings}>
@@ -407,7 +397,6 @@ const VisitAgain = () => {
                                                 return (
                                                     <RestaurantBoxCard
                                                         key={index}
-                                                        // className={isSmall? "" : (index === imageIndex ? "custom-active-slide" : "custom-slide")}
                                                         className={
                                                             index === imageIndex
                                                                 ? 'custom-active-slide'

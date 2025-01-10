@@ -1,5 +1,5 @@
 import React from 'react'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { Skeleton } from '@mui/material'
 
 const DeliverymanShimmer = () => {

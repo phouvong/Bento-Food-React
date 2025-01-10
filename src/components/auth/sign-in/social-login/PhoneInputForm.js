@@ -1,21 +1,15 @@
 import React from 'react'
 import phoneIcon from '../../../../../public/static/profile/phoneInput.png'
-import {
-    CustomBoxFullWidth,
-    CustomStackFullWidth,
-} from '@/styled-components/CustomStyles.style'
-import { alpha, Paper, Stack, Typography, useTheme } from '@mui/material'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
+import { alpha, Stack, Typography, useTheme } from '@mui/material'
 import CustomPhoneInput from '../../../CustomPhoneInput'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { useTranslation } from 'react-i18next'
-import CustomAlert from '../../../alert/CustomAlert'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { usePostRegisterInfo } from '@/hooks/react-query/social-login/usePostRegisterInfo'
-import { onErrorResponse, onSingleErrorResponse } from '../../../ErrorResponse'
+import { onErrorResponse } from '../../../ErrorResponse'
 import CustomImageContainer from '../../../CustomImageContainer'
-import { CustomBoxForModal } from '../../auth.style'
-import { t } from 'i18next'
 import InputAdornment from '@mui/material/InputAdornment'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import { CustomSignUpTextField } from '@/components/auth/sign-up'
@@ -29,7 +23,6 @@ const PhoneInputForm = (props) => {
         handleRegistrationOnSuccess,
         global,
         setModalFor,
-        setForWidth,
     } = props
     const { t } = useTranslation()
     const theme = useTheme()
@@ -128,7 +121,6 @@ const PhoneInputForm = (props) => {
                                     </InputAdornment>
                                 ),
                             }}
-                            //  autoFocus
                         />
                         <CustomPhoneInput
                             value={formik.values.phone}
@@ -156,7 +148,6 @@ const PhoneInputForm = (props) => {
                                 formik.errors.ref_code
                             }
                             touched={formik.touched.ref_code}
-                            //   autoFocus
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">

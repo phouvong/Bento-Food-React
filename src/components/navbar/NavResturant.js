@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
-
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-
 import {
     alpha,
     Button,
@@ -11,17 +9,16 @@ import {
     Stack,
     Typography,
 } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
 import Link from 'next/link'
-import Router, { useRouter } from 'next/router'
+import Router from 'next/router'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
 import ResOffer from '../../../public/static/Menu/resturant.png'
-import { RestaurantsApi } from '../../hooks/react-query/config/restaurantApi'
-import { setPopularRestaurants } from '../../redux/slices/storedData'
-import { noRestaurantsImage } from '../../utils/LocalImages'
+import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
+import { setPopularRestaurants } from '@/redux/slices/storedData'
+import { noRestaurantsImage } from '@/utils/LocalImages'
 import CustomImageContainer from '../CustomImageContainer'
 import CustomEmptyResult from '../empty-view/CustomEmptyResult'
 import { onErrorResponse } from '../ErrorResponse'
@@ -35,26 +32,16 @@ const useStyles = makeStyles((theme) => ({
         pointerEvents: 'auto',
     },
 }))
+
 const NavResturant = ({ zoneid }) => {
     const { t } = useTranslation()
     const classes = useStyles()
-    const router = useRouter()
-    const theme = useTheme()
     const dispatch = useDispatch()
-    const { global } = useSelector((state) => state.globalSettings)
     const { popularRestaurants } = useSelector((state) => state.storedData)
     const [resdropdown, setResdropdown] = useState(null)
     const openresdrop = Boolean(resdropdown)
 
-    const restuarantImageUrl = `${global?.base_urls?.restaurant_image_url}`
-
-    const {
-        isLoading: vegLoading,
-        data: popularRestaurant,
-        isError: vegIsError,
-        error: vegError,
-        refetch: restaurantApiRefetch,
-    } = useQuery(
+    const { data: popularRestaurant, refetch: restaurantApiRefetch } = useQuery(
         ['restaurants/popular'],
         () => RestaurantsApi?.popularRestaurants(),
         {
@@ -162,7 +149,6 @@ const NavResturant = ({ zoneid }) => {
                                                                         restaurant?.zone_id,
                                                                 },
                                                             }}
-                                                            //href={`/restaurant/${restaurantIdOrSlug}`}
                                                             passHref
                                                         >
                                                             <MenuItem
@@ -336,7 +322,7 @@ const NavResturant = ({ zoneid }) => {
                             )}
 
                             <CustomImageContainer
-                                src={ResOffer.src}
+                                src={ResOffer?.src}
                                 alt="restaurant-image"
                                 borderRadius=".6rem"
                                 height="202px"

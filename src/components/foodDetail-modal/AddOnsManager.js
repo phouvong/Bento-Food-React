@@ -8,9 +8,7 @@ const AddOnsManager = (props) => {
         t,
         modalData,
         setTotalPrice,
-        setVarPrice,
         changeAddOns,
-        setProductAddOns,
         product,
         setAddOns,
         add_on,
@@ -38,10 +36,8 @@ const AddOnsManager = (props) => {
                         <IncDecAddOn
                             key={item?.id}
                             setTotalPrice={setTotalPrice}
-                            setVarPrice={setVarPrice}
                             changeAddOns={changeAddOns}
                             add_on={item}
-                            setProductAddOns={setProductAddOns}
                             product_add_ons={product?.add_ons}
                             setAddOns={setAddOns}
                             add_ons={add_on}

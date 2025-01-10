@@ -1,21 +1,18 @@
 import React from 'react'
-import { Typography, Grid, Box, Stack } from '@mui/material'
+import { Grid, Stack } from '@mui/material'
 import { useQuery } from 'react-query'
-//import {useReviewListsGet} from "../../hooks/react-query/config/reviews/useReiewLists";
-import { ReviewApi } from '../../hooks/react-query/config/reviewlist'
+import { ReviewApi } from '@/hooks/react-query/config/reviewlist'
 import ReviewCard from './ReviewCard'
 import { useSelector } from 'react-redux'
 import WishListShimmer from '../wishlist-page/WishListShimmer'
 import CustomEmptyResult from '../empty-view/CustomEmptyResult'
-import noData from '../../../public/static/nodata.png'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
-import ReviewModal from '../RreviewModal'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { onErrorResponse } from '../ErrorResponse'
-import { noDataFound } from '../../utils/LocalImages'
+import { noDataFound } from '@/utils/LocalImages'
 
 const ReviewLists = ({ id }) => {
     const { global } = useSelector((state) => state.globalSettings)
-    const { isLoading, data, isError, error, refetch } = useQuery(
+    const { data } = useQuery(
         [`review-list`, id],
         () => ReviewApi.reviewList(id),
         {

@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
-import { ProductsApi } from "@/hooks/react-query/config/productsApi"
+import { ProductsApi } from '@/hooks/react-query/config/productsApi'
 import { useRouter } from 'next/router'
 import { useDispatch, useSelector } from 'react-redux'
-import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style"
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import SearchFilterWithResults from './SearchFilterWithResults'
 import { getFilterChoices } from './getFilterChoices'
 import Meta from '../Meta'
 import { onErrorResponse } from '../ErrorResponse'
-import { RestaurantsApi } from "@/hooks/react-query/config/restaurantApi"
-import { setFilterbyByDispatch, setFoodOrRestaurant } from "@/redux/slices/searchFilter";
-import { setSearchTagData } from "@/redux/slices/searchTagSlice";
-import { removeSpecialCharacters } from "@/utils/customFunctions";
+import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
+import {
+    setFilterbyByDispatch,
+    setFoodOrRestaurant,
+} from '@/redux/slices/searchFilter'
+import { setSearchTagData } from '@/redux/slices/searchTagSlice'
+import { removeSpecialCharacters } from '@/utils/customFunctions'
 
 const ProductSearchPage = ({
     product_type,
@@ -19,36 +22,42 @@ const ProductSearchPage = ({
     query,
     page,
     restaurantType,
-                               tags
+    tags,
 }) => {
     const dispatch = useDispatch()
     const { global } = useSelector((state) => state.globalSettings)
     const router = useRouter()
     const [type, setType] = useState('all')
-    const {searchTagData,selectedValue,selectedName}=useSelector((state) => state.searchTags)
-    // const pageLimitFromAdmin = global.
+    const { searchTagData, selectedValue, selectedName } = useSelector(
+        (state) => state.searchTags
+    )
     const [page_limit, setPageLimit] = useState(15)
     const [offset, setOffset] = useState(1)
     const [searchValue, setSearchValue] = useState('')
-    //const [foodOrRestaurant, setFoodOrRestaurant] = useState('products')
-    const { filterData,foodOrRestaurant } = useSelector((state) => state.searchFilterStore)
+    const { filterData, foodOrRestaurant } = useSelector(
+        (state) => state.searchFilterStore
+    )
     const [checkfilter, setCheckfilter] = useState(false)
     const [pageData, setPageData] = useState({})
     const [searchOrPage, setSearchOrPage] = useState({})
-    const [totalData,setTotalData] = useState(null)
+    const [totalData, setTotalData] = useState(null)
+    console.log(filterData?.filterByCuisine)
     const activeFilters = searchTagData.filter((item) => item.isActive === true)
     const apiKey =
         foodOrRestaurant === 'products'
             ? 'products-search'
             : 'restaurant-search'
     const handleAPiCallOnSuccess = (res) => {
-        if (restaurantType) {
+        if (restaurantType && !tags) {
             dispatch(setFoodOrRestaurant('restaurants'))
             setPageData({
                 ...res,
                 data: {
                     ...res,
-                    restaurants: res.data,
+                    restaurants:
+                        restaurantType === 'dine-in'
+                            ? res?.data?.restaurants
+                            : res?.data,
                     total_size: res?.data?.length,
                 },
             })
@@ -56,7 +65,10 @@ const ProductSearchPage = ({
                 ...res,
                 data: {
                     ...res,
-                    restaurants: res.data,
+                    restaurants:
+                        restaurantType === 'dine-in'
+                            ? res?.data?.restaurants
+                            : res?.data,
                     total_size: res?.data?.length,
                 },
             })
@@ -70,18 +82,27 @@ const ProductSearchPage = ({
         setTotalData(res?.data?.total_size)
     }
 
+    const isDineIn = restaurantType === 'dine_in' ? restaurantType : ''
     const { isLoading, data, isError, error, refetch, isRefetching } = useQuery(
-        [apiKey, foodOrRestaurant, searchValue, offset, page_limit],
+        [
+            apiKey,
+            foodOrRestaurant,
+            searchValue,
+            offset,
+            page_limit,
+            filterData?.filterByCuisine,
+        ],
         () =>
             ProductsApi.productSearch(
                 foodOrRestaurant,
                 searchValue,
                 offset,
                 page_limit,
-                filterData
+                filterData,
+                restaurantType
             ),
         {
-            retry:1,
+            retry: 1,
             enabled: false,
             onSuccess: handleAPiCallOnSuccess,
             onError: onErrorResponse,
@@ -105,60 +126,106 @@ const ProductSearchPage = ({
         data: restaurantData,
         refetch: restaurantRefetch,
     } = useQuery(
-        [`restaurant-list`, restaurantType],
-        () => RestaurantsApi.typeWiseRestaurantList({ restaurantType, type }),
+        [
+            `restaurant-list`,
+            restaurantType,
+            filterData?.filterBy,
+            filterData?.filterByCuisine,
+        ],
+        () =>
+            RestaurantsApi.typeWiseRestaurantList({
+                restaurantType,
+                type,
+                filterData,
+            }),
         {
             enabled: false,
             onSuccess: handleAPiCallOnSuccess,
             onError: onErrorResponse,
         }
     )
+    // const {
+    //     isLoading: isLoadingDineIn,
+    //     data: newRestuarants,
+    //     refetch: dineRefetch,
+    // } = useQuery(
+    //     ['latest-restaurants'],
+    //     () => RestaurantsApi?.latestRestaurants(),
+    //     {
+    //         enabled: false,
+    //         onSuccess: handleAPiCallOnSuccess,
+    //         onError: onErrorResponse,
+    //     }
+    // )
+    //
+    // useEffect(() => {
+    //     if (page === 'dine_in') {
+    //         dineRefetch()
+    //     }
+    // }, [page, offset])
 
     useEffect(() => {
-        if (restaurantType !== undefined) {
-            restaurantRefetch()
+        const refetchData = () => {
+            if (restaurantType && tags === undefined) {
+                restaurantRefetch()
+            }
         }
-    }, [restaurantType,offset])
+
+        // Add a small delay to ensure `tags` has time to set
+        const delayRefetch = setTimeout(refetchData, 500) // Adjust delay as needed
+
+        // Cleanup timeout on unmount or if dependencies change
+        return () => clearTimeout(delayRefetch)
+    }, [
+        restaurantType,
+        tags,
+        offset,
+        filterData?.filterBy,
+        restaurantRefetch,
+        filterData?.filterByCuisine,
+    ])
 
     useEffect(() => {
         if (page !== undefined) {
             popularRefetch()
         }
-    }, [page,offset])
-
+    }, [page, offset])
     useEffect(() => {
-        if (query || page || restaurantType) {
+        if (restaurantType && tags) {
+            setSearchValue(null)
+        } else if (query || page || restaurantType) {
             setSearchValue(removeSpecialCharacters(query))
         } else {
-            if(tags) {
+            if (tags) {
                 setSearchValue(null)
-
-            }else{
+            } else {
                 router.push('/home')
             }
         }
-    }, [query,tags])
-
-
+    }, [query, tags, restaurantType, page])
 
     useEffect(() => {
-        if(activeFilters?.length===0 && !query && !page && !restaurantType && !searchValue){
+        if (
+            activeFilters?.length === 0 &&
+            !query &&
+            !page &&
+            !restaurantType &&
+            !searchValue
+        ) {
             router.push('/home')
         }
-    }, [searchTagData]);
+    }, [searchTagData])
     useEffect(async () => {
-        if(searchValue){
+        if (searchValue) {
             await refetch()
-        }else if(tags && page){
+        } else if (tags && page) {
             await refetch()
-        }else if(tags){
-            if(activeFilters?.length>0){
+        } else if (tags) {
+            if (activeFilters?.length > 0) {
                 await refetch()
             }
         }
-
-    }, [searchValue,filterData,tags,offset])
-
+    }, [searchValue, filterData, tags, offset])
     useEffect(() => {
         setOffset(1)
         if (searchValue !== undefined) {
@@ -206,16 +273,19 @@ const ProductSearchPage = ({
     }
 
     useEffect(() => {
-        const temPage=page==="most-reviewed"?"rating":page
-        const temRestaurantType=restaurantType==="latest"?"new_arrivals":restaurantType
+        const temPage = page === 'most-reviewed' ? 'rating' : page
+        const temRestaurantType =
+            restaurantType === 'latest' ? 'new_arrivals' : restaurantType
         const newArr = searchTagData.map((item) =>
-            item.value === (temPage ||temRestaurantType) ? { ...item, isActive: true } : item
-        );
+            item.value === (temPage || temRestaurantType)
+                ? { ...item, isActive: true }
+                : item
+        )
         dispatch(setSearchTagData(newArr))
-    }, [page,restaurantType]);
+    }, [page, restaurantType])
     useEffect(() => {
         setOffset(1)
-    }, [searchTagData,selectedName,searchValue]);
+    }, [searchTagData, selectedName, searchValue])
 
     return (
         <>
@@ -231,7 +301,11 @@ const ProductSearchPage = ({
                         searchValue={searchValue}
                         foodOrRestaurant={foodOrRestaurant}
                         setFoodOrRestaurant={setFoodOrRestaurant}
-                        isLoading={isLoading || restaurantIsLoading || popularFoodisLoading}
+                        isLoading={
+                            isLoading ||
+                            restaurantIsLoading ||
+                            popularFoodisLoading
+                        }
                         isNetworkCalling={isRefetching}
                         data={pageData}
                         page_limit={page_limit}
@@ -245,7 +319,6 @@ const ProductSearchPage = ({
                         restaurantType={restaurantType}
                         restaurantIsLoading={restaurantIsLoading}
                         totalData={totalData}
-
                     />
                 )}
             </CustomStackFullWidth>

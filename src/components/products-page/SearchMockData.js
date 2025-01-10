@@ -7,12 +7,6 @@ export const searchMockData = [
         value: 'sort_by',
         isActive: false,
     },
-    // {
-    //     id: 10,
-    //     name: t('Cuisine'),
-    //     value: 'cuisine',
-    //     isActive: false,
-    // },
     {
         id: 0,
         name: t('Veg'),
@@ -36,7 +30,8 @@ export const searchMockData = [
         name: t('Ratings 4 +'),
         value: 'rating',
         isActive: false,
-    },  {
+    },
+    {
         id: 5,
         name: t('Ratings 5'),
         value: 'rating5',
@@ -58,6 +53,12 @@ export const searchMockData = [
         id: 8,
         name: 'Popular',
         value: 'popular',
+        isActive: false,
+    },
+    {
+        id: 9,
+        name: 'Currently Open',
+        value: 'currentlyAvailable',
         isActive: false,
     },
 ]

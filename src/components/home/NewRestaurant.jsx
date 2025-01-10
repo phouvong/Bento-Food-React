@@ -18,7 +18,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import Router from 'next/router'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from 'react-query'
-import { setNewRestaurant } from '../../redux/slices/scrollPosition'
+import { setNewRestaurant } from '@/redux/slices/scrollPosition'
 import { HandleNext, HandlePrev } from '../CustomSliderIcon'
 import { onErrorResponse } from '../ErrorResponse'
 import FoodCardShimmer from '../food-card/FoodCarShimmer'
@@ -30,11 +30,9 @@ const NewRestaurant = () => {
     const dispatch = useDispatch()
     const { t } = useTranslation()
     const [hoverOn, setHoverOn] = useState(false)
-    const [gifShow, setGifShow] = useState(false)
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const { newOffsetElementRef } = useScrollSticky()
-    const { newRestaurant } = useSelector((state) => state.scrollPosition)
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             dispatch(setNewRestaurant(false))
@@ -47,8 +45,6 @@ const NewRestaurant = () => {
     const {
         isLoading,
         data: newRestuarants,
-
-        error,
         refetch,
     } = useQuery(
         ['latest-restaurants'],
@@ -164,14 +160,6 @@ const NewRestaurant = () => {
                     infinite: false,
                 },
             },
-            // {
-            //     breakpoint: 370,
-            //     settings: {
-            //         slidesToShow: 1,
-            //         slidesToScroll: 1,
-            //         infinite: false,
-            //     },
-            // },
         ],
     }
     const handleClick = () => {
@@ -183,6 +171,7 @@ const NewRestaurant = () => {
             },
         })
     }
+    const new_on = t('New on')
 
     return (
         <Grid
@@ -232,7 +221,7 @@ const NewRestaurant = () => {
                                 fontSize={{ xs: '16px', md: '20px' }}
                                 fontWeight={{ xs: '500', md: '700' }}
                             >
-                                {t(`New on ${global?.business_name}`)}
+                                {t(`${new_on} ${global?.business_name}`)}
                             </Typography>
                         </Stack>
                         <CustomViewAll
@@ -302,7 +291,7 @@ const NewRestaurant = () => {
                                                     restaurantData?.distance
                                                 }
                                                 foods_count={
-                                                    restaurantData?.foods_count
+                                                    restaurantData?.foods
                                                 }
                                             />
                                         </Stack>

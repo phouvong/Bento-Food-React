@@ -1,5 +1,4 @@
 import toast from 'react-hot-toast'
-import CustomAlert from '../alert/CustomAlert'
 import { Paper, Stack } from '@mui/material'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
 import React from 'react'
@@ -7,8 +6,7 @@ import React from 'react'
 export const handleProductVariationRequirementsToaster = (
     text,
     checkingQuantity,
-    t,
-    id
+    t
 ) => {
     if (checkingQuantity) {
         toast.custom(
@@ -73,6 +71,4 @@ export const handleProductVariationRequirementsToaster = (
             }
         )
     }
-
-    // <CustomAlert type="warning" text={text} />
 }

@@ -1,19 +1,8 @@
 import React from 'react'
-
-import {
-    CustomBoxFullWidth,
-    CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
-import { Grid, Typography, Stack } from '@mui/material'
+import { CustomBoxFullWidth } from '@/styled-components/CustomStyles.style'
+import { Grid, Stack } from '@mui/material'
 import Skeleton from '@mui/material/Skeleton'
-import CustomShimmerCard from '../customShimmerForProfile/CustomShimmerCard'
-import {
-    WishlistGrid,
-    IconButtonGrid,
-    WishlistBox,
-    ArrowButton,
-    CatagoriName,
-} from './WishList.style'
+import { IconButtonGrid, WishlistBox } from './WishList.style'
 const WishListShimmer = () => {
     return (
         <CustomBoxFullWidth>

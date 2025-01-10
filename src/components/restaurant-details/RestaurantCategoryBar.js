@@ -1,10 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { alpha, Grid, IconButton, Popover, Typography } from '@mui/material'
+import {
+    alpha,
+    Grid,
+    IconButton,
+    Popover,
+    Typography,
+    Box,
+    Stack,
+} from '@mui/material'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { CategoryButton } from './restaurant-details.style'
 import { styled, useTheme } from '@mui/material/styles'
 import FilterButton from '../Button/FilterButton'
-import { Box, Stack } from '@mui/system'
 import RestaurantFilterCard from '../home/restaurant/RestaurantFilterCard'
 import { filterData } from '../home/restaurant/FilterData'
 import { RTL } from '../RTL/RTL'
@@ -12,9 +19,9 @@ import SearchIcon from '@mui/icons-material/Search'
 import { t } from 'i18next'
 import CustomSearch from '../custom-search/CustomSearch'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+
 const CustomBox = styled(Box)(({ theme }) => ({
     width: '100%',
-
     overflowX: 'none',
     overflowY: 'auto',
     cursor: 'pointer',
@@ -53,12 +60,10 @@ const RestaurantCategoryBar = (props) => {
         data,
         selectedId,
         handleClick,
-        filterKey,
         setFilterKey,
         handleFilter,
         isSmall,
         handleSearchResult,
-        setSelectedId,
         searchKey,
     } = props
     const [checkedFilterKey, setCheckedFilterKey] = useState(filterData)
@@ -89,10 +94,6 @@ const RestaurantCategoryBar = (props) => {
             scrollerRef.current.scrollLeft = offset
         }
     }, [selectedId])
-
-    // useEffect(() => {
-    //     setCheckFilterKey(filterData)
-    // }, [])
 
     const handleFilterData = (event, id) => {
         const activeFilters = checkedFilterKey.filter(
@@ -175,12 +176,9 @@ const RestaurantCategoryBar = (props) => {
                         <Stack sx={{ animation: 'fadeInRight 1s  1' }}>
                             <CustomSearch
                                 borderRadius="5px"
-                                //key={reRenderSearch}
                                 handleSearchResult={handleSearchResult}
                                 label={t('Search foods')}
-                                //isLoading={isLoadingSearchFood}
                                 searchFrom="restaurantDetails"
-                                // forMobile="true"
                                 selectedValue={searchKey}
                             />
                         </Stack>
@@ -220,9 +218,6 @@ const RestaurantCategoryBar = (props) => {
                                             >
                                                 {item?.name}
                                             </Typography>
-                                            {/*<CustomTypographyEllipsis>*/}
-                                            {/*    */}
-                                            {/*</CustomTypographyEllipsis>*/}
                                         </CategoryButton>
                                     )
                                 })}
@@ -316,12 +311,8 @@ const RestaurantCategoryBar = (props) => {
                     anchorEl={anchorEl}
                     handleFilterData={handleFilterData}
                     setCheckedFilterKey={setCheckedFilterKey}
-                    // handleClear={handleClear}
                     setFilterKey={setFilterKey}
                     handleReset={handleReset}
-                    // handleFilter={handleFilter}
-                    // handleClearAll={handleClearAll}
-                    // foodOrRestaurant={foodOrRestaurant}
                 />
             </Popover>
         </RTL>

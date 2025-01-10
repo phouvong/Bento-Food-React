@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
 import { RestaurantDetailsNavButton } from '../../food-card/FoodCard.style'
 import { ButtonGroup, Tabs } from '@mui/material'
 import { useTranslation } from 'react-i18next'

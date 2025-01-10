@@ -1,6 +1,5 @@
 import { useRouter } from 'next/router'
 import PropTypes from 'prop-types'
-// import toast from 'react-hot-toast'
 import LogoutIcon from '@mui/icons-material/Logout'
 import {
     alpha,
@@ -26,11 +25,9 @@ import settings from '../../../public/static/profile/settings.svg'
 import wallet from '../../../public/static/profile/wallet.svg'
 import wish from '../../../public/static/profile/wish.svg'
 import refer from '../../../public/static/refer_code.png'
-import { removeToken } from '../../redux/slices/userToken'
-import { clearWishList } from '../../redux/slices/wishList'
-import { logoutSuccessFull } from '../../utils/ToasterMessages'
+import { removeToken } from '@/redux/slices/userToken'
+import { clearWishList } from '@/redux/slices/wishList'
 import CustomDialogConfirm from '../custom-dialog/confirm/CustomDialogConfirm'
-import { CustomToaster } from '../custom-toaster/CustomToaster'
 
 export const menuData = [
     {
@@ -103,9 +100,6 @@ export const AccountPopover = (props) => {
                 let a = []
                 dispatch(clearWishList(a))
                 cartListRefetch()
-                // dispatch(setClearCart())
-                // toast.success(t(logoutSuccessFull))
-                //CustomToaster('success', logoutSuccessFull)
                 onClose?.()
                 if (router.pathname === '/') {
                     router.push('/')

@@ -1,15 +1,9 @@
-import React from 'react'
-import { Container, Stack } from '@mui/material'
-
-import LandingHeroBanner from '../../../public/static/banners/hero-banner.png'
+import React, { memo } from 'react'
+import { Stack, Box } from '@mui/material'
 import ImageNotFound from '../../../public/static/no-image-found.png'
-
-import HeroSectionSm from './HeroSectionSm'
-import { useSelector } from 'react-redux'
 import Skeleton from '@mui/material/Skeleton'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { Box } from '@mui/system'
 import { HeroCardTypography } from './Landingpage.style'
 import HeroLocationForm from './HeroLocationForm'
 import CustomContainer from '../container'
@@ -19,16 +13,12 @@ const HeroSection = (props) => {
     const {
         handleModalClose,
         isLoading,
-        business_name,
         banner_section_title,
         banner_section_subTitle,
         banner_section_image,
         banner_section_image_base_url,
     } = props
-    const { global } = useSelector((state) => state.globalSettings)
     const heroImg = banner_section_image
-
-    // `${global?.base_urls?.react_landing_page_images}/${heroImg}`
 
     const theme = useTheme()
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
@@ -71,38 +61,36 @@ const HeroSection = (props) => {
                                 />
                             </Stack>
                         ) : (
-                            <>
-                                <Stack
-                                    height={{
-                                        xs: '137px',
-                                        sm: '300px',
-                                        md: '320px',
-                                    }}
-                                    width="100%"
-                                    paddingY="20px"
-                                    paddingX={isXSmall && '1rem'}
-                                    justifyContent="center"
-                                    alignItems="center"
+                            <Stack
+                                height={{
+                                    xs: '137px',
+                                    sm: '300px',
+                                    md: '320px',
+                                }}
+                                width="100%"
+                                paddingY="20px"
+                                paddingX={isXSmall && '1rem'}
+                                justifyContent="center"
+                                alignItems="center"
+                            >
+                                <HeroCardTypography
+                                    fontSize={{ xs: '24px', sm: '48px' }}
+                                    fontWeight="700"
                                 >
-                                    <HeroCardTypography
-                                        fontSize={{ xs: '24px', sm: '48px' }}
-                                        fontWeight="700"
-                                    >
-                                        {banner_section_title}
-                                    </HeroCardTypography>
-                                    <HeroCardTypography
-                                        fontSize={{ xs: '12px', sm: '18px' }}
-                                    >
-                                        {banner_section_subTitle}
-                                    </HeroCardTypography>
-                                    {!isXSmall && (
-                                        <HeroLocationForm
-                                            mobileview="false"
-                                            handleModalClose={handleModalClose}
-                                        />
-                                    )}
-                                </Stack>
-                            </>
+                                    {banner_section_title}
+                                </HeroCardTypography>
+                                <HeroCardTypography
+                                    fontSize={{ xs: '12px', sm: '18px' }}
+                                >
+                                    {banner_section_subTitle}
+                                </HeroCardTypography>
+                                {!isXSmall && (
+                                    <HeroLocationForm
+                                        mobileview="false"
+                                        handleModalClose={handleModalClose}
+                                    />
+                                )}
+                            </Stack>
                         )}
                     </CustomContainer>
                     <Box
@@ -126,4 +114,4 @@ const HeroSection = (props) => {
     )
 }
 
-export default HeroSection
+export default memo(HeroSection)

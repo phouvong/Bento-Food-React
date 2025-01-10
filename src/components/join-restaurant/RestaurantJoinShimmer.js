@@ -2,13 +2,11 @@ import React from 'react'
 import {
     CustomBoxFullWidth,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
-import {
-    Grid,
-} from '@mui/material'
+} from '@/styled-components/CustomStyles.style'
+import { Grid } from '@mui/material'
 import Skeleton from '@mui/material/Skeleton'
 
-const RestaurantJoinShimmer = (props) => {
+const RestaurantJoinShimmer = () => {
     return (
         <CustomBoxFullWidth padding="2rem">
             <Grid container spacing={3}>

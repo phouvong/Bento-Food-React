@@ -5,14 +5,12 @@ import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
-import { Button } from '@material-ui/core'
 import { useRouter } from 'next/router'
-import Link from 'next/link'
-import { getDataLimit } from '../../utils/customFunctions'
+import { getDataLimit } from '@/utils/customFunctions'
 import { t } from 'i18next'
 import { useTheme } from '@emotion/react'
 
-const CollapsableMenu = ({ value, toggleDrawers, setOpenDrawer, pathName }) => {
+const CollapsableMenu = ({ value, setOpenDrawer, pathName }) => {
     const router = useRouter()
     const theme = useTheme()
     const [open, setOpen] = useState(false)
@@ -28,6 +26,7 @@ const CollapsableMenu = ({ value, toggleDrawers, setOpenDrawer, pathName }) => {
         setOpenDrawer(false)
     }
     const textColor = theme.palette.whiteContainer.main
+
     return (
         <>
             <ListItemButton

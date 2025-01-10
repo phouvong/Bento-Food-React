@@ -13,13 +13,10 @@ const RestaurantTab = (props) => {
         handleChange,
         mockData,
         setFilterByData,
-        filterByData,
         setOffSet,
         setForFilter,
-        responsiveTop,
         forFilter,
         scrollToSection5,
-        inView,
         checkedFilterKey,
         setCheckedFilterKey,
     } = props

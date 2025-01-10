@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { useRouter } from 'next/router'
 import { useSelector } from 'react-redux'
 

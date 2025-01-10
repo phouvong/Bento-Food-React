@@ -1,7 +1,6 @@
 import React from 'react'
 import CustomContainer from '@/components/container'
-import { alpha, Grid, Tooltip, Typography, useMediaQuery } from '@mui/material'
-import { Box } from '@mui/system'
+import { alpha, Grid, Typography, useMediaQuery, Box } from '@mui/material'
 import CustomImageContainer from '@/components/CustomImageContainer'
 import { useTheme } from '@mui/styles'
 import DollarSignHighlighter from '@/components/DollarSignHighlighter'
@@ -69,8 +68,6 @@ const AvailableZoneSection = ({ landingPageData }) => {
                         />
                     </Typography>
                     <Typography
-                        // fontSize="16px"
-                        // fontWeight="500"
                         fontSize={{ xs: '14px', md: '16px' }}
                         fontWeight={{ xs: '400', md: '400' }}
                         color={theme.palette.neutral[400]}
@@ -86,17 +83,17 @@ const AvailableZoneSection = ({ landingPageData }) => {
                                 overflowY: 'auto',
                                 paddingRight: '10px',
                                 '&::-webkit-scrollbar': {
-                                    width: '3px', // Custom scrollbar width
+                                    width: '3px',
                                 },
                                 '&::-webkit-scrollbar-track': {
-                                    backgroundColor: '#f0f0f0', // Track color
+                                    backgroundColor: '#f0f0f0',
                                 },
                                 '&::-webkit-scrollbar-thumb': {
-                                    backgroundColor: '#c1c1c1', // Thumb color
+                                    backgroundColor: '#c1c1c1',
                                     borderRadius: '3px',
                                 },
                                 '&::-webkit-scrollbar-thumb:hover': {
-                                    backgroundColor: '#003638', // Thumb hover color
+                                    backgroundColor: '#003638',
                                 },
                             }}
                         >
@@ -110,7 +107,7 @@ const AvailableZoneSection = ({ landingPageData }) => {
                                 }}
                             >
                                 {landingPageData?.available_zone_list?.map(
-                                    (zone, index) => (
+                                    (zone) => (
                                         <Box
                                             sx={{
                                                 borderRadius: '10px',
@@ -142,21 +139,12 @@ const AvailableZoneSection = ({ landingPageData }) => {
                                         >
                                             {zone?.display_name}
                                         </Box>
-                                        // <Tooltip
-                                        //     arrow
-                                        //     placement="top"
-                                        //     title={toolTipsContent(zone)}
-                                        //     key={index}
-                                        // >
-                                        //
-                                        // </Tooltip>
                                     )
                                 )}
                             </Box>
                         </Box>
 
                         {/* The gradient overlay at the bottom */}
-
                         <Box
                             sx={{
                                 position: 'absolute',

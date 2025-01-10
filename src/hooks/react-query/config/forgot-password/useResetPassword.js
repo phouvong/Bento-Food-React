@@ -1,6 +1,6 @@
 import MainApi from '../../../../api/MainApi'
 import { useMutation } from 'react-query'
-import { onSingleErrorResponse } from '../../../../components/ErrorResponse'
+import { onSingleErrorResponse } from '@/components/ErrorResponse'
 
 const resetPassword = async (newPass) => {
     const { data } = await MainApi.put('/api/v1/auth/reset-password', newPass)

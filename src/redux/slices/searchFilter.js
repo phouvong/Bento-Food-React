@@ -11,7 +11,7 @@ const initialState = {
         price: '',
         rating: '',
     },
-    foodOrRestaurant:"products"
+    foodOrRestaurant: 'products',
 }
 
 export const searchFilterSlice = createSlice({
@@ -19,7 +19,6 @@ export const searchFilterSlice = createSlice({
     initialState,
     reducers: {
         setSortbyByDispatch: (state, action) => {
-
             state.filterData.sortBy = action.payload
         },
         setFilterbyByDispatch: (state, action) => {
@@ -35,20 +34,18 @@ export const searchFilterSlice = createSlice({
                         (item) => item.value === 'currentlyAvailable'
                     ) !== undefined,
                 rating:
-                    action.payload.find(
-                        (item) => item.value === 'rating'
-                    ) !== undefined,
-                ratings:
-                    action.payload.find(
-                        (item) => item.value === 'ratings'
-                    ) !== undefined,
-                rating5:
-                    action.payload.find(
-                        (item) => item.value === 'rating5'
-                    ) !== undefined,
-                new:
-                    action.payload.find((item) => item.value === 'new_arrivals') !==
+                    action.payload.find((item) => item.value === 'rating') !==
                     undefined,
+                ratings:
+                    action.payload.find((item) => item.value === 'ratings') !==
+                    undefined,
+                rating5:
+                    action.payload.find((item) => item.value === 'rating5') !==
+                    undefined,
+                new:
+                    action.payload.find(
+                        (item) => item.value === 'new_arrivals'
+                    ) !== undefined,
                 popular:
                     action.payload.find((item) => item.value === 'popular') !==
                     undefined,
@@ -80,9 +77,9 @@ export const searchFilterSlice = createSlice({
         setDeliveryManInfoByDispatch: (state, action) => {
             state.deliveryManInfo = action.payload
         },
-        setFoodOrRestaurant:(state,action) => {
+        setFoodOrRestaurant: (state, action) => {
             state.foodOrRestaurant = action.payload
-        }
+        },
     },
 })
 
@@ -96,6 +93,6 @@ export const {
     setBannerFoodByDispatch,
     setDeliveryManInfoByDispatch,
     setFilterbyByCuisineDispatch,
-    setFoodOrRestaurant
+    setFoodOrRestaurant,
 } = searchFilterSlice.actions
 export default searchFilterSlice.reducer

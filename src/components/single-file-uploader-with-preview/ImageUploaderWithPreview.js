@@ -2,22 +2,25 @@ import React, { useRef } from 'react'
 import ImagePreviewer from './ImagePreviewer'
 
 const ImageUploaderWithPreview = ({
+    required,
     file,
-    type,
     labelText,
     hintText,
-    imageOnChange,
     onChange,
     width,
     imageUrl,
     borderRadius,
     error,
-    isIcon
+    isIcon,
+    acceptedFileInput = 'image/*',
+    height,
 }) => {
     const imageContainerRef = useRef()
+
     return (
         <>
             <ImagePreviewer
+                required={required}
                 anchor={imageContainerRef}
                 file={file}
                 label={labelText}
@@ -27,14 +30,15 @@ const ImageUploaderWithPreview = ({
                 borderRadius={borderRadius}
                 error={error}
                 isIcon={isIcon}
-
+                height={height}
             />
             <input
                 ref={imageContainerRef}
+                required={required}
                 id="file"
                 name="file"
                 type="file"
-                accept="image/*"
+                accept={acceptedFileInput}
                 hidden
                 onChange={(e) => {
                     onChange(e)
@@ -43,4 +47,5 @@ const ImageUploaderWithPreview = ({
         </>
     )
 }
+
 export default ImageUploaderWithPreview

@@ -6,14 +6,14 @@ import {
     SearchIconWrapper,
     StyledInputBase,
 } from '../../custom-search/CustomSearch.style'
-import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style"
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import CloseIcon from '@mui/icons-material/Close'
-import SearchIcon from '@mui/icons-material/Search';
+import SearchIcon from '@mui/icons-material/Search'
 import { useDebounce } from 'use-debounce'
-import { removeSpecialCharacters } from "@/utils/customFunctions";
+import { removeSpecialCharacters } from '@/utils/customFunctions'
+
 const CustomSearch = ({
     handleSearchResult,
-    selectedValue,
     handleFocus,
     query,
     setFocused,
@@ -22,7 +22,7 @@ const CustomSearch = ({
     const { t } = useTranslation()
     const theme = useTheme()
     const [value, setValue] = useState('')
-    const [debouncedValue] = useDebounce(value, 400);
+    const [debouncedValue] = useDebounce(value, 400)
     let languageDirection = undefined
     if (typeof window !== 'undefined') {
         languageDirection = localStorage.getItem('direction')
@@ -50,7 +50,6 @@ const CustomSearch = ({
     const handleChange = (value) => {
         if (value === '') {
             handleSearchResult('')
-            //setFocused(false)
         }
         setValue(value)
         handleFocus()
@@ -63,7 +62,7 @@ const CustomSearch = ({
     return (
         <CustomStackFullWidth>
             <form onSubmit={handleKeyPress}>
-                <Search >
+                <Search>
                     <SearchIconWrapper languageDirection={languageDirection}>
                         <SearchIcon fontSize="medium" />
                     </SearchIconWrapper>
@@ -77,19 +76,18 @@ const CustomSearch = ({
                             inputProps={{ 'aria-label': 'search' }}
                             onKeyPress={(e) => handleKeyPress(e)}
                             languageDirection={languageDirection}
-                            startAdornment={  // Add startAdornment here
+                            startAdornment={
+                                // Add startAdornment here
                                 <InputAdornment
                                     position="start"
                                     sx={{
                                         marginInlineStart: '10px',
                                         cursor: 'pointer',
-                                        marginInlineEnd: "0px"
+                                        marginInlineEnd: '0px',
                                     }}
-                                // Add your content for the startAdornment here
+                                    // Add your content for the startAdornment here
                                 >
-                                    <SearchIcon
-                                        fontSize="medium"
-                                    />
+                                    <SearchIcon fontSize="medium" />
                                 </InputAdornment>
                             }
                             endAdornment={
@@ -119,8 +117,6 @@ const CustomSearch = ({
                                 ) : null
                             }
                         />
-
-
                     </NoSsr>
                 </Search>
             </form>

@@ -4,7 +4,7 @@ import deliverymangif from '../../../public/static/animation.gif'
 import cookingGif from '../../../public/static/AnimationCom.gif'
 import cookedGif from '../../../public/static/cookeddddd.gif'
 import deliveriedGif from '../../../public/static/deliveiredGif.gif'
-import newCookGif from '../../../public/static/3Cook.gif'
+import newCookGif from '../../../public/static/cooking.gif'
 import Image from 'next/image'
 import { useTranslation } from 'react-i18next'
 import { Stack, Typography } from '@mui/material'
@@ -27,7 +27,7 @@ const DIneInOrderTimeInfo = ({ trackData }) => {
             const hours = duration.hours()
             const mins = duration.minutes()
             return `${hours} hr${hours > 1 ? 's' : ''} ${
-                mins ? `${mins} ` : ''
+                mins ? `${mins} ` : 'mins'
             }`
         } else {
             const days = duration.days()

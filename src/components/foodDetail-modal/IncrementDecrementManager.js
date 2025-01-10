@@ -1,13 +1,9 @@
-import React from 'react'
-import PropTypes from 'prop-types'
 import { Stack, Typography } from '@mui/material'
-import { CustomFab } from "@/styled-components/CustomStyles.style"
+import { CustomFab } from '@/styled-components/CustomStyles.style'
 import RemoveIcon from '@mui/icons-material/Remove'
 import AddIcon from '@mui/icons-material/Add'
-import { useTheme } from '@mui/material/styles'
 
 const IncrementDecrementManager = (props) => {
-    const theme = useTheme()
     const { decrementPrice, totalPrice, quantity, incrementPrice } = props
     return (
         <Stack

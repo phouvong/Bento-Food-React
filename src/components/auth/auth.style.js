@@ -1,5 +1,4 @@
-import { Divider } from '@mui/material'
-import { Box, Stack } from '@mui/system'
+import { Box, Stack } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
 export const CustomBoxForModal = styled(Box)(
@@ -28,7 +27,6 @@ export const CustomBoxForModal = styled(Box)(
             outline: `1px solid ${theme.palette.neutral[300]}`,
         },
         [theme.breakpoints.between('xs', 'sm')]: {
-            // styles
             padding: '2rem',
             maxWidth: '340px',
             minWidth: '270px',

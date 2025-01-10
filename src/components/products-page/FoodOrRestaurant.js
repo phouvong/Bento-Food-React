@@ -16,7 +16,6 @@ export const PrimaryButton = styled(Button)(
         borderRadius,
         theme,
         padding,
-        color,
     }) => ({
         backgroundColor: backgroundColor,
         borderRadius: borderRadius ? borderRadius : '8px',
@@ -30,16 +29,15 @@ export const PrimaryButton = styled(Button)(
         },
     })
 )
+
 export default function FoodOrRestaurant({
     foodOrRestaurant,
     setFoodOrRestaurant,
-    handleFilter,
     filterData,
 }) {
     const { t } = useTranslation()
     const theme = useTheme()
     const dispatch = useDispatch()
-    const orangeColor = theme.palette.primary.main
     const isProduct = foodOrRestaurant === 'products'
     const isRestaurant = foodOrRestaurant === 'restaurants'
     const [languageDirection, setLanguageDirection] = React.useState('ltr')

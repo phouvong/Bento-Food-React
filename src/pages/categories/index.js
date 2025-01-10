@@ -2,22 +2,20 @@ import React from 'react'
 import Category from '../../components/category/Category'
 import Meta from '../../components/Meta'
 import { useTranslation } from 'react-i18next'
-import { ConfigApi } from '../../hooks/react-query/config/useConfig'
-import { landingPageApi } from '../../components/landingpage/Api'
-import { CustomHeader } from '../../api/Headers'
-import HomeGuard from "../../components/home-guard/HomeGuard";
+import { landingPageApi } from '@/components/landingpage/Api'
+import HomeGuard from '../../components/home-guard/HomeGuard'
 
 const index = ({ configData, landingPageData, pathName }) => {
     const { t } = useTranslation()
     return (
         <div className="div">
             <HomeGuard>
-            <Meta
-                title={`${t('Categories')} on ${configData?.business_name}`}
-                ogImage={`${configData?.base_urls?.react_landing_page_images}/${landingPageData?.banner_section_full?.banner_section_img_full}`}
-                pathName={pathName}
-            />
-            <Category />
+                <Meta
+                    title={`${t('Categories')} on ${configData?.business_name}`}
+                    ogImage={`${configData?.base_urls?.react_landing_page_images}/${landingPageData?.banner_section_full?.banner_section_img_full}`}
+                    pathName={pathName}
+                />
+                <Category />
             </HomeGuard>
         </div>
     )

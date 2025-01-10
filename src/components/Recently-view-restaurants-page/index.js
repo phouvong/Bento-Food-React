@@ -2,11 +2,9 @@ import React, { useEffect } from 'react'
 import { Container, CssBaseline, Grid } from '@mui/material'
 import { CustomPaperBigCard } from "@/styled-components/CustomStyles.style"
 import CustomPageTitle from '../CustomPageTitle'
-import ResturantList from '../type-wise-resturant-page/ResturantList'
 import RestaurantBoxCard from '../restaurant-details/RestaurantBoxCard'
 import { useRecentlyViewRestaurants } from "@/hooks/react-query/recently-view-restaurants/useRecentlyViewRestaurants"
 import { useSelector } from 'react-redux'
-import CustomShimmerCategories from '../CustomShimmer/CustomShimmerCategories'
 
 import CustomShimmerRestaurant from '../CustomShimmer/CustomShimmerRestaurant'
 

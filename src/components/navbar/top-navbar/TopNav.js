@@ -27,9 +27,8 @@ const TopNav = ({ cartListRefetch }) => {
     if (typeof window !== 'undefined') {
         zoneid = JSON.parse(localStorage.getItem('zoneid'))
     }
-    let languageDirection = undefined
     if (typeof window !== 'undefined') {
-        languageDirection = localStorage.getItem('direction')
+        localStorage.getItem('direction')
     }
     useEffect(() => {
         let location = undefined

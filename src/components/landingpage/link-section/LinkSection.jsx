@@ -1,40 +1,17 @@
 import React from 'react'
-import {
-    alpha,
-    Box,
-    Button,
-    Card,
-    Grid,
-    Stack,
-    styled,
-    Typography,
-} from '@mui/material'
-import VirtaulRestaurant from '../../../../public/static/Waiters-pana 1.svg'
-import DeliveryMan from '../../../../public/static/Take Away-rafiki 1.svg'
-import Waves from '../Waves'
-import { useTranslation } from 'react-i18next'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import { useSelector } from 'react-redux'
+import { alpha, Grid, Stack, Typography } from '@mui/material'
 import { CustomCard, PrimaryButton } from './Linksection.style'
 import CustomContainer from '../../container'
 import bg from '../../../../public/static/join.png'
 import { useTheme } from '@mui/material/styles'
-import bg1 from '../../../../public/static/deliveryjoin.svg'
+import bg1 from '../../../../public/static/deliveryjoin.png'
 import CustomImageContainer from '../../CustomImageContainer'
 
-const LinkSection = (props) => {
-    const {
-        self_registration_restaurant,
-        self_registration_deliveryMan,
-        restaurant_registration_image_url,
-        deliveryman_registration_image_url,
-    } = props
-
+const LinkSection = ({
+    self_registration_restaurant,
+    self_registration_deliveryMan,
+}) => {
     const theme = useTheme()
-    const { global } = useSelector((state) => state.globalSettings)
-    const { t } = useTranslation()
-    const router = useRouter()
     const deliveryManRegister = () => {
         const delivery_section_link =
             self_registration_deliveryMan?.react_delivery_section_link_data
@@ -49,215 +26,234 @@ const LinkSection = (props) => {
     }
 
     return (
-        <>
-            <CustomContainer mt="70px">
-                <Grid
-                    container
-                    spacing={2}
-                    className="link-section"
-                    sx={{ my: 1 }}
-                >
-                    <Grid item xs={12} sm={12} md={6}>
-                        <CustomCard
-                            sx={{
-                                background: `url(${bg.src
-                                    }) no-repeat center center/cover ,${alpha(
-                                        theme.palette.primary.light,
-                                        0.07
-                                    )}`,
-                            }}
+        <CustomContainer mt="70px">
+            <Grid container spacing={2} className="link-section" sx={{ my: 1 }}>
+                <Grid item xs={12} sm={12} md={6}>
+                    <CustomCard
+                        sx={{
+                            background: `url(${bg?.src}) no-repeat center center/cover`,
+                            position: 'relative',
+                            zIndex: 1,
+                            '&::after': {
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                content: "''",
+                                backgroundColor: `${alpha(
+                                    theme.palette.primary.light,
+                                    0.07
+                                )}`,
+                                zIndex: -1,
+                                borderRadius: '.5rem',
+                            },
+                        }}
+                    >
+                        <Stack
+                            alignItems="center"
+                            justifyContent="space-between"
+                            spacing={{ xs: 0.5, sm: 2, md: 2 }}
+                            direction="row"
+                            height="100%"
+                            padding={{ xs: '10px', sm: '1rem', md: '1rem' }}
                         >
-                            <Stack
-                                alignItems="center"
-                                justifyContent="space-between"
-                                spacing={{ xs: 0.5, sm: 2, md: 2 }}
-                                direction="row"
-                                height="100%"
-                                padding={{ xs: '10px', sm: '1rem', md: '1rem' }}
-                            >
-                                <CustomImageContainer
-                                    src={self_registration_restaurant?.react_restaurant_section_image_full_url}
-                                    alt="icon"
-                                    maxWidth="150px"
-                                    smMaxWidth="75px"
-                                    height="150px"
-                                    mdHeight="130px"
-                                    smHeight="80px"
-                                    objectFit="contain"
-                                />
-                                <Stack>
+                            <CustomImageContainer
+                                src={
+                                    self_registration_restaurant?.react_restaurant_section_image_full_url
+                                }
+                                alt="icon"
+                                maxWidth="150px"
+                                smMaxWidth="75px"
+                                height="150px"
+                                mdHeight="130px"
+                                smHeight="80px"
+                                objectFit="contain"
+                            />
+                            <Stack>
+                                <Typography
+                                    fontSize={{
+                                        xs: '12px',
+                                        sm: '18px',
+                                        md: '18px',
+                                    }}
+                                    fontWeight="600"
+                                    textAlign="left"
+                                >
+                                    {
+                                        self_registration_restaurant?.react_restaurant_section_title
+                                    }
+                                </Typography>
+                                <Typography
+                                    fontSize={{
+                                        xs: '10px',
+                                        sm: '14px',
+                                        md: '14px',
+                                    }}
+                                    textAlign="left"
+                                    color={theme.palette.neutral[600]}
+                                >
+                                    {
+                                        self_registration_restaurant?.react_restaurant_section_sub_title
+                                    }
+                                </Typography>
+                            </Stack>
+                            {self_registration_restaurant
+                                ?.react_restaurant_section_link_data
+                                ?.react_restaurant_section_button_status ===
+                                '1' && (
+                                <PrimaryButton
+                                    onClick={RestaurantRegister}
+                                    sx={{
+                                        borderRadius: '40px',
+                                        paddingY: {
+                                            xs: '5px',
+                                            sm: '10px',
+                                            md: '10px',
+                                        },
+                                        paddingX: {
+                                            xs: '10px',
+                                            sm: '30px',
+                                            md: '35px',
+                                        },
+                                        marginLeft: '0px',
+                                    }}
+                                >
                                     <Typography
                                         fontSize={{
                                             xs: '12px',
-                                            sm: '18px',
-                                            md: '18px',
-                                        }}
-                                        fontWeight="600"
-                                        textAlign="left"
-                                    >
-                                        {
-                                            self_registration_restaurant?.react_restaurant_section_title
-                                        }
-                                    </Typography>
-                                    <Typography
-                                        fontSize={{
-                                            xs: '10px',
                                             sm: '14px',
-                                            md: '14px',
+                                            md: '16px',
                                         }}
-                                        textAlign="left"
-                                        color={theme.palette.neutral[600]}
+                                        fontWeight="500"
+                                        color={
+                                            theme.palette.whiteContainer.main
+                                        }
                                     >
                                         {
-                                            self_registration_restaurant?.react_restaurant_section_sub_title
+                                            self_registration_restaurant?.react_restaurant_section_button_name
                                         }
                                     </Typography>
-                                </Stack>
-                                {self_registration_restaurant
-                                    ?.react_restaurant_section_link_data
-                                    ?.react_restaurant_section_button_status ===
-                                    '1' && (
-                                        <PrimaryButton
-                                            onClick={RestaurantRegister}
-                                            sx={{
-                                                borderRadius: '40px',
-                                                paddingY: {
-                                                    xs: '5px',
-                                                    sm: '10px',
-                                                    md: '10px',
-                                                },
-                                                paddingX: {
-                                                    xs: '10px',
-                                                    sm: '30px',
-                                                    md: '35px',
-                                                },
-                                                marginLeft: '0px',
-                                            }}
-                                        >
-                                            <Typography
-                                                fontSize={{
-                                                    xs: '12px',
-                                                    sm: '14px',
-                                                    md: '16px',
-                                                }}
-                                                fontWeight="500"
-                                                color={
-                                                    theme.palette.whiteContainer
-                                                        .main
-                                                }
-                                            >
-                                                {
-                                                    self_registration_restaurant?.react_restaurant_section_button_name
-                                                }
-                                            </Typography>
-                                        </PrimaryButton>
-                                    )}
-                            </Stack>
-                        </CustomCard>
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={6}>
-                        <CustomCard
-                            elevation={0}
-                            sx={{
-                                background: `url(${bg1.src
-                                    }) no-repeat center center/cover ,${alpha(
-                                        theme.palette.primary.light,
-                                        0.07
-                                    )}`,
-                            }}
-                        >
-                            <Stack
-                                alignItems="center"
-                                justifyContent="space-between"
-                                spacing={{ xs: 0.5, sm: 2, md: 2 }}
-                                direction="row"
-                                height="100%"
-                                padding={{ xs: '10px', sm: '1rem', md: '1rem' }}
-                            >
-                                <CustomImageContainer
-                                    src={self_registration_deliveryMan?.react_delivery_section_image_full_url}
-                                    alt="icon"
-                                    maxWidth="150px"
-                                    smMaxWidth="75px"
-                                    height="150px"
-                                    mdHeight="130px"
-                                    smHeight="80px"
-                                    objectFit="contain"
-                                />
-                                <Stack>
-                                    <Typography
-                                        fontSize={{
-                                            xs: '12px',
-                                            sm: '18px',
-                                            md: '18px',
-                                        }}
-                                        fontWeight="600"
-                                        textAlign="left"
-                                    >
-                                        {
-                                            self_registration_deliveryMan?.react_delivery_section_title
-                                        }
-                                    </Typography>
-                                    <Typography
-                                        fontSize={{
-                                            xs: '10px',
-                                            sm: '14px',
-                                            md: '14px',
-                                        }}
-                                        textAlign="left"
-                                        color={theme.palette.neutral[600]}
-                                    >
-                                        {
-                                            self_registration_deliveryMan?.react_delivery_section_sub_title
-                                        }
-                                    </Typography>
-                                </Stack>
-                                {self_registration_deliveryMan
-                                    ?.react_delivery_section_link_data
-                                    ?.react_delivery_section_button_status ===
-                                    '1' && (
-                                        <PrimaryButton
-                                            onClick={deliveryManRegister}
-                                            sx={{
-                                                borderRadius: '40px',
-                                                paddingY: {
-                                                    xs: '5px',
-                                                    sm: '10px',
-                                                    md: '10px',
-                                                },
-                                                paddingX: {
-                                                    xs: '10px',
-                                                    sm: '30px',
-                                                    md: '35px',
-                                                },
-                                                marginLeft: '0px',
-                                            }}
-                                        >
-                                            <Typography
-                                                fontSize={{
-                                                    xs: '12px',
-                                                    sm: '14px',
-                                                    md: '16px',
-                                                }}
-                                                fontWeight="500"
-                                                color={
-                                                    theme.palette.whiteContainer
-                                                        .main
-                                                }
-                                            >
-                                                {' '}
-                                                {
-                                                    self_registration_deliveryMan?.react_delivery_section_button_name
-                                                }
-                                            </Typography>
-                                        </PrimaryButton>
-                                    )}
-                            </Stack>
-                        </CustomCard>
-                    </Grid>
+                                </PrimaryButton>
+                            )}
+                        </Stack>
+                    </CustomCard>
                 </Grid>
-            </CustomContainer>
-        </>
+                <Grid item xs={12} sm={12} md={6}>
+                    <CustomCard
+                        elevation={0}
+                        sx={{
+                            background: `url(${bg1?.src}) no-repeat center center/cover`,
+                            position: 'relative',
+                            zIndex: 1,
+                            '&::after': {
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                content: "''",
+                                backgroundColor: `${alpha(
+                                    theme.palette.primary.light,
+                                    0.07
+                                )}`,
+                                zIndex: -1,
+                                borderRadius: '.5rem',
+                            },
+                        }}
+                    >
+                        <Stack
+                            alignItems="center"
+                            justifyContent="space-between"
+                            spacing={{ xs: 0.5, sm: 2, md: 2 }}
+                            direction="row"
+                            height="100%"
+                            padding={{ xs: '10px', sm: '1rem', md: '1rem' }}
+                        >
+                            <CustomImageContainer
+                                src={
+                                    self_registration_deliveryMan?.react_delivery_section_image_full_url
+                                }
+                                alt="icon"
+                                maxWidth="150px"
+                                smMaxWidth="75px"
+                                height="150px"
+                                mdHeight="130px"
+                                smHeight="80px"
+                                objectFit="contain"
+                            />
+                            <Stack>
+                                <Typography
+                                    fontSize={{
+                                        xs: '12px',
+                                        sm: '18px',
+                                        md: '18px',
+                                    }}
+                                    fontWeight="600"
+                                    textAlign="left"
+                                >
+                                    {
+                                        self_registration_deliveryMan?.react_delivery_section_title
+                                    }
+                                </Typography>
+                                <Typography
+                                    fontSize={{
+                                        xs: '10px',
+                                        sm: '14px',
+                                        md: '14px',
+                                    }}
+                                    textAlign="left"
+                                    color={theme.palette.neutral[600]}
+                                >
+                                    {
+                                        self_registration_deliveryMan?.react_delivery_section_sub_title
+                                    }
+                                </Typography>
+                            </Stack>
+                            {self_registration_deliveryMan
+                                ?.react_delivery_section_link_data
+                                ?.react_delivery_section_button_status ===
+                                '1' && (
+                                <PrimaryButton
+                                    onClick={deliveryManRegister}
+                                    sx={{
+                                        borderRadius: '40px',
+                                        paddingY: {
+                                            xs: '5px',
+                                            sm: '10px',
+                                            md: '10px',
+                                        },
+                                        paddingX: {
+                                            xs: '10px',
+                                            sm: '30px',
+                                            md: '35px',
+                                        },
+                                        marginLeft: '0px',
+                                    }}
+                                >
+                                    <Typography
+                                        fontSize={{
+                                            xs: '12px',
+                                            sm: '14px',
+                                            md: '16px',
+                                        }}
+                                        fontWeight="500"
+                                        color={
+                                            theme.palette.whiteContainer.main
+                                        }
+                                    >
+                                        {' '}
+                                        {
+                                            self_registration_deliveryMan?.react_delivery_section_button_name
+                                        }
+                                    </Typography>
+                                </PrimaryButton>
+                            )}
+                        </Stack>
+                    </CustomCard>
+                </Grid>
+            </Grid>
+        </CustomContainer>
     )
 }
 

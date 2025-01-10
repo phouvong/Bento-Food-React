@@ -1,32 +1,29 @@
-import React, { useState } from 'react'
-import { Box, Stack, Typography, useTheme } from '@mui/material'
+import React from 'react'
+import { Stack, Typography, useTheme } from '@mui/material'
 import { useFormik } from 'formik'
-import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { useTranslation } from 'react-i18next'
 import CustomPhoneInput from '../../CustomPhoneInput'
 import { useSelector } from 'react-redux'
 import LoadingButton from '@mui/lab/LoadingButton'
-import { useForgotPassword } from '../../../hooks/react-query/config/forgot-password/useForgotPassword'
+import { useForgotPassword } from '@/hooks/react-query/config/forgot-password/useForgotPassword'
 import * as Yup from 'yup'
 import toast from 'react-hot-toast'
 import { onErrorResponse } from '../../ErrorResponse'
 import forgotPasswordImage from '../../../assets/images/forgotPasswordImage.svg'
 import CustomImageContainer from '../../CustomImageContainer'
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
-import { auth } from '@/firebase'
-import { setUpRecaptcha } from '@/components/auth'
+
 const ForgotPasswordNumberForm = ({
     data,
     goNext,
     handleFirstForm,
     setModalFor,
     sendOTP,
-    id,
 }) => {
     const { t } = useTranslation()
     const theme = useTheme()
 
-    const { global, token } = useSelector((state) => state.globalSettings)
+    const { global } = useSelector((state) => state.globalSettings)
     const phoneFormik = useFormik({
         initialValues: {
             phone: data ? data.phone : '',

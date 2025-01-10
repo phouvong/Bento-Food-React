@@ -1,6 +1,5 @@
 import MainApi from '../../../../api/MainApi'
 import { useMutation } from 'react-query'
-import { format } from 'date-fns'
 import moment from 'moment/moment'
 
 const storeRestaurantData = async (restaurantJoinData) => {

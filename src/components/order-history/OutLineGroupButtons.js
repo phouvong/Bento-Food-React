@@ -1,13 +1,11 @@
 import React from 'react'
-import PropTypes from 'prop-types'
-import { Stack } from '@mui/system'
-
-import { Button, Typography } from '@mui/material'
+import { Button, Typography, Stack } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
 const OutlinedGroupButtons = (props) => {
-    const { data, selected, buttonsData, handleSelection } = props
+    const { selected, buttonsData, handleSelection } = props
     const { t } = useTranslation()
+
     return (
         <Stack direction="row" alignItems="center" spacing={2}>
             {buttonsData?.length > 0 &&

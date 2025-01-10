@@ -1,15 +1,12 @@
 import { useState } from 'react'
-
 import { useTheme } from '@emotion/react'
-import { Typography } from '@mui/material'
-import { Stack } from '@mui/system'
+import { Typography, Stack } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { CustomSwitch } from '../navbar/Navbar.style'
 import CutleryIcon from './CutleryIcon'
 
-const Cutlery = (props) => {
-    const { isChecked, handleChange } = props
+const Cutlery = ({ isChecked, handleChange }) => {
     const [checked, setChecked] = useState(isChecked)
     const { t } = useTranslation()
     const handleChangeInner = (event) => {

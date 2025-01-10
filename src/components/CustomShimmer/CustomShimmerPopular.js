@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Grid, Typography, Stack, Paper } from '@mui/material'
+import { Grid } from '@mui/material'
 import CustomResturantShimmer from './CustomResturantShimmer'
 const CustomShimmerPopular = () => {
     return (

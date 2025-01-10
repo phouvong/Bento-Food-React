@@ -1,76 +1,54 @@
 import React, { useEffect, useState } from 'react'
 import ClearIcon from '@mui/icons-material/Clear'
-import PropTypes from 'prop-types'
-import {
-    Button,
-    Chip,
-    IconButton,
-    Paper,
-    Popover,
-    Stack,
-    Typography,
-} from '@mui/material'
+import { Button, IconButton, Paper, Stack, Typography } from '@mui/material'
 import { styled, useTheme } from '@mui/material/styles'
 import {
     CustomColouredTypography,
     CustomStackFullWidth,
-} from "@/styled-components/CustomStyles.style"
+} from '@/styled-components/CustomStyles.style'
 import { CustomTypography } from '../custom-tables/Tables.style'
 import { useTranslation } from 'react-i18next'
-import { useRouter } from 'next/router'
 import { useQuery } from 'react-query'
-import { ProductsApi } from "@/hooks/react-query/config/productsApi"
+import { ProductsApi } from '@/hooks/react-query/config/productsApi'
 import { useDispatch, useSelector } from 'react-redux'
-import Skeleton from '@mui/material/Skeleton'
 import SearchIcon from '@mui/icons-material/Search'
-
 import SuggestedCuisines from './SuggestedCuisines'
-import { setHandleHomePage } from '../../redux/slices/global'
 import { Scrollbar } from '../Scrollbar'
 import SearchSuggestionsShimmer from './SearchSuggestionsShimmer'
-import { useGetSuggestSearchResult } from "@/hooks/react-query/search/useGetSuggestSearchResult"
-import { setSuggestedKeywords } from "@/redux/slices/storedData"
-import { removeSpecialCharacters } from "@/utils/customFunctions";
+import { useGetSuggestSearchResult } from '@/hooks/react-query/search/useGetSuggestSearchResult'
+import { setSuggestedKeywords } from '@/redux/slices/storedData'
+import { removeSpecialCharacters } from '@/utils/customFunctions'
+
 const CustomPaper = styled(Paper)(({ theme, display }) => ({
     position: 'absolute',
-    top: "64px",
-    maxWidth:"450px",
+    top: '64px',
+    maxWidth: '450px',
     width: '100%',
     padding: '1rem',
     display: display ? display : 'inherit',
     zIndex: 999,
-    left: "unset",
+    left: 'unset',
     borderTopLeftRadius: '0px',
     borderTopRightRadius: '0px',
     [theme.breakpoints.down('md')]: {
         zIndex: 999,
-        maxWidth:"350px",
+        maxWidth: '350px',
         width: '100%',
-        top: "54px",
+        top: '54px',
     },
 }))
+
 const SearchSuggestionsBottom = (props) => {
-    const {
-        setOpenSearchSuggestions,
-        setOnSearchDiv,
-        setSelectedValue,
-        routeHandler,
-        handleFocus,
-        inputValue,
-        searchRef
-    } = props
+    const { routeHandler, handleFocus, inputValue, searchRef } = props
     const dispatch = useDispatch()
     const theme = useTheme()
-    //const [suggestedKeywords, setSuggestedKeywords] = useState([])
     const { token } = useSelector((state) => state.userToken)
     const { suggestedKeywords } = useSelector((state) => state.storedData)
     const [list, setList] = useState([])
     const { t } = useTranslation()
-    const router = useRouter()
 
     const handleSearchSuccess = (res) => {
         dispatch(setSuggestedKeywords(res.data))
-        //setSuggestedKeywords(res.data)
     }
     const { refetch, isRefetching } = useQuery(
         [],
@@ -191,9 +169,7 @@ const SearchSuggestionsBottom = (props) => {
                 ref={searchRef}
                 elevation={8}
                 onMouseEnter={() => handleFocus()}
-                onMouseLeave={() => setOnSearchDiv(false)}
-                //display={token ? 'inherit' : list.length > 0 ? 'inherit' : 'none'}
-                sx={{ maxHeight: '400px',zIndex:99999 }}
+                sx={{ maxHeight: '400px', zIndex: 99999 }}
             >
                 <CustomStackFullWidth spacing={3}>
                     <Scrollbar style={{ maxHeight: '100%' }}>
@@ -283,7 +259,6 @@ const SearchSuggestionsBottom = (props) => {
                                             {t('Suggested Searches')}
                                         </CustomTypography>
                                         <Stack
-                                            // spacing={1}
                                             flexWrap="wrap"
                                             flexGrow={1}
                                             alignItems="start"
@@ -333,7 +308,6 @@ const SearchSuggestionsBottom = (props) => {
                                             <SearchSuggestionsShimmer />
                                         )}
                                         <Stack
-                                            // spacing={1}
                                             flexWrap="wrap"
                                             flexGrow={1}
                                             alignItems="start"

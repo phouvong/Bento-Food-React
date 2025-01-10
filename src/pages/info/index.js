@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import CssBaseline from '@mui/material/CssBaseline'
-import Meta from '../../components/Meta'
 import CustomContainer from '../../components/container'
 import UserInfo from '../../components/user-info'
 import { useRouter } from 'next/router'
 import AuthGuard from '../../components/authentication/AuthGuard'
-import jwt from "base-64";
-import HomeGuard from "../../components/home-guard/HomeGuard";
+import jwt from 'base-64'
+
 const index = () => {
     const router = useRouter()
     const { page, orderId, token } = router.query
@@ -47,14 +46,18 @@ const index = () => {
 
     return (
         <div>
-        {/* <HomeGuard> */}
             <CssBaseline />
             <CustomContainer>
                 <AuthGuard from={router.pathname.replace('/', '')}>
-                    {page && <UserInfo page={page} orderId={orderId ?? attributeId} setAttributeId={setAttributeId}/>}
+                    {page && (
+                        <UserInfo
+                            page={page}
+                            orderId={orderId ?? attributeId}
+                            setAttributeId={setAttributeId}
+                        />
+                    )}
                 </AuthGuard>
             </CustomContainer>
-        {/* </HomeGuard> */}
         </div>
     )
 }

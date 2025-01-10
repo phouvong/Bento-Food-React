@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import * as firebase from 'firebase/app'
 import 'firebase/messaging'
-import { firebaseCloudMessaging } from '../firebase'
-import { useStoreFcm } from '../hooks/react-query/push-notification/usePushNotification'
-import { useSelector } from 'react-redux'
-import { onMessageListener, fetchToken } from '../firebase'
+import { useStoreFcm } from '@/hooks/react-query/push-notification/usePushNotification'
+import { onMessageListener, fetchToken } from '@/firebase'
 import { toast } from 'react-hot-toast'
 import { Stack, Typography } from '@mui/material'
 import { useRouter } from 'next/router'
@@ -12,25 +9,16 @@ import { useRouter } from 'next/router'
 const PushNotificationLayout = ({ children, refetch, pathName }) => {
     const router = useRouter()
     const [notification, setNotification] = useState(null)
-    const [userToken, setUserToken] = useState(null)
-    const [isTokenFound, setTokenFound] = useState(false)
     const [fcmToken, setFcmToken] = useState('')
 
     useEffect(() => {
-        fetchToken(setTokenFound, setFcmToken).then()
+        fetchToken(setFcmToken).then()
     }, [])
     let token = undefined
     if (typeof window !== 'undefined') {
         token = localStorage.getItem('token')
     }
-    // useEffect(() => {
-    //     if (typeof window !== undefined) {
-    //         setUserToken(localStorage.getItem('token'))
-    //         //userToken = window.localStorage.getItem('token')
-    //     }
-    // }, [userToken])
 
-    //const userToken=localStorage.getItem("token")
     const { mutate } = useStoreFcm()
 
     useEffect(() => {
@@ -51,7 +39,14 @@ const PushNotificationLayout = ({ children, refetch, pathName }) => {
                 },
             })
         } else if (notification.type === 'order_status') {
-            router.push(`/order-history/${notification.order_id}`)
+            router.push(
+                {
+                    pathname: '/info',
+                    query: { page: 'order', orderId: notification.order_id },
+                },
+                undefined,
+                { shallow: true }
+            )
         }
     }
 
@@ -59,7 +54,6 @@ const PushNotificationLayout = ({ children, refetch, pathName }) => {
         onMessageListener()
             .then((payload) => {
                 setNotification(payload.data)
-                // toast.success(payload.data.title)
             })
             .catch((err) => toast(err))
         if (notification) {

@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Grid, InputAdornment, InputBase, Typography } from "@mui/material";
+import { Grid, InputAdornment, InputBase } from "@mui/material";
 import {
     CouponButton,
-    CouponGrid,
-    CouponTitle,
     InputField
 } from "./CheckOut.style";
 import { useQuery } from "react-query";
@@ -16,7 +14,6 @@ import { useDispatch } from "react-redux";
 import { setCouponInfo, setCouponType } from "@/redux/slices/global";
 import { useTheme } from "@mui/material/styles";
 import { cartItemsTotalAmount, getAmount } from "@/utils/customFunctions";
-import AccountCircle from "@mui/icons-material/AccountCircle";
 import CouponStartSvg from "./assets/couponStartSvg";
 import CustomPopover from "@/components/custom-popover/CustomPopover";
 import CheckOutPromo from "@/components/checkout-page/order-summary/CheckOutPromo";

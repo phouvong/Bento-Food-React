@@ -11,12 +11,12 @@ export const QuickLinkData1 = [
     },
     {
         name: 'Best Reviewed Foods',
-        value: 'best-reviewed-foods',
+        value: 'most-reviewed',
         link: '/products/best-reviewed-foods',
     },
     {
         name: 'Track Order',
         value: 'track_order',
         link: '/tracking',
-    }
+    },
 ]

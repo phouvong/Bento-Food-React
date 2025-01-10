@@ -18,11 +18,11 @@ import RestaurantBoxCard from '../restaurant-details/RestaurantBoxCard'
 import { mockData } from './mockData'
 import DotSpin from './restaurant/DotSpin'
 import RestaurantTab from './restaurant/RestaurantTab'
+
 const Restaurant = () => {
     const theme = useTheme()
     const { t } = useTranslation()
     const { global } = useSelector((state) => state.globalSettings)
-    const [type, setType] = useState('all')
     const [filterType, setFilterType] = useState('all')
     const [searchKey, setSearchKey] = useState(' ')
     const [offset, setOffSet] = useState(1)
@@ -30,7 +30,6 @@ const Restaurant = () => {
     const [resData, setResData] = useState([])
     const matchesToMd = useMediaQuery('(min-width:740px)')
     const matchesToScroll = useMediaQuery('(min-width:828px)')
-    const matchesToSmall = useMediaQuery('(min-width:400px)')
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const [filterByData, setFilterByData] = useState({})
     const [forFilter, setForFilter] = useState(false)
@@ -39,27 +38,18 @@ const Restaurant = () => {
     const [checkedFilterKey, setCheckedFilterKey] = useState(
         AllRestaurantFilterData
     )
-    const refs = useRef(null)
     const tabMenurefs = useRef(null)
 
     const responsiveTop = isSmall ? 2000 : matchesToScroll ? 3100 : 3950
 
-    const {
-        data,
-        isSuccess,
-        hasNextPage,
-        fetchNextPage,
-        isFetchingNextPage,
-        isLoading,
-        fetchPage,
-        refetch,
-    } = useGetRestaurant({
-        filterByData,
-        offset,
-        page_limit,
-        filterType,
-        searchKey,
-    })
+    const { data, fetchNextPage, isFetchingNextPage, isLoading, refetch } =
+        useGetRestaurant({
+            filterByData,
+            offset,
+            page_limit,
+            filterType,
+            searchKey,
+        })
     const successHandler = (res) => {
         if (res?.restaurants?.length > 0) {
             if (offset === 2 || offset === 1) {
@@ -89,7 +79,6 @@ const Restaurant = () => {
     }
     useEffect(() => {
         handleStoreData()
-        //window.scrollTo(0, responsiveTop)
     }, [data, forFilter, filterByData, filterType])
 
     const scrollToSection5 = () => {
@@ -125,15 +114,9 @@ const Restaurant = () => {
     useEffect(async () => {
         if (forFilter) {
             setOffSet(1)
-            //fetchPage(2)
             await refetch()
         }
     }, [forFilter, filterByData, filterType])
-    let mode = undefined
-    if (typeof window !== 'undefined') {
-        mode = localStorage.getItem('mode')
-    }
-    const lightColor = theme.palette.neutral[1000]
     const languageDirection = localStorage.getItem('direction')
     const handleDelete = (itemId) => {
         const tempData = checkedFilterKey.map((items) =>
@@ -141,9 +124,7 @@ const Restaurant = () => {
         )
         setCheckedFilterKey(tempData)
     }
-    const getActiveFilter = checkedFilterKey?.filter(
-        (item, index) => item?.isActive
-    )
+    const getActiveFilter = checkedFilterKey?.filter((item) => item?.isActive)
     return (
         <RTL direction={languageDirection}>
             <Grid
@@ -257,7 +238,9 @@ const Restaurant = () => {
                                     <RestaurantBoxCard
                                         key={restaurantData?.id}
                                         id={restaurantData.id}
-                                        image={restaurantData?.cover_photo_full_url}
+                                        image={
+                                            restaurantData?.cover_photo_full_url
+                                        }
                                         name={restaurantData?.name}
                                         rating={restaurantData?.avg_rating}
                                         restaurantImageUrl={

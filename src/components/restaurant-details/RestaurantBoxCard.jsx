@@ -60,6 +60,7 @@ const RestaurantBoxCard = (props) => {
         opening_time,
         characteristics,
         minWidth,
+        dine_in,
     } = props
     const { t } = useTranslation()
     const router = useRouter()
@@ -232,6 +233,7 @@ const RestaurantBoxCard = (props) => {
             query: {
                 id: `${slug ? slug : id}`,
                 restaurant_zone_id: zone_id,
+                isDineIn: dine_in ?? dine_in,
             },
         })
     }
@@ -239,7 +241,7 @@ const RestaurantBoxCard = (props) => {
         <Stack
             onClick={handleClick}
             className={className}
-            height={visitAgain ? '240px' : '100%'}
+            height={visitAgain ? '240px' : '225px'}
             width="100%"
         >
             <CustomPaperBigCard
@@ -262,7 +264,7 @@ const RestaurantBoxCard = (props) => {
                 <CustomStackFullWidth spacing={1}>
                     <Stack sx={{ overflow: 'hidden', position: 'relative' }}>
                         {restaurantCloseHandler()}
-                        {!visitAgain && restaurantCouponAndDiscount()}
+                        {/*{!visitAgain && restaurantCouponAndDiscount()}*/}
 
                         <Box
                             sx={{

@@ -343,7 +343,8 @@ const Wallet = ({ page }) => {
                                     >
                                         {t('Total Balance')}
                                     </Typography>
-                                    {global?.digital_payment && (
+                                    {global?.digital_payment &&
+                                    global?.add_fund_status ? (
                                         <Button
                                             sx={{
                                                 backgroundColor: (theme) =>
@@ -374,7 +375,7 @@ const Wallet = ({ page }) => {
                                                 {t('Add fund')}
                                             </Typography>
                                         </Button>
-                                    )}
+                                    ) : null}
                                 </Stack>
                                 <CustomPopover
                                     anchorEl={anchorEl}
@@ -551,7 +552,8 @@ const Wallet = ({ page }) => {
                                                                         >
                                                                             {item?.gateway_image && (
                                                                                 <img
-                                                                                    src={`${base_url}/${item?.gateway_image}`}
+                                                                                    alt="payment"
+                                                                                    src={`${item?.gateway_image_full_url}`}
                                                                                 />
                                                                             )}
                                                                             <Box
@@ -635,7 +637,7 @@ const Wallet = ({ page }) => {
                             >
                                 {t('Wallet History')}
                             </Typography>
-                            {page != 'loyalty' && (
+                            {page !== 'loyalty' && (
                                 <CustomSelect
                                     value={transactionType}
                                     onChange={(e) => handleChange(e)}

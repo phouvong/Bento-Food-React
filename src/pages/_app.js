@@ -36,15 +36,10 @@ function App({ Component, pageProps, emotionCache = clientSideEmotionCache }) {
     const getLayout = Component.getLayout ?? ((page) => page)
     const queryClient = new QueryClient()
     const router = useRouter()
-    const [showSplashScreen, setShowSplashScreen] = useState(true)
     const [viewFooter, setViewFooter] = useState(false)
     const Footer = dynamic(() => import('../components/footer/Footer'), {
         ssr: false,
     })
-
-    useEffect(() => {
-        setShowSplashScreen(false)
-    }, [router.isReady])
     useEffect(() => {
         const userLanguage = localStorage.getItem('language')
         if (!userLanguage) {

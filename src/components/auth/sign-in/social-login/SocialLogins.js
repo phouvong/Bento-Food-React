@@ -1,9 +1,7 @@
 import React, { memo, useEffect, useState } from 'react'
-import { Stack } from '@mui/material'
 import GoogleLoginComp from './GoogleLoginComp'
 import FbLoginComp from './FbLoginComp'
-import { useDispatch, useSelector } from 'react-redux'
-import { useTranslation } from 'react-i18next'
+import { useSelector } from 'react-redux'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 
 const SocialLogins = (props) => {
@@ -22,7 +20,6 @@ const SocialLogins = (props) => {
     } = props
     const { global } = useSelector((state) => state.globalSettings)
     const [isSingle, setIsSingle] = useState(false)
-    const { t } = useTranslation()
     useEffect(() => {
         if (socialLogins) {
             let length = 0
@@ -90,7 +87,6 @@ const SocialLogins = (props) => {
                     )
                 }
             })}
-            {/*<AppleLoginComp/>*/}
         </CustomStackFullWidth>
     )
 }

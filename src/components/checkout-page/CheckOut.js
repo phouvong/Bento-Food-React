@@ -1,10 +1,10 @@
 import React from 'react'
 import CheckoutPage from './CheckoutPage'
 
-const CheckOut = () => {
+const CheckOut = ({ isDineIn }) => {
     return (
         <>
-            <CheckoutPage/>
+            <CheckoutPage isDineIn={isDineIn} />
         </>
     )
 }

@@ -1,10 +1,6 @@
-import React from 'react'
-import PropTypes from 'prop-types'
 import CustomLogo from '../../CustomLogo'
-import Image from 'next/image'
 
-const LogoSide = ({ global, width, businessLogo }) => {
-    const businessLogoUrl = global?.base_urls?.business_logo_url
+const LogoSide = ({ width, businessLogo }) => {
     return (
         <CustomLogo
             atlText="logo"

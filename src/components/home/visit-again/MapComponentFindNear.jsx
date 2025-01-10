@@ -16,21 +16,13 @@ import {
 } from '@mui/material'
 import { Stack } from '@mui/material'
 import { t } from 'i18next'
-import {
-    IconWrapper,
-    grayscaleMapStyles,
-} from '@/components/landingpage/google-map/Map.style'
+import { grayscaleMapStyles } from '@/components/landingpage/google-map/Map.style'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
-import NearMeIcon from '@mui/icons-material/NearMe'
-import MapMarker from '@/components/landingpage/google-map/MapMarker'
-import RestaurantMarker from '@/components/restaurant-details/RestaurantMarker'
-import DeliveryManMarker from '@/components/restaurant-details/google-address/DeliveryManMarker'
 import { useGeolocated } from 'react-geolocated'
 import { useGetLocation } from '@/utils/custom-hook/useGetLocation'
 import CustomMapSearch from '@/components/join-restaurant/CustomMapSearch'
-import CustomerLocationPin from '@/assets/images/location-pins/CustomerLocationPin'
 import GpsFixedIcon from '@mui/icons-material/GpsFixed'
 import { useDispatch, useSelector } from 'react-redux'
 import { setLocation } from '@/redux/slices/addressData'
@@ -56,7 +48,6 @@ const MapComponentFindNear = ({
     const dispatch = useDispatch()
     const theme = useTheme()
     const { location } = useSelector((state) => state.addressData)
-    const { userLocationUpdate } = useSelector((state) => state.globalSettings)
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const [userLocation, setUserLocation] = useState({
         lat: location?.lat,
@@ -66,25 +57,22 @@ const MapComponentFindNear = ({
         searchKey,
         setSearchKey,
         setEnabled,
-        placeDetailsEnabled,
         setPlaceDetailsEnabled,
         placeDescription,
         setPlaceDescription,
         predictions,
         setPlaceId,
-        setLocations,
         isLoadingPlacesApi,
         currentLocationValue,
-        value,
     } = useGetLocation(coords)
-    const { coords, isGeolocationAvailable, isGeolocationEnabled } =
-        useGeolocated({
-            positionOptions: {
-                enableHighAccuracy: false,
-            },
-            userDecisionTimeout: 5000,
-            isGeolocationEnabled: true,
-        })
+
+    const { coords } = useGeolocated({
+        positionOptions: {
+            enableHighAccuracy: false,
+        },
+        userDecisionTimeout: 5000,
+        isGeolocationEnabled: true,
+    })
     const handleAgreeLocation = () => {
         if (coords) {
             setUserLocation({ lat: coords?.latitude, lng: coords?.longitude })

@@ -1,15 +1,13 @@
 import React, { useState } from 'react'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
-import {Grid, Stack, TextField} from '@mui/material'
-import {DesktopDatePicker, MobileDateRangePicker} from '@mui/lab'
-import {CustomStackFullWidth} from "@/styled-components/CustomStyles.style";
-import {Box} from "@mui/system";
+import { Grid, TextField } from '@mui/material'
+import { DesktopDatePicker } from '@mui/lab'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 
 const CustomDateRangePicker = (props) => {
     const [startDate, setStartDate] = useState()
     const [endDate, setEndDate] = useState()
-    const [value, setValue] = useState([null, null]);
 
     const handleStartDateChange = (date) => {
         setStartDate(date)
@@ -28,10 +26,12 @@ const CustomDateRangePicker = (props) => {
                                 value={startDate}
                                 minDate={new Date('2023-01-01')}
                                 onChange={handleStartDateChange}
-                                renderInput={(params) => <TextField {...params} />}
+                                renderInput={(params) => (
+                                    <TextField {...params} />
+                                )}
                             />
                         </CustomStackFullWidth>
-                       </Grid>
+                    </Grid>
                     <Grid item xs={12} sm={6}>
                         <CustomStackFullWidth>
                             <DesktopDatePicker
@@ -39,16 +39,14 @@ const CustomDateRangePicker = (props) => {
                                 value={endDate}
                                 minDate={new Date('2023-01-01')}
                                 onChange={handleEndDateChange}
-                                renderInput={(params) => <TextField {...params} />}
+                                renderInput={(params) => (
+                                    <TextField {...params} />
+                                )}
                             />
                         </CustomStackFullWidth>
                     </Grid>
-
                 </Grid>
-                <CustomStackFullWidth>
-
-
-                </CustomStackFullWidth>
+                <CustomStackFullWidth></CustomStackFullWidth>
             </LocalizationProvider>
         </div>
     )

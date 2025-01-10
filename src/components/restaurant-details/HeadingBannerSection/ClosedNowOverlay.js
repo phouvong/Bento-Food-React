@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { Stack, Typography } from '@mui/material'
 
 const ClosedNowOverlay = (props) => {

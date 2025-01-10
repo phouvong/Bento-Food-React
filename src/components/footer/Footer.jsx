@@ -10,7 +10,7 @@ import FooterTopSection from './FooterTopSection'
 
 import { useGetLandingPageData } from '@/hooks/react-query/landing-page/useGetLandingPageData'
 import { setLandingPageData } from '@/redux/slices/storedData'
-import { checkMaintenanceMode } from "@/utils/customFunctions";
+import { checkMaintenanceMode } from '@/utils/customFunctions'
 const Footer = ({ languageDirection }) => {
     const dispatch = useDispatch()
     const { landingPageData } = useSelector((state) => state.storedData)
@@ -28,7 +28,7 @@ const Footer = ({ languageDirection }) => {
     }, [])
 
     if (checkMaintenanceMode(global)) {
-        return null;
+        return null
     }
     return (
         <>

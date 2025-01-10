@@ -5,7 +5,6 @@ import Box from '@mui/material/Box'
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
-import { styled } from '@mui/material/styles'
 import Router, { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -16,21 +15,18 @@ import { ButtonContainer, CustomDrawer } from './Navbar.style'
 import { setWelcomeModal } from '@/redux/slices/utils'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from 'react-query'
-import { CategoryApi } from '../../hooks/react-query/config/categoryApi'
-import { RestaurantsApi } from '../../hooks/react-query/config/restaurantApi'
-import { useGetCuisines } from '../../hooks/react-query/cuisines/useGetCuisines'
-import { setClearCart } from '../../redux/slices/cart'
-import {
-    setCuisines,
-    setFeaturedCategories,
-} from '../../redux/slices/storedData'
-import { removeToken } from '../../redux/slices/userToken'
-import { clearWishList } from '../../redux/slices/wishList'
+import { CategoryApi } from '@/hooks/react-query/config/categoryApi'
+import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
+import { useGetCuisines } from '@/hooks/react-query/cuisines/useGetCuisines'
+import { setClearCart } from '@/redux/slices/cart'
+import { setCuisines, setFeaturedCategories } from '@/redux/slices/storedData'
+import { removeToken } from '@/redux/slices/userToken'
+import { clearWishList } from '@/redux/slices/wishList'
 import {
     CustomLink,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
-import { logoutSuccessFull } from '../../utils/ToasterMessages'
+} from '@/styled-components/CustomStyles.style'
+import { logoutSuccessFull } from '@/utils/ToasterMessages'
 import CustomLanguage from '../CustomLanguage'
 import { onErrorResponse } from '../ErrorResponse'
 import { RTL } from '../RTL/RTL'
@@ -38,32 +34,6 @@ import { getToken } from '../checkout-page/functions/getGuestUserId'
 import { CustomTypography } from '../custom-tables/Tables.style'
 import { CustomToaster } from '../custom-toaster/CustomToaster'
 import ThemeSwitches from './top-navbar/ThemeSwitches'
-
-const Search = styled('div')(({ theme }) => ({
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    '&:hover': {
-        backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-        marginLeft: theme.spacing(3),
-        width: 'auto',
-    },
-}))
-
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-}))
 
 const DrawerMenu = ({ zoneid, cartListRefetch }) => {
     const [forSignup, setForSignup] = useState('')
@@ -121,29 +91,22 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
     }
     const searchKey = ''
 
-    const {
-        isLoading,
-        data: categoryData,
-        isError,
-        error,
-        refetch: categoryApiRefetch,
-    } = useQuery(['category'], () => CategoryApi.categories(searchKey), {
-        enabled: false,
-        staleTime: 1000 * 60 * 8,
-        onError: onErrorResponse,
-        cacheTime: 8 * 60 * 1000,
-    })
-    const {
-        isLoading: vegLoading,
-        data: popularRestuarants,
-        isError: vegIsError,
-        error: vegError,
-        refetch: restaurantApiRefetch,
-    } = useQuery(
-        ['restaurants/popular'],
-        () => RestaurantsApi?.popularRestaurants(),
-        { enabled: false }
+    const { data: categoryData, refetch: categoryApiRefetch } = useQuery(
+        ['category'],
+        () => CategoryApi.categories(searchKey),
+        {
+            enabled: false,
+            staleTime: 1000 * 60 * 8,
+            onError: onErrorResponse,
+            cacheTime: 8 * 60 * 1000,
+        }
     )
+    const { data: popularRestuarants, refetch: restaurantApiRefetch } =
+        useQuery(
+            ['restaurants/popular'],
+            () => RestaurantsApi?.popularRestaurants(),
+            { enabled: false }
+        )
     useEffect(() => {
         if (zoneid) {
             if (featuredCategories?.length === 0) {
@@ -153,7 +116,7 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
         }
     }, [zoneid])
 
-    const { data, refetch, isRefetching } = useGetCuisines()
+    const { data, refetch } = useGetCuisines()
     useEffect(() => {
         if (cuisines?.length === 0) {
             refetch()
@@ -264,7 +227,6 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                                     toggleDrawers={toggleDrawer}
                                     pathName="/cuisines"
                                 />
-                                {/*<CollapsableMenu value={collapsableMenu.profile} setOpenDrawer={setOpenDrawer} toggleDrawers={toggleDrawer}/>*/}
                                 <ListItemButton
                                     sx={{
                                         borderBottom: '1px solid',
@@ -506,7 +468,6 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                             sx={{ mt: 0, mb: 1, borderRadius: '5px' }}
                             startIcon={<LockIcon />}
                             onClick={() => handleOpenAuthModal('sign-in')}
-                            //  onClick={() => setLogin(true)}
                         >
                             {t('Sign In')}
                         </Button>
@@ -570,7 +531,6 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                     {token ? menuList() : withOutLogin()}
                 </CustomDrawer>
             </RTL>
-            {/* <AuthModal/> */}
         </Box>
     )
 }

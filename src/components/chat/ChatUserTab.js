@@ -1,7 +1,5 @@
-import React, { useReducer } from 'react'
-import { Stack } from '@mui/system'
-import { Tab, Tabs } from '@mui/material'
-import { ACTION as action, reducer, initialState } from './state'
+import React from 'react'
+import { Tab, Tabs, Stack } from '@mui/material'
 import { t } from 'i18next'
 
 export const data = [
@@ -23,7 +21,6 @@ export const data = [
 ]
 
 const ChatUserTab = ({ setUserType, useType, setChannelId }) => {
-    //const [state, dispatch] = useReducer(reducer, initialState);
     const handleChange = (event, newValue) => {
         setUserType(newValue)
         setChannelId(null)

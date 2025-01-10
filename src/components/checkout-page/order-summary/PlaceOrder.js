@@ -1,32 +1,38 @@
 import React, { useState } from 'react'
-import PropTypes from 'prop-types'
-import { Button, FormControlLabel, Grid } from '@mui/material'
-import { ConditionTypography } from '../CheckOut.style'
+import { FormControlLabel } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import {
-    CustomPaperBigCard,
-    CustomStackFullWidth,
-} from "@/styled-components/CustomStyles.style"
-import { CustomTypographyGray } from '../../error/Errors.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { CustomTypography } from '../../custom-tables/Tables.style'
 import LoadingButton from '@mui/lab/LoadingButton'
 import Link from 'next/link'
 import FormGroup from '@mui/material/FormGroup'
 import Checkbox from '@mui/material/Checkbox'
 import { useDispatch, useSelector } from 'react-redux'
-import { setOfflineInfoStep, setOfflineWithPartials } from "@/redux/slices/OfflinePayment";
-import Router, { useRouter } from 'next/router'
+import {
+    setOfflineInfoStep,
+    setOfflineWithPartials,
+} from '@/redux/slices/OfflinePayment'
+import { useRouter } from 'next/router'
 import toast from 'react-hot-toast'
 
 const PlaceOrder = (props) => {
-    const { distanceLoading,placeOrder, orderLoading, offlinePaymentLoading, offlineFormRef, usePartialPayment, page, paymentMethodDetails } = props;
-    const router = useRouter();
+    const {
+        distanceLoading,
+        placeOrder,
+        orderLoading,
+        offlinePaymentLoading,
+        offlineFormRef,
+        usePartialPayment,
+        page,
+        paymentMethodDetails,
+    } = props
+    const router = useRouter()
     const { t } = useTranslation()
-    const dispatch = useDispatch();
+    const dispatch = useDispatch()
     const [checked, setChecked] = useState(false)
-    const { token } = useSelector((state) => state.userToken);
-    const { offlineInfoStep } = useSelector((state) => state.offlinePayment);
-    const { guestUserInfo } = useSelector((state) => state.guestUserInfo);
+    const { token } = useSelector((state) => state.userToken)
+    const { offlineInfoStep } = useSelector((state) => state.offlinePayment)
+    const { guestUserInfo } = useSelector((state) => state.guestUserInfo)
     const handleChange = (e) => {
         setChecked(e.target.checked)
     }
@@ -39,50 +45,45 @@ const PlaceOrder = (props) => {
             if (usePartialPayment) {
                 dispatch(setOfflineInfoStep(2))
                 dispatch(setOfflineWithPartials(true))
-                // router.push(
-                //     { pathname: "/checkout", query: { page: "offline" } },
-                //     undefined,
-                //     { shallow: true }
-                // );
                 router.push(
-                    { pathname: "/checkout", query: { page: page, method: "offline" } },
+                    {
+                        pathname: '/checkout',
+                        query: { page: page, method: 'offline' },
+                    },
                     undefined,
                     { shallow: true }
-                );
+                )
             } else {
                 dispatch(setOfflineInfoStep(2))
                 dispatch(setOfflineWithPartials(false))
-                // router.push(
-                //     { pathname: "/checkout", query: { page: "offline" } },
-                //     undefined,
-                //     { shallow: true }
-                // );
                 router.push(
-                    { pathname: "/checkout", query: { page: page, method: "offline" } },
+                    {
+                        pathname: '/checkout',
+                        query: { page: page, method: 'offline' },
+                    },
                     undefined,
                     { shallow: true }
-                );
+                )
             }
-
         }
-
     }
     const offlinePlaceOrder = () => {
         if (offlineFormRef.current) {
-            offlineFormRef.current.handleSubmit(); // Trigger form submission from Child2
-
+            offlineFormRef.current.handleSubmit() // Trigger form submission from Child2
         }
-
     }
 
     return (
         <CustomStackFullWidth alignItems="center" spacing={2} marginTop="1rem">
-            {paymentMethodDetails?.method !== "offline_payment" ? (
+            {paymentMethodDetails?.method !== 'offline_payment' ? (
                 <>
                     <FormGroup>
                         <FormControlLabel
                             control={
-                                <Checkbox checked={checked} onChange={handleChange} />
+                                <Checkbox
+                                    checked={checked}
+                                    onChange={handleChange}
+                                />
                             }
                             label={
                                 <CustomTypography sx={{ fontSize: '13px' }}>
@@ -119,67 +120,77 @@ const PlaceOrder = (props) => {
                 </>
             ) : (
                 <>
-                    {
-                        offlineInfoStep === 2 ? (
-                            <>
-                                <FormGroup>
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox checked={checked} onChange={handleChange} />
-                                        }
-                                        label={
-                                            <CustomTypography sx={{ fontSize: '13px' }}>
-                                                {t(
-                                                    `I agree that placing the order places me under`
-                                                )}{' '}
-                                                <Link
-                                                    href="/terms-and-conditions"
-                                                    style={{ textDecoration: 'underline' }}
-                                                >
-                                                    {t('Terms and Conditions')}
-                                                </Link>{' '}
-                                                {t('&')}
-                                                <Link
-                                                    href="/privacy-policy"
-                                                    style={{ textDecoration: 'underline' }}
-                                                >
-                                                    {t('Privacy Policy')}
-                                                </Link>
-                                            </CustomTypography>
-                                        }
-                                    />
-                                </FormGroup>
+                    {offlineInfoStep === 2 ? (
+                        <>
+                            <FormGroup>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={checked}
+                                            onChange={handleChange}
+                                        />
+                                    }
+                                    label={
+                                        <CustomTypography
+                                            sx={{ fontSize: '13px' }}
+                                        >
+                                            {t(
+                                                `I agree that placing the order places me under`
+                                            )}{' '}
+                                            <Link
+                                                href="/terms-and-conditions"
+                                                style={{
+                                                    textDecoration: 'underline',
+                                                }}
+                                            >
+                                                {t('Terms and Conditions')}
+                                            </Link>{' '}
+                                            {t('&')}
+                                            <Link
+                                                href="/privacy-policy"
+                                                style={{
+                                                    textDecoration: 'underline',
+                                                }}
+                                            >
+                                                {t('Privacy Policy')}
+                                            </Link>
+                                        </CustomTypography>
+                                    }
+                                />
+                            </FormGroup>
+                            <LoadingButton
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                onClick={offlinePlaceOrder}
+                                loading={
+                                    orderLoading ||
+                                    offlinePaymentLoading ||
+                                    distanceLoading
+                                }
+                                disabled={!checked}
+                            >
+                                {t('Place Order')}
+                            </LoadingButton>
+                        </>
+                    ) : (
+                        <>
+                            {(offlineInfoStep === 1 ||
+                                offlineInfoStep === 0) && (
                                 <LoadingButton
-                                    type="submit"
-                                    fullWidth
-                                    variant="contained"
-                                    onClick={offlinePlaceOrder}
-                                    loading={orderLoading || offlinePaymentLoading || distanceLoading}
-                                    disabled={!checked}
-                                >
-                                    {t('Place Order')}
-                                </LoadingButton>
-                            </>
-                        ) : (
-                            <>
-                                { (offlineInfoStep === 1 || offlineInfoStep === 0) && <LoadingButton
                                     type="submit"
                                     fullWidth
                                     variant="contained"
                                     onClick={handleOfflineOrder}
                                 >
                                     {t('Confirm Order')}
-                                </LoadingButton>}
-
-                            </>
-                        )
-
-                    }
+                                </LoadingButton>
+                            )}
+                        </>
+                    )}
                 </>
-            )
-            }
-
-        </CustomStackFullWidth >
+            )}
+        </CustomStackFullWidth>
     )
 }
 

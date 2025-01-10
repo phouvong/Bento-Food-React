@@ -19,17 +19,16 @@ export const CustomButtonWarning = styled(Button)(({ theme }) => ({
     },
 }))
 
-export const CustomButtonCancel = styled(Button)(({ theme,width }) => ({
+export const CustomButtonCancel = styled(Button)(({ theme, width }) => ({
     backgroundColor: theme.palette.neutral[300],
-    color: "black",
-
+    color: 'black',
 
     '&:hover': {
         backgroundColor: theme.palette.neutral[400],
     },
     width: '100%',
     [theme.breakpoints.up('xs')]: {
-        width:width? width: '11.5rem',
+        width: width ? width : '11.5rem',
     },
     [theme.breakpoints.down('sm')]: {
         padding: '0.313rem',
@@ -51,42 +50,36 @@ export const CustomButtonSuccess = styled(LoadingButton)(({ theme }) => ({
     },
 }))
 
-export const CustomButtonGray = styled(Button)(({ theme }) => ({
-    backgroundColor: theme.palette.neutral[300],
-    color: theme.palette.neutral[100],
-    width: '100%',
-    [theme.breakpoints.up('xs')]: {
-        width: '11.5rem',
-    },
-    [theme.breakpoints.down('sm')]: {
-        padding: '0.313rem',
-    },
-    '&:hover': {
-        backgroundColor: theme.palette.neutral[400],
-    },
-}))
+export const CustomButtonPrimary = styled(Button)(
+    ({
+        theme,
+        paddingLeft,
+        paddingRight,
+        paddingTop,
+        paddingBottom,
+        maxWidth,
+    }) => ({
+        backgroundColor: theme.palette.primary.main,
+        color: `${theme.palette.whiteContainer.main} !important`,
+        paddingLeft: paddingLeft ?? '0.313rem',
+        paddingRight: paddingRight ?? '0.313rem',
+        paddingTop: paddingTop ?? '16px',
+        paddingBottom: paddingBottom ?? '16px',
+        '&:hover': {
+            backgroundColor: theme.palette.primary.dark,
+        },
+        width: '100%',
 
-export const CustomButtonPrimary = styled(Button)(({ theme,paddingLeft,paddingRight,paddingTop,paddingBottom,maxWidth }) => ({
-    backgroundColor: theme.palette.primary.main,
-    color: `${theme.palette.whiteContainer.main} !important`,
-    paddingLeft:paddingLeft ?? '0.313rem',
-    paddingRight: paddingRight ??'0.313rem',
-    paddingTop:paddingTop ?? "16px",
-    paddingBottom:paddingBottom ?? "16px",
-    '&:hover': {
-        backgroundColor: theme.palette.primary.dark,
-    },
-    width: '100%',
-
-    [theme.breakpoints.up('xs')]: {
-        maxWidth:maxWidth ?? '150px',
-    },
-}))
+        [theme.breakpoints.up('xs')]: {
+            maxWidth: maxWidth ?? '150px',
+        },
+    })
+)
 
 // ##ziaul
 
 export const SignInButton = styled(Button)(({ theme }) => ({
     color: '#fff',
     backgroundColor: theme.palette.primary.main,
-    padding:"7px 20px"
+    padding: '7px 20px',
 }))

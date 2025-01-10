@@ -1,7 +1,6 @@
 import React, { memo } from 'react'
-import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import SocialLogins from '@/components/auth/sign-in/social-login/SocialLogins'
-import { Stack } from '@mui/system'
+import { Stack } from '@mui/material'
 
 const SocialLogin = (props) => {
     const {

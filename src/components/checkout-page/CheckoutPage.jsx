@@ -3,8 +3,8 @@ import { GoogleApi } from '@/hooks/react-query/config/googleApi'
 import { OrderApi } from '@/hooks/react-query/config/orderApi'
 import { ProfileApi } from '@/hooks/react-query/config/profileApi'
 import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
-import money from './assets/fi_2704332.png'
 import {
+    formatPhoneNumber,
     getAmount,
     getFinalTotalPrice,
     getProductDiscount,
@@ -25,13 +25,13 @@ import {
 } from '@mui/material'
 import moment from 'moment'
 import Router, { useRouter } from 'next/router'
-import { useEffect, useReducer, useRef, useState } from 'react'
+import React, { useEffect, useReducer, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
 import { onErrorResponse, onSingleErrorResponse } from '../ErrorResponse'
-import { OrderSummary } from './CheckOut.style'
+import { DeliveryTitle, OrderSummary } from './CheckOut.style'
 import DeliveryDetails from './DeliveryDetails'
 import RestaurantScheduleTime from './RestaurantScheduleTime'
 import { getDayNumber } from './const'
@@ -55,7 +55,6 @@ import {
     CustomStackFullWidth,
 } from '@/styled-components/CustomStyles.style'
 import { useTheme } from '@emotion/react'
-import Skeleton from '@mui/material/Skeleton'
 import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
 import useGetVehicleCharge from '../../hooks/react-query/config/useGetVehicleCharge'
@@ -80,6 +79,8 @@ import {
 } from './states/additionalInformationStates'
 import useGetMostTrips from '@/hooks/react-query/useGetMostTrips'
 import { setIsNeedLoad } from '@/redux/slices/utils'
+import GuestUserInforForm from '@/components/checkout-page/guest-user/GuestUserInforForm'
+import DineInPreferableTime from '@/components/checkout-page/DineInPreferableTime'
 
 let currentDate = moment().format('YYYY/MM/DD HH:mm')
 let nextday = moment(currentDate).add(1, 'days').format('YYYY/MM/DD')
@@ -117,7 +118,7 @@ export const handleIdsFromCartItems = (variationValues) => {
     }
     return value
 }
-const CheckoutPage = () => {
+const CheckoutPage = ({ isDineIn }) => {
     const router = useRouter()
     const dispatch = useDispatch()
     const theme = useTheme()
@@ -155,7 +156,6 @@ const CheckoutPage = () => {
     const [selected, setSelected] = useState('')
     const [paymentMethodDetails, setPaymentMethodDetails] = useState({})
     const [cashbackAmount, setCashbackAmount] = useState(null)
-    const [isExtraPackaging, setIsExtraPackaging] = useState(false)
     const [extraPackagingCharge, setExtraPackagingCharge] = useState(0)
     const { method } = router.query
     const { mutate: offlineMutate, isLoading: offlinePaymentLoading } =
@@ -165,12 +165,6 @@ const CheckoutPage = () => {
         (state) => state.offlinePayment
     )
     const { data: tripsData } = useGetMostTrips()
-    // const onSuccessHandler = (res) => {
-    //     console.log({ res })
-    //     if (res) {
-    //         dispatch(setIsNeedLoad(res?.reload_home))
-    //     }
-    // }
 
     const { data, refetch: refetchNotification } =
         useGetOrderPlaceNotification(orderId)
@@ -180,12 +174,8 @@ const CheckoutPage = () => {
             dispatch(setIsNeedLoad(data?.reload_home))
         }
     }, [data])
-    const [enabled, setEnabled] = useState(cartList?.length ? true : false)
-    const {
-        data: offlinePaymentOptions,
-        isLoading: offlineOptionsLoading,
-        refetch: OfflinePaymentRefetch,
-    } = useGetOfflinePaymentOptions({})
+    const { data: offlinePaymentOptions, refetch: OfflinePaymentRefetch } =
+        useGetOfflinePaymentOptions({})
 
     useEffect(() => {
         OfflinePaymentRefetch()
@@ -207,8 +197,6 @@ const CheckoutPage = () => {
     const text1 = t('You can not Order more then')
     const text2 = t('on COD order')
     const { page } = router.query
-    const notify = (i) => toast(i)
-
     let currencySymbol
     let currencySymbolDirection
     let digitAfterDecimalPoint
@@ -235,13 +223,7 @@ const CheckoutPage = () => {
             }
         }
     }, [zoneData])
-    const {
-        isLoading,
-        data: restaurantData,
-        isError,
-        error,
-        refetch,
-    } = useQuery(
+    const { data: restaurantData, refetch } = useQuery(
         [`restaurant-details`],
         () =>
             RestaurantsApi.restaurantDetails(
@@ -312,6 +294,12 @@ const CheckoutPage = () => {
     }, [restaurantData])
     useEffect(() => {
         if (
+            isDineIn === 'dine_in' &&
+            restaurantData?.data?.is_dine_in_active &&
+            global?.dine_in_order_option
+        ) {
+            setOrderType('dine_in')
+        } else if (
             restaurantData?.data?.delivery &&
             global?.home_delivery &&
             restaurantData?.data?.take_away &&
@@ -459,14 +447,23 @@ const CheckoutPage = () => {
             subscription_quantity: subscriptionOrderCount,
             cutlery: cutlery,
             guest_id: getGuestId(),
-            contact_person_name: guestUserInfo?.contact_person_name,
-            contact_person_number: guestUserInfo?.contact_person_number,
+            contact_person_name:
+                additionalInformationStates?.dine_in_contact?.name ||
+                guestUserInfo?.contact_person_name,
+            contact_person_number: additionalInformationStates?.dine_in_contact
+                ?.phone
+                ? formatPhoneNumber(
+                      additionalInformationStates?.dine_in_contact?.phone
+                  )
+                : formatPhoneNumber(guestUserInfo?.contact_person_number),
             is_guest: token ? 0 : 1,
             is_buy_now: page === 'campaign' ? 1 : 0,
             cart_id: page === 'campaign' ? cartList[0]?.cartItemId : null,
             unavailable_item_note,
             delivery_instruction,
             extra_packaging_amount: extraPackagingCharge,
+            contact_person_email:
+                additionalInformationStates?.dine_in_contact?.email,
         }
     }
 
@@ -587,7 +584,6 @@ const CheckoutPage = () => {
                 let totalQty = 0
                 let carts = handleProductList(productList, totalQty)
                 const handleSuccessOffline = (response) => {
-                    // setOrderId(response?.data?.order_id)
                     if (response?.data) {
                         toast.success(response?.data?.message)
                         setOfflineCheck(true)
@@ -612,12 +608,10 @@ const CheckoutPage = () => {
                     setOrderId(response?.data?.order_id)
                     if (response?.data) {
                         if (paymenMethod !== 'cash_on_delivery') {
-                            const newBaseUrl = baseUrl.substring(0, 31)
                             const callBackUrl = token
                                 ? // ? `${window.location.origin}/order-history/${response?.data?.order_id}`
                                   `${window.location.origin}/info?page=${page}`
                                 : `${window.location.origin}/order`
-                            //const callBackUrl = `${window.location.origin}/order`
                             const url = `${baseUrl}/payment-mobile?order_id=${
                                 response?.data?.order_id
                             }&customer_id=${
@@ -992,7 +986,6 @@ const CheckoutPage = () => {
                         ) {
                             setOpenModal(true)
                         }
-                        //setOpenModal(true);
                     }
                 }
             }
@@ -1096,6 +1089,7 @@ const CheckoutPage = () => {
             spacing={3}
             mb="2rem"
             paddingTop={{ xs: '0px', md: '60px' }}
+            sx={{ minHeight: '50vh' }}
         >
             <Grid item xs={12} md={7}>
                 {method !== 'offline' ? (
@@ -1123,9 +1117,25 @@ const CheckoutPage = () => {
                             setUsePartialPayment={setUsePartialPayment}
                             setSwitchToWallet={setSwitchToWallet}
                         />
+                        {orderType === 'dine_in' && (
+                            <CustomPaperBigCard padding=".5rem">
+                                <CustomStackFullWidth>
+                                    <GuestUserInforForm
+                                        key={orderType}
+                                        dine_in
+                                        additionalInformationDispatch={
+                                            additionalInformationDispatch
+                                        }
+                                        configData={global}
+                                        customerData={customerData}
+                                    />
+                                </CustomStackFullWidth>
+                            </CustomPaperBigCard>
+                        )}
                         {page !== 'campaign' &&
                             subscriptionStates.order === '0' &&
-                            token && (
+                            token &&
+                            orderType !== 'dine_in' && (
                                 <RestaurantScheduleTime
                                     restaurantData={restaurantData}
                                     handleChange={handleChange}
@@ -1136,7 +1146,20 @@ const CheckoutPage = () => {
                                     setScheduleAt={setScheduleAt}
                                 />
                             )}
+
+                        {orderType === 'dine_in' && (
+                            <DineInPreferableTime
+                                restaurantData={restaurantData}
+                                handleChange={handleChange}
+                                today={today}
+                                tomorrow={tomorrow}
+                                numberOfDay={numberOfDay}
+                                global={global}
+                                setScheduleAt={setScheduleAt}
+                            />
+                        )}
                         {subscriptionStates.order === '0' &&
+                            orderType !== 'dine_in' &&
                             orderType !== 'take_away' &&
                             Number.parseInt(global?.dm_tips_status) === 1 && (
                                 <DeliveryManTips
@@ -1204,6 +1227,8 @@ const CheckoutPage = () => {
                             {t('Order Summary')}
                         </OrderSummary>
                         {zoneData &&
+                            orderType !== 'dine_in' &&
+                            orderType !== 'take_away' &&
                             handleBadWeatherUi(zoneData?.data?.zone_data)}
                         <SimpleBar
                             style={{ maxHeight: '500px', width: '100%' }}
@@ -1212,11 +1237,12 @@ const CheckoutPage = () => {
                                 type={type}
                                 page={page}
                                 global={global}
+                                orderType={orderType}
                             />
                         </SimpleBar>
                         <Stack>
                             {restaurantData?.data?.cutlery &&
-                                orderType !== 'take_away' && (
+                                orderType === 'delivery' && (
                                     <Box mb={1}>
                                         <Cutlery
                                             isChecked={cutlery}
@@ -1224,7 +1250,7 @@ const CheckoutPage = () => {
                                         />
                                     </Box>
                                 )}
-                            {orderType !== 'take_away' && (
+                            {orderType === 'delivery' && (
                                 <Box mb={1}>
                                     <ItemSelectWithChip
                                         title="If Any product is not available"
@@ -1233,7 +1259,7 @@ const CheckoutPage = () => {
                                     />
                                 </Box>
                             )}
-                            {orderType !== 'take_away' && (
+                            {orderType === 'delivery' && (
                                 <Box mb={1}>
                                     <ItemSelectWithChip
                                         title="Add More Delivery Instruction"
@@ -1252,7 +1278,8 @@ const CheckoutPage = () => {
                                   restaurantData?.data
                                       ?.extra_packaging_amount != null &&
                                   restaurantData?.data?.extra_packaging_amount >
-                                      0 && (
+                                      0 &&
+                                  orderType !== 'dine_in' && (
                                       <Stack
                                           direction="row"
                                           justifyContent="space-between"

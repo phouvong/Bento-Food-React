@@ -1,6 +1,6 @@
 import { useQuery } from 'react-query'
 import MainApi from '../../../api/MainApi'
-import { onSingleErrorResponse } from '../../../components/ErrorResponse'
+import { onSingleErrorResponse } from '@/components/ErrorResponse'
 
 const getData = async (pageParams) => {
     const { tempDistance } = pageParams

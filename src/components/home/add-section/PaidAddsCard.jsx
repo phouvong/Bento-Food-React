@@ -145,7 +145,7 @@ const PaidAddsCard = ({
                 if (response?.data) {
                     dispatch(
                         addWishListRes({
-                            logo: item?.restaurant?.logo_full_url,
+                            logo_full_url: item?.restaurant?.logo_full_url,
                             name: item?.restaurant?.name,
                             rating_count: item?.restaurant?.rating_count,
                             avg_rating: item?.average_rating,

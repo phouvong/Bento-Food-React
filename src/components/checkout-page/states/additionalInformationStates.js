@@ -2,47 +2,78 @@ export const additionalInformationInitialState = {
     streetNumber: '',
     houseNumber: '',
     floor: '',
-    note:'',
-    addressType:'',
+    note: '',
+    addressType: '',
+    dine_in_contact: {
+        name: '',
+        phone: '',
+        email: '',
+    },
 }
 
 export const additionalInformationReducer = (state, action) => {
     switch (action.type) {
-        case 'setStreetNumber':
+        case ACTIONS.setStreetNumber:
             return {
                 ...state,
-                streetNumber: action.payload
+                streetNumber: action.payload,
             }
-        case 'setHouseNumber':
+        case ACTIONS.setHouseNumber:
             return {
                 ...state,
-                houseNumber: action.payload
+                houseNumber: action.payload,
             }
-        case 'setFloor':
+        case ACTIONS.setFloor:
             return {
                 ...state,
-                floor: action.payload
+                floor: action.payload,
             }
-        case 'setNote':
+        case ACTIONS.setNote:
             return {
                 ...state,
-                note: action.payload
+                note: action.payload,
             }
-        case 'setAddressType':
+        case ACTIONS.setAddressType:
             return {
                 ...state,
-                addressType: action.payload
+                addressType: action.payload,
+            }
+        case ACTIONS.setDineInName:
+            return {
+                ...state,
+                dine_in_contact: {
+                    ...state.dine_in_contact,
+                    name: action.payload,
+                },
+            }
+        case ACTIONS.setDineInPhone:
+            return {
+                ...state,
+                dine_in_contact: {
+                    ...state.dine_in_contact,
+                    phone: action.payload,
+                },
+            }
+        case ACTIONS.setDineInEmail:
+            return {
+                ...state,
+                dine_in_contact: {
+                    ...state.dine_in_contact,
+                    email: action.payload,
+                },
             }
         default:
             return state
-
     }
 }
 
 export const ACTIONS = {
-    setStreetNumber: "setStreetNumber",
-    setHouseNumber: "setHouseNumber",
-    setFloor: "setFloor",
-    setNote: "setNote",
-    setAddressType: "setAddressType",
-};
+    setStreetNumber: 'setStreetNumber',
+    setHouseNumber: 'setHouseNumber',
+    setFloor: 'setFloor',
+    setNote: 'setNote',
+    setAddressType: 'setAddressType',
+    setDineInName: 'setDineInName',
+    setDineInPhone: 'setDineInPhone',
+    setDineInEmail: 'setDineInEmail',
+}

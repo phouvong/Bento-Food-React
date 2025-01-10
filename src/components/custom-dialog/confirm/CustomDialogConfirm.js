@@ -8,12 +8,11 @@ import DialogActions from '@mui/material/DialogActions'
 import {
     CustomButtonCancel,
     CustomButtonSuccess,
-} from '../../../styled-components/CustomButtons.style'
+} from '@/styled-components/CustomButtons.style'
 import { WrapperForCustomDialogConfirm } from './CustomDialogConfirm.style'
 
 const CustomDialogConfirmStyle = (props) => {
-    const { open, onClick, onClose, onSuccess, dialogTexts, isLoading } = props
-
+    const { open, onClose, onSuccess, dialogTexts, isLoading } = props
     const { t } = useTranslation()
 
     return (
@@ -25,9 +24,6 @@ const CustomDialogConfirmStyle = (props) => {
         >
             <WrapperForCustomDialogConfirm>
                 <Stack alignItems="center" justifyContent="center">
-                    {/*<ImageContainer>*/}
-                    {/*    <img src={confirmIcon} alt="closeIcon" />*/}
-                    {/*</ImageContainer>*/}
                     <DialogTitle id="alert-dialog-title">
                         <Typography variant="h4">
                             {dialogTexts

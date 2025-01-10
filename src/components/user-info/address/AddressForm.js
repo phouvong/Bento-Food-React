@@ -9,23 +9,17 @@ import {
 } from '@mui/material'
 import { useFormik } from 'formik'
 import CustomTextFieldWithFormik from '../../form-fields/CustomTextFieldWithFormik'
-import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { useTranslation } from 'react-i18next'
-import CustomSelectWithFormik from '../../custom-select/CustomSelectWithFormik'
 import ValidationSchemaForAddAddress from './ValidationSchemaForAddAddress'
 import CustomPhoneInput from '../../CustomPhoneInput'
-import LoadingButton from '@mui/lab/LoadingButton'
 import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
 import { useSelector } from 'react-redux'
-import HomeIcon from '@mui/icons-material/Home'
 import { LabelButton } from './Address.style'
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded'
-import ApartmentOutlinedIcon from '@mui/icons-material/ApartmentOutlined'
-import MapsHomeWorkRoundedIcon from '@mui/icons-material/MapsHomeWorkRounded'
 import ApartmentIcon from '@mui/icons-material/Apartment'
 import FmdGoodIcon from '@mui/icons-material/FmdGood'
-import { t } from 'i18next'
 
 const AddressForm = ({
     deliveryAddress,
@@ -56,6 +50,7 @@ const AddressForm = ({
             setLabel('Home')
         }
     }, [])
+
     const typeData = [
         {
             label: t('Home'),
@@ -73,6 +68,7 @@ const AddressForm = ({
             icon: <FmdGoodIcon />,
         },
     ]
+
     const { guestUserInfo } = useSelector((state) => state.guestUserInfo)
     const addAddressFormik = useFormik({
         initialValues: {
@@ -95,9 +91,21 @@ const AddressForm = ({
                 : '',
             latitude: lat,
             longitude: lng,
-            road: editAddress ? address?.road : '',
-            house: editAddress ? address?.house : '',
-            floor: editAddress ? address?.floor : '',
+            road: guestUserInfo
+                ? guestUserInfo?.road
+                : editAddress
+                ? address?.road
+                : '',
+            house: guestUserInfo
+                ? guestUserInfo?.house
+                : editAddress
+                ? address?.house
+                : '',
+            floor: guestUserInfo
+                ? guestUserInfo?.floor
+                : editAddress
+                ? address?.floor
+                : '',
         },
         validationSchema: ValidationSchemaForAddAddress(),
         onSubmit: async (values) => {
@@ -160,7 +168,6 @@ const AddressForm = ({
         <Stack width={{ xs: '100%', md: '58%' }}>
             <form noValidate onSubmit={addAddressFormik.handleSubmit}>
                 <SimpleBar style={{ height: isXs ? '250px' : '475px' }}>
-                    {/* <Stack sx={{overflowY : "auto"}}> */}
                     <Grid
                         container
                         spacing={0}
@@ -234,19 +241,6 @@ const AddressForm = ({
                                 value={addAddressFormik.values.address}
                             />
                         </Grid>
-                        {/* <Grid item xs={12} md={12}>
-                            <CustomSelectWithFormik
-                                value={addAddressFormik.values.address_type}
-                                selectFieldData={typeData}
-                                inputLabel={t('Address Type')}
-                                passSelectedValue={addressTypeHandler}
-                                touched={addAddressFormik.touched.address_type}
-                                errors={addAddressFormik.errors.address_type}
-                                fieldProps={addAddressFormik.getFieldProps(
-                                    'address_type'
-                                )}
-                            />
-                        </Grid> */}
                         <Grid item xs={12} md={12}>
                             <CustomTextFieldWithFormik
                                 required="true"
@@ -331,7 +325,6 @@ const AddressForm = ({
                             </Grid>
                         </Grid>
                     </Grid>
-                    {/* </Stack> */}
                 </SimpleBar>
                 <Button
                     type="submit"

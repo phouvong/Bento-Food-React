@@ -13,13 +13,14 @@ import CustomEmptyResult from '../empty-view/CustomEmptyResult'
 import FoodCard from '../food-card/FoodCard'
 import FoodOrRestaurant from '../products-page/FoodOrRestaurant'
 import WishListRestaurantCard from '../wishlist-page/WishListRestaurantCard'
+import WishListShimmer from '@/components/wishlist-page/WishListShimmer'
 
 const CustomDrawerWishlist = (props) => {
     const { openWishlistModal, setOpenWishlistModal } = props
     const dispatch = useDispatch()
     const theme = useTheme()
     const { foodOrRestaurant } = useSelector((state) => state.searchFilterStore)
-    const { global, token } = useSelector((state) => state.globalSettings)
+    const { global } = useSelector((state) => state.globalSettings)
     const { wishLists } = useSelector((state) => state.wishList)
     const languageDirection = localStorage.getItem('direction')
     const handleCloseModal = () => {

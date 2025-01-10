@@ -1,26 +1,19 @@
 import React, { useState } from 'react'
-import {
-    CustomFavICon,
-    CustomFoodCard,
-    CustomFoodCardNew,
-} from './FoodCard.style'
-import { Box, Stack } from '@mui/system'
+import { CustomFoodCardNew } from './FoodCard.style'
 import CustomImageContainer from '../CustomImageContainer'
-import test_image from '../../../public/static/testImage.svg'
-import { IconButton, Tooltip, Typography, useMediaQuery } from '@mui/material'
+import {
+    IconButton,
+    Tooltip,
+    Typography,
+    useMediaQuery,
+    Box,
+    Stack,
+} from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import VagSvg from '../foodDetail-modal/VagSvg'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
-import {
-    CustomOverlayBox,
-    CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
-import {
-    getAmount,
-    getConvertDiscount,
-    getReviewCount,
-    isAvailable,
-} from '../../utils/customFunctions'
+import { CustomOverlayBox } from '@/styled-components/CustomStyles.style'
+import { getReviewCount, isAvailable } from '@/utils/customFunctions'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import StartPriceView from '../foodDetail-modal/StartPriceView'
@@ -39,7 +32,6 @@ import HalalSvg from '@/components/food-card/HalalSvg'
 const HorizontalFoodCard = (props) => {
     const {
         isShop,
-        setOpenModal,
         product,
         imageUrl,
         isInList,
@@ -175,13 +167,16 @@ const HorizontalFoodCard = (props) => {
                                     >
                                         {product?.name}
                                     </Typography>
-                                    <VagSvg
-                                        color={
-                                            Number(product?.veg) === 0
-                                                ? theme.palette.nonVeg
-                                                : theme.palette.success.light
-                                        }
-                                    />
+                                    {global?.toggle_veg_non_veg ? (
+                                        <VagSvg
+                                            color={
+                                                Number(product?.veg) === 0
+                                                    ? theme.palette.nonVeg
+                                                    : theme.palette.success
+                                                          .light
+                                            }
+                                        />
+                                    ) : null}
 
                                     {product?.halal_tag_status === 1 &&
                                         product?.is_halal === 1 && (

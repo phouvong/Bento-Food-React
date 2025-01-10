@@ -1,8 +1,7 @@
 import React from 'react'
-import { Box, Grid } from '@mui/material'
+import { Grid } from '@mui/material'
 import Skeleton from '@mui/material/Skeleton'
 import { useTheme } from '@mui/material/styles'
-import { useDispatch } from 'react-redux'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
 const CustomShimmerForBanner = () => {

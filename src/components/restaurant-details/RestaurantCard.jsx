@@ -1,15 +1,11 @@
-import { Stack, Typography } from '@mui/material'
-import { Box } from '@mui/system'
+import { Stack, Typography, Box } from '@mui/material'
 import React from 'react'
 import StarIcon from '@mui/icons-material/Star'
 import Link from 'next/link'
 import CustomImageContainer from '../CustomImageContainer'
 import { useSelector } from 'react-redux'
-import { restaurantDiscountTag } from '../../utils/customFunctions'
-import {
-    RestaurantDis,
-    RestaurantDiscountStack,
-} from '../food-card/FoodCard.style'
+import { restaurantDiscountTag } from '@/utils/customFunctions'
+import { RestaurantDiscountStack } from '../food-card/FoodCard.style'
 import { useTheme } from '@mui/material/styles'
 import { t } from 'i18next'
 
@@ -124,7 +120,6 @@ const RestaurantCard = (props) => {
                     {restaurantCloseHandler()}
                 </Stack>
 
-                {/*<img className="PopularRes_img" src={restaurantLogo} alt={props?.name} />*/}
                 <Typography>
                     {props.discount ? props.discount.discount : ''}
                 </Typography>

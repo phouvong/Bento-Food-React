@@ -1,4 +1,3 @@
-import { onErrorResponse } from '@/components/ErrorResponse'
 import MainApi from '../../../../api/MainApi'
 import { useMutation } from 'react-query'
 

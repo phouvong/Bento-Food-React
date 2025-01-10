@@ -1,19 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { Box, Card, Grid, NoSsr, Stack, Typography } from '@mui/material'
-import LandingBannerOne from '../../../public/static/banners/BannerOne.png'
-import LandingBannerTwo from '../../../public/static/banners/BannerTwo.png'
-import LandingHomeBannerLg from '../../../public/static/banners/HomeBannerLg.png'
+import React, { useRef, useState } from 'react'
+import { Card, Stack } from '@mui/material'
 import { LandingPageTypography } from './landingPageStyle'
-import { useTranslation } from 'react-i18next'
 import ImageNotFound from '../../../public/static/no-image-found.png'
 import Skeleton from '@mui/material/Skeleton'
-import { useRouter } from 'next/router'
 import CustomContainer from '../container'
 import {
     CustomStackFullWidth,
     SliderCustom,
-} from '../../styled-components/CustomStyles.style'
-import SimpleBar from 'simplebar-react'
+} from '@/styled-components/CustomStyles.style'
 import 'simplebar/dist/simplebar.min.css'
 import { RTL } from '../RTL/RTL'
 import Slider from 'react-slick'
@@ -22,42 +16,13 @@ import 'slick-carousel/slick/slick-theme.css'
 import { HandleNext, HandlePrev } from '../CustomSliderIcon'
 import { useTheme } from '@emotion/react'
 
-const demoData = [
-    {
-        title: '',
-        img: ImageNotFound,
-        sub_title: '',
-    },
-    {
-        title: '',
-        img: ImageNotFound,
-        sub_title: '',
-    },
-]
-const BannerSection = ({
-    banner_section_half,
-    discount_banner,
-    global,
-    isLoading,
-    promotional_banner_image_url,
-}) => {
-    const { t } = useTranslation()
-    const [data, setData] = useState([])
+const BannerSection = ({ banner_section_half, isLoading }) => {
     const [hoverOn, setHoverOn] = useState(false)
     const discountRef = useRef(null)
     const theme = useTheme()
     let languageDirection = undefined
     if (typeof window !== 'undefined') {
         languageDirection = localStorage.getItem('direction')
-    }
-    const title = ''
-    const subTitle = ''
-    const discountUpTo = ''
-    const discountItem = ''
-    const router = useRouter()
-    const styles = {
-        maxWidth: 1200,
-        width: '100%',
     }
     const settings = {
         speed: 500,
@@ -75,7 +40,6 @@ const BannerSection = ({
                     slidesToShow: 4.7,
                     slidesToScroll: 1,
                     infinite: false,
-                    // dots: true
                 },
             },
             {
@@ -84,7 +48,6 @@ const BannerSection = ({
                     slidesToShow: 4.7,
                     slidesToScroll: 1,
                     infinite: false,
-                    // dots: true
                 },
             },
             {
@@ -93,7 +56,6 @@ const BannerSection = ({
                     slidesToShow: 4.7,
                     slidesToScroll: 1,
                     infinite: false,
-                    // dots: true
                 },
             },
             {
@@ -102,7 +64,6 @@ const BannerSection = ({
                     slidesToShow: 4.7,
                     slidesToScroll: 1,
                     infinite: false,
-                    // dots: true
                 },
             },
             {
@@ -111,7 +72,6 @@ const BannerSection = ({
                     slidesToShow: 3,
                     slidesToScroll: 1,
                     infinite: false,
-                    // dots: true
                 },
             },
             {
@@ -120,7 +80,6 @@ const BannerSection = ({
                     slidesToShow: 3,
                     slidesToScroll: 1,
                     infinite: true,
-                    // dots: true
                 },
             },
             {
@@ -129,7 +88,6 @@ const BannerSection = ({
                     slidesToShow: 3,
                     slidesToScroll: 1,
                     infinite: true,
-                    // dots: true
                 },
             },
             {
@@ -138,7 +96,6 @@ const BannerSection = ({
                     slidesToShow: 2.5,
                     slidesToScroll: 1,
                     infinite: true,
-                    // dots: true
                 },
             },
             {
@@ -147,7 +104,6 @@ const BannerSection = ({
                     slidesToShow: 2,
                     slidesToScroll: 1,
                     infinite: true,
-                    // dots: true
                 },
             },
             {
@@ -155,7 +111,6 @@ const BannerSection = ({
                 settings: {
                     slidesToShow: 2,
                     slidesToScroll: 1,
-                    // initialSlide: 2
                     infinite: true,
                 },
             },
@@ -184,7 +139,6 @@ const BannerSection = ({
                     slidesToScroll: 1,
                     centerMode: true,
                     centerPadding: '20px',
-                    // dots: true
                     initialSlide: 0,
                     infinite: true,
                     dots: true,
@@ -227,21 +181,27 @@ const BannerSection = ({
                                                     <Card
                                                         elevation={0}
                                                         sx={{
-                                                            backgroundImage: `url(${typeof item.image_full_url ===
+                                                            backgroundImage: `url(${
+                                                                typeof item.image_full_url ===
                                                                 'string'
-                                                                ? `${item?.image_full_url}`
-                                                                : ImageNotFound.src
-                                                                })`,
+                                                                    ? `${item?.image_full_url}`
+                                                                    : ImageNotFound.src
+                                                            })`,
                                                             height: '100%',
-                                                            width: "100%",
-                                                            backgroundSize: 'cover',
-                                                            backgroundRepeat: 'no-repeat',
+                                                            width: '100%',
+                                                            backgroundSize:
+                                                                'cover',
+                                                            backgroundRepeat:
+                                                                'no-repeat',
                                                             borderRadius: '4px',
-                                                            backgroundPosition: 'center',
-                                                            transition: "transform .3s ease-in-out",
-                                                            "&:hover": {
-                                                                transform: "scale(1.03)",
-                                                            }
+                                                            backgroundPosition:
+                                                                'center',
+                                                            transition:
+                                                                'transform .3s ease-in-out',
+                                                            '&:hover': {
+                                                                transform:
+                                                                    'scale(1.03)',
+                                                            },
                                                         }}
                                                     >
                                                         <Stack

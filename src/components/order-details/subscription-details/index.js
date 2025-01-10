@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style";
 import { CustomTypography } from "../../custom-tables/Tables.style";
 import { alpha, Box, Button, Grid, Stack, styled, Typography, useMediaQuery } from "@mui/material";
-import { FormatedDateWithTimeAnotherType, getDateFormatAnotherWay } from "@/utils/customFunctions";
+import { getDateFormatAnotherWay } from "@/utils/customFunctions";
 import CustomModal from "../../custom-modal/CustomModal";
 import Logs from "./Logs";
 import { useGeLogs } from "@/hooks/react-query/subscription/useGeLogs";

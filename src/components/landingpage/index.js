@@ -1,5 +1,5 @@
 import CssBaseline from '@mui/material/CssBaseline'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import BannerSection from './BannerSection'
 import DownloadSection from './DownloadSection'
 import FunFactSection from './FunFactSection'
@@ -16,43 +16,19 @@ import DiscountBanner from './DiscountBanner'
 import { setGlobalSettings } from '@/redux/slices/global'
 import AvailableZoneSection from '@/components/landingpage/AvailableZoneSection'
 
-const LandingPage = (props) => {
-    const { global } = props
-
-    const [zoneid, setZoneid] = useState(null)
+const LandingPage = ({ global }) => {
     const dispatch = useDispatch()
     const { landingPageData } = useSelector((state) => state.storedData)
-    useEffect(async () => {
-        if (typeof window !== 'undefined') {
-            setZoneid(JSON.parse(localStorage.getItem('zoneid')))
-        }
-    }, [])
-
-    let token = undefined
-    if (typeof window != 'undefined') {
-        token = localStorage.getItem('token')
-    }
-    const handleModalClose = () => {}
 
     const onSuccessHandler = (res) => {
         dispatch(setLandingPageData(res))
     }
 
-    const { data, refetch, isLoading } = useGetLandingPageData(onSuccessHandler)
+    const { refetch, isLoading } = useGetLandingPageData(onSuccessHandler)
     useEffect(() => {
         refetch()
     }, [])
-    //   const { data: guestData, refetch: guestRefetch } = useGetGuest();
-    //   useEffect(() => {
-    //     if (!token) {
-    //       guestRefetch();
-    //     }
-    //   }, []);
-    //   useEffect(() => {
-    //     if (typeof window !== 'undefined') {
-    //         localStorage.setItem("guest_id", guestData?.guest_id);
-    //     }
-    //   }, [guestData])
+
     useEffect(() => {
         dispatch(setGlobalSettings(global))
     }, [])
@@ -73,7 +49,6 @@ const LandingPage = (props) => {
                 banner_section_image_base_url={
                     landingPageData?.base_urls?.react_header_image_url
                 }
-                handleModalClose={handleModalClose}
                 isLoading={isLoading}
             />
             <FunFactSection

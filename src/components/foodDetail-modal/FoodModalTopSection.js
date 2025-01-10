@@ -1,10 +1,7 @@
-import React from 'react'
-import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style"
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import CustomImageContainer from '../CustomImageContainer'
 import CloseIcon from '@mui/icons-material/Close'
-import { Stack } from '@mui/system'
-import { alpha, Typography } from "@mui/material";
-import StarIcon from '@mui/icons-material/Star'
+import { alpha, Typography, Stack } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { CustomStackForFoodModal } from './FoodModalStyle'
 import { CustomFavICon } from '../food-card/FoodCard.style'
@@ -13,7 +10,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import FoodRating from '../food-card/FoodRating'
 import { useRouter } from 'next/router'
-import Link from 'next/link'
+
 const FoodModalTopSection = ({
     product,
     image,
@@ -22,36 +19,33 @@ const FoodModalTopSection = ({
     addToFavorite,
     deleteWishlistItem,
 }) => {
-
     const router = useRouter()
     let languageDirection = undefined
     if (typeof window !== 'undefined') {
         languageDirection = localStorage.getItem('direction')
     }
     const theme = useTheme()
-    const starColor = theme.palette.neutral[100]
     const handleClick = () => {
         router.push(`/restaurant/${product?.restaurant_id}`)
         handleModalClose()
     }
     return (
         <CustomStackFullWidth sx={{ position: 'relative' }}>
-            <IconButton onClick={handleModalClose}   sx={{
-                zIndex: "999",
-                position: "absolute",
-                top: 0,
-                right:0,
-                backgroundColor:"rgba(255, 255, 255, 0.7)",
-                borderRadius: "50%",
-                "&:hover": {
-                    backgroundColor:alpha("rgba(255, 255, 255, 0.7)",.5),
-                }
-                // [theme.breakpoints.down("sm")]: {
-                //     top: -30,
-                //     right: -30,
-                // },
-            }}>
-                <CloseIcon sx={{ fontSize: '16px',fontWeight:"bold" }} />
+            <IconButton
+                onClick={handleModalClose}
+                sx={{
+                    zIndex: '999',
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                    borderRadius: '50%',
+                    '&:hover': {
+                        backgroundColor: alpha('rgba(255, 255, 255, 0.7)', 0.5),
+                    },
+                }}
+            >
+                <CloseIcon sx={{ fontSize: '16px', fontWeight: 'bold' }} />
             </IconButton>
             <CustomImageContainer
                 src={image}
@@ -70,11 +64,14 @@ const FoodModalTopSection = ({
                     )}
                     {router.pathname !== `/restaurant/[id]` ? (
                         <Typography
-                            sx={{ cursor: 'pointer',
+                            sx={{
+                                cursor: 'pointer',
                                 transition: 'background 1s, color 1s',
-                             "&:hover":{
-                                color:theme=>theme.palette.primary.main
-                            }}}
+                                '&:hover': {
+                                    color: (theme) =>
+                                        theme.palette.primary.main,
+                                },
+                            }}
                             fontSize="14px"
                             fontWeight="400"
                             color={theme.palette.whiteContainer.main}

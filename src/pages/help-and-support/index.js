@@ -1,5 +1,4 @@
 import React from 'react'
-import Help from '../../components/help-page/Help'
 import Meta from '../../components/Meta'
 import { useSelector } from 'react-redux'
 import { Container, CssBaseline } from '@mui/material'

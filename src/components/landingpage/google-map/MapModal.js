@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import RoomIcon from '@mui/icons-material/Room'
 import {
     Box,
-    IconButton,
-    InputBase,
     Modal,
     Paper,
     Typography,
@@ -16,27 +13,21 @@ import {
 } from '@mui/material'
 import LoadingButton from '@mui/lab/LoadingButton'
 import GpsFixedIcon from '@mui/icons-material/GpsFixed'
-import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
 import GoogleMapComponent from './GoogleMapComponent'
 import { useQuery } from 'react-query'
-import { GoogleApi } from '../../../hooks/react-query/config/googleApi'
+import { GoogleApi } from '@/hooks/react-query/config/googleApi'
 import { useDispatch, useSelector } from 'react-redux'
-import { LocationView } from './Map.style'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
 import { useGeolocated } from 'react-geolocated'
 import { PrimaryButton } from '../link-section/Linksection.style'
-import { toast } from 'react-hot-toast'
 import Skeleton from '@mui/material/Skeleton'
 import { onErrorResponse, onSingleErrorResponse } from '../../ErrorResponse'
-import {
-    setUserLocationUpdate,
-    setZoneData,
-} from '../../../redux/slices/global'
+import { setUserLocationUpdate, setZoneData } from '@/redux/slices/global'
 import LocationEnableCheck from '../LocationEnableCheck'
 import { FacebookCircularProgress } from '../HeroLocationForm'
-import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { CustomTypographyGray } from '../../error/Errors.style'
 import { CustomToaster } from '@/components/custom-toaster/CustomToaster'
 
@@ -135,7 +126,7 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
         setEnabled(false)
     }
 
-    const { isLoading: isLoading2, data: placeDetails } = useQuery(
+    const { data: placeDetails } = useQuery(
         ['placeDetails', placeId],
         async () => GoogleApi.placeApiDetails(placeId),
         {
@@ -160,17 +151,15 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
         { enabled: locationEnabled, onError: onErrorResponse },
         {
             retry: 1,
-            // cacheTime: 0,
         }
     )
-    const { coords, isGeolocationAvailable, isGeolocationEnabled } =
-        useGeolocated({
-            positionOptions: {
-                enableHighAccuracy: false,
-            },
-            userDecisionTimeout: 1000,
-            isGeolocationEnabled: true,
-        })
+    const { coords, isGeolocationEnabled } = useGeolocated({
+        positionOptions: {
+            enableHighAccuracy: false,
+        },
+        userDecisionTimeout: 1000,
+        isGeolocationEnabled: true,
+    })
 
     useEffect(() => {
         if (coords) {
@@ -203,7 +192,6 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
         if (zoneData) {
             setZoneId(zoneData?.data?.zone_id)
             dispatch(setZoneData(zoneData?.data?.zone_data))
-            //  setLocation(undefined)
             setLocationEnabled(false)
         } else {
             locationRefetch()
@@ -223,8 +211,6 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
             setPredictions(places?.data?.predictions)
         }
     }, [places])
-
-    const [isDisablePickButton, setDisablePickButton] = useState(false)
 
     const handleLocationSet = (values) => {
         setLocation(values)
@@ -380,7 +366,6 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                             }}
                             onClick={() => handleAgreeLocation()}
                             startIcon={<GpsFixedIcon />}
-                            //endIcon={<GpsFixedIcon />}
                             loadingPosition="start"
                             variant="contained"
                             loading={isLoadingCurrentLocation}
@@ -390,7 +375,6 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                     </Grid>
                 </Grid>
                 <Box
-                    // direction={{ xs: 'column', md: 'row' }}
                     spacing={2}
                     className="mapsearch"
                     sx={{
@@ -416,7 +400,6 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                     {!!location ? (
                         <GoogleMapComponent
                             key={rerenderMap}
-                            setDisablePickButton={setDisablePickButton}
                             setLocationEnabled={setLocationEnabled}
                             setLocation={handleLocationSet}
                             setCurrentLocation={setCurrentLocation}
@@ -444,13 +427,9 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                         justifyConatent="center"
                         alignItems="center"
                     ></CustomStackFullWidth>
-                    {/*{placeDescription && (*/}
-                    {/*    <LocationView>{placeDescription}</LocationView>*/}
-                    {/*)}*/}
 
                     {errorLocation?.response?.data ? (
                         <Button
-                            //className="picklocation"
                             aria-label="picklocation"
                             sx={{
                                 flex: '1 0',
@@ -474,7 +453,6 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                             {!!location && (
                                 <PrimaryButton
                                     align="center"
-                                    //className="picklocation"
                                     aria-label="picklocation"
                                     sx={{
                                         flex: '1 0',

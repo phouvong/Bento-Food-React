@@ -1,20 +1,17 @@
 import React from 'react'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
-import { Stack } from '@mui/system'
-import { alpha, Grid, IconButton, Typography } from '@mui/material'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
+import { Stack, Grid, IconButton, Typography } from '@mui/material'
 import CustomImageContainer from '../CustomImageContainer'
 import couponimage from '../../../public/static/rescoupon.svg'
 import { useTheme } from '@mui/material/styles'
 import CustomCopyWithTooltip from '../user-info/coupon/CustomCopyWithToolTip'
 import { t } from 'i18next'
-import useMediaQuery from '@mui/material/useMediaQuery'
-import { formatedDate, getAmount } from '../../utils/customFunctions'
+import { formatedDate, getAmount } from '@/utils/customFunctions'
 import { useSelector } from 'react-redux'
 import { CouponCodeBorderBox, CouponStack } from './restaurant-details.style'
 
 const RestaurantCoupon = ({ coupon }) => {
     const theme = useTheme()
-    const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const borderColor = theme.palette.primary.main
     const { global } = useSelector((state) => state.globalSettings)
     let currencySymbol
@@ -44,7 +41,7 @@ const RestaurantCoupon = ({ coupon }) => {
                     />
                     <Typography
                         color={theme.palette.neutral[1000]}
-                        fontSize={{ xs: "18px", sm: "20px", md: "22px" }}
+                        fontSize={{ xs: '18px', sm: '20px', md: '22px' }}
                         fontWeight="700"
                     >
                         {' '}
@@ -127,9 +124,6 @@ const RestaurantCoupon = ({ coupon }) => {
                                 {formatedDate(coupon?.start_date)} {t('to')}{' '}
                                 {formatedDate(coupon?.expire_date)}
                             </Typography>
-                            {/*<Typography color={theme.palette.neutral[1000]} fontSize="12px">*/}
-                            {/*    Available from  8:30 AM - 4:30 PM*/}
-                            {/*</Typography>*/}
                         </CustomStackFullWidth>
                     </CustomStackFullWidth>
                 </Grid>

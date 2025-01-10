@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import CustomModal from '../../../custom-modal/CustomModal'
-import PhoneInputForm from './PhoneInputForm'
 import CustomImageContainer from '../../../CustomImageContainer'
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
 import { usePostEmail } from '@/hooks/react-query/social-login/usePostEmail'
@@ -9,13 +8,13 @@ import OtpForm from '../../forgot-password/OtpForm'
 import { useVerifyPhone } from '@/hooks/react-query/otp/useVerifyPhone'
 import { toast } from 'react-hot-toast'
 import facebookLatest from '../../../../../public/static/Facebook.png'
-import { alpha, Button, Stack } from '@mui/material'
+import { Stack } from '@mui/material'
 import {
     CustomColouredTypography,
     CustomStackFullWidth,
 } from '@/styled-components/CustomStyles.style'
 import { useTranslation } from 'react-i18next'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import {
     setJwtTokenByDispatch,
     setUserInfoByDispatch,
@@ -27,12 +26,9 @@ import { getGuestId } from '@/components/checkout-page/functions/getGuestUserId'
 const FbLoginComp = (props) => {
     const {
         handleSuccess,
-        global,
         handleParentModalClose,
         setModalFor,
         setMedium,
-        isSingle,
-        loginMutation,
         setLoginInfo,
     } = props
     const theme = useTheme()
@@ -185,19 +181,7 @@ const FbLoginComp = (props) => {
                     </div>
                 )}
             />
-            {/*<CustomModal openModal={openModal} setModalOpen={setOpenModal}>*/}
-            {/*    {userInfo && jwtToken && (*/}
-            {/*        <PhoneInputForm*/}
-            {/*            global={global}*/}
-            {/*            userInfo={userInfo}*/}
-            {/*            jwtToken={jwtToken}*/}
-            {/*            medium="facebook"*/}
-            {/*            handleRegistrationOnSuccess={*/}
-            {/*                handleRegistrationOnSuccess*/}
-            {/*            }*/}
-            {/*        />*/}
-            {/*    )}*/}
-            {/*</CustomModal>*/}
+
             <CustomModal
                 openModal={openOtpModal}
                 setModalOpen={setOpenOtpModal}

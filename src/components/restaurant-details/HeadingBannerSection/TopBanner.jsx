@@ -1,5 +1,4 @@
-import { Box, Grid, NoSsr } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import { Grid, NoSsr, Stack } from '@mui/material'
 import { useSelector } from 'react-redux'
 import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -10,34 +9,21 @@ import { useQuery } from 'react-query'
 import { CouponApi } from '@/hooks/react-query/config/couponApi'
 import { onErrorResponse } from '../../ErrorResponse'
 import Slider from 'react-slick'
-import { Stack } from '@mui/system'
 import RestaurantCoupon from '../RestaurantCoupon'
 import { RestaurantCouponStack } from '../restaurant-details.style'
 import { settings } from '../CouponSettings'
 import RestaurantAnnouncementMessege from '../RestaurantAnnouncementMessege'
-const SliderCustom = styled(Stack)(
-    ({ theme, language_direction, nopadding }) => ({
-        '& .slick-slider': {
-            '& .slick-list': {
-                '& .slick-track': {
-                    gap: '0px',
-                },
+
+const SliderCustom = styled(Stack)(({ theme }) => ({
+    '& .slick-slider': {
+        '& .slick-list': {
+            '& .slick-track': {
+                gap: '0px',
             },
         },
-    })
-)
-const StyledImageBox = styled(Box)(({ theme, height, objectfit }) => ({
-    height: height,
-    width: '100%',
-    borderRadius: '0.125rem',
-    position: 'relative',
-    paddingTop: '24px',
-    '& img': {
-        width: '100%',
-        height: '100%',
-        objectFit: objectfit ? objectfit : 'contained',
     },
 }))
+
 const TopBanner = ({ details }) => {
     const { global } = useSelector((state) => state.globalSettings)
     const { userData } = useSelector((state) => state.user)

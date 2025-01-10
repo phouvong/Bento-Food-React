@@ -1,28 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react'
-import {
-    Box,
-    Stack,
-    Typography,
-    TextField,
-    useTheme,
-    IconButton,
-} from '@mui/material'
-import {
-    CustomPaperBigCard,
-    CustomStackFullWidth,
-    StyledInputBase,
-} from '../../../styled-components/CustomStyles.style'
+import React, { useEffect, useState } from 'react'
+import { Box, Stack, Typography, useTheme, IconButton } from '@mui/material'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { useTranslation } from 'react-i18next'
 import { useFormik } from 'formik'
-import OutlinedInput from '@mui/material/OutlinedInput'
 import LoadingButton from '@mui/lab/LoadingButton'
-import { useOtp } from '../../../hooks/react-query/config/forgot-password/useOtp'
 import * as Yup from 'yup'
 import OtpInput from 'react-otp-input'
 import otpImage from '@/assets/images/otp.svg'
 import CustomImageContainer from '@/components/CustomImageContainer'
-import { CustomToaster } from '@/components/custom-toaster/CustomToaster'
-import { maskPhoneNumber, maskSensitiveInfo } from '@/utils/customFunctions'
+import { maskSensitiveInfo } from '@/utils/customFunctions'
 import CloseIcon from '@mui/icons-material/Close'
 
 const OtpForm = ({
@@ -37,7 +23,6 @@ const OtpForm = ({
 }) => {
     const { t } = useTranslation()
     const theme = useTheme()
-    const [otp, setOtp] = useState('')
     const otpFormik = useFormik({
         initialValues: {
             reset_token: '',
@@ -125,32 +110,26 @@ const OtpForm = ({
                 </Typography>
 
                 <CustomImageContainer
-                    src={otpImage.src}
+                    src={otpImage?.src}
                     alt="logo"
                     width="100px"
                     objectFit="contained"
                 />
-                <Typography
-                    textAlign="center"
-                    fontSize="12px"
-                    color="textSecondary"
-                >
-                    {t(
-                        `We’ve sent a verification code to ${maskSensitiveInfo(
-                            data
-                        )}
+                <Stack>
+                    <Typography
+                        textAlign="center"
+                        fontSize="12px"
+                        color="textSecondary"
+                    >
+                        {t(
+                            `We’ve sent a verification code to ${maskSensitiveInfo(
+                                data
+                            )}
                           `
-                    )}
-                </Typography>
-                {/*<Typography*/}
-                {/*    mt="5px"*/}
-                {/*    textAlign="center"*/}
-                {/*    fontSize="12px"*/}
-                {/*    color="textSecondary"*/}
-                {/*>*/}
-                {/*    {t('for demo propose use otp 123456')}*/}
-                {/*</Typography>*/}
-                {/* <Typography>{data?.phone}</Typography> */}
+                        )}
+                    </Typography>
+                </Stack>
+
                 <Stack width="100%">
                     <form onSubmit={otpFormik.handleSubmit}>
                         <Stack
@@ -209,12 +188,6 @@ const OtpForm = ({
                                         Boolean(otpFormik.errors.reset_token)
                                     }
                                 />
-                                {/* <OtpInput
-                                value={otp}
-                                onChange={setOtp}
-                                numInputs={4}
-                                renderInput={(props) => <input {...props} />}
-                            /> */}
                             </Box>
 
                             <LoadingButton

@@ -1,9 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
-import PropTypes from 'prop-types'
 import Box from '@mui/material/Box'
 import CustomSearch from '../../custom-search/CustomSearch'
 import SearchSuggestionsBottom from '../../search/SearchSuggestionsBottom'
-import Wishlist from './Wishlist'
 import { useTheme } from "@emotion/react";
 
 const ManageSearch = ({ zoneid, token, router }) => {

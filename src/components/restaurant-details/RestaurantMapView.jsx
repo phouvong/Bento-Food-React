@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import { Stack } from '@mui/system'
 import CustomImageContainer from '@/components/CustomImageContainer'
-import MapComponent from '@/components/restaurant-details/google-address/MapComponent'
 import {
-    Accordion,
     AccordionDetails,
     AccordionSummary,
     Button,
     IconButton,
     styled,
     Typography,
+    Stack,
 } from '@mui/material'
 import { useTheme } from '@mui/styles'
 import CustomDivider from '@/components/CustomDivider'
@@ -25,7 +23,6 @@ import 'simplebar/dist/simplebar.min.css'
 import SimpleBar from 'simplebar-react'
 import DirectionsOutlinedIcon from '@mui/icons-material/DirectionsOutlined'
 import { useGeolocated } from 'react-geolocated'
-import GpsFixedIcon from '@mui/icons-material/GpsFixed'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import ResMapSection from '@/components/restaurant-details/ResMapSection'
 
@@ -41,7 +38,6 @@ const RestaurantMapView = ({ details, restaurantCoverUrl }) => {
     const availableTimeText = t('Today Available Till')
     const [expanded, setExpanded] = useState(false)
     const [userLocation, setUserLocation] = useState({})
-    const [rerenderMap, setRerenderMap] = useState(false)
     const getToday = () => {
         const today = new Date()
         const dayOfWeekNumber = today.getDay()
@@ -126,13 +122,6 @@ const RestaurantMapView = ({ details, restaurantCoverUrl }) => {
         setUserLocation(currentLatLng)
     }, [])
 
-    // Function to open Google Maps with the location's latitude and longitude
-    // const openGoogleMaps = () => {
-    //     if (details?.latitude && details?.longitude) {
-    //         const url = `https://www.google.com/maps/search/?api=1&query=${details.latitude},${details.longitude}`;
-    //         window.open(url, '_blank');
-    //     }
-    // };
     const openGoogleMaps = () => {
         if (
             (details?.latitude && details?.longitude && currentLatLng?.lat,
@@ -144,14 +133,13 @@ const RestaurantMapView = ({ details, restaurantCoverUrl }) => {
             window.open(url, '_blank')
         }
     }
-    const { coords, isGeolocationAvailable, isGeolocationEnabled } =
-        useGeolocated({
-            positionOptions: {
-                enableHighAccuracy: false,
-            },
-            userDecisionTimeout: 5000,
-            isGeolocationEnabled: true,
-        })
+    const { coords } = useGeolocated({
+        positionOptions: {
+            enableHighAccuracy: false,
+        },
+        userDecisionTimeout: 5000,
+        isGeolocationEnabled: true,
+    })
 
     return (
         <Stack p="1rem" spacing={1} minHeight={isSmall ? '70vh' : '75vh'}>
@@ -382,22 +370,6 @@ const RestaurantMapView = ({ details, restaurantCoverUrl }) => {
                         details={details}
                     />
                 )}
-                {/*<Stack position="relative" >*/}
-                {/*    <MapComponent customMapStyle={customMapStyle}  key={rerenderMap} userLat={userLocation?.lat} userLong={userLocation?.lng} latitude={details?.latitude} longitude={details?.longitude} isRestaurant />*/}
-                {/*    <IconButton*/}
-                {/*        sx={{*/}
-                {/*            background: theme => theme.palette.neutral[100],*/}
-                {/*            padding: "10px",*/}
-                {/*            position: "absolute",*/}
-
-                {/*            right: "10px",*/}
-                {/*            bottom: "20px"*/}
-                {/*        }}*/}
-                {/*        onClick={handleCurrentLocation}*/}
-                {/*    >*/}
-                {/*        <GpsFixedIcon color="primary" />*/}
-                {/*    </IconButton>*/}
-                {/*</Stack>*/}
             </StyledSimpleBar>
         </Stack>
     )

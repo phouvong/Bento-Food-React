@@ -1,22 +1,15 @@
-import { Container, Stack, Typography } from '@mui/material'
-import { useTranslation } from 'react-i18next'
-import { CustomStackFullWidth } from '../styled-components/CustomStyles.style'
-import CustomImageContainer from '../components/CustomImageContainer'
-import errorImage from '../../public/static/error/404.png'
-import FourHundred from '../components/errors-svg/FourHundred'
+import { Stack } from '@mui/material'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import ErrorRoutesProtect from '../components/route-protectors/ErrorRoutesProtect'
 import CustomAlert from '../components/alert/CustomAlert'
+import FourHundred from '../../public/static/404.svg'
+import CustomImageContainer from '@/components/CustomImageContainer'
+import CustomContainer from '@/components/container'
+
 export default function Custom400() {
-    const { t } = useTranslation()
     return (
         <ErrorRoutesProtect>
-            <Container
-                maxWidth="lg"
-                sx={{
-                    mt: { md: '5rem' },
-                    mb: { xs: '72px', md: '0' },
-                }}
-            >
+            <CustomContainer>
                 <CustomStackFullWidth
                     justifyContent="center"
                     alignItems="center"
@@ -26,19 +19,19 @@ export default function Custom400() {
                         maxWidth="500px"
                         width="100%"
                         spacing={2}
-                        padding="1rem"
+                        padding={{ xs: '3rem 1rem 3rem', md: '6rem 1rem 3rem' }}
                     >
-                        <FourHundred />
-                        <Typography align="center" variant="h3">
-                            {t('something went wrong.')}
-                        </Typography>
+                        <CustomImageContainer
+                            loading="auto"
+                            src={FourHundred?.src}
+                        />
                         <CustomAlert
                             text="Please buy this system and use activated domain."
                             type="info"
                         />
                     </Stack>
                 </CustomStackFullWidth>
-            </Container>
+            </CustomContainer>
         </ErrorRoutesProtect>
     )
 }

@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
-import { Button, Container, Typography } from '@mui/material'
-import { Stack, styled } from '@mui/system'
-import CustomContainer from './container'
-import { CustomStackFullWidth } from '../styled-components/CustomStyles.style'
+import { Button, Container, Typography, Stack, styled } from '@mui/material'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@emotion/react'
 

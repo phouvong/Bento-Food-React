@@ -1,17 +1,25 @@
-import React from 'react'
-import { Box, Container } from '@mui/material'
-import RestaurantJoin from '../../components/join-restaurant/RestaurantJoin'
-import { useSelector } from 'react-redux'
-import Meta from '../../components/Meta'
+import React, { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import CssBaseline from '@mui/material/CssBaseline'
 
-const index = () => {
+import { getServerSideProps } from '../index'
+
+// import useScrollToTop from '../../src/api-manage/hooks/custom-hooks/useScrollToTop'
+import StoreRegistration from '@/components/store-resgistration'
+import Meta from '@/components/Meta'
+import CustomContainer from '@/components/container'
+
+const Index = ({ configData, landingPageData }) => {
+    const { t } = useTranslation()
+    // useScrollToTop()
     return (
         <>
-            <Meta title="restaurant join" description="Restaurant Join" />
-            <Container maxWidth="lg" sx={{ mb: { xs: '72px', md: '30px' } }}>
-                <RestaurantJoin />
-            </Container>
+            <CssBaseline />
+            <Meta title={`Store registration - ${configData?.business_name}`} />
+            <StoreRegistration configData={configData} />
         </>
     )
 }
-export default index
+
+export default Index
+export { getServerSideProps }

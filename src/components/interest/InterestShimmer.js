@@ -1,20 +1,17 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
-import CustomImageContainer from '../CustomImageContainer'
-import { CustomTypography } from '../custom-tables/Tables.style'
+} from '@/styled-components/CustomStyles.style'
 import { Grid } from '@mui/material'
-import LoadingButton from '@mui/lab/LoadingButton'
 import Skeleton from '@mui/material/Skeleton'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 
-const InterestShimmer = (props) => {
+const InterestShimmer = () => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
+
     return (
         <Grid container spacing={2}>
             {[...Array(16)].map((item, index) => {

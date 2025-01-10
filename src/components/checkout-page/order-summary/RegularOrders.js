@@ -1,32 +1,25 @@
 import React from 'react'
-import { Divider, Grid, Stack, Typography } from '@mui/material'
+import { Grid, Stack, Typography } from '@mui/material'
 import {
     OrderFoodAmount,
     OrderFoodName,
     OrderFoodSubtitle,
 } from '../CheckOut.style'
-import {
-    getAmount,
-    getItemTotalWithoutDiscount,
-    getSelectedAddOn,
-    getVariation,
-    handleProductValueWithOutDiscount,
-} from '../../../utils/customFunctions'
+import { getAmount, getSelectedAddOn } from '@/utils/customFunctions'
 import { useSelector } from 'react-redux'
-import { ImageSource } from '../../../utils/ImageSource'
-import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import Skeleton from '@mui/material/Skeleton'
 import CustomImageContainer from '../../CustomImageContainer'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@mui/material/styles'
 import VisibleVariations from '../../floating-cart/VisibleVariations'
-import {handleTotalAmountWithAddonsFF} from "../../../utils/customFunctions";
-const RegularOrders = (props) => {
+import { handleTotalAmountWithAddonsFF } from '@/utils/customFunctions'
+
+const RegularOrders = ({ orderType }) => {
     const theme = useTheme()
     const { t } = useTranslation()
     const { cartList } = useSelector((state) => state.cart)
-    const { global, token } = useSelector((state) => state.globalSettings)
-    const productBaseUrl = global?.base_urls?.product_image_url
+    const { global } = useSelector((state) => state.globalSettings)
     let currencySymbol
     let currencySymbolDirection
     let digitAfterDecimalPoint
@@ -66,7 +59,6 @@ const RegularOrders = (props) => {
                                     background: (theme) =>
                                         theme.palette.primary.overLay,
                                     opacity: '0.6',
-                                    // color: (theme)=>theme.palette.neutral[100],
                                     padding: '10px',
                                     height: '30%',
                                     alignItems: 'center',
@@ -84,17 +76,8 @@ const RegularOrders = (props) => {
                                 </Typography>
                             </Stack>
                         </Stack>
-
-                        {/*<img*/}
-                        {/*    height="90px"*/}
-                        {/*    width="95px"*/}
-                        {/*    src={ImageSource(productBaseUrl, item.image)}*/}
-                        {/*    loading="lazy"*/}
-                        {/*    className="img-border"*/}
-                        {/*/>*/}
                         <Stack
                             paddingRight={languageDirection === 'rtl' && '10px'}
-
                         >
                             <OrderFoodName>{item.name}</OrderFoodName>
                             {item?.variations?.length > 0 && (

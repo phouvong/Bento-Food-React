@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import FileUpload from '../../components/file-upload-container/FileUpload'
-import { CustomBoxFullWidth } from '../../styled-components/CustomStyles.style'
+import { CustomBoxFullWidth } from '@/styled-components/CustomStyles.style'
 
 const FileInputField = (props) => {
     const {
@@ -11,10 +11,9 @@ const FileInputField = (props) => {
         labelText,
         titleText,
         hintText,
-        imagesHandler,
+        required,
     } = props
     const imageContainerBusinessRef = useRef()
-
     return (
         <CustomBoxFullWidth>
             <FileUpload
@@ -24,10 +23,11 @@ const FileInputField = (props) => {
                 width={width}
                 anchor={imageContainerBusinessRef}
                 errorStatus={errorStatus}
-
+                required={required}
             />
             <input
                 ref={imageContainerBusinessRef}
+                required={required}
                 multiple
                 id="file"
                 name="file"

@@ -21,13 +21,8 @@ import PaymentMethodCard from './PaymentMethodCard'
 import { useTheme } from '@emotion/react'
 import { PrimaryButton } from '../products-page/FoodOrRestaurant'
 import CloseIcon from '@mui/icons-material/Close'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import InfoIcon from '@mui/icons-material/Info'
-import {
-    setOfflineInfoStep,
-    setOfflineMethod,
-} from '../../redux/slices/OfflinePayment'
-import { getToken } from './functions/getGuestUserId'
 
 const PayButton = styled(Button)(({ theme, value, paymentMethod }) => ({
     padding: '16px 16px',
@@ -68,10 +63,8 @@ const OfflineButton = styled(Button)(({ theme, value, paymentMethod }) => ({
 }))
 
 const AllPaymentMethod = ({
-    paymenMethod,
     usePartialPayment,
     global,
-    setPaymenMethod,
     getPaymentMethod,
     selected,
     setSelected,
@@ -85,7 +78,6 @@ const AllPaymentMethod = ({
     paymentMethodDetails,
 }) => {
     const theme = useTheme()
-    const dispatch = useDispatch()
     const { token } = useSelector((state) => state.userToken)
     const [openOfflineOptions, setOpenOfflineOptions] = useState(false)
     useEffect(() => {
@@ -132,7 +124,7 @@ const AllPaymentMethod = ({
                 </Typography>
             </Stack>
 
-            {global?.partial_payment_status === 1 ? (
+            {global?.partial_payment_status === 1 && usePartialPayment ? (
                 <>
                     <CustomStackFullWidth
                         direction="row"
@@ -153,11 +145,10 @@ const AllPaymentMethod = ({
                                                 name: 'cash_on_delivery',
                                                 image: money,
                                             })
-                                            // dispatch(setOfflineInfoStep(0))
                                         }}
                                     >
                                         <CustomImageContainer
-                                            src={money.src}
+                                            src={money?.src}
                                             width="20px"
                                             height="20px"
                                             alt="cod"
@@ -188,7 +179,6 @@ const AllPaymentMethod = ({
                                                 name: 'cash_on_delivery',
                                                 image: money,
                                             })
-                                            // dispatch(setOfflineInfoStep(0))
                                         }}
                                     >
                                         <CustomImageContainer
@@ -225,7 +215,6 @@ const AllPaymentMethod = ({
                                             name: 'wallet',
                                             image: wallet,
                                         })
-                                        // dispatch(setOfflineInfoStep(0))
                                     }}
                                     value="wallet"
                                     paymentMethod={selected?.name}
@@ -270,9 +259,10 @@ const AllPaymentMethod = ({
                                     </Typography>
                                 </Typography>
                                 <Grid container rowGap="2.1rem">
-                                    {global?.digital_payment &&
-                                        (global?.partial_payment_method ===
-                                            'digital_payment' ||
+                                    {global?.digital_payment ||
+                                        (((global?.digital_payment &&
+                                            global?.partial_payment_method ===
+                                                'digital_payment') ||
                                             global?.partial_payment_method ===
                                                 'both') && (
                                             <>
@@ -311,7 +301,7 @@ const AllPaymentMethod = ({
                                                     }
                                                 )}
                                             </>
-                                        )}
+                                        ))}
                                 </Grid>
                             </CustomStackFullWidth>
                         )}
@@ -332,7 +322,6 @@ const AllPaymentMethod = ({
                                         name: 'cash_on_delivery',
                                         image: money,
                                     })
-                                    // dispatch(setOfflineInfoStep(0))
                                 }}
                             >
                                 <CustomImageContainer
@@ -362,14 +351,13 @@ const AllPaymentMethod = ({
                                             name: 'wallet',
                                             image: wallet,
                                         })
-                                        // dispatch(setOfflineInfoStep(0))
                                     }}
                                     value="wallet"
                                     paymentMethod={selected?.name}
                                     disabled={usePartialPayment}
                                 >
                                     <CustomImageContainer
-                                        src={wallet.src}
+                                        src={wallet?.src}
                                         width="20px"
                                         height="20px"
                                         alt="cod"
@@ -419,7 +407,7 @@ const AllPaymentMethod = ({
                                                                     item?.gateway_title
                                                                 }
                                                                 image={
-                                                                    item?.gateway_image
+                                                                    item?.gateway_image_full_url
                                                                 }
                                                                 type={
                                                                     item?.gateway
@@ -558,9 +546,6 @@ const AllPaymentMethod = ({
                                                         }
                                                     >
                                                         {item.method_name}
-                                                        {/* <Typography color={item?.id === offlineMethod?.id
-                                                        ? theme.palette.whiteContainer.main
-                                                        : theme.palette.neutral[800]} fontSize="12px">{item.method_name}</Typography> */}
                                                     </OfflineButton>
                                                 )
                                             }

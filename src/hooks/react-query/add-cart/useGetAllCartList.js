@@ -1,6 +1,6 @@
 import { useQuery } from "react-query";
 import MainApi from "../../../api/MainApi";
-import { onErrorResponse, onSingleErrorResponse } from "@/components/ErrorResponse";
+import { onErrorResponse } from "@/components/ErrorResponse";
 import { getToken } from "@/components/checkout-page/functions/getGuestUserId";
 
 export default function useGetAllCartList(guestId, cartListSuccessHandler) {

@@ -4,9 +4,7 @@ import { Grid, useMediaQuery, useTheme } from '@mui/material'
 import ProfileSideMenu from './ProfileSideMenu'
 import ProfileBody from './ProfileBody'
 import SideDRawerForProfile from './SideDrawer'
-import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
-import ScrollerProvider from '../scroller-provider'
 import { getToken } from '../checkout-page/functions/getGuestUserId'
 
 const UserInfo = ({ page, orderId,setAttributeId }) => {

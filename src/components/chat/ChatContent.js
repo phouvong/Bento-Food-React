@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { IconButton, Stack, Typography } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close'
+import React, { useState } from 'react'
+import { Stack, Typography } from '@mui/material'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import ContactLists from './ContactLists'
 import ChatContactSearch from './ChatContactSearch'

@@ -1,6 +1,6 @@
 import MainApi from '../../../../api/MainApi'
 import { useQuery } from 'react-query'
-import { onErrorResponse } from '../../../../components/ErrorResponse'
+import { onErrorResponse } from '@/components/ErrorResponse'
 
 const getData = async (type) => {
     const { data } = await MainApi.get(

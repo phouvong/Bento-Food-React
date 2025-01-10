@@ -1,11 +1,10 @@
 import React, { useState } from 'react'
 import { Stack, Typography } from '@mui/material'
-import Link from 'next/link'
 import { NavLinkStyle } from '../Navbar.style'
 import NavCatagory from '../NavCatagory'
 import NavResturant from '../NavResturant'
 import NavCuisines from '../NavCuisines'
-import { setHandleHomePage } from '../../../redux/slices/global'
+import { setHandleHomePage } from '@/redux/slices/global'
 import { useRouter } from 'next/router'
 import { useDispatch } from 'react-redux'
 
@@ -27,7 +26,11 @@ const NavLinks = ({ zoneid, t, languageDirection }) => {
                         onClick={handleClick}
                         underline="none"
                         languageDirection={languageDirection}
-                        sx={{ cursor: 'pointer',paddingInlineEnd:languageDirection==="rtl" && "1.5rem" }}
+                        sx={{
+                            cursor: 'pointer',
+                            paddingInlineEnd:
+                                languageDirection === 'rtl' && '1.5rem',
+                        }}
                     >
                         <Typography fontSize="14px">{t('Home')}</Typography>
                     </NavLinkStyle>

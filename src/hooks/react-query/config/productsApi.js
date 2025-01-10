@@ -44,11 +44,43 @@ export const ProductsApi = {
         MainApi.get(
             `/api/v1/products/${product_type}?offset=${offset}&limit=${page_limit}&type=${type}`
         ),
-    productSearch: (search_type, value, offset, page_limit,filterData) => {
-        const type=filterData?.filterBy?.veg?"veg":filterData?.filterBy?.nonVeg?"non_veg":null
+    productSearch: (
+        search_type,
+        value,
+        offset,
+        page_limit,
+        filterData,
+        restaurantType
+    ) => {
+        const cuisineId = filterData?.filterByCuisine?.map((item) => item?.id)
+        const type = filterData?.filterBy?.veg
+            ? 'veg'
+            : filterData?.filterBy?.nonVeg
+            ? 'non_veg'
+            : null
+
         if (value !== '') {
             return MainApi.get(
-                `/api/v1/${search_type}/search?name=${value===undefined?null:value}&offset=${offset}&limit=${page_limit}&type=${type}&new=${filterData?.filterBy?.new?1:0}&popular=${filterData?.filterBy?.popular?1:0}&rating_4_plus=${filterData?.filterBy?.rating?1:0}&rating_3_plus=${filterData?.filterBy?.ratings?1:0}&rating_5=${filterData?.filterBy?.rating5?1:0}&discounted=${filterData?.filterBy?.discounted?1:0}&sort_by=${filterData?.sortBy}`
+                `/api/v1/${search_type}/search?name=${
+                    value === undefined ? null : value
+                }&offset=${offset}&limit=${page_limit}&type=${type}&new=${
+                    filterData?.filterBy?.new ? 1 : 0
+                }&popular=${
+                    filterData?.filterBy?.popular ? 1 : 0
+                }&rating_4_plus=${
+                    filterData?.filterBy?.rating ? 1 : 0
+                }&rating_3_plus=${
+                    filterData?.filterBy?.ratings ? 1 : 0
+                }&rating_5=${
+                    filterData?.filterBy?.rating5 ? 1 : 0
+                }&discounted=${
+                    filterData?.filterBy?.discounted ? 1 : 0
+                }&sort_by=${filterData?.sortBy}&dine_in=${
+                    restaurantType === 'dine-in' ? 1 : 0
+                }
+                & cuisine=${JSON.stringify(cuisineId)}
+                &open=${filterData?.filterBy?.currentlyAvailable ? 1 : 0}
+                `
             )
         }
     },

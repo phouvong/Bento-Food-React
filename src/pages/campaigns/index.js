@@ -1,16 +1,12 @@
 import React from 'react'
-import Products from '../../components/products-page/Products'
 import CampaignsPage from '../../components/products-page/CampaignsPage'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
 } from "@/styled-components/CustomStyles.style"
 import Meta from '../../components/Meta'
-import CategoryDetailsPage from '../../components/category/CategoryDetailsPage'
-import { Container, Stack } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import CustomPageTitle from '../../components/CustomPageTitle'
-import { ConfigApi } from "@/hooks/react-query/config/useConfig"
 import { landingPageApi } from "@/components/landingpage/Api"
 import { CustomHeader } from "@/api/Headers"
 import CustomContainer from '../../components/container'

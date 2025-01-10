@@ -31,48 +31,58 @@ export const getDayNumber = (day) => {
         }
     }
 }
-function recursive(start, end, close, list, schedule_order_slot_duration, day, selectedDate) {
-    const checkedEnd = moment(end, "HH:mm").subtract(1, "minutes");
+function recursive(
+    start,
+    end,
+    close,
+    list,
+    schedule_order_slot_duration,
+    day,
+    selectedDate
+) {
+    const checkedEnd = moment(end, 'HH:mm').subtract(1, 'minutes')
     const date = selectedDate
     if (
         end.isBefore(close) ||
-        moment(end).format("HH:mm") === moment(close).format("HH:mm") ||
-        moment(checkedEnd).format("HH:mm") === moment(close).format("HH:mm")
+        moment(end).format('HH:mm') === moment(close).format('HH:mm') ||
+        moment(checkedEnd).format('HH:mm') === moment(close).format('HH:mm')
     ) {
-        let label = "";
-        label = `${moment(start).format("HH:mm")} - ${moment(checkedEnd).format(
-            "HH:mm"
-        )}`;
+        let label = ''
+        label = `${moment(start).format('HH:mm')} - ${moment(checkedEnd).format(
+            'HH:mm'
+        )}`
         if (
-            (currentTime < moment(end).format("HH:mm") &&
+            (currentTime < moment(end).format('HH:mm') &&
                 getDayNumber(today) === day) ||
-            (getDayNumber(today) !== day)
+            getDayNumber(today) !== day
         ) {
             list.push({
                 label: label,
-                start: moment(start).format("HH:mm"),
+                start: moment(start).format('HH:mm'),
                 end:
-                    moment(checkedEnd).format("HH:mm") === moment(close).format("HH:mm")
-                        ? moment(checkedEnd).format("HH:mm")
-                        : moment(end).format("HH:mm"),
+                    moment(checkedEnd).format('HH:mm') ===
+                    moment(close).format('HH:mm')
+                        ? moment(checkedEnd).format('HH:mm')
+                        : moment(end).format('HH:mm'),
                 value:
-                    moment(checkedEnd).format("HH:mm") === moment(close).format("HH:mm")
-                        ? `${date} ${moment(checkedEnd).format("HH:mm")}`
-                        : `${date} ${moment(end).format("HH:mm")}`,
-            });
+                    moment(checkedEnd).format('HH:mm') ===
+                    moment(close).format('HH:mm')
+                        ? `${date} ${moment(checkedEnd).format('HH:mm')}`
+                        : `${date} ${moment(end).format('HH:mm')}`,
+            })
         }
 
         recursive(
             end,
-            moment(end, "HH:mm").add(schedule_order_slot_duration, "minutes"),
+            moment(end, 'HH:mm').add(schedule_order_slot_duration, 'minutes'),
             close,
             list,
             schedule_order_slot_duration,
             day,
             selectedDate
-        );
+        )
     } else {
-        return list;
+        return list
     }
 }
 export const getAllSchedule = (

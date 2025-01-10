@@ -1,14 +1,13 @@
 import React from 'react'
-import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style"
-import { Grid, Typography } from '@mui/material'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
+import { Grid } from '@mui/material'
 import RestaurantBoxCard from '../restaurant-details/RestaurantBoxCard'
 import { useSelector } from 'react-redux'
 import CustomPageTitle from '../CustomPageTitle'
 import CustomShimmerRestaurant from '../CustomShimmer/CustomShimmerRestaurant'
 import CustomEmptyResult from '../empty-view/CustomEmptyResult'
-import nodata from '../../../public/static/nodata.png'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { noRestaurantsImage } from "@/utils/LocalImages"
+import { noRestaurantsImage } from '@/utils/LocalImages'
 
 const CuisinesDetailsPage = ({ data, isLoading }) => {
     const { global } = useSelector((state) => state.globalSettings)
@@ -46,8 +45,9 @@ const CuisinesDetailsPage = ({ data, isLoading }) => {
                                     cuisines={restaurant?.cuisine}
                                     rating_count={restaurant?.rating_count}
                                     coupons={restaurant?.coupons}
-                                    opening_time={restaurant?.current_opening_time}
-
+                                    opening_time={
+                                        restaurant?.current_opening_time
+                                    }
                                 />
                             </Grid>
                         )

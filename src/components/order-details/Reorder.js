@@ -16,7 +16,7 @@ import { handleValuesFromCartItems } from "../checkout-page/CheckoutPage";
 import useReorderAddToCart from "../../hooks/react-query/reorder/useReorderAddToCart";
 import { getSelectedAddons, getSelectedVariations } from "../navbar/second-navbar/SecondNavbar";
 import { getGuestId } from "../checkout-page/functions/getGuestUserId";
-import { setCouponInfo, setOpenMapDrawer } from "@/redux/slices/global";
+import { setOpenMapDrawer } from "@/redux/slices/global";
 import useDeleteAllCartItem from "../../hooks/react-query/add-cart/useDeleteAllCartItem";
 
 

@@ -1,16 +1,12 @@
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import React, { useEffect, useState } from 'react'
-
 import { Button, Grid, Menu, Stack } from '@mui/material'
-
-//import menu from '../../../public/static/Menu/image 18.png'
-import { useTheme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
-import { useGetCuisines } from '../../hooks/react-query/cuisines/useGetCuisines'
-import { setCuisines } from '../../redux/slices/storedData'
+import { useGetCuisines } from '@/hooks/react-query/cuisines/useGetCuisines'
+import { setCuisines } from '@/redux/slices/storedData'
 import NavCuisinesList from '../cuisines-page/NavCuisinesList'
 import { NavMenuLink } from './Navbar.style'
 const useStyles = makeStyles((theme) => ({
@@ -21,13 +17,7 @@ const useStyles = makeStyles((theme) => ({
         pointerEvents: 'auto',
     },
 }))
-const NavCuisines = ({
-    openModal,
-    setModal,
-    setRestaurantModal,
-    languageDirection,
-}) => {
-    const theme = useTheme()
+const NavCuisines = ({ setRestaurantModal, languageDirection }) => {
     const classes = useStyles()
     const { cuisines } = useSelector((state) => state.storedData)
     const { t } = useTranslation()
@@ -35,18 +25,16 @@ const NavCuisines = ({
     const { global } = useSelector((state) => state.globalSettings)
     const cuisinesImageUrl = `${global?.base_urls?.cuisine_image_url}`
     const [anchorEl, setAnchorEl] = useState(null)
-    const [enabled, setEnabled] = useState(false)
     const dispatch = useDispatch()
     const opendrop = Boolean(anchorEl)
-    const searchKey = ''
 
-    const { data, isLoading, refetch, isRefetching } = useGetCuisines()
+    const { data, refetch } = useGetCuisines()
     useEffect(() => {
         if (cuisines?.length === 0) {
             refetch()
         }
     }, [])
-    // }
+
     const handledropClick = (event) => {
         setAnchorEl(event.currentTarget)
         setRestaurantModal(false)
@@ -58,9 +46,7 @@ const NavCuisines = ({
         router.push('/cuisines')
         handledropClose()
     }
-    const handleClose = () => {
-        setAnchorEl(null)
-    }
+
     useEffect(() => {
         if (data) {
             dispatch(setCuisines(data?.Cuisines))

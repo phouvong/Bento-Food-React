@@ -1,6 +1,6 @@
 import MainApi from '../../../api/MainApi'
 import { useQuery } from 'react-query'
-import {onSingleErrorResponse} from "../../../components/ErrorResponse";
+import { onSingleErrorResponse } from '@/components/ErrorResponse'
 
 export const getData = async () => {
     const { data } = await MainApi.get('/api/v1/restaurants/recommended')
@@ -8,9 +8,10 @@ export const getData = async () => {
 }
 export const useRecommendedRestaurant = (handleSuccess) => {
     return useQuery('recommended-restaurants', () => getData(), {
-        enabled:false,
-        onError:onSingleErrorResponse,
-        retry:1,
+        enabled: false,
+        onError: onSingleErrorResponse,
+        retry: 1,
         onSuccess: handleSuccess,
+        cacheTime: 500,
     })
 }

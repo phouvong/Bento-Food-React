@@ -1,12 +1,9 @@
 import React from 'react'
 import { Typography, Box, Stack } from '@mui/material'
-import { isAvailable } from '../../utils/customFunctions'
-import { useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 
 const NotAvailableCard = ({ endTime, startTime, endDate }) => {
     const { t } = useTranslation()
-    const theme = useTheme()
     return (
         <Box textAlign="center">
             <Box

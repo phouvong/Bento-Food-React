@@ -1,18 +1,10 @@
 import React from 'react'
-import CustomCard from '../custom-cards/CustomCard'
-import { CustomPaperCard } from '../custom-cards/CustomCards.style'
 import Skeleton from '@mui/material/Skeleton'
 import {
     Grid,
-    Box,
-    Stack,
     MenuItem,
-    Typography,
     ListItemIcon,
 } from '@mui/material'
-import Link from 'next/link'
-import CustomImageContainer from '../CustomImageContainer'
-import { CustomTypographyGray } from '../error/Errors.style'
 
 const ResShimmer = ({ shimmerfor }) => {
     return (

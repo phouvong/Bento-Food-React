@@ -22,12 +22,12 @@ import {
     TextField,
     Typography,
     alpha,
+    Box,
+    Stack,
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { Box, Stack } from '@mui/system'
 import moment from 'moment'
-import { useRouter } from 'next/router'
 import { useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
@@ -71,12 +71,9 @@ const RestaurantLeftDetails = (props) => {
         currencySymbol,
         digitAfterDecimalPoint,
         scrollPosition,
-        data,
     } = props
     const dispatch = useDispatch()
-    const router = useRouter()
     const { wishLists } = useSelector((state) => state.wishList)
-    const { global } = useSelector((state) => state.globalSettings)
     const { token } = useSelector((state) => state.userToken)
     const theme = useTheme()
     const currentRoute =
@@ -106,35 +103,33 @@ const RestaurantLeftDetails = (props) => {
         active,
         schedules,
     } = details
-    const {
-        mutate: addFavoriteMutation,
-        isLoading,
-        error,
-    } = useMutation('add-favourite', () => RestaurantsApi.addFavorite(id), {
-        onSuccess: (response) => {
-            toast.success(t('Added to Wishlist successfully.'))
+    const { mutate: addFavoriteMutation } = useMutation(
+        'add-favourite',
+        () => RestaurantsApi.addFavorite(id),
+        {
+            onSuccess: (response) => {
+                toast.success(t('Added to Wishlist successfully.'))
 
-            if (response?.data) {
-                dispatch(
-                    addWishListRes({
-                        logo: logo_full_url,
-                        name,
-                        rating_count,
-                        avg_rating,
-                        address,
-                        delivery_time,
-                        minimum_order,
-                        latitude,
-                        longitude,
-                        id,
-                    })
-                )
-
-                //setOpen(false)
-            }
-        },
-        onError: (error) => {},
-    })
+                if (response?.data) {
+                    dispatch(
+                        addWishListRes({
+                            logo_full_url: logo_full_url,
+                            name,
+                            rating_count,
+                            avg_rating,
+                            address,
+                            delivery_time,
+                            minimum_order,
+                            latitude,
+                            longitude,
+                            id,
+                        })
+                    )
+                }
+            },
+            onError: (error) => {},
+        }
+    )
 
     const addToFavorite = () => {
         if (token) {
@@ -172,7 +167,7 @@ const RestaurantLeftDetails = (props) => {
         if (active) {
             if (schedules.length > 0) {
                 const todayInNumber = moment().weekday()
-                let isOpen = false
+                let isOpen
                 let filteredSchedules = schedules.filter(
                     (item) => item.day === todayInNumber
                 )
@@ -182,11 +177,7 @@ const RestaurantLeftDetails = (props) => {
                         isAvailableNow.push(item)
                     }
                 })
-                if (isAvailableNow.length > 0) {
-                    isOpen = true
-                } else {
-                    isOpen = false
-                }
+                isOpen = isAvailableNow.length > 0
                 if (!isOpen) {
                     return (
                         <ClosedNowOverlay
@@ -449,7 +440,6 @@ const RestaurantLeftDetails = (props) => {
                                         md: '215px',
                                     },
                                 }}
-                                //sx={{WebkitLineClamp:'1 !important'}}
                             >
                                 {details?.characteristics?.length > 0 &&
                                     details?.characteristics?.map(
@@ -523,13 +513,6 @@ const RestaurantLeftDetails = (props) => {
                                     </Typography>
                                 </Stack>
                             ) : null}
-
-                            {/* <Typography
-                            fontSize="12px"
-                            color={theme.palette.neutral[800]}
-                        >
-                            {details?.address}
-                        </Typography> */}
                         </Stack>
                     </CustomStackFullWidth>
                 </Grid>

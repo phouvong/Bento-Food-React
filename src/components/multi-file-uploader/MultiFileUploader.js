@@ -1,16 +1,18 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import FilePreviewer from '../file-previewer/FilePreviewer'
 import FileInputField from '../form-fields/FileInputField'
-import {Grid, Stack} from '@mui/material'
-import {useDispatch, useSelector} from 'react-redux'
-import {setBusinessInfoImageReset} from '../../redux/slices/multiStepForm'
-import {CustomTypographyForMultiImagePreviewer} from './MultiFileUploader.style'
-import {useTranslation} from 'react-i18next'
+import { Grid, Stack } from '@mui/material'
+import { useDispatch, useSelector } from 'react-redux'
+import { setBusinessInfoImageReset } from '../../redux/slices/multiStepForm'
+import { CustomTypographyForMultiImagePreviewer } from './MultiFileUploader.style'
+import { useTranslation } from 'react-i18next'
 
 const MultiFileUploader = (props) => {
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     const {
         width,
+        height,
+        required,
         fileImagesHandler,
         maxFileSize,
         supportedFileFormats,
@@ -20,23 +22,20 @@ const MultiFileUploader = (props) => {
         hintText,
         totalFiles,
         gridControl,
-        fullWidth
+        fullWidth,
+        delivery,
     } = props
     const [files, setFiles] = useState(totalFiles ? totalFiles : [])
     const [error, setError] = useState(false)
     const [errorAlert, setErrorAlert] = useState('')
-    // const { businessInfoImageReset } = useSelector(
-    //     (state) => state.multiStepForm
-    // )
+
     const fileInputRef = useRef()
     const dispatch = useDispatch()
     useEffect(() => {
         fileImagesHandler(files)
         // dispatch(setBusinessInfoImageReset(false))
     }, [files])
-    // useEffect(() => {
-    //     setFiles([])
-    // }, [businessInfoImageReset])
+
     const FileSelectedHandler = (e) => {
         let file = e.target.files[e.target.files.length - 1]
         let fileExtension = file.name.split('.').pop()
@@ -57,19 +56,19 @@ const MultiFileUploader = (props) => {
         let remainingFiles = files.filter((item, index) => index !== id)
         setFiles(remainingFiles)
     }
-    const replaceFilesByIndex = (indexNumber) => {
-    }
+    const replaceFilesByIndex = (indexNumber) => {}
     return (
         <Stack width="100%" spacing={4}>
             {files.length > 0 ? (
                 <>
                     <FilePreviewer
+                        delivery={delivery}
                         anchor={fileInputRef}
                         errorStatus={error}
                         titleText={titleText}
                         acceptedFileInput={acceptedFileInput}
                         file={files}
-                        width={width}
+                        height={height}
                         onChange={FileSelectedHandler}
                         onDelete={DeleteImageFromFiles}
                         supportedFileFormats={supportedFileFormats}
@@ -80,17 +79,21 @@ const MultiFileUploader = (props) => {
                 </>
             ) : (
                 <Grid container>
-                    <Grid item xs={12} sm={4} md={fullWidth?12:4}>
+                    {/* md={fullWidth ? 12 : 4} */}
+                    <Grid item xs={12} sm={4}>
                         <FileInputField
+                            delivery={delivery}
                             titleText={titleText}
                             labelText={labelText}
                             hintText={hintText}
                             errorStatus={error}
                             acceptedFileInput={acceptedFileInput}
                             width={width}
+                            height={height}
                             onChange={FileSelectedHandler}
                             text="Upload identity file"
                             maxFileSize={200000}
+                            required={required}
                         />
                     </Grid>
                 </Grid>

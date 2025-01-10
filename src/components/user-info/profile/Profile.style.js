@@ -1,6 +1,6 @@
 import { alpha, styled } from '@mui/material/styles'
-import { Box, Button, Grid, TextField } from '@mui/material'
-import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
+import { Box, Button, TextField } from '@mui/material'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 
 export const SaveButton = styled(Button)(({ theme }) => ({
     width: '100%',
@@ -32,10 +32,7 @@ export const ButtonBox = styled(Box)(({ theme }) => ({
         justifyContent: 'end',
     },
 }))
-export const CouponCard = styled(Grid)(({ theme }) => ({
-    alignItems: 'center',
-    justify: 'center',
-}))
+
 export const CustomDivWithBorder = styled(CustomStackFullWidth)(
     ({ theme, isXSmall }) => ({
         border: isXSmall

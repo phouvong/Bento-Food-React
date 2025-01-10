@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Paper, Stack, Typography } from '@mui/material'
+import { Box, Stack, Typography } from '@mui/material'
 //import catagori from '../../../public/static/featurecatagori/image 11.png'
 import { CatagoriCardPaper, CatagoriImg } from './Catagori.style'
 import { motion } from "framer-motion";

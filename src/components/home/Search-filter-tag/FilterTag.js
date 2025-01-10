@@ -1,6 +1,6 @@
 import CustomGroupCheckbox from '@/components/custom-group-checkboxs/CustomGroupCheckbox'
-import { WrapperForSideDrawerFilter } from '@/gurbage/admin/components/filter/SideDrawerFilter.style'
 import {
+    setCuisineData,
     setSearchTagData,
     setSelectedName,
     setSelectedValue,
@@ -32,6 +32,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import FilterButton from '../../Button/FilterButton'
 import FilterCard from '../../products-page/FilterCard'
 import SearchBox from '../hero-section-with-search/SearchBox'
+import { WrapperForSideDrawerFilter } from '@/styled-components/CustomStyles.style'
 
 export const CustomChip = styled(Chip)(({ theme, query, value, isSticky }) => ({
     padding: isSticky ? '2px 3px' : '10px 10px',
@@ -44,7 +45,6 @@ export const CustomChip = styled(Chip)(({ theme, query, value, isSticky }) => ({
     background: value && theme.palette.primary.main,
     transition: `all ease .3s`,
     '&:hover': {
-        //backgroundColor: `${theme.palette.neutral[300]} !important`,
         color: `${theme.palette.whiteContainer.main}`,
     },
     '& .MuiChip-label': {
@@ -58,7 +58,6 @@ export const CustomChip = styled(Chip)(({ theme, query, value, isSticky }) => ({
         fontSize: '12px',
         padding: '4px 4px',
         height: '31px',
-        //backgroundColor: theme.palette.secondary.main,
     },
 }))
 
@@ -75,7 +74,10 @@ const FilterTag = ({
     handleSort,
     activeFilters,
     tags,
+    page,
+    restaurantType,
 }) => {
+    const [scrollPosition, setScrollPosition] = useState(0)
     const [open, setOpen] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
     const [cuisineOrSort, setCuisineOrSort] = useState('sort')
@@ -84,20 +86,38 @@ const FilterTag = ({
         (state) => state.searchFilterStore
     )
     const { global } = useSelector((state) => state.globalSettings)
-    const {
-        searchTagData,
-        isProductsOrRestaurants,
-        selectedValue,
-        selectedName,
-    } = useSelector((state) => state.searchTags)
+    const { searchTagData, selectedValue, selectedName, cuisineData } =
+        useSelector((state) => state.searchTags)
     const { isSticky } = useSelector((state) => state.scrollPosition)
     const { cuisines } = useSelector((state) => state.storedData)
-    const [cuisineState, setCuisineState] = useState(cuisines ? cuisines : [])
+    const [cuisineState, setCuisineState] = useState([])
     const dispatch = useDispatch()
     const theme = useTheme()
     const iconColor = theme.palette.neutral[1000]
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
-    const openCard = Boolean(anchorEl)
+    const handleCuisineData = () => {
+        dispatch(
+            setCuisineData(
+                cuisines?.map((item) => {
+                    return {
+                        ...item,
+                        isActive: false,
+                    }
+                })
+            )
+        )
+    }
+    useEffect(() => {
+        if (cuisines) {
+            handleCuisineData()
+        }
+    }, [cuisines])
+
+    useEffect(() => {
+        if (cuisineData) {
+            setCuisineState(cuisineData)
+        }
+    }, [cuisineData])
 
     const getData = () => {
         if (global?.toggle_veg_non_veg === false) {
@@ -121,12 +141,31 @@ const FilterTag = ({
         setAnchorEl(null)
     }
 
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrollPosition(window.scrollY) // Update scroll position
+        }
+
+        window.addEventListener('scroll', handleScroll)
+
+        // Cleanup on component unmount
+        return () => {
+            window.removeEventListener('scroll', handleScroll)
+        }
+    }, [])
+
     const handleDropClick = (event) => {
         setAnchorElCard(event.currentTarget)
     }
     const handleDropClose = () => {
         setAnchorElCard(null)
     }
+
+    useEffect(() => {
+        if (scrollPosition > 55) {
+            setAnchorElCard(null)
+        }
+    }, [scrollPosition])
 
     useEffect(() => {
         if (activeFilters?.length === 0) {
@@ -217,6 +256,11 @@ const FilterTag = ({
                                 } else {
                                     if (item?.id === 3 || item?.id === 5) {
                                         return null
+                                    } else if (
+                                        item?.id === 9 &&
+                                        restaurantType !== 'dine-in'
+                                    ) {
+                                        return null
                                     } else {
                                         return (
                                             <CustomChip
@@ -233,14 +277,15 @@ const FilterTag = ({
                                     }
                                 }
                             })}
-                            {(query || tags) && !isSticky && (
-                                <FilterButton
-                                    id="fade-button"
-                                    handleClick={handleDropClick}
-                                    activeFilters={activeFilters}
-                                    forSearch={true}
-                                />
-                            )}
+                            {(query || tags || restaurantType === 'dine-in') &&
+                                !isSticky && (
+                                    <FilterButton
+                                        id="fade-button"
+                                        handleClick={handleDropClick}
+                                        activeFilters={activeFilters}
+                                        forSearch={true}
+                                    />
+                                )}
                         </Stack>
                     </Stack>
                 ) : (
@@ -319,7 +364,7 @@ const FilterTag = ({
                                         <ListItemText
                                             primary={
                                                 <Typography fontSize="13px">
-                                                    {t('Filter: A to Z')}
+                                                    {t('Sort by: A to Z')}
                                                 </Typography>
                                             }
                                         />
@@ -347,13 +392,81 @@ const FilterTag = ({
                                         <ListItemText
                                             primary={
                                                 <Typography fontSize="13px">
-                                                    {t('Filter: Z to A')}
+                                                    {t('Sort by: Z to A')}
                                                 </Typography>
                                             }
                                         />
                                     }
                                 />
                             </ListItem>
+
+                            {restaurantType === 'dine-in' && (
+                                <ListItem
+                                    sx={{
+                                        fontSize: '13px',
+                                        paddingInline: '1rem',
+                                        cursor: 'pointer',
+                                        color: (theme) =>
+                                            theme.palette.neutral[600],
+                                        borderBottom: '1px solid',
+                                        borderBottomColor: (theme) =>
+                                            alpha(
+                                                theme.palette.neutral[300],
+                                                0.3
+                                            ),
+                                        paddingTop: '4px',
+                                        paddingBottom: '4px',
+                                    }}
+                                >
+                                    <FormControlLabel
+                                        value="distance"
+                                        control={<Radio />}
+                                        label={
+                                            <ListItemText
+                                                primary={
+                                                    <Typography fontSize="13px">
+                                                        {t('Sort by: Distance')}
+                                                    </Typography>
+                                                }
+                                            />
+                                        }
+                                    />
+                                </ListItem>
+                            )}
+                            {restaurantType === 'dine-in' && (
+                                <ListItem
+                                    sx={{
+                                        fontSize: '13px',
+                                        paddingInline: '1rem',
+                                        cursor: 'pointer',
+                                        color: (theme) =>
+                                            theme.palette.neutral[600],
+                                        borderBottom: '1px solid',
+                                        borderBottomColor: (theme) =>
+                                            alpha(
+                                                theme.palette.neutral[300],
+                                                0.3
+                                            ),
+                                        paddingTop: '4px',
+                                        paddingBottom: '4px',
+                                    }}
+                                >
+                                    <FormControlLabel
+                                        value="rating"
+                                        control={<Radio />}
+                                        label={
+                                            <ListItemText
+                                                primary={
+                                                    <Typography fontSize="13px">
+                                                        {t('Sort by: Rating')}
+                                                    </Typography>
+                                                }
+                                            />
+                                        }
+                                    />
+                                </ListItem>
+                            )}
+
                             {foodOrRestaurant !== 'restaurants' && (
                                 <>
                                     <ListItem
@@ -381,7 +494,7 @@ const FilterTag = ({
                                                     primary={
                                                         <Typography fontSize="13px">
                                                             {t(
-                                                                'Price: Hight to Low'
+                                                                'Price: High to Low'
                                                             )}
                                                         </Typography>
                                                     }
@@ -452,9 +565,13 @@ const FilterTag = ({
                 }}
             >
                 <FilterCard
+                    restaurantType={restaurantType}
                     handleDropClose={handleDropClose}
                     stateData={storeData}
                     setStateData={setStoreData}
+                    forcuisine="true"
+                    setCuisineState={setCuisineState}
+                    cuisineState={cuisineState}
                 />
             </Popover>
         </>

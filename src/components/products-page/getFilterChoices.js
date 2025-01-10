@@ -1,5 +1,4 @@
-import React from 'react'
-import { isAvailable, isProductAvailable } from '../../utils/customFunctions'
+import { isAvailable } from '@/utils/customFunctions'
 import moment from 'moment'
 
 export const getFilterChoices = (filterData, data, foodOrRestaurant) => {

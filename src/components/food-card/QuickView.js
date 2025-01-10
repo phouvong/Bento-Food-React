@@ -1,5 +1,5 @@
 import React from 'react'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { IconButton, Tooltip, styled, useTheme } from '@mui/material'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'

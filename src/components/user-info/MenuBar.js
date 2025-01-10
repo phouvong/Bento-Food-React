@@ -1,12 +1,12 @@
 import React from 'react'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { alpha, List, MenuItem, Typography } from '@mui/material'
 import { t } from 'i18next'
 import CustomImageContainer from '../CustomImageContainer'
 import Router from 'next/router'
 import { useSelector } from 'react-redux'
 
-const MenuBar = ({ tabData, onClose, sidedrawer, page,setAttributeId }) => {
+const MenuBar = ({ tabData, onClose, sidedrawer, page, setAttributeId }) => {
     const { global } = useSelector((state) => state.globalSettings)
     const handleClick = (item) => {
         setAttributeId('')

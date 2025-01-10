@@ -1,27 +1,19 @@
 import React from 'react'
-import { CustomStackFullWidth } from '../../styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import CustomImageContainer from '../CustomImageContainer'
 import RestaurantCoupon from './RestaurantCoupon'
 import Slider from 'react-slick'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
-// import 'react-multi-carousel/lib/styles.css'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { Stack } from '@mui/system'
-import { NoSsr } from '@mui/material'
+import { NoSsr, Stack } from '@mui/material'
 import { RestaurantCouponStack } from './restaurant-details.style'
 import { settings } from './CouponSettings'
 
-const RestaurantRightDetails = ({
-    details,
-    restaurantCoverUrl,
-    data,
-    scrollPosition,
-}) => {
+const RestaurantRightDetails = ({ details, data, scrollPosition }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
-    // const { userData } = useSelector((state) => state.user)
 
     return (
         <NoSsr>

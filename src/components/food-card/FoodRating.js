@@ -1,21 +1,13 @@
-import React from 'react'
-import { Stack } from '@mui/system'
 import StarIcon from '@mui/icons-material/Star'
-import { alpha, Typography } from '@mui/material'
+import { Typography, Stack } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import { getNumberWithConvertedDecimalPoint } from '../../utils/customFunctions'
-import { useSelector } from 'react-redux'
+import { getNumberWithConvertedDecimalPoint } from '@/utils/customFunctions'
 import { CustomChip } from './FoodCard.style'
 
 const FoodRating = ({ product_avg_rating }) => {
     const theme = useTheme()
     const starColor = theme.palette.whiteContainer.main
-    const { global } = useSelector((state) => state.globalSettings)
 
-    // let digitAfterDecimalPoint
-    // if (global) {
-    //     digitAfterDecimalPoint = global.digit_after_decimal_point
-    // }
     return (
         <CustomChip
             background={theme.palette.customColor.eleven}
@@ -34,7 +26,6 @@ const FoodRating = ({ product_avg_rating }) => {
                     >
                         {getNumberWithConvertedDecimalPoint(
                             product_avg_rating,
-                            // digitAfterDecimalPoint
                             1
                         )}
                     </Typography>

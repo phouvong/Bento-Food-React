@@ -5,10 +5,8 @@ import { useRouter } from 'next/router'
 import { useQuery } from 'react-query'
 import { CategoryApi } from "@/hooks/react-query/config/categoryApi"
 import {
-    CustomPaperBigCard,
     CustomStackFullWidth,
 } from "@/styled-components/CustomStyles.style"
-import { Container } from '@mui/material'
 import CustomContainer from '../../../components/container'
 import HomeGuard from "../../../components/home-guard/HomeGuard";
 const index = () => {

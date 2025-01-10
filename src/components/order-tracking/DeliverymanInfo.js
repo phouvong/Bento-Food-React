@@ -1,9 +1,5 @@
 import React, { useEffect } from 'react'
-import PropTypes from 'prop-types'
-import {
-    CustomStackFullWidth,
-    CustomTypographyBold,
-} from "@/styled-components/CustomStyles.style"
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { Stack, Typography } from '@mui/material'
 import CustomImageContainer from '../CustomImageContainer'
 import CustomRatings from '../custom-ratings/CustomRatings'
@@ -15,11 +11,12 @@ import ChatIcon from '@mui/icons-material/Chat'
 import { CustomTypography } from '../custom-tables/Tables.style'
 import { CustomTypographyGray } from '../error/Errors.style'
 import { useQuery } from 'react-query'
-import { GoogleApi } from "@/hooks/react-query/config/googleApi"
+import { GoogleApi } from '@/hooks/react-query/config/googleApi'
 import { onErrorResponse } from '../ErrorResponse'
 import routePNG from '../../../public/static/route.png'
 import directionPNG from '../../../public/static/delivery-truck.png'
-import { handleDistance } from "@/utils/customFunctions"
+import { handleDistance } from '@/utils/customFunctions'
+import { getToken } from '@/components/checkout-page/functions/getGuestUserId'
 const DeliverymanInfo = ({ data }) => {
     const { t } = useTranslation()
     const { global } = useSelector((state) => state.globalSettings)
@@ -54,14 +51,16 @@ const DeliverymanInfo = ({ data }) => {
 
     return (
         <CustomStackFullWidth alignItems="center" spacing={1.5}>
-            <Typography fontSize="18px" fontWeight={500}>{t('Trip Route')}</Typography>
+            <Typography fontSize="18px" fontWeight={500}>
+                {t('Trip Route')}
+            </Typography>
             <CustomStackFullWidth
                 direction="row"
                 alignItems="center"
                 justifyContent="space-between"
                 spacing={0.5}
             >
-                <CustomTypography sx={{fontSize:{xs:"12px",md:"14px"}}}>
+                <CustomTypography sx={{ fontSize: { xs: '12px', md: '14px' } }}>
                     {data?.delivery_man?.location}
                 </CustomTypography>
                 <CustomImageContainer
@@ -69,7 +68,7 @@ const DeliverymanInfo = ({ data }) => {
                     height="30px"
                     width="60px"
                 />
-                <CustomTypography sx={{fontSize:{xs:"12px",md:"14px"}}}>
+                <CustomTypography sx={{ fontSize: { xs: '12px', md: '14px' } }}>
                     {data?.delivery_address?.address}
                 </CustomTypography>
             </CustomStackFullWidth>
@@ -79,7 +78,10 @@ const DeliverymanInfo = ({ data }) => {
                     height="30px"
                     width="30px"
                 />
-                <CustomTypographyGray sx={{ fontSize: '18px' }} fontweight="400">
+                <CustomTypographyGray
+                    sx={{ fontSize: '18px' }}
+                    fontweight="400"
+                >
                     {handleAway().toFixed(2)}km {t(`${away}`)}
                 </CustomTypographyGray>
             </CustomStackFullWidth>
@@ -125,29 +127,31 @@ const DeliverymanInfo = ({ data }) => {
                 </Stack>
                 <Stack direction="row" spacing={2}>
                     {/*<Typography>call</Typography>*/}
-                    <Stack sx={{ cursor: 'pointer' }}>
-                        <Link
-                            href={{
-                                pathname: '/info',
-                                query: {
-                                    page: 'inbox',
-                                    type: 'delivery_man',
-                                    id: data?.delivery_man?.id,
-                                    routeName: 'delivery_man_id',
-                                    chatFrom: 'true',
-                                },
-                            }}
-                        >
-                            <ChatIcon
-                                sx={{
-                                    height: 25,
-                                    width: 25,
-                                    color: (theme) =>
-                                        theme.palette.neutral[500],
+                    {getToken() && (
+                        <Stack sx={{ cursor: 'pointer' }}>
+                            <Link
+                                href={{
+                                    pathname: '/info',
+                                    query: {
+                                        page: 'inbox',
+                                        type: 'delivery_man',
+                                        id: data?.delivery_man?.id,
+                                        routeName: 'delivery_man_id',
+                                        chatFrom: 'true',
+                                    },
                                 }}
-                            ></ChatIcon>
-                        </Link>
-                    </Stack>
+                            >
+                                <ChatIcon
+                                    sx={{
+                                        height: 25,
+                                        width: 25,
+                                        color: (theme) =>
+                                            theme.palette.neutral[500],
+                                    }}
+                                ></ChatIcon>
+                            </Link>
+                        </Stack>
+                    )}
                 </Stack>
             </CustomStackFullWidth>
         </CustomStackFullWidth>

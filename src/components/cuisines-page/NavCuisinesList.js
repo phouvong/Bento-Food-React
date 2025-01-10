@@ -4,7 +4,7 @@ import MenuItem from '@mui/material/MenuItem'
 import { alpha, ListItemIcon, Typography, useTheme } from '@mui/material'
 import CustomImageContainer from '../CustomImageContainer'
 
-const NavCuisinesList = ({ item, handledropClose, cuisinesImageUrl }) => {
+const NavCuisinesList = ({ item, handledropClose }) => {
     const theme = useTheme()
     return (
         <Link
@@ -12,7 +12,6 @@ const NavCuisinesList = ({ item, handledropClose, cuisinesImageUrl }) => {
                 pathname: `/cuisines/${item.id}`,
                 query: { name: item?.name },
             }}
-            //href={`/cuisines/${item.id}`}
             key={item?.id}
         >
             <MenuItem

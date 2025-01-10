@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
 import FloatingCart from './FloatingCart'
 import BottomNav from '../navbar/BottomNav'
 

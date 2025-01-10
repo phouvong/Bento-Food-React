@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { HomeLayoutNavbarStyle } from './HomeLayoutNavbar.style'
 import { Toolbar, Typography } from '@mui/material'
 

@@ -1,16 +1,9 @@
-import React, { useState } from 'react'
-import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
+import React from 'react'
 import CustomImageContainer from '../../CustomImageContainer'
-import { Stack, Typography, useTheme } from '@mui/material'
-import { useSelector } from 'react-redux'
+import { Stack, Typography } from '@mui/material'
 import Link from 'next/link'
-import useMediaQuery from '@mui/material/useMediaQuery'
 
 const CuisinesCard = ({ item }) => {
-    const theme = useTheme()
-    const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
-    const [hover, setHover] = useState(false)
-    const { global } = useSelector((state) => state.globalSettings)
     return (
         <>
             <Link href={`cuisines/${item?.id}?name=${item?.name}`}>
@@ -21,14 +14,7 @@ const CuisinesCard = ({ item }) => {
                         paddingY={{ xs: '5px', md: '12px' }}
                         borderRadius="50%"
                         sx={{
-                            // transition: `${theme.transitions.create(
-                            //     ['background-color', 'transform'],
-                            //     {
-                            //         duration:
-                            //             theme.transitions.duration.standard,
-                            //     }
-                            // )}`,
-                            transition: "transform 0.5s ease-in-out",
+                            transition: 'transform 0.5s ease-in-out',
                             '&:hover': {
                                 transform: 'scale(1.1)',
                             },
@@ -49,7 +35,7 @@ const CuisinesCard = ({ item }) => {
                     </Stack>{' '}
                     <Typography
                         textAlign="center"
-                        fontSize={{ xs: '13px', sm: '14px', md: "14px" }}
+                        fontSize={{ xs: '13px', sm: '14px', md: '14px' }}
                         fontWeight="400"
                         sx={{
                             color: (theme) => theme.palette.neutral[1000],

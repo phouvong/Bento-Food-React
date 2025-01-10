@@ -2,7 +2,7 @@ import React from 'react'
 import {
     CustomBoxFullWidth,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
+} from '@/styled-components/CustomStyles.style'
 import { InputLabel } from '@mui/material'
 import ImageUploaderWithPreview from '../single-file-uploader-with-preview/ImageUploaderWithPreview'
 import { useTranslation } from 'react-i18next'
@@ -22,7 +22,7 @@ const ImageSection = ({
                 <InputLabel>{t('Logo')}</InputLabel>
                 <ImageUploaderWithPreview
                     type="file"
-                    labelText={t("file Upload")}
+                    labelText={t('file Upload')}
                     hintText="Image format - jpg, png, jpeg, gif Image Size - maximum size 2 MB Image Ratio - 1:1"
                     file={RestaurantJoinFormik.values.logo}
                     onChange={singleFileUploadHandlerForImage}
@@ -51,7 +51,7 @@ const ImageSection = ({
                 <InputLabel>{t('Cover Photo')}</InputLabel>
                 <ImageUploaderWithPreview
                     type="file"
-                    labelText={t("file Upload")}
+                    labelText={t('file Upload')}
                     hintText="Image format - jpg, png, jpeg, gif Image Size - maximum size 2 MB Image Ratio - 1:1"
                     file={RestaurantJoinFormik.values.cover_photo}
                     onChange={singleFileUploadHandlerForCoverPhoto}

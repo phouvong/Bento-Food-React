@@ -1,33 +1,26 @@
 import React, { useEffect, useState } from 'react'
-import {
-    Search,
-    SearchIconWrapper,
-    StyledInputBase,
-} from './CustomSearch.style'
+import { Search, StyledInputBase } from './CustomSearch.style'
 import SearchIcon from '@mui/icons-material/Search'
-import Box from '@mui/material/Box'
 import { useTranslation } from 'react-i18next'
-import { useRouter } from 'next/router'
 import {
     CloseIconWrapper,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
-import { IconButton, InputAdornment, NoSsr, useTheme } from "@mui/material";
+} from '@/styled-components/CustomStyles.style'
+import { IconButton, InputAdornment, NoSsr } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import LoadingButton from '@mui/lab/LoadingButton'
+
 const CustomSearch = ({
     handleSearchResult,
     label,
     isLoading,
     selectedValue,
     borderRadius,
-    forMobile, backgroundColor,nav
+    forMobile,
+    backgroundColor,
 }) => {
-    const theme = useTheme()
-
     const { t } = useTranslation()
     const [value, setValue] = useState('')
-    const router = useRouter()
     let languageDirection = undefined
     if (typeof window !== 'undefined') {
         languageDirection = localStorage.getItem('direction')
@@ -58,21 +51,10 @@ const CustomSearch = ({
     return (
         <CustomStackFullWidth>
             <form onSubmit={handleKeyPress}>
-                <Search borderRadius={borderRadius} backgroundColor={backgroundColor}>
-                    {/*{nav ?  <SearchIconWrapper*/}
-                    {/*  languageDirection={languageDirection}*/}
-                    {/*  nav={nav}*/}
-                    {/*>*/}
-                    {/*    <SearchIcon fontSize="medium" color={backgroundColor ? backgroundColor : "primary"} />*/}
-                    {/*</SearchIconWrapper>:*/}
-                    {/*  value === '' && (*/}
-                    {/*    <SearchIconWrapper*/}
-                    {/*      languageDirection={languageDirection}*/}
-                    {/*    >*/}
-                    {/*        <SearchIcon fontSize="medium" color={backgroundColor ? backgroundColor : "primary"} />*/}
-                    {/*    </SearchIconWrapper>*/}
-                    {/*  )*/}
-                    {/*}*/}
+                <Search
+                    borderRadius={borderRadius}
+                    backgroundColor={backgroundColor}
+                >
                     <NoSsr>
                         <StyledInputBase
                             placeholder={t(label)}
@@ -82,19 +64,18 @@ const CustomSearch = ({
                             onKeyPress={(e) => handleKeyPress(e)}
                             languageDirection={languageDirection}
                             forMobile={forMobile}
-                            startAdornment={  // Add startAdornment here
+                            startAdornment={
+                                // Add startAdornment here
                                 <InputAdornment
                                     position="start"
                                     sx={{
                                         marginInlineStart: '10px',
                                         cursor: 'pointer',
-                                        marginInlineEnd:"0px"
+                                        marginInlineEnd: '0px',
                                     }}
                                     // Add your content for the startAdornment here
                                 >
-                                    <SearchIcon
-                                        fontSize="medium"
-                                    />
+                                    <SearchIcon fontSize="medium" />
                                 </InputAdornment>
                             }
                         />

@@ -1,23 +1,14 @@
 import React, { useState } from 'react'
-import PropTypes from 'prop-types'
 import CustomDialogConfirm from '../custom-dialog/confirm/CustomDialogConfirm'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from 'react-query'
-import { OrderApi } from '../../hooks/react-query/config/orderApi'
-import Router from 'next/router'
+import { OrderApi } from '@/hooks/react-query/config/orderApi'
 import { toast } from 'react-hot-toast'
 import { onErrorResponse } from '../ErrorResponse'
 import Typography from '@mui/material/Typography'
-import { CustomButton } from '../custom-cards/CustomCards.style'
-import { CustomPaperBigCard } from '../../styled-components/CustomStyles.style'
-import {PrimaryButton} from "../products-page/FoodOrRestaurant";
+import { PrimaryButton } from '../products-page/FoodOrRestaurant'
 
-const PaymentUpdate = ({
-    id,
-    refetchOrderDetails,
-    refetchTrackData,
-    trackData,
-}) => {
+const PaymentUpdate = ({ id, refetchOrderDetails, refetchTrackData }) => {
     const [openModal, setOpenModal] = useState(false)
     const { t } = useTranslation()
     const { mutate: paymentMethodUpdateMutation, isLoading: orderLoading } =
@@ -44,15 +35,15 @@ const PaymentUpdate = ({
     }
     return (
         <>
-                <PrimaryButton
-                    variant="contained"
-                    onClick={() => setOpenModal(true)}
-                    sx={{width: '100%'}}
-                >
-                    <Typography variant="h5">
-                        {t('Switch to cash on delivery')}
-                    </Typography>
-                </PrimaryButton>
+            <PrimaryButton
+                variant="contained"
+                onClick={() => setOpenModal(true)}
+                sx={{ width: '100%' }}
+            >
+                <Typography variant="h5">
+                    {t('Switch to cash on delivery')}
+                </Typography>
+            </PrimaryButton>
             <CustomDialogConfirm
                 dialogTexts="Are you sure you want to switch this order to Cash On Delivery?"
                 open={openModal}

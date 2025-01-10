@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import "react-date-range/dist/styles.css"; // main css file
 import "react-date-range/dist/theme/default.css"; // theme css file
 import { DateRangePicker } from "react-date-range";
-import { addDays, subDays } from "date-fns";
 import moment from "moment";
 import { RTL } from "../RTL/RTL";
 const Calendar = ({ handleValue, minDate, maxDate, diffStartEnd }) => {

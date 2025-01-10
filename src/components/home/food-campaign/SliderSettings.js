@@ -1,6 +1,3 @@
-import React from "react";
-
-
 export const settings = {
     speed: 500,
     slidesToShow: 4.7,

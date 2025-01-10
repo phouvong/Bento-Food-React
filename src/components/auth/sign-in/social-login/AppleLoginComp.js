@@ -1,16 +1,16 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import AppleLogin from 'react-apple-login'
 
 import { Button, Typography } from '@mui/material'
 import AppleIcon from '@mui/icons-material/Apple'
 import { useTranslation } from 'react-i18next'
-import { appleLoginCredential } from '../../../../utils/staticCredentials'
+import { appleLoginCredential } from '@/utils/staticCredentials'
 
-const AppleLoginComp = (props) => {
+const AppleLoginComp = () => {
     const credentials = appleLoginCredential
     const { t } = useTranslation()
     const handleAppleResponse = async (res) => {}
+
     return (
         <div>
             <AppleLogin

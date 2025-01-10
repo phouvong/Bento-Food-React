@@ -14,13 +14,7 @@ import { LoadingButton } from '@mui/lab'
 import CustomPhoneInput from '@/components/CustomPhoneInput'
 import { getGuestId } from '@/components/checkout-page/functions/getGuestUserId'
 
-const AddUserInfo = ({
-    global,
-    formSubmitHandler,
-    loginInfo,
-    isLoading,
-    userInfo,
-}) => {
+const AddUserInfo = ({ global, formSubmitHandler, loginInfo, isLoading }) => {
     const userInfoFormik = useFormik({
         initialValues: {
             name: '',

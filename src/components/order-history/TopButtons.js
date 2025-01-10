@@ -1,7 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {alpha, Grid, Stack} from "@mui/material";
-import {ActiveButtion, ActiveButtonGrid, ButtonGrid, Image, PastButtion} from "./OrderHistory.style";
+import {ActiveButtion, ActiveButtonGrid, ButtonGrid, Image} from "./OrderHistory.style";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ActiveImg from "../../../public/static/order/image 29 (1).png";
 import {CustomTypography} from "../custom-tables/Tables.style";

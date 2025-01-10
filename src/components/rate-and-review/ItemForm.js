@@ -1,15 +1,10 @@
-import React, { useState } from "react";
-import PropTypes from 'prop-types'
+import React from "react";
 import { useFormik } from 'formik'
-import SignUpValidation from '../auth/SignUpValidation'
 import {
-    CustomColouredTypography,
-    CustomFullDivider,
     CustomStackFullWidth,
     CustomTypographyBold,
 } from "@/styled-components/CustomStyles.style"
 import { Button, Grid, Stack } from "@mui/material";
-import { PrimaryButton } from '../products-page/FoodOrRestaurant'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { useTranslation } from 'react-i18next'
 import CustomTextFieldWithFormik from '../form-fields/CustomTextFieldWithFormik'

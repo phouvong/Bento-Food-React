@@ -1,5 +1,4 @@
 import React from 'react'
-import { FoodTitleTypography } from '../food-card/FoodCard.style'
 import VariationButtons from './VariationButtons'
 import { ChoiceValues } from './ChoiceValues'
 
@@ -12,14 +11,11 @@ const VariationsManager = (props) => {
         currencySymbolDirection,
         currencySymbol,
         digitAfterDecimalPoint,
-        variationStock,
         quantity,
         selectedOptions,
         isCheck,
-        radioCheckHandler2,
         itemIsLoading,
-        productUpdate
-
+        productUpdate,
     } = props
 
     return (
@@ -36,7 +32,6 @@ const VariationsManager = (props) => {
                         currencySymbolDirection={currencySymbolDirection}
                         currencySymbol={currencySymbol}
                         digitAfterDecimalPoint={digitAfterDecimalPoint}
-                        variationStock={variationStock}
                         quantity={quantity}
                         selectedOptions={selectedOptions}
                         isCheck={isCheck}

@@ -1,18 +1,7 @@
-import React, { useEffect, useState } from 'react'
-import {
-    alpha,
-    Box,
-    Button,
-    IconButton,
-    Modal,
-    Stack,
-    TextField,
-    useMediaQuery,
-} from '@mui/material'
+import React, { useState } from 'react'
+import { IconButton, Modal, Stack, useMediaQuery } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import { useMutation, useQuery } from 'react-query'
-import { ButtonBox } from './Address.style'
-import MenuItem from '@mui/material/MenuItem'
 import { ProfileApi } from '@/hooks/react-query/config/profileApi'
 import { AddressApi } from '@/hooks/react-query/config/addressApi'
 import { useDispatch, useSelector } from 'react-redux'
@@ -51,6 +40,7 @@ const AddNewAddress = ({
     guestUser,
     orderType,
     setOpenGuestUserModal,
+    setEditAddress,
 }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
@@ -69,8 +59,10 @@ const AddNewAddress = ({
     const { data, isError } = useQuery(['profile-info'], ProfileApi.profileInfo)
     const clickAddNew = () => {
         if (guestUser && orderType === 'take_away') {
+            setEditAddress?.(true)
             setOpenGuestUserModal(true)
         } else {
+            setEditAddress?.(true)
             setOpen(true)
         }
     }

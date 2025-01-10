@@ -1,5 +1,4 @@
-import React from 'react'
-import { CustomIconButton } from '../../styled-components/CustomButtons.style'
+import { CustomIconButton } from '@/styled-components/CustomButtons.style'
 import { CustomAvatarMedium } from './CustomAvatar.style'
 
 const CustomAvatar = (props) => {

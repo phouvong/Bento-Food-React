@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit'
-import {searchFilterSlice} from "./searchFilter";
 
 const initialState = {
     orderType:""

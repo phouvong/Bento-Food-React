@@ -9,14 +9,12 @@ import DeliveryAddress from './DeliveryAddress'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
-} from "@/styled-components/CustomStyles.style"
+} from '@/styled-components/CustomStyles.style'
 import OrderType from './order-type'
 import AdditionalAddresses from './AdditionalAddresses'
-import { Typography } from "@mui/material";
-import CheckoutSelectedAddressGuest from "./guest-user/CheckoutSelectedAddressGuest";
-import { getToken } from "./functions/getGuestUserId";
-import useGetMostTrips from "@/hooks/react-query/useGetMostTrips";
-
+import { Typography } from '@mui/material'
+import CheckoutSelectedAddressGuest from './guest-user/CheckoutSelectedAddressGuest'
+import { getToken } from './functions/getGuestUserId'
 const DeliveryDetails = (props) => {
     const {
         global,
@@ -34,7 +32,8 @@ const DeliveryDetails = (props) => {
         setPaymenMethod,
         setPaymentMethodDetails,
         setUsePartialPayment,
-        setSwitchToWallet, token
+        setSwitchToWallet,
+        token,
     } = props
     const { t } = useTranslation()
 
@@ -56,7 +55,8 @@ const DeliveryDetails = (props) => {
                 <FormControl>
                     {page !== 'campaign' &&
                         global?.cash_on_delivery &&
-                        restaurantData?.data?.order_subscription_active && getToken() && (
+                        restaurantData?.data?.order_subscription_active &&
+                        getToken() && (
                             <OrderType
                                 t={t}
                                 subscriptionStates={subscriptionStates}
@@ -68,16 +68,17 @@ const DeliveryDetails = (props) => {
                                 }
                                 setUsePartialPayment={setUsePartialPayment}
                                 setSwitchToWallet={setSwitchToWallet}
+                                setOrderType={setOrderType}
                             />
                         )}
                     {((restaurantData?.data?.delivery &&
                         global?.home_delivery) ||
                         (restaurantData?.data?.take_away &&
                             global?.take_away)) && (
-                            <DeliveryCaption id="demo-row-radio-buttons-group-label">
-                                {t('Delivery Options')}
-                            </DeliveryCaption>
-                        )}
+                        <DeliveryCaption id="demo-row-radio-buttons-group-label">
+                            {t('Delivery Options')}
+                        </DeliveryCaption>
+                    )}
 
                     {restaurantData?.data && (
                         <RadioGroup
@@ -103,34 +104,54 @@ const DeliveryDetails = (props) => {
                                         label={t('Take Away')}
                                     />
                                 )}
+                            {restaurantData?.data?.is_dine_in_active &&
+                            global?.dine_in_order_option ? (
+                                <FormControlLabel
+                                    value="dine_in"
+                                    control={<Radio />}
+                                    label={t('Dine In')}
+                                />
+                            ) : (
+                                ''
+                            )}
                         </RadioGroup>
                     )}
                 </FormControl>
-                {!token ? (
-                    <CheckoutSelectedAddressGuest address={address} orderType={orderType} />
+                {!token && orderType !== 'dine_in' ? (
+                    <CheckoutSelectedAddressGuest
+                        address={address}
+                        orderType={orderType}
+                    />
                 ) : (
                     <>
-                        {orderType && orderType !== 'take_away' && (
-                            <DeliveryAddress
-                                setAddress={setAddress}
-                                address={address}
-                                additionalInformationDispatch={
-                                    additionalInformationDispatch
-                                }
-                                restaurantId={restaurantData?.data?.zone_id}
-                                token={token}
-                            />
-                        )}</>)}
+                        {orderType &&
+                            orderType !== 'dine_in' &&
+                            orderType !== 'take_away' && (
+                                <DeliveryAddress
+                                    setAddress={setAddress}
+                                    address={address}
+                                    additionalInformationDispatch={
+                                        additionalInformationDispatch
+                                    }
+                                    restaurantId={restaurantData?.data?.zone_id}
+                                    token={token}
+                                />
+                            )}
+                    </>
+                )}
 
-                {getToken() &&
+                {getToken() && (
                     <AdditionalAddresses
                         orderType={orderType}
                         t={t}
-                        additionalInformationStates={additionalInformationStates}
+                        additionalInformationStates={
+                            additionalInformationStates
+                        }
                         additionalInformationDispatch={
                             additionalInformationDispatch
                         }
-                    />}
+                    />
+                )}
             </CustomStackFullWidth>
         </CustomPaperBigCard>
     )

@@ -1,32 +1,22 @@
-/* eslint-disable jsx-a11y/alt-text */
-/* eslint-disable react-hooks/exhaustive-deps */
 import styled from '@emotion/styled'
-import { Typography } from '@mui/material'
-import { Box, Stack, alpha } from '@mui/system'
+import { Typography, Box, Stack, alpha } from '@mui/material'
 import Image from 'next/image'
-import React, { useEffect } from 'react'
 import Slider from 'react-slick'
 import 'slick-carousel/slick/slick-theme.css'
 import 'slick-carousel/slick/slick.css'
 import img from '../../../../public/static/profile/walletbonus.png'
 import { t } from 'i18next'
-
 import { getAmount } from '@/utils/customFunctions'
 import { CustomDateFormat } from '@/utils/CustomDateAndTimeFormat'
 import { useTheme } from '@mui/styles'
+
 const WalletFundBonus = ({ walleBonus, isLoading }) => {
     const theme = useTheme()
 
     const settings = {
         dots: false,
-        //infinite: true,
         slidesToShow: 1,
         slidesToScroll: 2,
-        //autoplay: true,
-        //speed: 800,
-        //autoplaySpeed: 4000,
-        //cssEase: "linear",
-
         responsive: [
             {
                 breakpoint: 2000,
@@ -124,7 +114,6 @@ const CustomWalletStack = styled(Stack)(({ theme }) => ({
         fontSize: '14px',
         lineHeight: '1.3',
         display: 'block',
-        //color: theme.palette.primary.main,
     },
 }))
 

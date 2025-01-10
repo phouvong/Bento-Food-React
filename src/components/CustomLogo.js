@@ -1,7 +1,6 @@
 import React from 'react'
 import { Logo } from '@/styled-components/CustomStyles.style'
 import { useRouter } from 'next/router'
-import placeholder from '../../public/static/no-image-found.png'
 import CustomImageContainer from '@/components/CustomImageContainer'
 
 const CustomLogo = ({ logoImg, atlText, height, width }) => {
@@ -13,7 +12,6 @@ const CustomLogo = ({ logoImg, atlText, height, width }) => {
     let currentLocation = undefined
     if (typeof window !== 'undefined') {
         currentLocation = JSON.parse(localStorage.getItem('currentLatLng'))
-        //hostname = window.location.hostnam
     }
 
     const handleClick = () => {
@@ -24,10 +22,6 @@ const CustomLogo = ({ logoImg, atlText, height, width }) => {
         router.push(newPath, undefined, { shallow: true }).then(() => {
             window.scrollTo(0, 0)
         })
-    }
-
-    const handleImageError = (e) => {
-        e.target.src = '../../public/static/no-image-found.png'
     }
 
     return (

@@ -1,10 +1,8 @@
 import React from 'react'
-//import WithAuth from '../../components/authentication/auth-guard'
 import WishList from '../../components/wishlist-page/WishList'
 import Meta from '../../components/Meta'
 import PushNotificationLayout from '../../components/PushNotificationLayout'
-import { ConfigApi } from '../../hooks/react-query/config/useConfig'
-import { CustomHeader } from '../../api/Headers'
+import { CustomHeader } from '@/api/Headers'
 
 const index = ({ configData }) => {
     return (

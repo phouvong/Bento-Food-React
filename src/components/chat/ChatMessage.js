@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { Stack, Typography, Box } from '@mui/material'
 import CheckIcon from '@mui/icons-material/Check'
 import { useTheme } from '@mui/material/styles'
@@ -11,7 +11,6 @@ import {
     CustomAvatar,
     TimeWrapper,
 } from './Message.style'
-import { FormatedDateWithTime } from '@/utils/customFunctions'
 import AttachmentBox from '@/components/chat/AttachmentBox'
 import IconButton from '@mui/material/IconButton'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'

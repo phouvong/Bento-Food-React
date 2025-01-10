@@ -1,22 +1,16 @@
 import React from 'react'
-import { CssBaseline, Container } from '@mui/material'
+import { CssBaseline, Box } from '@mui/material'
 import ProductPage from './ProductPage'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
-import Meta from '../Meta'
-import CategoryDetailsPage from '../category/CategoryDetailsPage'
+} from '@/styled-components/CustomStyles.style'
 import CustomPageTitle from '../CustomPageTitle'
-import { useTranslation } from 'react-i18next'
-import { Box } from '@mui/system'
-import { useSelector } from 'react-redux'
 import CustomContainer from '../container'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@emotion/react'
 
-const Products = ({ type, title, description }) => {
-    const { t } = useTranslation()
+const Products = ({ type, title }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     return (

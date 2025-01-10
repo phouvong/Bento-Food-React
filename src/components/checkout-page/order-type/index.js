@@ -1,14 +1,14 @@
 import React from 'react'
 import { DeliveryCaption } from '../CheckOut.style'
-import { CustomStackFullWidth } from '../../../styled-components/CustomStyles.style'
-import { Box } from '@mui/system'
-import { Stack, Typography } from '@mui/material'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
+import { Stack, Typography, Box } from '@mui/material'
 import CustomImageContainer from '../../CustomImageContainer'
 
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import Form from './Form'
 import { orderTypes } from './data'
 import { ACTIONS } from '../states'
+import { setOrderType } from '@/redux/slices/orderType'
 
 const OrderType = (props) => {
     const {
@@ -20,6 +20,7 @@ const OrderType = (props) => {
         setPaymentMethodDetails,
         setUsePartialPayment,
         setSwitchToWallet,
+        setOrderType,
     } = props
 
     const handleClick = (item) => {
@@ -29,6 +30,7 @@ const OrderType = (props) => {
             setPaymenMethod('')
             setUsePartialPayment(false)
             setSwitchToWallet(false)
+            setOrderType('')
         }
         subscriptionDispatch({
             type: ACTIONS.setSubscriptionOrder,

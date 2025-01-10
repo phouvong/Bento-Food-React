@@ -5,15 +5,12 @@ import { useSelector } from 'react-redux'
 import { useFormik } from 'formik'
 import { useMutation } from 'react-query'
 import { toast } from 'react-hot-toast'
-import { LoyalityApi } from '../../../hooks/react-query/config/LoyalityApi'
+import { LoyalityApi } from '@/hooks/react-query/config/LoyalityApi'
 import * as Yup from 'yup'
-import { BoxStyle } from '../../../components/user-info/loyality/Loyality.style'
-import { CustomColouredTypography } from '../../../styled-components/CustomStyles.style'
-import { getAmount } from '../../../utils/customFunctions'
-import {
-    onErrorResponse,
-    onSingleErrorResponse,
-} from '../../../components/ErrorResponse'
+import { BoxStyle } from '@/components/user-info/loyality/Loyality.style'
+import { CustomColouredTypography } from '@/styled-components/CustomStyles.style'
+import { getAmount } from '@/utils/customFunctions'
+import { onErrorResponse } from '@/components/ErrorResponse'
 import { useTheme } from '@mui/material/styles'
 
 const LoyalityModal = ({
@@ -34,7 +31,6 @@ const LoyalityModal = ({
         digitAfterDecimalPoint = global?.digit_after_decimal_point
     }
     const { t } = useTranslation()
-    const notify = (i) => toast(i)
     const loyalityFormik = useFormik({
         initialValues: { point: loyalitydata ? loyalitydata : 0 },
         validationSchema: Yup.object({
@@ -47,7 +43,9 @@ const LoyalityModal = ({
             ) {
                 if (values.point < global?.minimum_point_to_transfer) {
                     toast.error(
-                        `${t('Please exchange more than ')} ${t(global?.minimum_point_to_transfer)} ${t(' points')}`
+                        `${t('Please exchange more than ')} ${t(
+                            global?.minimum_point_to_transfer
+                        )} ${t(' points')}`
                     )
                 } else {
                     try {
@@ -77,13 +75,10 @@ const LoyalityModal = ({
             onError: onErrorResponse,
         })
     }
-    const {
-        mutate: loyalityToWalletMutate,
-        isLoading,
-        error,
-    } = useMutation('loyalityToWallet', LoyalityApi.loyalityToWallet)
-
-
+    const { mutate: loyalityToWalletMutate } = useMutation(
+        'loyalityToWallet',
+        LoyalityApi.loyalityToWallet
+    )
 
     const handleClose = () => {
         setLoyalityModal(false)

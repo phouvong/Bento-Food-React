@@ -2,7 +2,7 @@ import React from 'react'
 import {
     CustomBoxFullWidth,
     CustomStackFullWidth,
-} from '../../styled-components/CustomStyles.style'
+} from '@/styled-components/CustomStyles.style'
 import { Grid, Typography } from '@mui/material'
 import CustomTextFieldWithFormik from '../form-fields/CustomTextFieldWithFormik'
 import { useTranslation } from 'react-i18next'
@@ -40,8 +40,8 @@ const RestaurantLoginForm = ({
                 <CustomStackFullWidth
                     direction={{ xs: 'column', sm: 'row', md: 'row' }}
                     alignItems="center"
-                    spacing={languageDirection==="rtl" ? 0:3}
-                    gap={languageDirection==="rtl" ? "20px":"0px"}
+                    spacing={languageDirection === 'rtl' ? 0 : 3}
+                    gap={languageDirection === 'rtl' ? '20px' : '0px'}
                 >
                     <CustomTextFieldWithFormik
                         type="password"
@@ -54,7 +54,6 @@ const RestaurantLoginForm = ({
                             'password'
                         )}
                         required="true"
-
                         languageDirection={languageDirection}
                     />
                     <CustomTextFieldWithFormik

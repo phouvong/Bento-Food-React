@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
 import { Stack } from '@mui/material'
 import { OrderFoodSubtitle } from '../checkout-page/CheckOut.style'
 
 const VisibleVariations = (props) => {
-    const { variations, t, orderDetailsColor} = props
+    const { variations, t, orderDetailsColor } = props
     const [variationsWithChild, setVariationsWithChild] = useState([])
     const handleVariationsWithChild = (variations) => {
         const variationsArray = []
@@ -22,7 +21,6 @@ const VisibleVariations = (props) => {
                         }
                         variationsArray.push(sArray)
                     }
-
                 }
             })
 
@@ -47,7 +45,6 @@ const VisibleVariations = (props) => {
                     </OrderFoodSubtitle>
                     <OrderFoodSubtitle>:</OrderFoodSubtitle>
                     {variationsWithChild.map((item, parentIndex) => {
-
                         return (
                             <Stack direction="row" alignItems="center">
                                 <OrderFoodSubtitle
@@ -62,15 +59,16 @@ const VisibleVariations = (props) => {
                                         (
                                         {item?.variationValues?.map(
                                             (val, index) =>
-                                                `${val.label}${index + 1 !==
+                                                `${val.label}${
+                                                    index + 1 !==
                                                     item.variationValues.length
-                                                    ? ','
-                                                    : ''
+                                                        ? ','
+                                                        : ''
                                                 }`
                                         )}
                                         )
                                         {parentIndex + 1 !==
-                                            variationsWithChild?.length
+                                        variationsWithChild?.length
                                             ? ','
                                             : ''}
                                     </OrderFoodSubtitle>

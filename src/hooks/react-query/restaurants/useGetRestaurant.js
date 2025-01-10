@@ -1,7 +1,7 @@
-import { useInfiniteQuery, useQuery } from 'react-query'
+import { useInfiniteQuery } from 'react-query'
 
 import MainApi from '../../../api/MainApi'
-import { onErrorResponse } from '../../../components/ErrorResponse'
+import { onErrorResponse } from '@/components/ErrorResponse'
 
 const getData = async (params, pageParam) => {
     const { filterByData, offset, page_limit, filterType, searchKey } = params
@@ -14,7 +14,7 @@ const getData = async (params, pageParam) => {
     )
     return data
 }
-export const useGetRestaurant = (params,handleSuccess) => {
+export const useGetRestaurant = (params, handleSuccess) => {
     const { filterByData, offset, page_limit, filterType, searchKey } = params
     return useInfiniteQuery(
         [filterByData, filterType, searchKey],
@@ -29,7 +29,7 @@ export const useGetRestaurant = (params,handleSuccess) => {
             enabled: false,
             onError: onErrorResponse,
             cacheTime: '0',
-            retry:1
+            retry: 1,
             //onSuccess:handleSuccess
         }
     )

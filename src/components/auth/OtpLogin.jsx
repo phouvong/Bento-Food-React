@@ -1,8 +1,5 @@
 import React from 'react'
 import CustomPhoneInput from '@/components/CustomPhoneInput'
-import Checkbox from '@mui/material/Checkbox'
-import { CustomTypography } from '@/components/custom-tables/Tables.style'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { t } from 'i18next'
 import {
