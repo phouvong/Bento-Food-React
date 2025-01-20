@@ -28,10 +28,10 @@ export const languageLists = [
         countryCode: 'es',
         countryFlag: spanFlag.src,
     },
-    {
-        languageName: 'Bengali',
-        languageCode: 'bn',
-        countryCode: 'BN',
-        countryFlag: banFlag.src,
-    },
+    //{
+    //    languageName: 'Bengali',
+    //    languageCode: 'bn',
+    //    countryCode: 'BN',
+    //   countryFlag: banFlag.src,
+    //},
 ]
