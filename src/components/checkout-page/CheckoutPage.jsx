@@ -157,6 +157,7 @@ const CheckoutPage = ({ isDineIn }) => {
     const [paymentMethodDetails, setPaymentMethodDetails] = useState({})
     const [cashbackAmount, setCashbackAmount] = useState(null)
     const [extraPackagingCharge, setExtraPackagingCharge] = useState(0)
+    const [changeAmount, setChangeAmount] = useState()
     const { method } = router.query
     const { mutate: offlineMutate, isLoading: offlinePaymentLoading } =
         useOfflinePayment()
@@ -242,12 +243,14 @@ const CheckoutPage = ({ isDineIn }) => {
         ['get-distance', restaurantData?.data, address],
         () => GoogleApi.distanceApi(restaurantData?.data, address),
         {
+            enabled: !!restaurantData?.data && !!address,
             onError: onErrorResponse,
         }
     )
+   
+    
     const tempDistance =
-        distanceData?.data?.rows?.[0]?.elements[0]?.distance?.value / 1000
-
+        distanceData?.data?.distanceMeters/ 1000
     const { data: extraCharge, refetch: extraChargeRefetch } =
         useGetVehicleCharge({ tempDistance })
     useEffect(() => {
@@ -276,7 +279,7 @@ const CheckoutPage = ({ isDineIn }) => {
         orderId && refetchNotification()
     }, [orderId])
 
-    useEffect(async () => {
+    useEffect(() => {
         currentLatLng = JSON.parse(localStorage.getItem('currentLatLng'))
         const location = localStorage.getItem('location')
         setAddress({
@@ -286,7 +289,12 @@ const CheckoutPage = ({ isDineIn }) => {
             address: location,
             address_type: 'Selected Address',
         })
-        await refetch()
+
+        const apiRefetch = async () => {
+            await refetch()
+        }
+
+        apiRefetch()
     }, [])
 
     useEffect(() => {
@@ -433,7 +441,7 @@ const CheckoutPage = ({ isDineIn }) => {
             coupon_discount_title: couponDiscount?.title,
             discount_amount: getProductDiscount(productList),
             distance: handleDistance(
-                distanceData?.data?.rows?.[0]?.elements,
+                distanceData?.data,
                 restaurantData?.data,
                 address
             ),
@@ -464,6 +472,7 @@ const CheckoutPage = ({ isDineIn }) => {
             extra_packaging_amount: extraPackagingCharge,
             contact_person_email:
                 additionalInformationStates?.dine_in_contact?.email,
+             bring_change_amount: changeAmount
         }
     }
 
@@ -1168,25 +1177,7 @@ const CheckoutPage = ({ isDineIn }) => {
                                     tripsData={tripsData}
                                 />
                             )}
-                        {subscriptionStates.order !== '1' &&
-                            global?.customer_wallet_status === 1 &&
-                            walletAmount > 0 &&
-                            global?.partial_payment_status === 1 && (
-                                <PartialPayment
-                                    offLineWithPartial={offLineWithPartial}
-                                    global={global}
-                                    remainingBalance={
-                                        walletAmount - totalAmount
-                                    }
-                                    handlePartialPayment={handlePartialPayment}
-                                    usePartialPayment={usePartialPayment}
-                                    walletBalance={walletAmount}
-                                    paymentMethod={paymenMethod}
-                                    switchToWallet={switchToWallet}
-                                    removePartialPayment={removePartialPayment}
-                                    totalAmount={totalAmount}
-                                />
-                            )}
+                    
                         <PaymentOptions
                             global={global}
                             paymenMethod={paymenMethod}
@@ -1199,6 +1190,13 @@ const CheckoutPage = ({ isDineIn }) => {
                             setPaymentMethodDetails={setPaymentMethodDetails}
                             setSwitchToWallet={setSwitchToWallet}
                             offlinePaymentOptions={offlinePaymentOptions}
+                            walletAmount={walletAmount}
+                            totalAmount={totalAmount}
+                            switchToWallet={switchToWallet}
+                            handlePartialPayment = {handlePartialPayment}
+                            removePartialPayment = {removePartialPayment}
+                            setChangeAmount={setChangeAmount}
+                            changeAmount={changeAmount}
                         />
                     </Stack>
                 ) : (

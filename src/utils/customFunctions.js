@@ -328,9 +328,9 @@ function distanceInKmBetweenEarthCoordinates(lat1, lon1, lat2, lon2) {
 }
 
 export const handleDistance = (distance, origin, destination) => {
-    if (distance?.[0]?.distance?.value) {
-        return distance?.[0]?.distance?.value / 1000
-    } else if (distance?.[0]?.status === 'ZERO_RESULTS') {
+    if ( distance?.distanceMeters) {
+        return  distance?.distanceMeters / 1000
+    } else if ( distance?.status === 'ZERO_RESULTS') {
         return (
             distanceInKmBetweenEarthCoordinates(
                 origin?.latitude || origin?.lat,
@@ -381,7 +381,7 @@ export const getDeliveryFees = (
 ) => {
     //convert m to km
     let convertedDistance = handleDistance(
-        distance?.rows?.[0]?.elements,
+        distance?.data,
         origin,
         destination
     )

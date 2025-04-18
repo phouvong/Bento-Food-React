@@ -111,10 +111,14 @@ const Restaurant = () => {
         }
     }, [inView])
 
-    useEffect(async () => {
+    useEffect(() => {
         if (forFilter) {
-            setOffSet(1)
-            await refetch()
+            const apiRefetch = async () => {
+                setOffSet(1)
+                await refetch()
+            }
+
+            apiRefetch()
         }
     }, [forFilter, filterByData, filterType])
     const languageDirection = localStorage.getItem('direction')
@@ -164,6 +168,7 @@ const Restaurant = () => {
                                 variant="h3"
                                 color={theme.palette.neutral[1000]}
                                 fontWeight="500"
+                                component="h2"
                             >
                                 {data?.pages[0]?.total_size} {t('Restaurants')}
                             </Typography>

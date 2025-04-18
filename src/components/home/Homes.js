@@ -146,27 +146,32 @@ const Homes = ({ configData }) => {
         onError: onSingleErrorResponse,
     })
 
-    useEffect(async () => {
-        if (
-            (banners?.banners?.length === 0 &&
-                banners?.campaigns?.length === 0) ||
-            isNeedLoad
-        ) {
-            await refetchBannerData()
-        }
-        if (addStores?.length === 0 || isNeedLoad) {
-            await addRefetch()
-        }
+    const apiRefetch = async () => {
+            if (
+                (banners?.banners?.length === 0 &&
+                    banners?.campaigns?.length === 0) ||
+                isNeedLoad
+            ) {
+                await refetchBannerData()
+            }
+            if (addStores?.length === 0 || isNeedLoad) {
+                await addRefetch()
+            }
 
-        if (campaignFoods?.length === 0 || isNeedLoad) {
-            await refetchCampaignData()
+            if (campaignFoods?.length === 0 || isNeedLoad) {
+                await refetchCampaignData()
+            }
+            if (bestReviewedFoods?.length === 0 || isNeedLoad) {
+                await refetchMostReviewed()
+            }
+            if (popularFood?.length === 0 || isNeedLoad) {
+                await refetchNearByPopularRestaurantData()
+            }
         }
-        if (bestReviewedFoods?.length === 0 || isNeedLoad) {
-            await refetchMostReviewed()
-        }
-        if (popularFood?.length === 0 || isNeedLoad) {
-            await refetchNearByPopularRestaurantData()
-        }
+    useEffect(() => {
+        
+
+        apiRefetch()
     }, [])
 
     useEffect(() => {
@@ -257,6 +262,7 @@ const Homes = ({ configData }) => {
                                 md: '700',
                             }}
                             color={theme.palette.neutral[1000]}
+                            component="h1"
                         >
                             {t('Find Best Restaurants and Foods')}
                         </Typography>

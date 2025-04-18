@@ -1,8 +1,8 @@
 export const english = {
     'This charge includes extra vehicle charge':
-        'This charge includes extra vehicle charge',
-    'and bad weather charge': 'and bad weather charge',
-    only: 'only',
+        'ຄ່າບໍລິການນີ້ລວມມີຄ່າລົດເພີ່ມເຕີມ',
+    'and bad weather charge': 'ແລະຄ່າບໍລິການສະພາບອາກາດທີ່ບໍ່ດີ',
+    only: 'ເທົ່ານັ້ນ',
     'for demo propose use otp 123456': 'for demo propose use otp 123456',
     'Nutrition Details': 'Nutrition Details',
     'Highlights for you': 'Highlights for you',

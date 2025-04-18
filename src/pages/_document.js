@@ -24,12 +24,8 @@ class CustomDocument extends Document {
                         src="https://accounts.google.com/gsi/client"
                         async
                     />
-                    <script
-                        async
-                        defer
-                        crossOrigin="anonymous"
-                        src="https://connect.facebook.net/en_US/sdk.js"
-                    />
+                   
+
                 </Head>
                 <body>
                     <Main />

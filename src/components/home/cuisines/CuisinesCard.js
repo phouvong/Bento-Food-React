@@ -6,7 +6,7 @@ import Link from 'next/link'
 const CuisinesCard = ({ item }) => {
     return (
         <>
-            <Link href={`cuisines/${item?.id}?name=${item?.name}`}>
+            <Link href={`cuisines/${item?.id}?name=${item?.name}`} style={{textDecoration: 'none'}}>
                 <Stack sx={{ overflow: 'hidden' }} spacing={1}>
                     <Stack
                         alignItems="center"
@@ -44,7 +44,9 @@ const CuisinesCard = ({ item }) => {
                             display: '-webkit-box',
                             WebkitLineClamp: '1',
                             WebkitBoxOrient: 'vertical',
+                            textDecoration: 'none'
                         }}
+                        component="h3"
                     >
                         {item?.name}
                     </Typography>

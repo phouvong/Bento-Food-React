@@ -144,6 +144,7 @@ const Cuisines = () => {
                                                         theme.palette
                                                             .neutral[1000]
                                                     }
+                                                    component="h2"
                                                 >
                                                     {t('Cuisines')}
                                                 </Typography>

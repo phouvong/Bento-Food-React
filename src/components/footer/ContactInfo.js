@@ -65,7 +65,7 @@ const ContactInfo = ({ global }) => {
                     {global?.address}
                 </Typography>
             </Stack>
-            <Link href={`mailto:${global?.email}`}>
+            <Link href={`mailto:${global?.email}`} style={{ textDecoration: 'none' }}>
                 <Stack
                     onMouseEnter={() => handleHover('mail')}
                     onMouseLeave={handleMouseLeave}
@@ -80,12 +80,13 @@ const ContactInfo = ({ global }) => {
                     />
                     <Typography
                         sx={{ color: hovered === 'mail' && 'primary.main' }}
+                        component="p"
                     >
                         {global?.email}
                     </Typography>
                 </Stack>
             </Link>
-            <Link href={`tel:${global?.phone}`}>
+            <Link href={`tel:${global?.phone}`} style={{ textDecoration: 'none' }}>
                 <Stack
                     onMouseEnter={() => handleHover('phone')}
                     onMouseLeave={handleMouseLeave}
@@ -104,6 +105,7 @@ const ContactInfo = ({ global }) => {
                         sx={{
                             color: hovered === 'phone' && 'primary.main',
                         }}
+                        component="p"
                     >
                         {global?.phone}
                     </Typography>

@@ -72,8 +72,12 @@ const RestaurantList = () => {
         )
     }, [checkedFilterKey])
 
-    useEffect(async () => {
-        await refetch()
+    useEffect(() => {
+        const apiRefetch = async () => {
+            await refetch()
+        }
+
+        apiRefetch()
     }, [searchKey])
 
     const handleSearchResult = async (values) => {

@@ -41,7 +41,6 @@ const ProductSearchPage = ({
     const [pageData, setPageData] = useState({})
     const [searchOrPage, setSearchOrPage] = useState({})
     const [totalData, setTotalData] = useState(null)
-    console.log(filterData?.filterByCuisine)
     const activeFilters = searchTagData.filter((item) => item.isActive === true)
     const apiKey =
         foodOrRestaurant === 'products'
@@ -215,16 +214,21 @@ const ProductSearchPage = ({
             router.push('/home')
         }
     }, [searchTagData])
-    useEffect(async () => {
-        if (searchValue) {
-            await refetch()
-        } else if (tags && page) {
-            await refetch()
-        } else if (tags) {
-            if (activeFilters?.length > 0) {
+
+    useEffect(() => {
+        const apiRefetch = async () => {
+            if (searchValue) {
                 await refetch()
+            } else if (tags && page) {
+                await refetch()
+            } else if (tags) {
+                if (activeFilters?.length > 0) {
+                    await refetch()
+                }
             }
         }
+
+        apiRefetch()
     }, [searchValue, filterData, tags, offset])
     useEffect(() => {
         setOffset(1)

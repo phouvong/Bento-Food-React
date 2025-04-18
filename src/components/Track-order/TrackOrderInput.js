@@ -69,7 +69,7 @@ const TrackOrderInput = ({ configData }) => {
 
     return (
         <NoSsr>
-            <CustomStackFullWidth spacing={2} pt="60px">
+            <CustomStackFullWidth spacing={2} pt="60px" pb="50px">
                 <CustomPaperBigCard>
                     <Typography
                         align="center"

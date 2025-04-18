@@ -53,7 +53,7 @@ const StartPriceView = (props) => {
             flexWrap="wrap"
         >
             {hideStartFromText === 'false' && (
-                <Typography>{t('Starts From:')}</Typography>
+                <Typography component="p">{t('Starts From:')}</Typography>
             )}
             <Typography
                 display="flex"
@@ -63,6 +63,7 @@ const StartPriceView = (props) => {
                 sx={{
                     fontSize: { xs: '13px', sm: '16px' },
                 }}
+                component="p"
             >
                 {data?.price > 0 && handleConvertedPrice()}
                 {data?.price === handleConvertedPrice() ? (

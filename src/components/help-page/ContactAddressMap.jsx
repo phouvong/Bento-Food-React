@@ -64,12 +64,12 @@ const ContactAddressMap = ({
         ['get-distance', data, currentLocation],
         () => GoogleApi.distanceApi(data[0], currentLocation),
         {
+            enabled: !!data && !!currentLocation,
             onError: onErrorResponse,
         }
     )
-    const tempDistance =
-        distanceData?.data?.rows?.[0]?.elements[0]?.distance?.value
-
+    const tempDistance =distanceData?.data?.distanceMeters
+     
     return (
         <CustomModal
             openModal={open}

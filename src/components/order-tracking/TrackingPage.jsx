@@ -105,7 +105,7 @@ const TrackingPage = ({ data, guestOrderTracking }) => {
         })
         setRerenderMap((prvMap) => !prvMap)
     }
-
+    
     return (
         <RTL direction={languageDirection}>
             <CustomStackFullWidth>

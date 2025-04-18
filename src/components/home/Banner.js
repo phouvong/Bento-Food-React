@@ -175,7 +175,8 @@ const Banner = ({ bannerIsLoading }) => {
                     gap=".8rem"
                     onMouseEnter={() => setHoverOn(true)}
                     onMouseLeave={() => setHoverOn(false)}
-                >
+                    sx={{minHeight:{xs:"165px",md:"185px"}}}
+                                    >
                     <Slider {...bannerSettings}>
                         {bannerData?.slice(0, 8).map((banner) => {
                             return (

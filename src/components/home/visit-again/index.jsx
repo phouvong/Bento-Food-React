@@ -278,14 +278,16 @@ const VisitAgain = () => {
                                 fontSize="18px"
                                 fontWeight={600}
                                 color={theme.palette.whiteText.main}
+                                component="h2"
                             >
                                 {t('Find Nearby ')}
                             </Typography>
                             <Typography
-                                component="span"
+                               
                                 fontSize="14px"
                                 fontWeight={400}
                                 color={theme.palette.whiteText.main}
+                                component="p"
                             >
                                 {t('Restaurant Near from You')}
                             </Typography>
@@ -321,6 +323,7 @@ const VisitAgain = () => {
                                             theme.palette.neutral[200],
                                     },
                                 }}
+                                component="button"
                             >
                                 {t('See Location')}
                             </Button>
@@ -341,6 +344,7 @@ const VisitAgain = () => {
                             fontSize={{ xs: '18px', md: '20px' }}
                             fontWeight={{ xs: '500', md: '700' }}
                             color={theme.palette.primary.main}
+                            component="h2"
                         >
                             {text?.title}
                         </Typography>
@@ -349,6 +353,7 @@ const VisitAgain = () => {
                             fontSize={{ xs: '13px', md: '16px' }}
                             fontWeight={{ xs: '400', md: '400' }}
                             color={theme.palette.text.secondary}
+                            component="p"
                         >
                             {text?.subTitle}
                         </Typography>

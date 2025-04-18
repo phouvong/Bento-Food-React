@@ -62,10 +62,12 @@ const GuestUserInforForm = ({
     }
 
     const numberHandler = (value) => {
-        additionalInformationDispatch({
-            type: ACTIONS.setDineInPhone,
-            payload: value,
-        })
+        if(dine_in){
+            additionalInformationDispatch({
+                type: ACTIONS.setDineInPhone,
+                payload: value,
+            })
+        }
         addAddressFormik.setFieldValue('contact_person_number', value)
     }
 

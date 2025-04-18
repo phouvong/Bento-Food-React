@@ -52,8 +52,12 @@ const NewRestaurant = () => {
         { enabled: false, onError: onErrorResponse }
     )
 
-    useEffect(async () => {
-        await refetch()
+    useEffect(() => {
+        const apiRefetch = async () => {
+            await refetch()
+        }
+
+        apiRefetch()
     }, [])
 
     const settings = {
@@ -220,6 +224,7 @@ const NewRestaurant = () => {
                                 color={theme.palette.neutral[1000]}
                                 fontSize={{ xs: '16px', md: '20px' }}
                                 fontWeight={{ xs: '500', md: '700' }}
+                                component="h2"
                             >
                                 {t(`${new_on} ${global?.business_name}`)}
                             </Typography>

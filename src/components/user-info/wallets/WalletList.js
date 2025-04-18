@@ -141,11 +141,21 @@ const Wallet = ({ page }) => {
     useEffect(() => {
         walletBonusRefetch()
     }, [])
-    useEffect(async () => {
-        await refetch()
+
+    useEffect(() => {
+        const apiRefetch = async () => {
+            await refetch()
+        }
+
+        apiRefetch()
     }, [transactionType])
-    useEffect(async () => {
-        await refetch()
+
+    useEffect(() => {
+        const apiRefetch = async () => {
+            await refetch()
+        }
+
+        apiRefetch()
     }, [offset])
 
     const { isLoading: profileDataLoading, data: profileData } = useQuery(
@@ -198,7 +208,7 @@ const Wallet = ({ page }) => {
     }
     useEffect(() => {
         if (page === 'wallets?flag=success' && !hasMounted) {
-            return toast.custom(
+            toast.custom(
                 () => (
                     <Paper
                         sx={{
@@ -217,9 +227,8 @@ const Wallet = ({ page }) => {
                 { id: page }
             )
             setHasMounted(true)
-            // return toast.success(t('Amount Successfully added'))
         } else if (page === 'wallets?flag=cancel' && !hasMounted) {
-            return toast.custom(
+            toast.custom(
                 () => (
                     <Paper
                         sx={{

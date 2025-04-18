@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import CustomContainer from '../../components/container'
 import { getServerSideProps } from '../index'
 
-import DeliveryManComponent from '@/components/deliveryman-registration/ DeliveryManComponent'
+import DeliveryManComponent from '@/components/deliveryman-registration/DeliveryManComponent'
 import Meta from '@/components/Meta'
 
 const Index = ({ configData, landingPageData }) => {

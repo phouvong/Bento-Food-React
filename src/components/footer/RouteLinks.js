@@ -11,7 +11,7 @@ import { useTheme } from '@mui/material/styles'
 import { router } from 'next/client'
 import MapModal from '../landingpage/google-map/MapModal'
 import { CustomToaster } from '../custom-toaster/CustomToaster'
-import { alpha } from '@material-ui/core'
+import { alpha } from '@mui/material'
 
 const RouteLinks = (props) => {
     const { token, global, title, RouteLinksData, isCenter } = props

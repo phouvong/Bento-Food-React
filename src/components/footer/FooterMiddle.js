@@ -1,5 +1,5 @@
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
-import { alpha } from '@material-ui/core'
+import { alpha } from '@mui/material'
 import { Box, Grid, Stack, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import Link from 'next/link'

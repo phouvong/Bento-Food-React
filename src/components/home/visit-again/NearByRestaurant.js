@@ -77,12 +77,16 @@ const NearByRestaurant = ({ dineIn }) => {
             },
         })
     }
-    useEffect(async () => {
-        if (dineIn) {
-            await dineInRefetch()
-        } else {
-            await refetch()
+    useEffect(() => {
+        const apiRefetch = async () => {
+            if (dineIn) {
+                await dineInRefetch()
+            } else {
+                await refetch()
+            }
         }
+
+        apiRefetch()
     }, [])
     const customMapStyle = {
         width: '100%',

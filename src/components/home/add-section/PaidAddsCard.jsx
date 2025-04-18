@@ -347,6 +347,7 @@ const PaidAddsCard = ({
 
                                             whiteSpace: 'wrap',
                                             wordWrap: 'break-word',
+                                         
                                         }}
                                         color={theme.palette.neutral[1000]}
                                         fontSize={{
@@ -355,6 +356,7 @@ const PaidAddsCard = ({
                                             md: '20px',
                                         }}
                                         fontWeight="600"
+                                        component="h3"
                                     >
                                         {item?.title}
                                     </Typography>
@@ -399,6 +401,7 @@ const PaidAddsCard = ({
                                         sm: '14px',
                                         md: '14px',
                                     }}
+                                    component="p"
                                 >
                                     {item?.description}
                                 </Typography>
@@ -421,6 +424,7 @@ const PaidAddsCard = ({
                                     sm: '18px',
                                     md: '20px',
                                 }}
+                                component="h3"
                                 fontWeight="600"
                             >
                                 {item?.title}
@@ -444,6 +448,7 @@ const PaidAddsCard = ({
                                         md: '14px',
                                     }}
                                     color={theme.palette.neutral[500]}
+                                    component="p"
                                 >
                                     {item?.description}
                                 </Typography>

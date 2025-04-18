@@ -4,9 +4,8 @@ import {
 } from '@/styled-components/CustomStyles.style'
 import { CustomTypographyEllipsis } from '@/styled-components/CustomTypographies.style'
 import { getReviewCount, restaurantDiscountTag } from '@/utils/customFunctions'
-import { Stack, Typography, alpha, styled } from '@mui/material'
+import { Stack, Typography, alpha, styled, Box } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import { Box } from '@mui/system'
 import moment from 'moment/moment'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
@@ -297,7 +296,7 @@ const RestaurantBoxCard = (props) => {
                             justifyContent="space-between"
                             sx={{ position: 'relative' }}
                         >
-                            <HomeTextTypography>{name}</HomeTextTypography>
+                            <HomeTextTypography component="h3">{name}</HomeTextTypography>
                             <Stack flexDirection="row" gap="5px">
                                 <Typography
                                     fontSize="14px"
@@ -326,6 +325,7 @@ const RestaurantBoxCard = (props) => {
                                 fontSize="12px"
                                 color={theme.palette.neutral[600]}
                                 sx={{ WebkitLineClamp: '1 !important' }}
+                                component="p"
                             >
                                 {characteristics?.length > 0 &&
                                     characteristics?.map((item, index) => (

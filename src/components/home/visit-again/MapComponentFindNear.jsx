@@ -64,7 +64,7 @@ const MapComponentFindNear = ({
         setPlaceId,
         isLoadingPlacesApi,
         currentLocationValue,
-    } = useGetLocation(coords)
+    } = useGetLocation()
 
     const { coords } = useGeolocated({
         positionOptions: {
@@ -78,6 +78,8 @@ const MapComponentFindNear = ({
             setUserLocation({ lat: coords?.latitude, lng: coords?.longitude })
         }
     }
+
+
     const center = {
         lat: parseFloat(userLocation?.lat),
         lng: parseFloat(userLocation?.lng),

@@ -3,7 +3,7 @@ import { Box, styled } from '@mui/material'
 import ChatMessages from './ChatMessages'
 import ChatMessageAdd from './ChatMessageAdd'
 
-import { makeStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@mui/styles'
 import LoadingBox from './LoadingBox'
 
 const useStyles = makeStyles((theme) => ({

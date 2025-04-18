@@ -94,6 +94,7 @@ const FooterTop = ({ landingPageData }) => {
                                     variant="h3"
                                     color={theme.palette.neutral[1000]}
                                     fontweight="600"
+                                    component="h2"
                                 >
                                     {landingPageData?.news_letter_title}
                                 </CustomColouredTypography>
@@ -103,6 +104,7 @@ const FooterTop = ({ landingPageData }) => {
                                     fontweight="400"
                                     maxWidth="300px"
                                     textAlign={{ xs: 'center', sm: 'left' }}
+                                    component="p"
                                 >
                                     {landingPageData?.news_letter_sub_title}
                                 </Typography>

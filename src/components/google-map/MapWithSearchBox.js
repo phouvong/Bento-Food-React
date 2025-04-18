@@ -59,6 +59,8 @@ const MapWithSearch = ({
         handleLocation?.(location)
     }, [currentLocationValue])
 
+
+    
     return (
         <CustomStackFullWidth spacing={1} gap="12px">
             {!searchBoxInside && (

@@ -76,11 +76,13 @@ const HeroSection = (props) => {
                                 <HeroCardTypography
                                     fontSize={{ xs: '24px', sm: '48px' }}
                                     fontWeight="700"
+                                    component="h1"
                                 >
                                     {banner_section_title}
                                 </HeroCardTypography>
                                 <HeroCardTypography
                                     fontSize={{ xs: '12px', sm: '18px' }}
+                                    component="h2"
                                 >
                                     {banner_section_subTitle}
                                 </HeroCardTypography>

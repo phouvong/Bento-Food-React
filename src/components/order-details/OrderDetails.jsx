@@ -2076,6 +2076,39 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                     </Grid>
                                                 </>
                                             )}
+                                              {/* {trackData &&
+                                            trackData?.data?.bring_change_amount > 0 && (
+                                                <>
+                                                    <Grid item md={8} xs={8} alignItems="center">
+                                                        <InfoTypography>
+                                                            {t(
+                                                                'Bring Change Amount'
+                                                            )}
+                                                            <Tooltip title={t('Insert amount if you need deliveryman to bring')} placement="top">
+                                                                <InfoIcon
+                                                                    sx={{
+                                                                        width: '16px',
+                                                                        height: '16px',
+                                                                        ml: '5px',
+                                                                        color: theme => theme.palette.neutral[1000]
+                                                                    }}
+                                                                />
+                                                            </Tooltip>
+                                                        </InfoTypography>
+                                                    </Grid>
+                                                    <Grid item md={4} xs={4}>
+                                                        <InfoTypography align="right">
+                                                            {getAmount(
+                                                                trackData?.data
+                                                                    ?.bring_change_amount,
+                                                                currencySymbolDirection,
+                                                                currencySymbol,
+                                                                digitAfterDecimalPoint
+                                                            )}
+                                                        </InfoTypography>
+                                                    </Grid>
+                                                </>
+                                            )} */}
                                         {trackData &&
                                             global?.additional_charge_status ===
                                                 1 && (

@@ -164,6 +164,7 @@ const HorizontalFoodCard = (props) => {
                                             textOverflow: 'ellipsis',
                                         }}
                                         color={theme.palette.neutral[1200]}
+                                        component="h3"
                                     >
                                         {product?.name}
                                     </Typography>
@@ -201,6 +202,7 @@ const HorizontalFoodCard = (props) => {
                                         fontWeight={400}
                                         color={theme.palette.neutral[400]}
                                         mt="-3px"
+                                        component="h4"
                                     >
                                         {product?.restaurant_name}
                                     </Typography>

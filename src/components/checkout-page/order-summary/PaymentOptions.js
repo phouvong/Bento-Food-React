@@ -19,6 +19,7 @@ import {
     setOfflineInfoStep,
     setOfflineMethod,
 } from '@/redux/slices/OfflinePayment'
+import PartialPayment from '../PartialPayment'
 
 const PaymentOptions = (props) => {
     const theme = useTheme()
@@ -34,6 +35,14 @@ const PaymentOptions = (props) => {
         setPaymentMethodDetails,
         setSwitchToWallet,
         offlinePaymentOptions,
+        handlePartialPayment,
+        removePartialPayment,
+        walletAmount,
+        totalAmount,
+        switchToWallet,
+        setChangeAmount,
+        changeAmount
+
     } = props
     const { t } = useTranslation()
     const dispatch = useDispatch()
@@ -56,6 +65,7 @@ const PaymentOptions = (props) => {
 
     const getPaymentMethod = (item) => {
         setSelected(item)
+        setSwitchToWallet(false)
     }
 
     const handleClick = () => {
@@ -105,6 +115,7 @@ const PaymentOptions = (props) => {
                     </CustomStackFullWidth>
                 </Grid>
                 <CustomDivider />
+              
                 <CustomStackFullWidth
                     direction="row"
                     padding="16px"
@@ -204,6 +215,13 @@ const PaymentOptions = (props) => {
                             isCheckedOffline={isCheckedOffline}
                             offLineWithPartial={offLineWithPartial}
                             paymentMethodDetails={paymentMethodDetails}
+                            walletAmount={walletAmount}
+                            totalAmount={totalAmount}
+                            handlePartialPayment={handlePartialPayment}
+                            removePartialPayment={removePartialPayment}
+                            switchToWallet={switchToWallet}
+                            setChangeAmount={setChangeAmount}
+                            changeAmount={changeAmount}
                         />
                     </CustomModal>
                 )}

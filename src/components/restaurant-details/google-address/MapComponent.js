@@ -103,8 +103,8 @@ const MapComponent = ({
     }
 
     const directionRoute = async () => {
-        if (google && google.maps) {
-            const directionsService = new google.maps.DirectionsService()
+        if (window.google && window.google.maps) {
+            const directionsService = new google.maps.DirectionsService();
             const results = await directionsService.route({
                 origin: center,
                 destination: center1,

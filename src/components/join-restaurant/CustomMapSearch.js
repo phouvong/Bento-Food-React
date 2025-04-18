@@ -82,9 +82,10 @@ const CustomMapSearch = ({
                                 setPlaceId(value?.place_id)
                                 setPlaceDescription(value?.description)
                             }
+                            setPlaceDetailsEnabled(true)
                         }
                         setPlaceDescription(value?.description)
-                        setPlaceDetailsEnabled(true)
+                       
                     }}
                     clearOnBlur={true}
                     renderInput={(params) => (

@@ -151,11 +151,16 @@ const Chat = ({ page }) => {
         }
     }, [id, type, routeName, chatFrom, channelList, restaurantName])
 
-    useEffect(async () => {
+    useEffect(() => {
         if (channelId) {
-            await refetch()
+            const apiRefetch = async () => {
+                await refetch()
+            }
+
+            apiRefetch()
         }
     }, [channelId])
+
     useEffect(() => {
         setMessagesData([data])
     }, [data])
@@ -183,9 +188,13 @@ const Chat = ({ page }) => {
         mdDown && setIsSidebarOpen((prevState) => !prevState)
     }
 
-    useEffect(async () => {
+    useEffect(() => {
         if (useType) {
-            await refetchChannelList()
+            const apiRefetch = async () => {
+                await refetchChannelList()
+            }
+
+            apiRefetch()
         }
     }, [useType])
     const { mutate: storeMessageByMutate, isLoading: isLoadingMessageSend } =

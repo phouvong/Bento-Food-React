@@ -3,22 +3,22 @@ import {
     CustomPaperBigCard,
     CustomStackFullWidth,
     CustomTypographyBold,
-} from "@/styled-components/CustomStyles.style"
+} from '@/styled-components/CustomStyles.style'
 import { CustomTypography } from '../custom-tables/Tables.style'
 import { useTranslation } from 'react-i18next'
 import { CustomTypographyGray } from '../error/Errors.style'
-import { useGetCategory } from "@/hooks/react-query/interest/useGetCategory"
+import { useGetCategory } from '@/hooks/react-query/interest/useGetCategory'
 import { Grid } from '@mui/material'
 import CustomImageContainer from '../CustomImageContainer'
 import { useDispatch, useSelector } from 'react-redux'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 import LoadingButton from '@mui/lab/LoadingButton'
-import { usePostSelectedCategory } from "@/hooks/react-query/interest/usePostSelectedCategory"
+import { usePostSelectedCategory } from '@/hooks/react-query/interest/usePostSelectedCategory'
 import Router from 'next/router'
 import { toast } from 'react-hot-toast'
 import InterestShimmer from './InterestShimmer'
-import { setFeaturedCategories } from "@/redux/slices/storedData"
+import { setFeaturedCategories } from '@/redux/slices/storedData'
 
 const InterestOptions = (props) => {
     const { t } = useTranslation()
@@ -33,10 +33,14 @@ const InterestOptions = (props) => {
         //setCategoryList(response)
     }
     const { refetch } = useGetCategory(onSuccessHandler)
-    useEffect(async () => {
-        if (featuredCategories?.length === 0) {
-            await refetch()
+    useEffect(() => {
+        const apiRefetch = async () => {
+            if (featuredCategories?.length === 0) {
+                await refetch()
+            }
         }
+
+        apiRefetch()
     }, [])
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))

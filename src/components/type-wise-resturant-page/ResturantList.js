@@ -38,8 +38,12 @@ const ResturantList = ({ restaurantType }) => {
         () => RestaurantsApi.typeWiseRestaurantList({ restaurantType, type })
     )
 
-    useEffect(async () => {
-        await refetch()
+    useEffect(() => {
+        const apiRefetch = async () => {
+            await refetch()
+        }
+
+        apiRefetch()
     }, [type])
 
     return (

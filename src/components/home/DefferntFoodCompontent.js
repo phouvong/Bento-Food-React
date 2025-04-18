@@ -142,6 +142,7 @@ const DifferentFoodCompontent = ({
                                 }}
                                 label={t(item?.category_name)}
                                 onClick={() => scrollToSection(item?.value)}
+                                component="p"
                             />
                         )
                     })}

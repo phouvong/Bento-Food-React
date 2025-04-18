@@ -1,12 +1,13 @@
 import React from 'react'
 import partialImage from './assets/partail.png'
-import { alpha, Button, Typography, Stack } from '@mui/material'
+import { alpha, Button, Typography, Stack, IconButton } from '@mui/material'
 import PartialSvg from './assets/PartialSvg'
 import { t } from 'i18next'
 import { useTheme } from '@emotion/react'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { getAmount } from '@/utils/customFunctions'
+import CloseIcon from '@mui/icons-material/Close';
 
 const PartialPayment = ({
     handlePartialPayment,
@@ -17,6 +18,7 @@ const PartialPayment = ({
     remainingBalance,
     totalAmount,
     global,
+    paymentMethod,
     offLineWithPartial,
 }) => {
     const theme = useTheme()
@@ -32,126 +34,70 @@ const PartialPayment = ({
     return (
         <CustomStackFullWidth
             sx={{
-                background: `url(${partialImage.src})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                padding: '15px',
-                backgroundColor: (theme) =>
-                    theme.palette.mode === 'dark'
-                        ? theme.palette.neutral[100]
-                        : theme.palette.secondary.semiLight,
-                borderRadius: '10px',
+               flexDirection:"row",
+                padding: ' 6px 10px',
+                
+                borderRadius: '8px',
                 border: '1px solid',
-                borderColor: (theme) => alpha(theme.palette.primary.main, 0.2),
-                marginTop: '20px',
-                marginBottom: '20px',
+                borderColor: (theme) => alpha(theme.palette.neutral[600], 0.2),
+                alignItems: 'center',
+            
             }}
         >
-            <CustomStackFullWidth direction="row" spacing={1}>
+            <CustomStackFullWidth direction="row" spacing={1} alignItems="center">
                 <PartialSvg />
                 <Stack>
                     <Typography
-                        fontSize="20px"
-                        fontWeight="700"
-                        color={theme.palette.primary.main}
+                        fontSize="10px"
+                        fontWeight="500"
+                        color={theme.palette.neutral[600]}
                     >
-                        {getAmount(
+                        {   paymentMethod === 'wallet' && switchToWallet ? t('Remaining Balance') : t('Wallet Balance')}
+                    </Typography>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                    <Typography
+                        fontSize="17px"
+                        fontWeight="600"
+                        color={theme.palette.neutral[900]}
+                    >
+                        {paymentMethod === 'wallet' && switchToWallet ? getAmount(
+                            walletBalance-totalAmount,
+                            currencySymbolDirection,
+                            currencySymbol,
+                            digitAfterDecimalPoint
+                        ) : getAmount(
                             walletBalance,
                             currencySymbolDirection,
                             currencySymbol,
                             digitAfterDecimalPoint
                         )}
                     </Typography>
-                    <Typography
-                        fontSize="10px"
-                        color={theme.palette.neutral[500]}
-                    >
-                        {!switchToWallet ? (
-                            usePartialPayment && offLineWithPartial ? (
-                                t('Has  paid by your wallet.')
-                            ) : (
-                                t('You have balance in  your wallet')
-                            )
-                        ) : (
-                            <Typography
-                                fontSize="10px"
-                                color={theme.palette.neutral[500]}
-                            >
-                                {t('Has  paid by your wallet.')}
-                            </Typography>
-                        )}
-                    </Typography>
+                    {!offLineWithPartial &&
+                !usePartialPayment &&
+                !switchToWallet ?null:(
+                    <Typography fontSize="12px" fontWeight="400" color={theme.palette.primary.main} >({t("Applied")})</Typography>
+                )}
+                    </Stack>
                 </Stack>
             </CustomStackFullWidth>
             <CustomStackFullWidth
                 direction="row"
-                justifyContent="space-between"
-                alignItems="center"
+                justifyContent="end"
+                alignItems="end"
             >
+               
                 {!offLineWithPartial &&
                 !usePartialPayment &&
                 !switchToWallet ? (
-                    <Typography
-                        fontSize="12px"
-                        color={theme.palette.primary.main}
-                    >
-                        {t('Do you want to use now?')}
-                    </Typography>
-                ) : (
-                    <Stack spacing={0.5}>
-                        <Stack
-                            direction="row"
-                            alignItems="center"
-                            spacing={0.5}
-                        >
-                            <CheckCircleIcon
-                                color="primary"
-                                style={{ width: '12px', height: '12px' }}
-                            />
-                            <Typography
-                                component="span"
-                                fontSize="12px"
-                                color={theme.palette.primary.main}
-                            >
-                                {t('Applied !')}
-                            </Typography>
-                        </Stack>
-                        {walletBalance > totalAmount ? (
-                            <>
-                                {!offLineWithPartial &&
-                                    remainingBalance &&
-                                    !usePartialPayment && (
-                                        <Typography
-                                            fontSize="12px"
-                                            color={theme.palette.neutral[1000]}
-                                        >
-                                            {t('Remaining Wallet Balance')}:
-                                            <Typography
-                                                component="span"
-                                                fontSize="12px"
-                                            >
-                                                {getAmount(
-                                                    remainingBalance,
-                                                    currencySymbolDirection,
-                                                    currencySymbol,
-                                                    digitAfterDecimalPoint
-                                                )}
-                                            </Typography>
-                                        </Typography>
-                                    )}
-                            </>
-                        ) : null}
-                    </Stack>
-                )}
-                {!offLineWithPartial &&
-                !usePartialPayment &&
-                !switchToWallet ? (
-                    <Button variant="contained" onClick={handlePartialPayment}>
-                        {t('Use')}
+                    <Button variant="outlined" onClick={handlePartialPayment} sx={{
+                        color: theme.palette.primary.main,
+                        padding: '5px 10px',
+                        fontSize: '12px',
+                    }}>
+                        {t('Apply')}
                     </Button>
                 ) : (
-                    <Button
-                        variant="contained"
+                    <IconButton
                         onClick={removePartialPayment}
                         sx={{
                             color: theme.palette.error.main,
@@ -159,8 +105,8 @@ const PartialPayment = ({
                                 theme.palette.neutral[100],
                         }}
                     >
-                        {t('Remove')}
-                    </Button>
+                        <CloseIcon fontSize="12px" />
+                    </IconButton>
                 )}
             </CustomStackFullWidth>
         </CustomStackFullWidth>

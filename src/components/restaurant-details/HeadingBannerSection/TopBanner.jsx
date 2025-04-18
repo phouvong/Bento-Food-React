@@ -11,7 +11,9 @@ import { onErrorResponse } from '../../ErrorResponse'
 import Slider from 'react-slick'
 import RestaurantCoupon from '../RestaurantCoupon'
 import { RestaurantCouponStack } from '../restaurant-details.style'
-import { settings } from '../CouponSettings'
+
+import 'slick-carousel/slick/slick.css'
+import 'slick-carousel/slick/slick-theme.css'
 import RestaurantAnnouncementMessege from '../RestaurantAnnouncementMessege'
 
 const SliderCustom = styled(Stack)(({ theme }) => ({
@@ -48,7 +50,15 @@ const TopBanner = ({ details }) => {
             onError: onErrorResponse,
         }
     )
-
+    const settings = {
+        dots: true,
+        infinite: data?.data.length > 1 ? true : false,
+        speed: 500,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 2000,
+    }
     return (
         <>
             <NoSsr>

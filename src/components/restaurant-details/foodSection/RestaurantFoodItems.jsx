@@ -120,11 +120,21 @@ const RestaurantFoodItems = ({ category_ids, restaurant_id }) => {
             setProductData(latestFoodData?.data?.products)
         }
     }, [latestFoodData])
-    useEffect(async () => {
-        searchKey !== '' && (await refetchSearchFood())
+
+    useEffect(() => {
+        const apiRefetch = async () => {
+            searchKey !== '' && (await refetchSearchFood())
+        }
+
+        apiRefetch()
     }, [searchKey, type, offset])
-    useEffect(async () => {
-        await refetch()
+
+    useEffect(() => {
+        const apiRefetch = async () => {
+            await refetch()
+        }
+
+        apiRefetch()
     }, [restaurant_id])
 
     if (isError) {

@@ -13,6 +13,7 @@ import {
     Button,
 } from '@mui/material'
 import Link from '@mui/material/Link'
+import { transform } from 'lodash'
 
 export const CustomTextField = styled(TextField)(({ theme }) => ({
     [theme.breakpoints.up('sm')]: {},
@@ -296,6 +297,8 @@ export const SliderCustom = styled(Stack)(
                         : 'left',
                     gap: gap ? gap : '5px',
                     paddingBottom: paddingBottom || 0,
+                    
+                   
                 },
             },
             '& .slick-dots': {

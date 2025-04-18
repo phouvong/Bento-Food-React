@@ -150,6 +150,7 @@ const NavResturant = ({ zoneid }) => {
                                                                 },
                                                             }}
                                                             passHref
+                                                            style={{textDecoration: 'none'}}
                                                         >
                                                             <MenuItem
                                                                 onClick={
@@ -220,6 +221,7 @@ const NavResturant = ({ zoneid }) => {
                                                         <Link
                                                             href={`/restaurant/${restaurantIdOrSlug}`}
                                                             passHref
+                                                            style={{textDecoration: 'none'}}
                                                         >
                                                             <MenuItem
                                                                 onClick={

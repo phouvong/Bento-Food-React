@@ -72,6 +72,7 @@ const FunFactSection = ({ react_feature, isLoading }) => {
                                                         md: '16px',
                                                     },
                                                 }}
+                                                component="h2"
                                             >
                                                 {item?.title}
                                             </CustomTypography>
@@ -88,6 +89,7 @@ const FunFactSection = ({ react_feature, isLoading }) => {
                                                         theme.palette
                                                             .neutral[600]
                                                     }
+                                                    component="p"
                                                 >
                                                     {item?.sub_title}
                                                 </Typography>

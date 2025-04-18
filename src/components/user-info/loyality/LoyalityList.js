@@ -52,11 +52,20 @@ const LoyalityList = () => {
             onError: onSingleErrorResponse,
         }
     )
-    useEffect(async () => {
-        await refetch()
+    useEffect(() => {
+        const apiRefetch = async () => {
+            await refetch()
+        }
+
+        apiRefetch()
     }, [])
-    useEffect(async () => {
-        await refetch()
+
+    useEffect(() => {
+        const apiRefetch = async () => {
+            await refetch()
+        }
+
+        apiRefetch()
     }, [offset])
 
     const {

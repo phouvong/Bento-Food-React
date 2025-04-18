@@ -272,7 +272,7 @@ const LatestRestaurantCard = (props) => {
                                     justifyContent="space-between"
                                     sx={{ position: 'relative' }}
                                 >
-                                    <HomeTextTypography>
+                                    <HomeTextTypography component="h3">
                                         {name.length > 30
                                             ? `${name.slice(0, 30)}... `
                                             : name}
@@ -291,6 +291,7 @@ const LatestRestaurantCard = (props) => {
                                         WebkitBoxOrient: 'vertical',
                                         wordWrap: 'break-word',
                                     }}
+                                    component="p"
                                 >
                                     {characteristics?.length > 0 &&
                                         characteristics?.map((item, index) => (

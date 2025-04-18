@@ -2,7 +2,7 @@ import {
     CustomColouredTypography,
     CustomStackFullWidth,
 } from '@/styled-components/CustomStyles.style'
-import { alpha } from '@material-ui/core'
+import { alpha } from '@mui/material'
 import { Stack, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { t } from 'i18next'

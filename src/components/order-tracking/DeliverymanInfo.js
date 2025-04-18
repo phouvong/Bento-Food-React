@@ -43,7 +43,7 @@ const DeliverymanInfo = ({ data }) => {
     const away = t('away')
     const handleAway = () => {
         return handleDistance(
-            distanceData?.data?.rows?.[0]?.elements,
+            distanceData?.data,
             origin,
             destination
         )

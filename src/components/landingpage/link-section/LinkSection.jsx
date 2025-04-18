@@ -6,6 +6,7 @@ import bg from '../../../../public/static/join.png'
 import { useTheme } from '@mui/material/styles'
 import bg1 from '../../../../public/static/deliveryjoin.png'
 import CustomImageContainer from '../../CustomImageContainer'
+import { router } from 'next/client'
 
 const LinkSection = ({
     self_registration_restaurant,
@@ -13,16 +14,12 @@ const LinkSection = ({
 }) => {
     const theme = useTheme()
     const deliveryManRegister = () => {
-        const delivery_section_link =
-            self_registration_deliveryMan?.react_delivery_section_link_data
-                ?.react_delivery_section_link
-        window.open(`${delivery_section_link}`)
+        const delivery_section_link ="/deliveryman-registration"
+        router.push(delivery_section_link)
     }
     const RestaurantRegister = () => {
-        const restaurant_section_link =
-            self_registration_restaurant?.react_restaurant_section_link_data
-                ?.react_restaurant_section_link
-        window.open(`${restaurant_section_link}`)
+        const restaurant_section_link ='/restaurant-registration?active=active'
+        router.push(`${restaurant_section_link}`)
     }
 
     return (
@@ -79,6 +76,7 @@ const LinkSection = ({
                                     }}
                                     fontWeight="600"
                                     textAlign="left"
+                                    component="h2"
                                 >
                                     {
                                         self_registration_restaurant?.react_restaurant_section_title
@@ -92,6 +90,7 @@ const LinkSection = ({
                                     }}
                                     textAlign="left"
                                     color={theme.palette.neutral[600]}
+                                    component="p"
                                 >
                                     {
                                         self_registration_restaurant?.react_restaurant_section_sub_title
@@ -129,6 +128,7 @@ const LinkSection = ({
                                         color={
                                             theme.palette.whiteContainer.main
                                         }
+
                                     >
                                         {
                                             self_registration_restaurant?.react_restaurant_section_button_name
@@ -191,6 +191,7 @@ const LinkSection = ({
                                     }}
                                     fontWeight="600"
                                     textAlign="left"
+                                    component="h2"
                                 >
                                     {
                                         self_registration_deliveryMan?.react_delivery_section_title
@@ -204,6 +205,7 @@ const LinkSection = ({
                                     }}
                                     textAlign="left"
                                     color={theme.palette.neutral[600]}
+                                    component="p"
                                 >
                                     {
                                         self_registration_deliveryMan?.react_delivery_section_sub_title

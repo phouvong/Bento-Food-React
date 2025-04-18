@@ -63,6 +63,10 @@ import FoodRating from '../food-card/FoodRating'
 import ClosedNowOverlay from './HeadingBannerSection/ClosedNowOverlay'
 import { RestaurantCommonTypography } from './restaurant-details.style'
 import { shareSettings } from './shareSettings'
+
+// Define facebookAppId before using it
+const FACEBOOK_APP_ID = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || ''
+
 const RestaurantLeftDetails = (props) => {
     const {
         details,
@@ -87,7 +91,6 @@ const RestaurantLeftDetails = (props) => {
     if (typeof window !== 'undefined') {
         languageDirection = localStorage.getItem('direction')
     }
-    const facebookAppId = facebookAppId
     const size = isSmall ? 30 : 40
     const {
         logo_full_url,
@@ -685,7 +688,7 @@ const RestaurantLeftDetails = (props) => {
                             <Slider {...shareSettings}>
                                 <FacebookMessengerShareButton
                                     url={currentRoute}
-                                    appId={facebookAppId}
+                                    appId={FACEBOOK_APP_ID}
                                 >
                                     <FacebookMessengerIcon
                                         size={size ? size : 40}

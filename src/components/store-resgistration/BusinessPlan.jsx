@@ -14,7 +14,7 @@ import {
     CustomStackFullWidth,
     SliderCustom,
 } from '@/styled-components/CustomStyles.style'
-import useGetSubscriptionPackage from '@/hooks/react-query/store-registraion/ useGetSubscriptionPackage'
+import useGetSubscriptionPackage from '@/hooks/react-query/store-registraion/useGetSubscriptionPackage'
 import Plan from './Plan'
 import LoadingButton from '@mui/lab/LoadingButton'
 

@@ -18,8 +18,7 @@ const AboutUsPage = ({ configData }) => {
                 <Typography
                     variant="h3"
                     align="center"
-                    color={theme.palette.neutral[1000]}
-                >
+                    color={theme.palette.neutral[1000]} >
                     {t('About Us')}
                 </Typography>
                 <Grid item md={12} xs={12} sx={{ paddingBottom: '50px' }}>

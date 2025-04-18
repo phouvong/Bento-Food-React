@@ -117,7 +117,7 @@ const SignInPage = ({
     }
     const loginFormik = useFormik({
         initialValues: {
-            email_or_phone: '',
+            email_or_phone: userDatafor?.email_or_phone || '',
             password: userDatafor ? userDatafor.password : '',
             tandc: false,
         },

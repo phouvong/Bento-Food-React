@@ -9,13 +9,14 @@ import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import TrackingPage from '../order-tracking/TrackingPage'
 import { getAmount } from '@/utils/customFunctions'
 import { getToken } from '../checkout-page/functions/getGuestUserId'
+import { useSelector } from 'react-redux'
 
 const TrackOrderDetails = ({ trackOrderFormik, trackOrderData }) => {
     const theme = useTheme()
     const router = useRouter()
     const phone = btoa(trackOrderFormik?.values?.contact_person_number)
     const token = getToken()
-
+    const { global } = useSelector((state) => state.globalSettings)
     let currencySymbol
     let currencySymbolDirection
     let digitAfterDecimalPoint

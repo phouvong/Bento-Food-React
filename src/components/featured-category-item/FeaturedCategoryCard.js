@@ -84,6 +84,7 @@ const FeaturedCategoryCard = ({
                     }}
                     fontSize={{ xs: '13px', sm: '14px', md: '14px' }}
                     fontWeight="400"
+                    component="h3"
                 >
                     {name}
                 </Typography>

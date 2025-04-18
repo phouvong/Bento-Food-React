@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Stack, Typography, useTheme } from '@mui/material'
+import { alpha, Stack, Typography, useTheme } from '@mui/material'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
@@ -19,7 +19,6 @@ import toast from 'react-hot-toast'
 import newPasswordImage from '@/assets/images/new_password.svg'
 import CustomImageContainer from '@/components/CustomImageContainer'
 import { CustomSigninOutLine } from '../sign-in'
-import { alpha } from '@material-ui/core'
 import LockIcon from '@mui/icons-material/Lock'
 import { CustomTypography } from '@/components/custom-tables/Tables.style'
 

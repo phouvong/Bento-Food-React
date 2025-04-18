@@ -24,9 +24,14 @@ const RestaurantJoin = () => {
         zoneid = localStorage.getItem('zoneid')
     }
 
-    useEffect(async () => {
-        await refetch()
+    useEffect(() => {
+        const apiRefetch = async () => {
+            await refetch()
+        }
+
+        apiRefetch()
     }, [])
+
     const formSubmitHandler = (values) => {
         const onSuccessHandler = (resData) => {
             toast.success(resData.message)

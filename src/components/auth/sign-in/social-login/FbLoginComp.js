@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import CustomModal from '../../../custom-modal/CustomModal'
 import CustomImageContainer from '../../../CustomImageContainer'
-import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
+import FacebookLogin from '@greatsumini/react-facebook-login';
 import { usePostEmail } from '@/hooks/react-query/social-login/usePostEmail'
 import { onErrorResponse } from '../../../ErrorResponse'
 import OtpForm from '../../forgot-password/OtpForm'
@@ -128,7 +128,7 @@ const FbLoginComp = (props) => {
                 appId={appId}
                 autoLoad={false}
                 fields="name,email,picture"
-                callback={responseFacebook}
+                onSuccess={responseFacebook}
                 render={(renderProps) => (
                     <div
                         style={{ cursor: 'pointer', width: '100%' }}

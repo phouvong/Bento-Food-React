@@ -12,8 +12,9 @@ const NavCuisinesList = ({ item, handledropClose }) => {
                 pathname: `/cuisines/${item.id}`,
                 query: { name: item?.name },
             }}
-            key={item?.id}
-        >
+                key={item?.id}
+                style={{textDecoration: 'none'}}
+            >
             <MenuItem
                 onClick={handledropClose}
                 sx={{

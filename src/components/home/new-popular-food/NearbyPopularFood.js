@@ -213,6 +213,7 @@ const NearbyPopularFood = ({ isLoading }) => {
                                     fontSize={{ xs: '16px', md: '20px' }}
                                     fontWeight={{ xs: '500', md: '700' }}
                                     color={theme.palette.neutral[1000]}
+                                    component="h2"
                                 >
                                     {t('Popular  Foods Nearby')}
                                 </Typography>
@@ -235,7 +236,7 @@ const NearbyPopularFood = ({ isLoading }) => {
                         gap="12px"
                         paddingBottom={isSmall ? '10px' : '20px'}
                     >
-                        <CustomStackFullWidth>
+                      {popularFood?.length > 0 && (  <CustomStackFullWidth>
                             <Slider {...settings}>
                                 {popularFood?.map((product) => {
                                     if (
@@ -260,6 +261,7 @@ const NearbyPopularFood = ({ isLoading }) => {
                                 })}
                             </Slider>
                         </CustomStackFullWidth>
+                      )}
                     </SliderCustom1>
                 ) : (
                     <CustomStackFullWidth>

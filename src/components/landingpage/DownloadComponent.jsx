@@ -21,6 +21,7 @@ const DownloadComponent = ({ download_app_data }) => {
                     <LandingPageTypography
                         fontSize={{ xs: '20', sm: '25', md: '29px' }}
                         fontWeight="700"
+                        component="h2"
                     >
                         {download_app_data?.react_download_apps_title}
                     </LandingPageTypography>
@@ -29,6 +30,7 @@ const DownloadComponent = ({ download_app_data }) => {
                             fontSize={{ xs: '12px', sm: '18px', md: '18px' }}
                             fontWeight="500"
                             color={theme.palette.primary.main}
+                            component="p"
                         >
                             {download_app_data?.react_download_apps_sub_title}
                         </Typography>
@@ -36,6 +38,7 @@ const DownloadComponent = ({ download_app_data }) => {
                             sx={{ fontWeight: '400' }}
                             fontSize={{ xs: '14px', sm: '16px' }}
                             color={theme.palette.neutral[400]}
+                            component="p"
                         >
                             {download_app_data?.react_download_apps_tag}
                         </Typography>

@@ -4,7 +4,7 @@ import { TitleTopSection } from './CustomStylesDeliveryman'
 import { CustomBoxFullWidth } from '@/styled-components/CustomStyles.style'
 import { Typography } from '@mui/material'
 import { t } from 'i18next'
-import { alpha } from '@material-ui/core'
+import { alpha } from '@mui/material'
 const DeliverymanFormWrapper = ({ title, component }) => {
     const theme = useTheme()
     return (

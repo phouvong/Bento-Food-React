@@ -184,13 +184,20 @@ const HeroLocationForm = ({ mobileview, handleModalClose }) => {
 
     useEffect(() => {
         if (placeDetails) {
-            setLocation(placeDetails?.data?.result?.geometry?.location)
+            setLocation({
+                lat: placeDetails?.data?.location?.latitude,
+                    lng: placeDetails?.data?.location?.longitude,
+                })
         }
     }, [placeDetails])
 
     useEffect(() => {
         if (places) {
-            setPredictions(places?.data?.predictions)
+            const tempData= places?.data?.suggestions?.map((item) => ({
+                place_id: item?.placePrediction?.placeId,
+                description: `${item?.placePrediction?.structuredFormat?.mainText?.text}, ${item?.placePrediction?.structuredFormat?.secondaryText?.text}`
+            }))
+            setPredictions(tempData)
         }
     }, [places])
     useEffect(() => {

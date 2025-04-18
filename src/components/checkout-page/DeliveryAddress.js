@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {
-    Button,
-    InputBase,
-    Box,
-    CircularProgress,
-    Typography,
-} from '@mui/material'
+import { Button, InputBase, Box, Stack, Typography } from '@mui/material'
 
 import { DeliveryCaption, SaveAddressBox, InputField } from './CheckOut.style'
 import { useQuery } from 'react-query'
@@ -17,7 +11,6 @@ import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
 import AddressSelectionField from './AddressSelectionField'
 import AddressSelectionList from './order-summary/AddressSelectionList'
-import { Stack } from '@mui/system'
 import CustomPopover from '../custom-popover/CustomPopover'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import AddNewAddress from '@/components/user-info/address/AddNewAddress'
@@ -75,9 +68,13 @@ const DeliveryAddress = ({
             onError: onSingleErrorResponse,
         }
     )
-    useEffect(async () => {
+    useEffect(() => {
         if (token) {
-            await refetch()
+            const apiRefetch = async () => {
+                await refetch()
+            }
+
+            apiRefetch()
         }
     }, [restaurantId])
     useEffect(() => {

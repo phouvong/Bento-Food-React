@@ -3,7 +3,7 @@ import { Box, Stack, IconButton } from '@mui/system'
 import { styled, Typography } from '@mui/material'
 import { t } from 'i18next'
 import { ArrowForward, ArrowBack } from '@mui/icons-material'
-import { alpha } from '@material-ui/core'
+import { alpha } from '@mui/material'
 
 const CustomTypography = styled(Typography)(({ theme, active }) => ({
     fontSize: '20px',

@@ -38,8 +38,12 @@ const DineIn = () => {
         { enabled: false, onError: onErrorResponse }
     )
 
-    useEffect(async () => {
-        await refetch()
+    useEffect(() => {
+        const apiRefetch = async () => {
+            await refetch()
+        }
+
+        apiRefetch()
     }, [])
 
     const settings = {
@@ -203,6 +207,7 @@ const DineIn = () => {
                             color={theme.palette.neutral[1000]}
                             fontSize="18px"
                             fontWeight="600"
+                            component="h2"
                         >
                             {t('Want to Dine in?')}
                         </Typography>

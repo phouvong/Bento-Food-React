@@ -62,6 +62,7 @@ const AvailableZoneSection = ({ landingPageData }) => {
                         fontWeight={{ xs: '600', md: '700' }}
                         color={theme.palette.neutral[1000]}
                         marginBottom={{ xs: '8px', md: '12px' }}
+                        component="h2"
                     >
                         <DollarSignHighlighter
                             text={landingPageData?.available_zone_title}
@@ -72,6 +73,7 @@ const AvailableZoneSection = ({ landingPageData }) => {
                         fontWeight={{ xs: '400', md: '400' }}
                         color={theme.palette.neutral[400]}
                         paddingTop={isSmall ? '10px' : '0rem'}
+                        component="p"
                     >
                         {landingPageData?.available_zone_short_description}
                     </Typography>
@@ -136,6 +138,7 @@ const AvailableZoneSection = ({ landingPageData }) => {
                                                             .main,
                                                 },
                                             }}
+                                            component="h3"
                                         >
                                             {zone?.display_name}
                                         </Box>

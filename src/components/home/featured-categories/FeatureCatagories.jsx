@@ -90,6 +90,10 @@ const FeatureCatagories = () => {
         ],
     }
 
+    if (!featuredCategories) {
+        return null
+    }
+
     return (
         <Card
             sx={{
@@ -119,6 +123,7 @@ const FeatureCatagories = () => {
                                 <Typography
                                     fontSize={{ xs: '16px', md: '20px' }}
                                     fontWeight={{ xs: '500', md: '700' }}
+                                    component="h2"
                                 >
                                     {t('Whats on Your Mind?')}
                                 </Typography>

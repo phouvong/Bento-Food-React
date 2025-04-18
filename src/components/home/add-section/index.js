@@ -228,12 +228,14 @@ const AddsSection = ({ data, isLoading }) => {
                                         fontSize={{ xs: '16px', md: '20px' }}
                                         fontWeight={{ xs: '500', md: '700' }}
                                         color={theme.palette.neutral[1000]}
+                                        component="h2"
                                     >
                                         {t('Highlights for you')}
                                     </Typography>
                                     <Typography
                                         fontSize={{ xs: '12px', md: '12px' }}
                                         color={theme.palette.neutral[600]}
+                                        component="p"
                                     >
                                         {t(
                                             'See our most popular restaurant and foods'

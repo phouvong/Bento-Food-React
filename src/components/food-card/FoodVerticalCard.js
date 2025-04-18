@@ -105,6 +105,7 @@ const FoodVerticalCard = (props) => {
                                     textOverflow: 'ellipsis',
                                 }}
                                 color={theme.palette.neutral[1200]}
+                                component="h3"
                             >
                                 {product?.name}
                             </Typography>

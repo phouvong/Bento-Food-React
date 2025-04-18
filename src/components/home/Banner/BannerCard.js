@@ -5,7 +5,7 @@ const BannerCard = ({ banner, handleBannerClick }) => {
     const bannerImage = banner?.image_full_url
 
     return (
-        <CustomStackFullWidth onClick={() => handleBannerClick(banner)}>
+        <CustomStackFullWidth onClick={() => handleBannerClick(banner)} >
             <CustomImageContainer
                 src={bannerImage}
                 width="100%"
@@ -13,6 +13,7 @@ const BannerCard = ({ banner, handleBannerClick }) => {
                 borderRadius="16px"
                 cursor="pointer"
                 aspectRatio="2/1"
+                loading={true}
             />
         </CustomStackFullWidth>
     )

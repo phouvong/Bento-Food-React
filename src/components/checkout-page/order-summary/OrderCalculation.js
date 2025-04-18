@@ -14,7 +14,7 @@ import {
     getTaxableTotalPrice,
     truncate,
 } from '@/utils/customFunctions'
-import { alpha } from '@material-ui/core'
+import { alpha } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { Box, Button, Grid, Stack, Tooltip, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles'

@@ -125,6 +125,7 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
         setPredictions([])
         setEnabled(false)
     }
+    
 
     const { data: placeDetails } = useQuery(
         ['placeDetails', placeId],
@@ -200,15 +201,23 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
             setZoneId(undefined)
         }
     }, [zoneData])
+    
     useEffect(() => {
         if (placeDetails) {
-            setLocation(placeDetails?.data?.result?.geometry?.location)
+            setLocation({
+                lat: placeDetails?.data?.location?.latitude,
+                lng: placeDetails?.data?.location?.longitude
+            })
             setLocationEnabled(true)
         }
     }, [placeDetails])
     useEffect(() => {
         if (places) {
-            setPredictions(places?.data?.predictions)
+           const tempData= places?.data?.suggestions?.map((item) => ({
+            place_id: item.placePrediction.placeId,
+                description: `${item?.placePrediction?.structuredFormat?.mainText?.text}, ${item?.placePrediction?.structuredFormat?.secondaryText?.text}`
+            }))
+            setPredictions(tempData)
         }
     }, [places])
 
@@ -263,6 +272,7 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
         }
     }
 
+
     return (
         <Modal
             open={open}
@@ -313,15 +323,14 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                                                 typeof value === 'string'
                                             ) {
                                                 setLoadingAuto(true)
-                                                const value =
-                                                    places?.data
-                                                        ?.predictions?.[0]
+                                                const value =predictions[0]
                                                 handleLocationSelection(value)
                                             } else {
                                                 handleLocationSelection(value)
                                             }
+                                            setPlaceDetailsEnabled(true)
                                         }
-                                        setPlaceDetailsEnabled(true)
+                                        
                                     }}
                                     clearOnBlur={false}
                                     value={currentLocationValue}
