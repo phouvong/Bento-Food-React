@@ -1,4 +1,4 @@
-export const english = {
+export const lao = {
     'This charge includes extra vehicle charge':
         'ຄ່າບໍລິການນີ້ລວມມີຄ່າລົດເພີ່ມເຕີມ',
     'and bad weather charge': 'ແລະຄ່າບໍລິການສະພາບອາກາດທີ່ບໍ່ດີ',
