@@ -924,7 +924,7 @@ export const lao = {
     "Offline Payment! Now, with just a click of a button, you can make secure transactions. It's simple, convenient, and reliable.":
         "Offline Payment! Now, with just a click of a button, you can make secure transactions. It's simple, convenient, and reliable.",
     'What’s on Your Mind?': 'What’s on Your Mind?',
-    'Find Best Restaurants and Foods': 'ຄົ້ນຫາຮ້ານ ແລະ ອານຫານທີ່ດີທີ່ສຸດ',
+    'Find Best Restaurants and Foods': 'ຄົ້ນຫາຮ້ານ ແລະ ອາຫານທີ່ດີທີ່ສຸດ',
     Guest: 'Guest',
     'Pay Offline': 'Pay Offline',
     'Select option from below': 'Select option from below',
