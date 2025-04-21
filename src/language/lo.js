@@ -9,7 +9,7 @@ export const english = {
     'Allergic Ingredients': 'ສ່ວນປະກອບທີ່ອາດແພ້',
     'items available': 'ສິນຄ້າມີ',
     'Welcome to React and react-i18next': 'Welcome to React and react-i18next',
-    'Or Login with': 'ຫລທເຂົ້າລະບົບກັບ',
+    'Or Login with': 'ຫລືເຂົ້າລະບົບກັບ',
     'Dont have a cutlery? Restaurant will provide you.':
         'Dont have a cutlery? Restaurant will provide you.',
     'Minimum Order': 'Minimum Order',
