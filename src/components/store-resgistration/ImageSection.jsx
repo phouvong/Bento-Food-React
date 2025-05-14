@@ -1,112 +1,113 @@
-import React from "react";
-import { CustomBoxFullWidth } from "components/chat/Chat.style";
-import { useTranslation } from "react-i18next";
-import { CustomStackFullWidth } from "styled-components/CustomStyles.style";
-import InputLabel from "@mui/material/InputLabel";
-import ImageUploaderWithPreview from "components/single-file-uploader-with-preview/ImageUploaderWithPreview";
-import { CustomTypography } from "components/home/PromotionalBanner";
-import { Typography } from "@mui/material";
-import { Stack } from "@mui/system";
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import InputLabel from '@mui/material/InputLabel'
+import { Box, Grid, Typography } from '@mui/material'
+import ImageUploaderWithPreview from '../single-file-uploader-with-preview/ImageUploaderWithPreview'
+import { useSelector } from 'react-redux'
 
 const ImageSection = ({
-	RestaurantJoinFormik,
-	singleFileUploadHandlerForImage,
-	imageOnchangeHandlerForImage,
-	singleFileUploadHandlerForCoverPhoto,
-	imageOnchangeHandlerForCoverPhoto,
+    RestaurantJoinFormik,
+    singleFileUploadHandlerForImage,
+    imageOnchangeHandlerForImage,
+    singleFileUploadHandlerForCoverPhoto,
+    imageOnchangeHandlerForCoverPhoto,
 }) => {
-	const { t } = useTranslation();
-	return (
-		<CustomStackFullWidth
-			sx={{ flexDirection: { xs: "column", sm: "column", md: "row" } }}
-			gap="20px"
-		>
-			<Stack spacing={1} mb=".8rem" sx={{ flexGrow: 1 }}>
-				<InputLabel
-					sx={{
-						fontWeight: "600",
-						color: (theme) => theme.palette.neutral[1000],
-					}}
-				>
-					{t("Cover Photo")}
-				</InputLabel>
-				<Typography fontSize="12px">
-					{t("JPG, JPEG, PNG Less Than 1MB (Ratio 2:1)")}
-				</Typography>
-				<ImageUploaderWithPreview
-					marginLeft="0px"
-					type="file"
-					labelText={t("Click to upload")}
-					hintText="Image format - jpg, png, jpeg, gif, avif Image Size - maximum size 2 MB Image Ratio - 1:1"
-					file={RestaurantJoinFormik.values.cover_photo}
-					onChange={singleFileUploadHandlerForCoverPhoto}
-					imageOnChange={imageOnchangeHandlerForCoverPhoto}
-					width="250px"
-					height={"100%"}
-					error={
-						RestaurantJoinFormik.touched.cover_photo &&
-						RestaurantJoinFormik.errors.cover_photo
-					}
-				/>
-				{RestaurantJoinFormik.touched.cover_photo &&
-					RestaurantJoinFormik.errors.cover_photo && (
-						<Typography
-							sx={{
-								fontSize: "12px",
-								ml: "10px",
-								fontWeight: "inherit",
-								color: (theme) => theme.palette.error.main,
-								
-							}}
-						>
-							{t("Cover photo is required")}
-						</Typography>
-					)}
-			</Stack>
-			<Stack spacing={1} mb=".8rem" sx={{ flexGrow: 0 }}>
-				<InputLabel
-					sx={{
-						fontWeight: "600",
-						color: (theme) => theme.palette.neutral[1000],
-					}}
-				>
-					{t("Logo")}
-				</InputLabel>
-				<Typography fontSize="12px">
-					{t("JPG, JPEG, PNG Less Than 1MB (Ratio 1:1)")}
-				</Typography>
-				<ImageUploaderWithPreview
-					marginLeft="0px"
-					type="file"
-					labelText={t("Click to upload")}
-					hintText="Image format - jpg, png, jpeg, gif Image Size - maximum size 2 MB Image Ratio - 1:1"
-					file={RestaurantJoinFormik?.values?.logo}
-					onChange={singleFileUploadHandlerForImage}
-					imageOnChange={imageOnchangeHandlerForImage}
-					width="150px"
-					height={"100%"}
-					error={
-						RestaurantJoinFormik.touched.logo &&
-						RestaurantJoinFormik.errors.logo
-					}
-				/>
-				{RestaurantJoinFormik.touched.logo &&
-					RestaurantJoinFormik.errors.logo && (
-						<Typography
-							sx={{
-								fontSize: "12px",
-								ml: "10px",
-								
+    const { t } = useTranslation()
+    const languageDirection = localStorage.getItem('direction')
 
-								fontWeight: "inherit",
-								color: (theme) => theme.palette.error.main,
-							}}
-						>
-							{t("Cover photo is required")}
-						</Typography>
-					)}
-			</Stack>
-		</CustomStackFullWidth>
-	);
-};
-export default ImageSection;
+    return (
+        <>
+            <Grid
+                container
+                spacing={3}
+                sx={{
+                    '& > .MuiGrid-item': {
+                        padding: '0px', // Override the padding for Grid items
+                    },
+                }}
+            >
+                <Grid item xs={10} sm={10} md={6}>
+                    <InputLabel
+                        sx={{
+                            fontWeight: '500',
+                            mb: '15px',
+                            color: (theme) => theme.palette.neutral[500],
+                        }}
+                    >
+                        {t('Cover Photo')}
+                    </InputLabel>
+                    <ImageUploaderWithPreview
+                        type="file"
+                        height="7rem"
+                        labelText={t('Click to upload')}
+                        hintText="Image format - jpg, png, jpeg, gif Image Size - maximum size 2 MB Image Ratio - 1:1"
+                        file={RestaurantJoinFormik.values.cover_photo ?? ''}
+                        onChange={singleFileUploadHandlerForCoverPhoto}
+                        imageOnChange={imageOnchangeHandlerForCoverPhoto}
+                        error={
+                            RestaurantJoinFormik.touched.cover_photo &&
+                            RestaurantJoinFormik.errors.cover_photo
+                        }
+                    />
+                    <Typography
+                        fontSize="12px"
+                        sx={{ color: (theme) => theme.palette.neutral[1000] }}
+                        marginTop="1rem"
+                    >
+                        {t('JPG, JPEG, PNG Less Than 1MB (Ratio 2:1)')}
+                    </Typography>
+                </Grid>
+                <Grid
+                    item
+                    xs={10}
+                    sm={10}
+                    md={4}
+                    sx={{
+                        pl: {
+                            xs: '0px',
+                            md: '24px !important',
+                        },
+                    }}
+                >
+                    <Box
+                        sx={{
+                            pr: languageDirection === 'rtl' && '20px',
+                        }}
+                    >
+                        <InputLabel
+                            sx={{
+                                fontWeight: '500',
+                                mb: '15px',
+                                color: (theme) => theme.palette.neutral[500],
+                            }}
+                        >
+                            {t('Logo')}
+                        </InputLabel>
+
+                        <ImageUploaderWithPreview
+                            type="file"
+                            height="7rem"
+                            labelText={t('Click to upload')}
+                            hintText="Image format - jpg, png, jpeg, gif Image Size - maximum size 2 MB Image Ratio - 1:1"
+                            file={RestaurantJoinFormik?.values?.logo ?? ''}
+                            onChange={singleFileUploadHandlerForImage}
+                            imageOnChange={imageOnchangeHandlerForImage}
+                            error={
+                                RestaurantJoinFormik.touched.logo &&
+                                RestaurantJoinFormik.errors.logo
+                            }
+                        />
+                    </Box>
+                    <Typography
+                        fontSize="12px"
+                        sx={{ color: (theme) => theme.palette.neutral[1000] }}
+                        marginTop="1rem"
+                    >
+                        {t('JPG, JPEG, PNG Less Than 1MB (Ratio 1:1)')}
+                    </Typography>
+                </Grid>
+            </Grid>
+        </>
+    )
+}
+export default ImageSection

@@ -1,88 +1,126 @@
-import React from "react";
+import React from 'react'
 import {
-  FilePreviewerWrapper,
-  CustomBoxForFilePreviewer,
-  IconButtonImagePreviewer,
-} from "../file-previewer/FilePreviewer.style";
-import { InputLabel } from "@mui/material";
-import ImageUploaderThumbnail from "./ImageUploaderThumbnail";
-import DeleteIcon from "@mui/icons-material/Delete";
-import emptyImage from "../profile/asset/gallery-add.png";
-import CustomImageContainer from "components/CustomImageContainer";
+    FilePreviewerWrapper,
+    CustomBoxForFilePreviewer,
+} from '../file-previewer/FilePreviewer.style'
+import ImageUploaderThumbnail from './ImageUploaderThumbnail'
+import CustomImageContainer from '../CustomImageContainer'
+import pdfIcon from '../../assets/images/icons/pdf.png'
+import docIcon from '../../assets/images/icons/docx.png'
+import txtIcon from '../../assets/images/icons/txt-file.png'
+import folderIcon from '../../assets/images/icons/folder.png'
 
 const ImagePreviewer = ({
-  anchor,
-  file,
-  label,
-  width,
-  imageUrl,
-  borderRadius,
-  error,
-  objectFit,
-  height,
-  hintText,
-  marginLeft,
+    required,
+    anchor,
+    file,
+    label,
+    width,
+    imageUrl,
+    borderRadius,
+    error,
+    isIcon,
+    height,
 }) => {
-  let previewImage;
+    // Function to determine the file type
+    const getFileType = (file) => {
+        if (typeof window !== 'undefined' && (file instanceof Blob || file instanceof File)) {
+            const fileType = file.type.split('/')[0]
+            if (fileType === 'image') {
+                return 'image'
+            } else if (file.type === 'application/pdf') {
+                return 'pdf'
+            } else if (
+                file.type === 'application/msword' ||
+                file.type ===
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ) {
+                return 'doc'
+            } else if (file.type === 'text/plain') {
+                return 'txt'
+            } else {
+                return 'other'
+            }
+        }
+        return 'other' // Fallback for non-file values
+    }
 
-  if (typeof file !== "string") {
-    previewImage = {
-      url: URL.createObjectURL(file), // type: file.name.split('.').pop(),
-    };
-  } else previewImage = file;
+    // Determine the file type
+    let fileType = getFileType(file)
+    let previewImage
 
-  return (
-    <>
-      <CustomBoxForFilePreviewer>
-        {previewImage ? (
-          <FilePreviewerWrapper
-            marginLeft={marginLeft}
-            onClick={() => anchor.current.click()}
-            width={width}
-            objectFit={objectFit}
-            borderRadius={borderRadius}
-            height={height}
-          >
-            {typeof file !== "string" ? (
-              <img src={previewImage.url} alt="preview" />
-            ) : (
-              <CustomImageContainer
-                src={previewImage}
-                width="100%"
-                height="130px"
-                objectfit="cover"
-                borderRadius={borderRadius}
-              />
-              // <img
-              //   src={previewImage}
-              //   alt="profile"
-              //   onError={(e) => {
-              //     e.target.onerror = null; // Prevent infinite loop if fallback image also fails
-              //     e.target.src = emptyImage.src;
-              //   }}
-              // />
-            )}
-          </FilePreviewerWrapper>
-        ) : (
-          <FilePreviewerWrapper
-            marginLeft={marginLeft}
-            onClick={() => anchor.current.click()}
-            width={width}
-            height={height}
-            objectFit
-            borderRadius={borderRadius}
-          >
-            <ImageUploaderThumbnail
-              label={label}
-              width={width}
-              error={error}
-              borderRadius={borderRadius}
-            />
-          </FilePreviewerWrapper>
-        )}
-      </CustomBoxForFilePreviewer>
-    </>
-  );
-};
+    // If file is a Blob or File, create an object URL for the preview image
+    if (file && (file instanceof Blob || file instanceof File)) {
+        previewImage = {
+            url: URL.createObjectURL(file),
+        }
+    } else previewImage = file
 
-export default ImagePreviewer;
+    return (
+        <>
+            <CustomBoxForFilePreviewer height={height}>
+                {previewImage ? (
+                    <FilePreviewerWrapper
+                        onClick={() => anchor.current.click()}
+                        width={width}
+                        height={height}
+                        objectFit
+                        borderRadius={borderRadius}
+                    >
+                        {fileType === 'image' ? (
+                            <CustomImageContainer
+                                src={previewImage?.url}
+                                alt="preview"
+                                objectFit="cover"
+                            />
+                        ) : fileType === 'pdf' ? (
+                            <CustomImageContainer
+                                src={pdfIcon?.src}
+                                alt="preview"
+                                objectFit="cover"
+                            />
+                        ) : fileType === 'doc' ? (
+                            <CustomImageContainer
+                                src={docIcon?.src}
+                                alt="preview"
+                                objectFit="cover"
+                            />
+                        ) : fileType === 'txt' ? (
+                            <CustomImageContainer
+                                src={txtIcon?.src}
+                                alt="preview"
+                                objectFit="cover"
+                            />
+                        ) : (
+                            <CustomImageContainer
+                                src={txtIcon?.src}
+                                alt="preview"
+                                objectFit="cover"
+                            />
+                        )}
+                    </FilePreviewerWrapper>
+                ) : (
+                    <FilePreviewerWrapper
+                        onClick={() => anchor.current.click()}
+                        width={width}
+                        height="100px"
+                        objectFit
+                        borderRadius={borderRadius}
+                    >
+                        <ImageUploaderThumbnail
+                            required={required}
+                            label={label}
+                            width={width}
+                            error={error}
+                            isIcon={isIcon}
+                            borderRadius={borderRadius}
+                            height={height}
+                        />
+                    </FilePreviewerWrapper>
+                )}
+            </CustomBoxForFilePreviewer>
+        </>
+    )
+}
+
+export default ImagePreviewer

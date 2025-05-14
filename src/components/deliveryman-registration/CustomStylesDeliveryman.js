@@ -5,7 +5,8 @@ export const RegistrationCardWrapper = styled(Box)(({ theme }) => ({
   border: `1px solid ${theme.palette.neutral[200]}`, // Add width, style, and color
   borderRadius: "20px", // Optional: Add border radius
   padding: "30px",
-  marginTop: "40px", // Optional: Add padding
+  marginTop: "30px",
+  marginBottom:"30px", // Optional: Add padding
   [theme.breakpoints.down("md")]: {
     padding: "16px",
     marginTop: "30px",

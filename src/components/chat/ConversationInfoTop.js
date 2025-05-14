@@ -1,135 +1,84 @@
-import React from "react";
-import { Avatar, IconButton, Stack, Typography } from "@mui/material";
-import { ChatUserTop } from "./Chat.style";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import { t } from "i18next";
+import React from 'react'
+import { Avatar, IconButton, Stack, Typography } from '@mui/material'
+import { ArrowBack } from '@mui/icons-material'
+import { ChatUserTop } from './Chat.style'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+import { t } from 'i18next'
 
 const ConversationInfoTop = ({
-  receiver,
-  mdUp,
-  handleToggleSidebar,
-  ChatImageUrl,
-  userImage,
-  theme,
-  deliveryman_name,
-  deliveryUrl,
-  receiverType,
-  adminUser,
+    receiver,
+    mdUp,
+    handleToggleSidebar,
+    ChatImageUrl,
+    userImage,
+    theme,
 }) => {
-  const language_direction = localStorage.getItem("direction");
-  return (
-    <Stack>
-      {!mdUp && (
-        <ChatUserTop direction="row">
-          {!mdUp &&
-            (language_direction === "rtl" ? (
-              <IconButton onClick={handleToggleSidebar}>
-                <ArrowForwardIosIcon
-                  sx={{
-                    width: "16px",
-                    height: "15px",
-                    color: (theme) => theme.palette.neutral[1000],
-                  }}
-                />
-              </IconButton>
-            ) : (
-              <IconButton onClick={handleToggleSidebar}>
-                <ArrowBackIosNewIcon
-                  fontSize="small"
-                  sx={{
-                    width: "16px",
-                    height: "15px",
-                    color: (theme) => theme.palette.neutral[1000],
-                  }}
-                />
-              </IconButton>
-            ))}
-          <Stack width="100%">
-            <Typography fontSize="16px" fontWeight="700" textAlign="center">
-              {t("Messages")}
-            </Typography>
-          </Stack>
-        </ChatUserTop>
-      )}
 
-      <Stack
-        direction="row"
-        spacing={1}
-        justifyContent="flex-start"
-        alignItems="center"
-      >
-        <IconButton>
-          <Avatar
-            fontSize="small"
-            src={userImage}
-            sx={{ width: 50, height: 50 }}
-          />
-        </IconButton>
-        <Stack justifyContent="flex-start" alignItems="start">
-          {receiverType === "admin" ? (
-            <Stack>
-              <Typography
-                textAlign="left"
-                color={theme.palette.neutral[1000]}
-                fontSize="16px"
-                fontWeight="600"
-              >
-                {adminUser}
-              </Typography>
-              {receiverType === "admin" && (
-                <Typography textTransform="capitalize">
-                  {receiverType}
-                </Typography>
-              )}
+    const languageDirection = localStorage.getItem('direction')
+    return (
+        <ChatUserTop direction="row" mdUp={mdUp}>
+            {!mdUp &&
+                (languageDirection === 'rtl' ? (
+                    <IconButton onClick={handleToggleSidebar}>
+                        <ArrowForwardIcon fontSize="small" />
+                    </IconButton>
+                ) : (
+                    <IconButton onClick={handleToggleSidebar}>
+                        <ArrowBack fontSize="small" />
+                    </IconButton>
+                ))}
+
+            <Stack
+                direction="row"
+                spacing={1}
+                justifyContent="flex-start"
+                alignItems="center"
+            >
+                <IconButton>
+                    <Avatar
+                        fontSize="small"
+                        src={userImage}
+                        sx={{ width: 35, height: 35 }}
+                    />
+                </IconButton>
+                <Stack justifyContent="flex-start">
+                    <Typography
+                        align="left"
+                        color={theme.palette.neutral[1000]}
+                        fontSize="16px"
+                    >
+                        {receiver.sender_type === 'customer'
+                            ? t(
+                                  receiver?.receiver?.f_name.concat(
+                                      ' ',
+                                      receiver?.receiver?.l_name
+                                  ) || ' '
+                              )
+                            : t(
+                                  receiver?.sender?.f_name.concat(
+                                      ' ',
+                                      receiver?.sender?.l_name
+                                  ) || ' '
+                              )}
+                    </Typography>
+                    <Typography
+                        variant="h6"
+                        color={theme.palette.neutral[1000]}
+                        textTransform="capitalize"
+                        align="left"
+                    >
+                        {receiver?.sender_type === 'customer'
+                            ? t(receiver?.receiver_type?.replaceAll('_', ' '))
+                            : t(receiver?.sender_type?.replaceAll('_', ' '))}
+                    </Typography>
+                </Stack>
+
+                {/*<Avatar />*/}
             </Stack>
-          ) : (
-            <>
-              {deliveryman_name ? (
-                <Typography
-                  textAlign="left"
-                  color={theme.palette.neutral[1000]}
-                  fontSize="16px"
-                  fontWeight="600"
-                >
-                  {deliveryman_name}
-                </Typography>
-              ) : (
-                <Typography
-                  textAlign="left"
-                  color={theme.palette.neutral[1000]}
-                  fontSize="16px"
-                  fontWeight="600"
-                >
-                  {receiver?.sender_type === "customer"
-                    ? receiver?.receiver?.f_name.concat(
-                        " ",
-                        receiver?.receiver?.l_name
-                      ) || " "
-                    : receiver?.sender?.f_name.concat(
-                        " ",
-                        receiver?.sender?.l_name
-                      ) || " "}
-                </Typography>
-              )}
-            </>
-          )}
+        </ChatUserTop>
+    )
+}
 
-          {/*<Typography*/}
-          {/*  fontSize="12px"*/}
-          {/*  color={theme.palette.neutral[400]}*/}
-          {/*  textTransform="capitalize"*/}
-          {/*  textAlign="left"*/}
-          {/*>*/}
-          {/*  Online - Last seen, 2.02pm*/}
-          {/*</Typography>*/}
-        </Stack>
-        {/*<Avatar />*/}
-      </Stack>
-    </Stack>
-  );
-};
+ConversationInfoTop.propTypes = {}
 
-ConversationInfoTop.propTypes = {};
-
-export default ConversationInfoTop;
+export default ConversationInfoTop

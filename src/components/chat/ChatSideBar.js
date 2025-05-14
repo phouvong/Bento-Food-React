@@ -1,93 +1,79 @@
-import React from "react";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import { ChatSidebarDesktop } from "./Chat.style";
-import ChatContent from "./ChatContent";
-import { CustomPaperBigCard } from "../../styled-components/CustomStyles.style";
+import React from 'react'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { ChatSidebarDesktop, ChatSidebarMobile } from './Chat.style'
+import ChatContent from './ChatContent'
 
-import "simplebar-react/dist/simplebar.min.css";
-
-const ChatSideBar = ({
-	chatFrom,
-	open,
-	isLoading,
-	selectedId,
-	handleReset,
-	handleToggleSidebar,
-	channelLoading,
-	isFetched,
-	channelList,
-	handleChannelOnClick,
-	searchSubmitHandler,
-	setSearchValue,
-	searchValue,
-	handleSearch,
-	userType,
-	setUserType,
-	setChannelId,
-	setIsSidebarOpen,
-	configData,
-	setResetState,
-}) => {
-	const mdUp = useMediaQuery((theme) => theme.breakpoints.up("md"));
-
-	if (mdUp) {
-		return (
-			<ChatSidebarDesktop
-				variant="persistent"
-				anchor="left"
-				open={Boolean("true")}
-			>
-				<ChatContent
-					setIsSidebarOpen={setIsSidebarOpen}
-					isFetched={isFetched}
-					handleToggleSidebar={handleToggleSidebar}
-					channelList={channelList}
-					handleChannelOnClick={handleChannelOnClick}
-					setSearchValue={setSearchValue}
-					searchValue={searchValue}
-					handleSearch={handleSearch}
-					isLoading={isLoading}
-					handleReset={handleReset}
-					searchSubmitHandler={searchSubmitHandler}
-					channelLoading={channelLoading}
-					selectedId={selectedId}
-					userType={userType}
-					setUserType={setUserType}
-					setChannelId={setChannelId}
-					configData={configData}
-					setResetState={setResetState}
-				/>
-			</ChatSidebarDesktop>
-		);
-	}
-	return (
-		<>
-			{open && (
-				<CustomPaperBigCard padding="14px" sx={{ minHeight: "70vh" }}>
-					{" "}
-					<ChatContent
-						setIsSidebarOpen={setIsSidebarOpen}
-						isFetched={isFetched}
-						handleToggleSidebar={handleToggleSidebar}
-						channelList={channelList}
-						handleChannelOnClick={handleChannelOnClick}
-						setSearchValue={setSearchValue}
-						searchValue={searchValue}
-						handleSearch={handleSearch}
-						isLoading={isLoading}
-						handleReset={handleReset}
-						searchSubmitHandler={searchSubmitHandler}
-						channelLoading={channelLoading}
-						selectedId={selectedId}
-						userType={userType}
-						setUserType={setUserType}
-						setChannelId={setChannelId}
-						configData={configData}
-						setResetState={setResetState}
-					/>
-				</CustomPaperBigCard>
-			)}
-		</>
-	);
-};
-export default ChatSideBar;
+const ChatSideBar = (props) => {
+    const {
+        useType,
+        setUserType,
+        chatFrom,
+        open,
+        isLoading,
+        selectedId,
+        handleReset,
+        handleToggleSidebar,
+        setChannelId,
+        channelLoading,
+        channelList,
+        handleChannelOnClick,
+        searchSubmitHandler,
+        setSearchValue,
+        searchValue,
+        handleSearch,
+        channelData,
+        isFetched,
+    } = props
+    const mdUp = useMediaQuery((theme) => theme.breakpoints.up('md'))
+    if (mdUp) {
+        return (
+            <ChatSidebarDesktop variant="persistent" anchor="left" open="true">
+                <ChatContent
+                    handleToggleSidebar={handleToggleSidebar}
+                    channelList={channelList}
+                    handleChannelOnClick={handleChannelOnClick}
+                    setSearchValue={setSearchValue}
+                    searchValue={searchValue}
+                    handleSearch={handleSearch}
+                    isLoading={isLoading}
+                    handleReset={handleReset}
+                    searchSubmitHandler={searchSubmitHandler}
+                    channelLoading={channelLoading}
+                    selectedId={selectedId}
+                    setUserType={setUserType}
+                    useType={useType}
+                    setChannelId={setChannelId}
+                    channelData={channelData}
+                    isFetched={isFetched}
+                />
+            </ChatSidebarDesktop>
+        )
+    }
+    return (
+        <ChatSidebarMobile
+            anchor="left"
+            variant="temporary"
+            open={chatFrom === 'true' ? !open : open}
+        >
+            {' '}
+            <ChatContent
+                handleToggleSidebar={handleToggleSidebar}
+                channelList={channelList}
+                handleChannelOnClick={handleChannelOnClick}
+                setSearchValue={setSearchValue}
+                searchValue={searchValue}
+                handleSearch={handleSearch}
+                isLoading={isLoading}
+                handleReset={handleReset}
+                searchSubmitHandler={searchSubmitHandler}
+                selectedId={selectedId}
+                setUserType={setUserType}
+                useType={useType}
+                setChannelId={setChannelId}
+                channelData={channelData}
+                isFetched={isFetched}
+            />
+        </ChatSidebarMobile>
+    )
+}
+export default ChatSideBar

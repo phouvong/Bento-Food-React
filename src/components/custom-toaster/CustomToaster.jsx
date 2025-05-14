@@ -1,75 +1,202 @@
-import { Button, IconButton, Paper, Stack, Typography } from '@mui/material';
-import React, { useRef } from 'react'
-import toast, { Toaster } from 'react-hot-toast'
-import CloseIcon from "@mui/icons-material/Close";
-import { CustomPaperRefer } from './CustomToaster.style';
-import { useEffect } from 'react';
+import React from 'react'
+import { toast } from 'react-hot-toast'
+import {
+    IconButton,
+    Stack,
+    Typography,
+    alpha,
+    styled,
+    useTheme,
+} from '@mui/material'
+import { t } from 'i18next'
+import ErrorIcon from './assets/ErrorIcon'
+import InfoIcon from './assets/InfoIcon'
+import SuccessIcon from './assets/SuccessIcon'
+import WarningIcon from './assets/WarningIcon'
+import CommonIcon from './assets/CommonIcon'
+import CloseIcon from '@mui/icons-material/Close'
 
-const CustomToast = ({ title, description, icon }) => (
-  <CustomPaperRefer>
-    {icon && (icon)}
-    <Stack gap="7px">
-      <Typography fontSize="14px" fontWeight={700} sx={{ color: 'primary.main' }}>
-        {title}
-      </Typography>
-      <Typography fontSize="12px" sx={{ width: "100%", maxWidth: "283px" }}>{description}</Typography>
-    </Stack>
-    <IconButton sx={{ position: 'absolute', top: 10, right: 15 }} onClick={() => toast.dismiss()}>
-      <CloseIcon sx={{ fontSize: "16px" }} />
-    </IconButton>
-  </CustomPaperRefer>
-);
-
-// Function to show the custom toast
-const showToast = ({ title, description, icon, position }) => {
-  toast.custom((t) => <CustomToast title={title} description={description} icon={icon} />, {
-    position: position,
-    duration: 5000,
-  });
-};
-
-// Usage example
-const CustomToaster = (props) => {
-  const { title, description, icon, position, isOpen } = props;
-  const initialRender = useRef(true);
-  useEffect(() => {
-    if (initialRender.current) {
-      initialRender.current = false;
-      return;
+const setBorder = (status, theme, borderColor) => {
+    if (
+        status === 'success' ||
+        status === 'error' ||
+        status === 'info' ||
+        status === 'warning'
+    ) {
+        return theme.palette[status].main
+    } else {
+        if (borderColor) {
+            return borderColor
+        } else {
+            if (borderColor === false) {
+                return theme.palette.background.toaster
+            } else {
+                return theme.palette.warning.main
+            }
+        }
     }
-    if (isOpen) {
-      handleShowToast();
-    }
-  }, [isOpen])
+}
+const CustomToasterWrapper = styled(Stack)(
+    ({ theme, status, subtitle, borderColor }) => ({
+        flexDirection: 'row',
+        position: 'relative',
+        gap: '10px',
+        backgroundColor: theme.palette.background.toaster,
+        borderRadius: '10px',
+        padding: '10px',
+        border: `1px solid ${alpha(theme.palette.neutral[700], 0.2)}`,
+        borderLeft: '4px solid',
+        borderLeftColor: setBorder(status, theme, borderColor),
+        boxShadow: `0px 12px 32px 0px ${alpha(
+            theme.palette.neutral[800],
+            0.1
+        )}`,
+        alignItems: subtitle ? 'flex-start' : 'center',
+    })
+)
 
-  const handleShowToast = () => {
-    showToast({
-      title: title,
-      description: description,
-      icon: icon,
-      position: position,
-    });
-  };
-  return (
-    <Toaster />
-  )
+const CustomToast = ({
+    status,
+    title,
+    subtitle,
+    icon,
+    borderColor,
+    isClose,
+    isToken,
+}) => {
+    const theme = useTheme()
+    return (
+        <CustomToasterWrapper
+            status={status}
+            subtitle={subtitle}
+            borderColor={borderColor}
+        >
+            {icon}
+            <Stack gap="7px">
+                <Typography
+                    fontSize="14px"
+                    fontWeight={500}
+                    color={theme.palette.neutral[1000]}
+                >
+                    {t(title)}
+                </Typography>
+                {subtitle && (
+                    <Typography
+                        fontSize="12px"
+                        fontWeight={400}
+                        color={theme.palette.neutral[900]}
+                        sx={{ width: '100%', maxWidth: '283px' }}
+                    >
+                        {t(subtitle)}
+                    </Typography>
+                )}
+                {isToken && (
+                    <Typography color={theme.palette.primary.main}>
+                        {t('Why am I seeing this?')}
+                    </Typography>
+                )}
+            </Stack>
+            {isClose && (
+                <IconButton
+                    sx={{
+                        position: 'absolute',
+                        top: subtitle ? 10 : 3,
+                        right: subtitle ? 15 : 3,
+                    }}
+                    onClick={() => toast.remove()}
+                >
+                    <CloseIcon sx={{ fontSize: '16px' }} />
+                </IconButton>
+            )}
+        </CustomToasterWrapper>
+    )
 }
 
-export default CustomToaster;
+export const CustomToasterTokenExpired = (title, subtitle) => {
+    toast.custom(
+        <CustomToast
+            status="custom"
+            icon={<CommonIcon />}
+            title={title}
+            subtitle={subtitle}
+            isToken={true}
+        />,
+        {
+            duration: 4000,
+            position: 'top-center',
+            icon: false,
+        }
+    )
+}
 
+export const CustomToaster = (
+    status,
+    title,
+    id = null,
+    subtitle,
+    icon,
+    borderColor,
+    isClose
+) => {
+    let toasterIcon
+    if (icon) {
+        toasterIcon = icon
+    } else {
+        if (icon === false) {
+            toasterIcon = null
+        } else {
+            switch (status) {
+                case 'success':
+                    toasterIcon = <SuccessIcon />
+                    break
+                case 'error':
+                    toasterIcon = <ErrorIcon />
+                    break
+                case 'info':
+                    toasterIcon = <InfoIcon />
+                    break
+                case 'warning':
+                    toasterIcon = <WarningIcon />
+                    break
+                default:
+                    toasterIcon = <CommonIcon />
+                    break
+            }
+        }
+    }
+    toast.custom(
+        <CustomToast
+            status={status}
+            icon={toasterIcon}
+            title={title}
+            subtitle={subtitle}
+            borderColor={borderColor}
+            isClose={isClose}
+        />,
+        {
+            duration: 4000,
+            position: 'top-center',
+            icon: false,
+            id: id,
+        }
+    )
+}
 
-{/* <CustomToaster
-  title="Someone just used  your code !"
-  description="Be prepare to receive when they complete there first purchase"
-  icon={<CongratulationsIcon />}
-  position="top-right"
-/> */}
+//--------- Usage -----------
+//**here subTitle is optional
+// CustomToaster('success', 'Success', 'Your action was successful.');
+// CustomToaster('error', 'Error', 'Something went wrong.');
+// CustomToaster('info', 'Info', 'Informational message.');
+// CustomToaster('warning', 'warning', 'Warning message.');
 
-// Positions		
-// "top-left"
-// "top-center"
-// "top-right"
+//if you want to use a custom icon then send a icon from chiid (for all status)
+// CustomToaster('error', 'Error', 'Something went wrong.', <CustomIcon />);
+// CustomToaster('custom', 'Custom Title', 'Custom Subtitle!', <CustomIcon />, false);
 
-// "bottom-left"
-// "bottom-center"
-// "bottom-right"
+//no need start icon and no border color
+// CustomToaster('custom', 'Custom Title', 'Custom Subtitle!', false, false);
+
+//Add close icon
+// CustomToaster('custom', 'Custom Title', 'Custom Subtitle!', false, false, true);
+// CustomToaster('custom', 'Custom Title', 'Custom Subtitle!', <CustomIcon />, false, true);
+// CustomToaster('custom', 'Custom Title', 'Custom Subtitle!', <CustomIcon />, true, true);

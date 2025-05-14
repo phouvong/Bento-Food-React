@@ -1,45 +1,25 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { SideDrawerWrapper } from "./CustomSideDrawer.style";
-import { styled } from "@mui/material/styles";
-import { Drawer } from "@mui/material";
-const CustomDrawerForSidebar = styled(Drawer)(
-	({ theme, height, width, maxWidth }) => ({
-		zIndex: theme.zIndex.appBar + 100,
-		maxWidth: maxWidth,
-		width: width,
-		height: height,
-
-		"& .MuiDrawer-paper": {
-			maxWidth: maxWidth,
-			width: width,
-			height: height,
-		},
-	})
-);
+import React from 'react'
+import PropTypes from 'prop-types'
+import { SideDrawerWrapper } from './CustomSideDrawer.style'
+import { CustomDrawerForSidebar } from '../sidebar/Sidebar.style'
 
 const CustomSideDrawer = (props) => {
-	const { open, onClose, children, anchor, width, height, maxWidth } = props;
+    const { open, onClose, children,anchor } = props
 
-	return (
-		<CustomDrawerForSidebar
-			maxWidth={maxWidth}
-			width={width}
-			height={height}
-			anchor={anchor}
-			open={open}
-			onClose={onClose}
-			variant="temporary"
-		>
-			<SideDrawerWrapper maxWidth={maxWidth}>
-				{children}
-			</SideDrawerWrapper>
-		</CustomDrawerForSidebar>
-	);
-};
+    return (
+        <CustomDrawerForSidebar
+            anchor={anchor}
+            onClose={onClose}
+            open={open}
+            variant="temporary"
+        >
+            <SideDrawerWrapper>{children}</SideDrawerWrapper>
+        </CustomDrawerForSidebar>
+    )
+}
 
 CustomSideDrawer.propTypes = {
-	children: PropTypes.node.isRequired,
-};
+    children: PropTypes.node.isRequired,
+}
 
-export default CustomSideDrawer;
+export default CustomSideDrawer

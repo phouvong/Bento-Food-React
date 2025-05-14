@@ -1,30 +1,59 @@
-import React from "react";
-import { CustomDotBox } from "../file-previewer/FilePreviewer.style";
-import emptyImage from "../profile/asset/gallery-add.png";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { Stack } from "@mui/material";
-import CustomImageContainer from "../CustomImageContainer";
+import React from 'react'
+import { CustomDotBox } from '../file-previewer/FilePreviewer.style'
+import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined'
+import { Box, IconButton, Stack, Typography, useTheme } from '@mui/material'
+import ProfileImagePlaceholder from '../../assets/images/ProfileImagePlaceholder'
+import { t } from 'i18next'
 
 const ImageUploaderThumbnail = ({
-  label,
-  maxWidth,
-  width,
-  error,
-  borderRadius,
+    required,
+    label,
+    maxWidth,
+    width,
+    error,
+    borderRadius,
+    isIcon,
+    height,
 }) => {
-  return (
-    <CustomDotBox width={width} error={error} borderRadius={borderRadius}>
-      <CustomImageContainer
-        src={emptyImage.src}
-        width="36px"
-        height="36px"
-        objectfit="cover"
-        borderRadius="0px"
-      />
-      <Stack fontSize="12px" marginTop="10px">
-        {label}
-      </Stack>
-    </CustomDotBox>
-  );
-};
-export default ImageUploaderThumbnail;
+    const theme = useTheme()
+
+    return (
+        <CustomDotBox width={error} borderRadius={borderRadius} height={height}>
+            <Stack alignItems="center">
+                <Box>
+                    <ProfileImagePlaceholder />
+                </Box>
+                <Typography
+                    fontSize="12px"
+                    textAlign="center"
+                    color={theme.palette.text.info}
+                >
+                    {label}
+                </Typography>
+            </Stack>
+            {isIcon && (
+                <Stack
+                    sx={{
+                        position: 'absolute',
+                        bottom: '0px',
+                        right: '-15px',
+                        filter: 'drop-shadow(0px 0px 10px rgba(199, 198, 198, 0.25))',
+                    }}
+                >
+                    <IconButton
+                        sx={{
+                            height: '39px',
+                            width: '39px',
+                            backgroundColor: theme.palette.neutral[100],
+                        }}
+                    >
+                        <CreateOutlinedIcon
+                            sx={{ color: theme.palette.info.main }}
+                        />
+                    </IconButton>
+                </Stack>
+            )}
+        </CustomDotBox>
+    )
+}
+export default ImageUploaderThumbnail

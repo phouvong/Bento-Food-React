@@ -1,778 +1,754 @@
-import { IconButton, NoSsr, styled, Typography, useTheme } from "@mui/material";
-import { Box, Stack } from "@mui/system";
-import React, { useEffect, useReducer, useState } from "react";
-import { CustomStackFullWidth } from "styled-components/CustomStyles.style";
+import React, { useEffect, useReducer, useState } from 'react'
+import Typography from '@mui/material/Typography'
 
-import { t } from "i18next";
-import { CustomTypography } from "../../landing-page/hero-section/HeroSection.style";
-import SignInForm from "./SignInForm";
+import OutlinedInput from '@mui/material/OutlinedInput'
+import { useDispatch, useSelector } from 'react-redux'
+import { useQuery } from 'react-query'
+import { useWishListGet } from '@/hooks/react-query/config/wish-list/useWishListGet'
+import 'react-phone-input-2/lib/material.css'
+import { useTranslation } from 'react-i18next'
 import {
-  onErrorResponse,
-  onSingleErrorResponse,
-} from "api-manage/api-error-response/ErrorResponses";
+    CustomLink,
+    CustomStackFullWidth,
+} from '@/styled-components/CustomStyles.style'
+import { useFormik } from 'formik'
+import * as Yup from 'yup'
+import { useRouter } from 'next/router'
+import { setWishList } from '@/redux/slices/wishList'
+import CustomImageContainer from '../../CustomImageContainer'
+import { CustomTypography } from '../../custom-tables/Tables.style'
+import { LoginWrapper } from '../auth.style'
+import { ProfileApi } from '@/hooks/react-query/config/profileApi'
+import { setUser } from '@/redux/slices/customer'
+import { RTL } from '../../RTL/RTL'
+import { loginSuccessFull } from '@/utils/ToasterMessages'
+import { onErrorResponse, onSingleErrorResponse } from '../../ErrorResponse'
+import CustomModal from '../../custom-modal/CustomModal'
+import OtpForm from '../forgot-password/OtpForm'
+import { useVerifyPhone } from '@/hooks/react-query/otp/useVerifyPhone'
+import { setToken } from '@/redux/slices/userToken'
+import { getGuestId } from '../../checkout-page/functions/getGuestUserId'
+import { Stack, alpha, styled } from '@mui/material'
+import { CustomToaster } from '@/components/custom-toaster/CustomToaster'
+import OtpLogin from '@/components/auth/OtpLogin'
+import ManualLogin from '@/components/auth/ManualLogin'
+import SocialLogin from '@/components/auth/SocialLogin'
+import Line from '@/components/auth/Line'
+import googleLatest from '../../../../public/static/fi_6993593.png'
+import { CustomGoogleButton } from '@/components/auth/sign-in/social-login/GoogleLoginComp'
 
-import { useFireBaseOtpVerify } from "api-manage/hooks/react-query/forgot-password/useFIreBaseOtpVerify";
-import { useVerifyPhone } from "api-manage/hooks/react-query/forgot-password/useVerifyPhone";
-import { useWishListGet } from "api-manage/hooks/react-query/wish-list/useWishListGet";
-
-import { useFormik } from "formik";
-import { getGuestId } from "helper-functions/getToken";
-import { useRouter } from "next/router";
-import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
-import { setCartList } from "redux/slices/cart";
-import { setUser } from "redux/slices/profileInfo";
-import { setWishList } from "redux/slices/wishList";
 import {
-  checkInput,
-  formatPhoneNumber,
-  handleProductValueWithOutDiscount,
-} from "utils/CustomFunctions";
+    loginInitialState,
+    loginReducer,
+    ACTIONS,
+} from '@/components/auth/states'
 import {
-  loginSuccessFull,
-  moduleSelected,
-  SigninSuccessFull,
-} from "utils/toasterMessages";
-import useGetAllCartList from "../../../api-manage/hooks/react-query/add-cart/useGetAllCartList";
-import useGetProfile from "../../../api-manage/hooks/react-query/profile/useGetProfile";
-import { getSelectedVariations } from "../../header/second-navbar/SecondNavbar";
-import { ModuleSelection } from "../../landing-page/hero-section/module-selection";
-import CustomModal from "../../modal";
-import AuthHeader from "../AuthHeader";
-import OtpForm from "../sign-up/OtpForm";
-import SocialLogins from "./social-login/SocialLogins";
-import {
-  ACTIONS,
-  loginInitialState,
-  loginReducer,
-} from "components/auth/state";
-import {
-  getActiveLoginStatus,
-  getLoginUserCheck,
-} from "components/auth/sign-in/loginHepler";
-import OtpLogin from "components/auth/sign-in/OtpLogin";
-import * as Yup from "yup";
+    getActiveLoginStatus,
+    getLoginUserCheck,
+} from '@/components/auth/loginHelper'
+import { checkInput, formatPhoneNumber } from '@/utils/customFunctions'
+import { useFireBaseOtpVerify } from '@/hooks/react-query/useFireBaseVerfify'
 
-import CloseIcon from "@mui/icons-material/Close";
-import { getCurrentModuleType } from "helper-functions/getCurrentModuleType";
-import useGetBookingList from "api-manage/hooks/react-query/useGetBookingList";
-import { useGetWishList } from "api-manage/hooks/react-query/rental-wishlist/useGetWishlist";
-import ForgotPassword from "../ForgotPassword/ForgotPassword";
-import { setOpenForgotPasswordModal } from "redux/slices/utils";
-
-const SignIn = ({
-  modalFor,
-  configData,
-  setModalFor,
-  setLoginInfo,
-  setJwtToken,
-  setUserInfo,
-  handleSuccess,
-  setMedium,
-  zoneid,
-  loginMutation,
-  loginIsLoading,
-  verificationId,
-  sendOTP,
-  handleClose,
-}) => {
-  const router = useRouter();
-  const previousRouteName = router.query.from;
-  const { openForgotPasswordModal } = useSelector((state) => state.utilsData);
-  const guestId = getGuestId();
-  const dispatch = useDispatch();
-  const [openModuleSelection, setOpenModuleSelection] = useState(false);
-  const [openOtpModal, setOpenOtpModal] = useState(false);
-  const [loginValue, setLoginValue] = useState(null);
-  const [otpData, setOtpData] = useState({ type: "" });
-  const [mainToken, setMainToken] = useState(null);
-  const [isApiCalling, setIsApiCalling] = useState(false);
-  const [isRemember, setIsRemember] = useState(false);
-  const theme = useTheme();
-
-  const [state, loginDispatch] = useReducer(loginReducer, loginInitialState);
-  let userDatafor = undefined;
-  const moduleType = getCurrentModuleType();
-  if (typeof window !== "undefined") {
-    userDatafor = JSON.parse(localStorage.getItem("userDatafor"));
-  }
-
-  const loginFormik = useFormik({
-    initialValues: {
-      email_or_phone: userDatafor?.email_or_phone || "",
-      password: userDatafor ? userDatafor.password : "",
-      tandc: false,
-    },
-    validationSchema: Yup.object({
-      email_or_phone: Yup.string()
-        .required(t("Email or phone number is required"))
-        .test(
-          "email-or-phone",
-          t("Must be a valid email or phone number"),
-          function (value) {
-            // Regular expressions for validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email regex
-            const phoneRegex = /^\+?[1-9]\d{1,14}$/; // E.164 format for phone numbers
-
-            // Check if value matches either email or phone regex
-            return emailRegex.test(value) || phoneRegex.test(value);
-          }
-        ),
-      password: Yup.string()
-        .min(6, t("Password is too short - should be 6 chars minimum."))
-        .required(t("Password is required")),
-    }),
-    onSubmit: async (values, helpers) => {
-      try {
-        if (isRemember) {
-          localStorage.setItem("userDatafor", JSON.stringify(values));
-        }
-        formSubmitHandler({ ...values, login_type: "manual" });
-      } catch (err) {}
-    },
-  });
-
-  const cartListSuccessHandler = (res) => {
-    if (res) {
-      const tempCartLists = res?.map((item) => ({
-        ...item?.item,
-        cartItemId: item?.id,
-        totalPrice:
-          handleProductValueWithOutDiscount(item?.item) * item?.quantity,
-        selectedAddons: item?.item?.addons,
-        quantity: item?.quantity,
-        food_variations: item?.item?.food_variations,
-        itemBasePrice: item?.item?.price,
-        selectedOption:
-          moduleType !== "food"
-            ? item?.variation
-            : getSelectedVariations(item?.item?.food_variations),
-      }));
-      dispatch(setCartList(tempCartLists));
-    }
-  };
-
-  const {
-    data,
-    refetch: cartListRefetch,
-    isLoading,
-  } = useGetAllCartList(cartListSuccessHandler);
-
-  const bookingSuccess = (res) => {
-    dispatch(setCartList(res));
-  };
-  const {
-    data: bookingLists,
-    isLoading: bookingListsIsLoading,
-    refetch: bookingRefetch,
-  } = useGetBookingList(getGuestId(), bookingSuccess);
-  const userOnSuccessHandler = (res) => {
-    dispatch(setUser(res));
-  };
-
-  let location = undefined;
-  let isModuleSelected = undefined;
-  let lanDirection = undefined;
-  let languageSetting;
-  if (typeof window !== "undefined") {
-    location = localStorage.getItem("location");
-    isModuleSelected = JSON.parse(localStorage.getItem("module"));
-    lanDirection = JSON.parse(localStorage.getItem("settings"));
-    languageSetting = JSON.parse(localStorage.getItem("language-setting"));
-  }
-
-  const handleOnChange = (value) => {
-    loginFormik.setFieldValue("email_or_phone", formatPhoneNumber(value));
-  };
-  const passwordHandler = (value) => {
-    loginFormik.setFieldValue("password", value);
-  };
-
-  useEffect(() => {
-    if (otpData?.type !== "") {
-      setOpenOtpModal(true);
-    }
-  }, [otpData]);
-  const onSuccessHandler = (response) => {
-    dispatch(setWishList(response));
-    setIsApiCalling(false);
-  };
-
-  const { refetch: profileRefetch } = useGetProfile(userOnSuccessHandler);
-  const { refetch: wishlistRefetch } = useWishListGet(onSuccessHandler);
-  const { refetch: rentalWishlistRefetch } = useGetWishList(onSuccessHandler);
-
-  const handleTokenAfterSignIn = async (response) => {
-    if (response) {
-      localStorage.setItem("token", response?.token);
-      if (moduleType === "rental") {
-        await bookingRefetch();
-        await rentalWishlistRefetch();
-      } else {
-        await cartListRefetch();
-        await wishlistRefetch();
-      }
-      await profileRefetch();
-
-      toast.success(t(loginSuccessFull));
-
-      if (router.pathname === "/forgot-password") {
-        router.push("/home");
-      }
-      handleClose();
-    }
-  };
-
-  const handleCloseModuleModal = (item) => {
-    if (item) {
-      toast.success(t(moduleSelected));
-      if (previousRouteName) {
-        router.push("/home");
-      } else {
-        router.back();
-      }
-    }
-    setOpenModuleSelection(false);
-  };
-
-  const formSubmitHandler = (values) => {
-    const numberOrEmail = checkInput(values?.email_or_phone);
-    let newValues = {};
-    if (values?.login_type === "otp") {
-      newValues = {
-        ...values,
-        type: "phone",
-        guest_id: guestId,
-      };
-    } else {
-      newValues = {
-        ...values,
-        guest_id: guestId,
-        field_type: numberOrEmail,
-        type: numberOrEmail,
-      };
-    }
-    setLoginValue(newValues);
-    loginMutation(newValues, {
-      onSuccess: async (response) => {
-        if (response?.is_personal_info === 0) {
-          handleLoginInfo(response, {
-            phone: newValues.email_or_phone,
-          });
-        } else {
-          getLoginUserCheck(
-            response,
-            newValues,
-            handleTokenAfterSignIn,
-            setOtpData,
-            setMainToken,
-            sendOTP,
-            configData
-          );
-        }
-      },
-      onError: onErrorResponse,
-    });
-  };
-
-  const { mutate: otpVerifyMutate, isLoading: isLoadingOtpVerifyApi } =
-    useVerifyPhone();
-  const { mutate: fireBaseOtpMutation, isLoading: fireIsLoading } =
-    useFireBaseOtpVerify();
-
-  const handleLoginInfo = (res, values) => {
-    // Common logic to set login info based on response
-    setLoginInfo({
-      ...res,
-      phone: values.phone,
-      otp: values?.reset_token,
-    });
-
-    // Determine which modal to show based on the response
-    if (res?.is_personal_info === 0) {
-      setModalFor("user_info");
-    } else if (res?.is_exist_user !== null) {
-      setModalFor("is_exist_user");
-    } else {
-      setOpenOtpModal(false);
-      handleClose();
-      handleTokenAfterSignIn(res).then();
-      //handleClose();
-    }
-  };
-  const otpFormSubmitHandler = (values) => {
-    if (configData?.firebase_otp_verification === 1) {
-      const temValue = {
-        session_info: verificationId,
-        phone: values.phone,
-        otp: values.reset_token,
-        login_type: "otp",
-        guest_id: getGuestId(),
-      };
-      fireBaseOtpMutation(temValue, {
-        onSuccess: (res) => {
-          if (res) {
-            handleLoginInfo(res, values);
-          }
-        },
-        onError: onErrorResponse,
-      });
-    } else {
-      let tempValues = {
-        phone: values.phone,
-        otp: values.reset_token,
-        login_type: otpData?.login_type,
-        verification_type: otpData?.verification_type,
-        guest_id: getGuestId(),
-      };
-      const onSuccessHandler = (res) => {
-        if (res) {
-          handleLoginInfo(res, values);
-        }
-      };
-
-      otpVerifyMutate(tempValues, {
-        onSuccess: onSuccessHandler,
-        onError: onSingleErrorResponse,
-      });
-    }
-  };
-
-  const rememberMeHandleChange = (e) => {
-    if (e.target.checked) {
-      setIsRemember(true);
-    } else {
-      localStorage.removeItem("userDatafor");
-    }
-  };
-
-  useEffect(() => {
-    const { centralize_login } = configData || {};
-
-    if (centralize_login) {
-      const { otp_login_status, manual_login_status, social_login_status } =
-        centralize_login;
-
-      loginDispatch({
-        type: ACTIONS.setActiveLoginType,
-        payload: {
-          otp: otp_login_status === 1,
-          manual: manual_login_status === 1,
-          social: social_login_status === 1,
-        },
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    getActiveLoginStatus(state, loginDispatch);
-  }, [state.activeLoginType]);
-
-  const otpLoginFormik = useFormik({
-    initialValues: {
-      phone: "",
-    },
-    validationSchema: Yup.object({
-      phone: Yup.string()
-        .required(t("Please give a phone number"))
-        .min(10, "number must be 10 digits"),
-    }),
-    onSubmit: async (values, helpers) => {
-      try {
-        formSubmitHandler({ ...values, login_type: "otp" });
-      } catch (err) {}
-    },
-  });
-  const otpHandleChange = (value) => {
-    otpLoginFormik.setFieldValue("phone", `+${value}`);
-  };
-  const handleClick = () => {
-    window.open("/terms-and-conditions");
-  };
-  const selectedOtp = () => {
-    loginDispatch({
-      type: ACTIONS.setActiveLoginType,
-      payload: {
-        otp: true,
-        manual: false,
-        social: false,
-      },
-    });
-  };
-
-  const handleSignUp = () => {
-    setModalFor("sign-up");
-    //handleClose();
-  };
-  useEffect(() => {
-    if (modalFor === "sign-up") {
-      handleClose();
-    }
-  }, [modalFor]);
-
-  const handleFormBasedOnDirection = () => {
-    switch (state.status) {
-      case "otp":
-        return (
-          <OtpLogin
-            otpHandleChange={otpHandleChange}
-            otpLoginFormik={otpLoginFormik}
-            configData={configData}
-            isLoading={loginIsLoading}
-            handleClick={handleClick}
-            rememberMeHandleChange={rememberMeHandleChange}
-            handleClose={handleClose}
-          />
-        );
-      case "manual":
-        return (
-          <Stack width="100%">
-            <SignInForm
-              isApiCalling={isApiCalling}
-              configData={configData}
-              handleOnChange={handleOnChange}
-              passwordHandler={passwordHandler}
-              loginFormik={loginFormik}
-              lanDirection={lanDirection?.direction}
-              rememberMeHandleChange={rememberMeHandleChange}
-              isLoading={loginIsLoading}
-              only
-              handleSignUp={handleSignUp}
-              handleClick={handleClick}
-              handleClose={handleClose }
-            />
-          </Stack>
-        );
-      case "social":
-        return (
-          <SocialLogins
-            socialLogin={configData?.social_login}
-            configData={configData}
-            state={state}
-            setJwtToken={setJwtToken}
-            setUserInfo={setUserInfo}
-            handleSuccess={handleSuccess}
-            setModalFor={setModalFor}
-            setMedium={setMedium}
-            loginMutation={loginMutation}
-            setLoginInfo={setLoginInfo}
-          />
-        );
-      case "otp_manual":
-        return (
-          <Stack width="100%" gap="1rem">
-            <SignInForm
-              isApiCalling={isApiCalling}
-              configData={configData}
-              handleOnChange={handleOnChange}
-              passwordHandler={passwordHandler}
-              loginFormik={loginFormik}
-              lanDirection={lanDirection?.direction}
-              rememberMeHandleChange={rememberMeHandleChange}
-              isLoading={loginIsLoading}
-              handleClick={handleClick}
-            />
-
-            <Typography
-              textAlign="center"
-              fontSize="14px"
-              color={theme.palette.neutral[400]}
-            >
-              {t("Or")}
-            </Typography>
-            <Typography
-              component="span"
-              textAlign="center"
-              fontSize="14px"
-              fontWeight="400"
-              color={theme.palette.neutral[400]}
-            >
-              {t("Sign in with")}
-              <Typography
-                onClick={selectedOtp}
-                sx={{ textDecoration: "underline", cursor: "pointer" }}
-                component="span"
-                color={theme.palette.primary.main}
-                ml="10px"
-              >
-                {t("OTP")}
-              </Typography>
-            </Typography>
-            <CustomStackFullWidth
-              alignItems="center"
-              spacing={0.5}
-              sx={{ paddingTop: "10px !important" }}
-            >
-              <CustomStackFullWidth
-                direction="row"
-                alignItems="center"
-                justifyContent="center"
-                spacing={0.5}
-              >
-                <CustomTypography fontSize="14px">
-                  {t("Don't have an account?")}
-                </CustomTypography>
-                <span
-                  onClick={handleSignUp}
-                  style={{
-                    color: theme.palette.primary.main,
-                    textDecoration: "underline",
-                    cursor: "pointer",
-                  }}
-                >
-                  {t("Sign Up")}
-                </span>
-              </CustomStackFullWidth>
-            </CustomStackFullWidth>
-          </Stack>
-        );
-      case "otp_social":
-        return (
-          <>
-            <OtpLogin
-              otpHandleChange={otpHandleChange}
-              otpLoginFormik={otpLoginFormik}
-              configData={configData}
-              isLoading={loginIsLoading}
-              handleClick={handleClick}
-              rememberMeHandleChange={rememberMeHandleChange}
-            />
-
-            <Typography fontSize="14px" textAlign="center">
-              {" "}
-              {"or login with"}
-            </Typography>
-            <SocialLogins
-              socialLogin={configData?.social_login}
-              configData={configData}
-              state={state}
-              setJwtToken={setJwtToken}
-              setUserInfo={setUserInfo}
-              handleSuccess={handleSuccess}
-              setModalFor={setModalFor}
-              setMedium={setMedium}
-              loginMutation={loginMutation}
-              setLoginInfo={setLoginInfo}
-            />
-          </>
-        );
-      case "manual_social":
-        return (
-          <CustomStackFullWidth gap="1rem">
-            <SignInForm
-              isApiCalling={isApiCalling}
-              configData={configData}
-              handleOnChange={handleOnChange}
-              passwordHandler={passwordHandler}
-              loginFormik={loginFormik}
-              lanDirection={lanDirection?.direction}
-              rememberMeHandleChange={rememberMeHandleChange}
-              isLoading={loginIsLoading}
-              handleClick={handleClick}
-              handleClose={handleClose}
-            />
-
-            <Typography fontSize="14px" textAlign="center">
-              {" "}
-              {"or login with"}
-            </Typography>
-            <SocialLogins
-              socialLogin={configData?.social_login}
-              configData={configData}
-              state={state}
-              setJwtToken={setJwtToken}
-              setUserInfo={setUserInfo}
-              handleSuccess={handleSuccess}
-              setModalFor={setModalFor}
-              setMedium={setMedium}
-              loginMutation={loginMutation}
-              setLoginInfo={setLoginInfo}
-            />
-
-            <CustomStackFullWidth
-              alignItems="center"
-              spacing={0.5}
-              sx={{ paddingTop: "10px !important" }}
-            >
-              <CustomStackFullWidth
-                direction="row"
-                alignItems="center"
-                justifyContent="center"
-                spacing={0.5}
-              >
-                <CustomTypography fontSize="14px">
-                  {t("Don't have an account?")}
-                </CustomTypography>
-                <span
-                  onClick={handleSignUp}
-                  style={{
-                    color: theme.palette.primary.main,
-                    textDecoration: "underline",
-                    cursor: "pointer",
-                  }}
-                >
-                  {t("Sign Up")}
-                </span>
-              </CustomStackFullWidth>
-            </CustomStackFullWidth>
-          </CustomStackFullWidth>
-        );
-      case "all":
-        return (
-          <CustomStackFullWidth gap="1rem">
-            <SignInForm
-              isApiCalling={isApiCalling}
-              configData={configData}
-              handleOnChange={handleOnChange}
-              passwordHandler={passwordHandler}
-              loginFormik={loginFormik}
-              lanDirection={lanDirection?.direction}
-              rememberMeHandleChange={rememberMeHandleChange}
-              isLoading={loginIsLoading}
-              handleClick={handleClick}
-              handleClose={handleClose}
-            />
-            <Stack gap="10px">
-              <Typography
-                textAlign="center"
-                fontSize="14px"
-                color={theme.palette.neutral[400]}
-              >
-                {t("Or")}
-              </Typography>
-              <Typography
-                component="span"
-                textAlign="center"
-                fontSize="14px"
-                fontWeight="400"
-                color={theme.palette.neutral[400]}
-              >
-                {t("Sign in with")}
-                <Typography
-                  onClick={selectedOtp}
-                  sx={{ textDecoration: "underline", cursor: "pointer" }}
-                  component="span"
-                  color={theme.palette.primary.main}
-                  ml="10px"
-                >
-                  {t("OTP")}
-                </Typography>
-              </Typography>
-            </Stack>
-            <SocialLogins
-              socialLogin={configData?.social_login}
-              configData={configData}
-              state={state}
-              setJwtToken={setJwtToken}
-              setUserInfo={setUserInfo}
-              handleSuccess={handleSuccess}
-              setModalFor={setModalFor}
-              setMedium={setMedium}
-              loginMutation={loginMutation}
-              setLoginInfo={setLoginInfo}
-            />
-            <CustomStackFullWidth
-              alignItems="center"
-              spacing={0.5}
-              sx={{ paddingTop: "10px !important" }}
-            >
-              <CustomStackFullWidth
-                direction="row"
-                alignItems="center"
-                justifyContent="center"
-                spacing={0.5}
-              >
-                <CustomTypography fontSize="14px">
-                  {t("Don't have an account?")}
-                </CustomTypography>
-                <span
-                  onClick={handleSignUp}
-                  style={{
-                    color: theme.palette.primary.main,
-                    textDecoration: "underline",
-                    cursor: "pointer",
-                  }}
-                >
-                  {t("Sign Up")}
-                </span>
-              </CustomStackFullWidth>
-            </CustomStackFullWidth>
-          </CustomStackFullWidth>
-        );
-      default:
-        return null; // Fallback if no conditions are met
-    }
-  };
-  return (
-    <>
-      <NoSsr>
-        <CustomStackFullWidth justifyContent="center" alignItems="center">
-          <Box
-            sx={{
-              maxWidth: "450px",
-              minWidth: { xs: "300px", md: "400px" },
-              padding: { xs: "30px", md: "47px" },
-              position: "relative",
-            }}
-            width="100%"
-          >
-            <IconButton
-              onClick={handleClose}
-              sx={{
-                zIndex: "99",
-                position: "absolute",
-                top: 6,
-                right: 6,
-                backgroundColor: (theme) => theme.palette.neutral[100],
-                borderRadius: "50%",
-                [theme.breakpoints.down("sm")]: {
-                  top: -0,
-                  right: -0,
+export const CustomSigninOutLine = styled(OutlinedInput)(
+    ({ theme, width, borderradius }) => ({
+        width: width || '355px',
+        borderRadius: borderradius ?? '4px',
+        '&.MuiOutlinedInput-root': {
+            '& .MuiOutlinedInput-input': {
+                padding: '12.5px 0px !important',
+                fontSize: '14px',
+                fontWeight: '400',
+                alignItems: 'center',
+                '&::placeholder': {
+                    color: alpha(theme.palette.neutral[400], 0.7), // Set placeholder color to red
                 },
-              }}
-            >
-              <CloseIcon
-                sx={{
-                  fontSize: {
-                    xs: "16px",
-                    sm: "18px",
-                    md: "20px",
-                  },
-                  fontWeight: "500",
-                }}
-              />
-            </IconButton>
-            <CustomStackFullWidth spacing={2}>
-              <AuthHeader configData={configData} />
-              {handleFormBasedOnDirection()}
-            </CustomStackFullWidth>
-          </Box>
-        </CustomStackFullWidth>
-      </NoSsr>
-      {openModuleSelection && (
-        <ModuleSelection
-          location={location}
-          closeModal={handleCloseModuleModal}
-          disableAutoFocus
-        />
-      )}
-      <CustomModal
-        handleClose={() => setOpenOtpModal(false)}
-        openModal={openOtpModal}
-      >
-        <OtpForm
-          data={otpData?.type ? otpData?.type : loginFormik?.values?.phone}
-          formSubmitHandler={otpFormSubmitHandler}
-          isLoading={isLoadingOtpVerifyApi || fireIsLoading}
-          recaptcha="recaptcha-container"
-          loginValue={loginValue}
-          reSendOtp={formSubmitHandler}
-          handleClose={() => setOpenOtpModal(false)}
-        />
-      </CustomModal>
-      
-    </>
-  );
-};
+            },
+            '& fieldset': {
+                borderColor: alpha(theme.palette.neutral[400], 0.5),
+                borderWidth: '1px',
+            },
+            '&:hover fieldset': {
+                borderColor: alpha(theme.palette.neutral[600], 0.7),
+            },
+            '&.Mui-focused fieldset': {
+                borderColor: alpha(theme.palette.primary.main, 0.7),
+                borderWidth: '1px',
+            },
+        },
 
-export default SignIn;
+        [theme.breakpoints.down('sm')]: {
+            width: '100%',
+        },
+    })
+)
+
+const SignInPage = ({
+    handleClose,
+    setModalFor,
+    cartListRefetch,
+    setJwtToken,
+    setUserInfo,
+    handleSuccess,
+    setMedium,
+    zoneid,
+    setForWidth,
+    setLoginInfo,
+    loginMutation,
+    loginIsLoading,
+    verificationId,
+    sendOTP,
+    fireBaseId,
+}) => {
+    const [showPassword, setShowPassword] = useState(false)
+    const { t } = useTranslation()
+    const dispatch = useDispatch()
+    const { global } = useSelector((state) => state.globalSettings)
+    const router = useRouter()
+    const guestId = getGuestId()
+    const [isRemember, setIsRemember] = useState(false)
+    const [openOtpModal, setOpenOtpModal] = useState(false)
+    const [otpData, setOtpData] = useState({ type: '' })
+    const [mainToken, setMainToken] = useState(null)
+    const [loginValue, setLoginValue] = useState(null)
+    const [state, loginDispatch] = useReducer(loginReducer, loginInitialState)
+    let userDatafor = undefined
+    if (typeof window !== 'undefined') {
+        userDatafor = JSON.parse(localStorage.getItem('userDatafor'))
+    }
+    const loginFormik = useFormik({
+        initialValues: {
+            email_or_phone: userDatafor?.email_or_phone || '',
+            password: userDatafor ? userDatafor.password : '',
+            tandc: false,
+        },
+        validationSchema: Yup.object({
+            email_or_phone: Yup.string()
+                .required(t('Email or phone number is required'))
+                .test(
+                    'email-or-phone',
+                    t('Must be a valid email or phone number'),
+                    function (value) {
+                        // Regular expressions for validation
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Basic email regex
+                        const phoneRegex = /^\+?[1-9]\d{1,14}$/ // E.164 format for phone numbers
+
+                        // Check if value matches either email or phone regex
+                        return emailRegex.test(value) || phoneRegex.test(value)
+                    }
+                ),
+            password: Yup.string()
+                .min(6, t('Password is too short - should be 6 chars minimum.'))
+                .required(t('Password is required')),
+        }),
+        onSubmit: async (values, helpers) => {
+            try {
+                if (isRemember) {
+                    localStorage.setItem('userDatafor', JSON.stringify(values))
+                }
+                formSubmitHandler({ ...values, login_type: 'manual' })
+            } catch (err) {}
+        },
+    })
+    const otpLoginFormik = useFormik({
+        initialValues: {
+            phone: '',
+        },
+        validationSchema: Yup.object({
+            phone: Yup.string()
+                .required(t('Please give a phone number'))
+                .min(10, 'number must be 10 digits'),
+        }),
+        onSubmit: async (values, helpers) => {
+            try {
+                formSubmitHandler({ ...values, login_type: 'otp' })
+            } catch (err) {}
+        },
+    })
+    const otpHandleChange = (value) => {
+        otpLoginFormik.setFieldValue('phone', `+${value}`)
+    }
+
+    const userOnSuccessHandler = (res) => {
+        dispatch(setUser(res.data))
+        handleClose?.()
+    }
+    const { refetch: profileRefatch } = useQuery(
+        ['profile-info'],
+        ProfileApi.profileInfo,
+        {
+            enabled: false,
+            onSuccess: userOnSuccessHandler,
+            onError: onSingleErrorResponse,
+        }
+    )
+    const onSuccessHandler = (res) => {
+        dispatch(setWishList(res))
+    }
+
+    const { refetch: wishlistRefetch } = useWishListGet(onSuccessHandler)
+    useEffect(() => {
+        if (otpData?.type !== '') {
+            setOpenOtpModal(true)
+        }
+    }, [otpData])
+
+    const handleTokenAfterSignIn = async (response) => {
+        if (response) {
+            localStorage.setItem('token', response?.token)
+            zoneid && (await wishlistRefetch())
+            await profileRefatch()
+            await cartListRefetch()
+            CustomToaster('success', loginSuccessFull)
+            dispatch(setToken(response.token))
+            if (
+                router.pathname === `/order-history/[id]` ||
+                router.pathname === '/forgot-password'
+            ) {
+                router.push('/home')
+            }
+        }
+    }
+
+    const formSubmitHandler = (values) => {
+        const numberOrEmail = checkInput(values?.email_or_phone)
+        let newValues = {}
+        if (values?.login_type === 'otp') {
+            newValues = {
+                ...values,
+                type: 'phone',
+                guest_id: guestId,
+            }
+        } else {
+            newValues = {
+                ...values,
+                guest_id: guestId,
+                field_type: numberOrEmail,
+                type: numberOrEmail,
+            }
+        }
+        setLoginValue(newValues)
+        loginMutation(newValues, {
+            onSuccess: async (response) => {
+                getLoginUserCheck(
+                    response,
+                    newValues,
+                    handleTokenAfterSignIn,
+                    setOtpData,
+                    setMainToken,
+                    sendOTP,
+                    global
+                )
+            },
+            onError: onErrorResponse,
+        })
+    }
+
+    const handleOnChange = (value) => {
+        const isPlusCheck = formatPhoneNumber(value)
+        loginFormik.setFieldValue('email_or_phone', `${isPlusCheck}`)
+    }
+
+    const gotoForgotPassword = () => {
+        router.push('/forgot-password')
+        handleClose()
+    }
+
+    const rememberMeHandleChange = (e) => {
+        if (e.target.checked) {
+            setIsRemember(true)
+        }
+    }
+    const handleClick = () => {
+        window.open('/terms-and-conditions')
+    }
+    const { mutate: otpVerifyMutate, isLoading: isLoadingOtpVerifiyAPi } =
+        useVerifyPhone()
+
+    const { mutate: fireBaseOtpMutation, isLoading: fireIsLoading } =
+        useFireBaseOtpVerify()
+
+    const handleLoginInfo = (res, values) => {
+        setLoginInfo({
+            ...res,
+            phone: values.phone,
+            otp: values?.reset_token,
+        })
+
+        // Determine which modal to show based on the response
+        if (res?.is_personal_info === 0) {
+            setModalFor('user_info')
+        } else if (res?.is_exist_user !== null) {
+            setModalFor('is_exist_user')
+        } else {
+            setOpenOtpModal(false)
+            handleTokenAfterSignIn(res)
+            handleClose()
+        }
+    }
+
+    const otpFormSubmitHandler = (values) => {
+        if (global?.firebase_otp_verification === 1) {
+            const temValue = {
+                session_info: verificationId,
+                phone: values.phone,
+                otp: values.reset_token,
+                login_type: 'otp',
+                guest_id: getGuestId(),
+            }
+            fireBaseOtpMutation(temValue, {
+                onSuccess: (res) => {
+                    if (res) {
+                        handleLoginInfo(res, values)
+                    }
+                },
+                onError: onErrorResponse,
+            })
+        } else {
+            let tempValues = {
+                phone: values.phone,
+                otp: values.reset_token,
+                login_type: otpData?.login_type,
+                verification_type: otpData?.verification_type,
+                guest_id: getGuestId(),
+            }
+            const onSuccessHandler = (res) => {
+                if (res) {
+                    handleLoginInfo(res, values)
+                }
+            }
+            otpVerifyMutate(tempValues, {
+                onSuccess: onSuccessHandler,
+                onError: onSingleErrorResponse,
+            })
+        }
+    }
+
+    const selectedOtp = () => {
+        loginDispatch({
+            type: ACTIONS.setActiveLoginType,
+            payload: {
+                otp: true,
+                manual: false,
+                social: false,
+            },
+        })
+    }
+    useEffect(() => {
+        const { centralize_login } = global || {}
+
+        if (centralize_login) {
+            const {
+                otp_login_status,
+                manual_login_status,
+                social_login_status,
+            } = centralize_login
+
+            loginDispatch({
+                type: ACTIONS.setActiveLoginType,
+                payload: {
+                    otp: otp_login_status === 1,
+                    manual: manual_login_status === 1,
+                    social: social_login_status === 1,
+                },
+            })
+        }
+    }, [])
+
+    useEffect(() => {
+        getActiveLoginStatus(state, setForWidth, loginDispatch)
+    }, [state.activeLoginType])
+
+    const handleSignup = () => {
+        setForWidth(true)
+        setModalFor('sign-up')
+    }
+
+    const loginView = () => {
+        switch (state.status) {
+            case 'otp':
+                return (
+                    <OtpLogin
+                        otpHandleChange={otpHandleChange}
+                        otpLoginFormik={otpLoginFormik}
+                        global={global}
+                        isLoading={loginIsLoading}
+                        handleClick={handleClick}
+                        rememberMeHandleChange={rememberMeHandleChange}
+                        fireBaseId={fireBaseId}
+                    />
+                )
+            case 'manual':
+                return (
+                    <Stack width="100%">
+                        <ManualLogin
+                            loginFormik={loginFormik}
+                            showPassword={showPassword}
+                            setShowPassword={setShowPassword}
+                            global={global}
+                            handleOnChange={handleOnChange}
+                            isLoading={loginIsLoading}
+                            rememberMeHandleChange={rememberMeHandleChange}
+                            handleClick={handleClick}
+                            gotoForgotPassword={gotoForgotPassword}
+                            setModalFor={setModalFor}
+                            setForWidth={setForWidth}
+                            fireBaseId={fireBaseId}
+                        />
+                    </Stack>
+                )
+            case 'social':
+                return (
+                    <SocialLogin
+                        global={global}
+                        socialLogins={global?.social_login}
+                        handleParentModalClose={handleClose}
+                        setJwtToken={setJwtToken}
+                        setUserInfo={setUserInfo}
+                        handleSuccess={handleSuccess}
+                        setModalFor={setModalFor}
+                        setMedium={setMedium}
+                        loginMutation={loginMutation}
+                        setLoginInfo={setLoginInfo}
+                        setForWidth={setForWidth}
+                    />
+                )
+            case 'otp_manual':
+                return (
+                    <Stack width="100%">
+                        <ManualLogin
+                            loginFormik={loginFormik}
+                            showPassword={showPassword}
+                            setShowPassword={setShowPassword}
+                            global={global}
+                            handleOnChange={handleOnChange}
+                            isLoading={loginIsLoading}
+                            rememberMeHandleChange={rememberMeHandleChange}
+                            handleClick={handleClick}
+                            gotoForgotPassword={gotoForgotPassword}
+                            setModalFor={setModalFor}
+                            setForWidth={setForWidth}
+                            fireBaseId={fireBaseId}
+                        />
+                        <CustomGoogleButton
+                            direction="row"
+                            spacing={1}
+                            onClick={selectedOtp}
+                            sx={{ marginY: '10px', cursor: 'pointer' }}
+                        >
+                            <CustomImageContainer
+                                src={googleLatest.src}
+                                alt="facebook"
+                                height="24px"
+                                width="24px"
+                                objectFit="cover"
+                                borderRadius="50%"
+                            />
+                            <Typography fontSize="14px" fontWeight="600">
+                                {t('OTP Sign in')}
+                            </Typography>
+                        </CustomGoogleButton>
+                        <CustomStackFullWidth
+                            alignItems="center"
+                            spacing={0.5}
+                            sx={{ paddingTop: '10px !important' }}
+                        >
+                            <CustomStackFullWidth
+                                direction="row"
+                                alignItems="center"
+                                justifyContent="center"
+                                spacing={0.5}
+                            >
+                                <CustomTypography fontSize="14px">
+                                    {t("Don't have an account?")}
+                                </CustomTypography>
+                                <CustomLink
+                                    onClick={handleSignup}
+                                    variant="body2"
+                                >
+                                    {t('Sign Up')}
+                                </CustomLink>
+                            </CustomStackFullWidth>
+                        </CustomStackFullWidth>
+                    </Stack>
+                )
+            case 'otp_social':
+                return (
+                    <>
+                        <OtpLogin
+                            otpHandleChange={otpHandleChange}
+                            otpLoginFormik={otpLoginFormik}
+                            global={global}
+                            isLoading={loginIsLoading}
+                            handleClick={handleClick}
+                            rememberMeHandleChange={rememberMeHandleChange}
+                            fireBaseId={fireBaseId}
+                        />
+
+                        <Typography fontSize="14px">
+                            {' '}
+                            {'or login with'}
+                        </Typography>
+                        <SocialLogin
+                            global={global}
+                            socialLogins={global?.social_login}
+                            handleParentModalClose={handleClose}
+                            setJwtToken={setJwtToken}
+                            setUserInfo={setUserInfo}
+                            handleSuccess={handleSuccess}
+                            setModalFor={setModalFor}
+                            setMedium={setMedium}
+                            loginMutation={loginMutation}
+                            setLoginInfo={setLoginInfo}
+                            setForWidth={setForWidth}
+                        />
+                    </>
+                )
+            case 'manual_social':
+                return (
+                    <LoginWrapper direction={{ xs: 'column', md: 'row' }}>
+                        <Stack
+                            sx={{
+                                flexGrow: { xs: 'none', sm: 'none', md: '1' },
+                                width: { xs: '100%', sm: '100%', md: 0 },
+                            }}
+                        >
+                            <ManualLogin
+                                loginFormik={loginFormik}
+                                showPassword={showPassword}
+                                setShowPassword={setShowPassword}
+                                global={global}
+                                handleOnChange={handleOnChange}
+                                isLoading={loginIsLoading}
+                                rememberMeHandleChange={rememberMeHandleChange}
+                                handleClick={handleClick}
+                                gotoForgotPassword={gotoForgotPassword}
+                                setModalFor={setModalFor}
+                                setForWidth={setForWidth}
+                                fireBaseId={fireBaseId}
+                            />
+                        </Stack>
+                        <Line />
+                        <Stack
+                            flexGrow={{ xs: 'none', sm: 'none', md: '1' }}
+                            width={{ xs: '100%', sm: '100%', md: '0' }}
+                            gap="20px"
+                        >
+                            <SocialLogin
+                                global={global}
+                                socialLogins={global?.social_login}
+                                handleParentModalClose={handleClose}
+                                setJwtToken={setJwtToken}
+                                setUserInfo={setUserInfo}
+                                handleSuccess={handleSuccess}
+                                setModalFor={setModalFor}
+                                setMedium={setMedium}
+                                loginMutation={loginMutation}
+                                setLoginInfo={setLoginInfo}
+                                setForWidth={setForWidth}
+                                all
+                            />
+                            <CustomStackFullWidth
+                                alignItems="center"
+                                spacing={0.5}
+                                sx={{ paddingTop: '10px !important' }}
+                            >
+                                <CustomStackFullWidth
+                                    direction="row"
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    spacing={0.5}
+                                >
+                                    <CustomTypography fontSize="14px">
+                                        {t("Don't have an account?")}
+                                    </CustomTypography>
+                                    <CustomLink
+                                        onClick={handleSignup}
+                                        variant="body2"
+                                    >
+                                        {t('Sign Up')}
+                                    </CustomLink>
+                                </CustomStackFullWidth>
+                            </CustomStackFullWidth>
+                        </Stack>
+                    </LoginWrapper>
+                )
+            case 'all':
+                return (
+                    <LoginWrapper direction={{ xs: 'column', md: 'row' }}>
+                        <Stack
+                            sx={{
+                                flexGrow: { xs: 'none', sm: 'none', md: '1' },
+                                width: { xs: '100%', sm: '100%', md: 0 },
+                            }}
+                        >
+                            <ManualLogin
+                                loginFormik={loginFormik}
+                                showPassword={showPassword}
+                                setShowPassword={setShowPassword}
+                                global={global}
+                                handleOnChange={handleOnChange}
+                                isLoading={loginIsLoading}
+                                rememberMeHandleChange={rememberMeHandleChange}
+                                handleClick={handleClick}
+                                gotoForgotPassword={gotoForgotPassword}
+                                setModalFor={setModalFor}
+                                setForWidth={setForWidth}
+                                fireBaseId={fireBaseId}
+                            />
+                        </Stack>
+                        <Line />
+                        <Stack
+                            flexGrow={{ xs: 'none', sm: 'none', md: '1' }}
+                            width={{ xs: '100%', sm: '100%', md: '0' }}
+                            gap="20px"
+                        >
+                            <SocialLogin
+                                global={global}
+                                socialLogins={global?.social_login}
+                                handleParentModalClose={handleClose}
+                                setJwtToken={setJwtToken}
+                                setUserInfo={setUserInfo}
+                                handleSuccess={handleSuccess}
+                                setModalFor={setModalFor}
+                                setMedium={setMedium}
+                                loginMutation={loginMutation}
+                                setLoginInfo={setLoginInfo}
+                                setForWidth={setForWidth}
+                                all
+                            />
+                            <CustomGoogleButton
+                                direction="row"
+                                spacing={1}
+                                onClick={selectedOtp}
+                                sx={{ cursor: 'pointer' }}
+                            >
+                                <CustomImageContainer
+                                    src={googleLatest.src}
+                                    alt="facebook"
+                                    height="24px"
+                                    width="24px"
+                                    objectFit="cover"
+                                    borderRadius="50%"
+                                />
+                                <Typography fontSize="14px" fontWeight="600">
+                                    {t('OTP Sign in')}
+                                </Typography>
+                            </CustomGoogleButton>
+                            <CustomStackFullWidth
+                                alignItems="center"
+                                spacing={0.5}
+                                sx={{ paddingTop: '10px !important' }}
+                            >
+                                <CustomStackFullWidth
+                                    direction="row"
+                                    alignItems="center"
+                                    justifyContent="center"
+                                    spacing={0.5}
+                                >
+                                    <CustomTypography fontSize="14px">
+                                        {t("Don't have an account?")}
+                                    </CustomTypography>
+                                    <CustomLink
+                                        onClick={handleSignup}
+                                        variant="body2"
+                                    >
+                                        {t('Sign Up')}
+                                    </CustomLink>
+                                </CustomStackFullWidth>
+                            </CustomStackFullWidth>
+                        </Stack>
+                    </LoginWrapper>
+                )
+            default:
+                return null // Fallback if no conditions are met
+        }
+    }
+
+    const languageDirection = localStorage.getItem('direction')
+    return (
+        <Stack>
+            <RTL direction={languageDirection}>
+                <CustomStackFullWidth
+                    alignItems="center"
+                    spacing={{ xs: 0.5, md: 1 }}
+                >
+                    <CustomStackFullWidth spacing={{ xs: 1, md: 4 }}>
+                        <CustomStackFullWidth alignItems="center">
+                            <CustomImageContainer
+                                src={global?.logo_full_url}
+                                width="50%"
+                                height="70px"
+                                alt="Logo"
+                            />
+                        </CustomStackFullWidth>
+                        {state.activeLoginType?.social &&
+                        !state.activeLoginType?.manual &&
+                        !state.activeLoginType?.otp ? (
+                            <Typography textAlign="center">
+                                {t(`Welcome to ${global?.business_name}`)}
+                            </Typography>
+                        ) : (
+                            <Typography
+                                sx={{
+                                    fontWeight: 600,
+                                    fontSize: '18px',
+                                    paddingBottom: '5px',
+                                    color: (theme) =>
+                                        theme.palette.neutral[1000],
+                                }}
+                                textAlign="left"
+                            >
+                                {t('Login')}
+                            </Typography>
+                        )}
+                    </CustomStackFullWidth>
+                    <CustomStackFullWidth
+                        alignItems="center"
+                        spacing={{ xs: 1, md: 2 }}
+                    >
+                        {loginView()}
+                    </CustomStackFullWidth>
+                    {state.status === 'manual' && (
+                        <CustomStackFullWidth
+                            alignItems="center"
+                            spacing={0.5}
+                            sx={{ paddingTop: '10px !important' }}
+                        >
+                            <CustomStackFullWidth
+                                direction="row"
+                                alignItems="center"
+                                justifyContent="center"
+                                spacing={0.5}
+                            >
+                                <CustomTypography fontSize="14px">
+                                    {t("Don't have an account?")}
+                                </CustomTypography>
+                                <CustomLink
+                                    onClick={handleSignup}
+                                    variant="body2"
+                                >
+                                    {t('Sign Up')}
+                                </CustomLink>
+                            </CustomStackFullWidth>
+                        </CustomStackFullWidth>
+                    )}
+                </CustomStackFullWidth>
+            </RTL>
+            <CustomModal
+                openModal={openOtpModal}
+                setModalOpen={setOpenOtpModal}
+            >
+                <OtpForm
+                    data={otpData?.type}
+                    formSubmitHandler={otpFormSubmitHandler}
+                    isLoading={isLoadingOtpVerifiyAPi || fireIsLoading}
+                    handleClose={() => setOpenOtpModal(false)}
+                    reSendOtp={formSubmitHandler}
+                    loginValue={loginValue}
+                />
+            </CustomModal>
+        </Stack>
+    )
+}
+
+export default SignInPage

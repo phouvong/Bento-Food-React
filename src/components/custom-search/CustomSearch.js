@@ -1,138 +1,116 @@
-import React, { useEffect, useState } from "react";
-import SearchIcon from "@mui/icons-material/Search";
-import { useTranslation } from "react-i18next";
-import { IconButton } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import LoadingButton from "@mui/lab/LoadingButton";
-import { CloseIconWrapper } from "styled-components/CustomStyles.style";
-import { Search, StyledInputBase } from "./CustomSearch.style";
-import { getCurrentModuleType } from "helper-functions/getCurrentModuleType";
-import { ModuleTypes } from "helper-functions/moduleTypes";
+import React, { useEffect, useState } from 'react'
+import { Search, StyledInputBase } from './CustomSearch.style'
+import SearchIcon from '@mui/icons-material/Search'
+import { useTranslation } from 'react-i18next'
+import {
+    CloseIconWrapper,
+    CustomStackFullWidth,
+} from '@/styled-components/CustomStyles.style'
+import { IconButton, InputAdornment, NoSsr } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import LoadingButton from '@mui/lab/LoadingButton'
 
 const CustomSearch = ({
-  handleSearchResult,
-  label,
-  isLoading,
-  selectedValue,
-  setIsEmpty,
-  setSearchValue,
-  type2,
+    handleSearchResult,
+    label,
+    isLoading,
+    selectedValue,
+    borderRadius,
+    forMobile,
+    backgroundColor,
 }) => {
-  const { t } = useTranslation();
-  const [value, setValue] = useState("");
-  let language_direction = undefined;
-  if (typeof window !== "undefined") {
-    language_direction = localStorage.getItem("direction");
-  }
-
-  useEffect(() => {
-    if (selectedValue) {
-      setValue(selectedValue);
-    } else {
-      setValue("");
+    const { t } = useTranslation()
+    const [value, setValue] = useState('')
+    let languageDirection = undefined
+    if (typeof window !== 'undefined') {
+        languageDirection = localStorage.getItem('direction')
     }
-  }, [selectedValue]);
+    useEffect(() => {
+        if (selectedValue === '') {
+            setValue(selectedValue)
+        }
+    }, [selectedValue])
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      handleSearchResult(e.target.value);
-      e.preventDefault();
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleSearchResult(e.target.value)
+            e.preventDefault()
+        }
     }
-  };
-  const remove = "true";
-  const handleReset = () => {
-    setValue("");
-    handleSearchResult?.("", remove);
-    setIsEmpty?.(true);
-  };
-  const handleChange = (value) => {
-    if (value === "") {
-      handleSearchResult?.("");
-      setIsEmpty?.(true);
-    } else {
-      setIsEmpty?.(false);
+    const handleReset = () => {
+        setValue('')
+        handleSearchResult('')
     }
-    setValue(value);
-    setSearchValue?.(value);
-  };
+    const handleChange = (value) => {
+        if (value === '') {
+            handleSearchResult('')
+        }
+        setValue(value)
+    }
 
-  const getTypeWiseChanges = () => {
-    if (type2) {
-      return (
-        <>
-          <SearchIcon
-            sx={{
-              color: (theme) =>
-                getCurrentModuleType() === ModuleTypes.FOOD
-                  ? theme.palette.moduleTheme.food
-                  : "primary.main",
-              marginInlineStart: "15px",
-              marginInlineEnd: "-8px",
-            }}
-          />
-          <StyledInputBase
-            placeholder={t(label)}
-            value={value}
-            onChange={(e) => handleChange(e.target.value)}
-            onKeyPress={(e) => handleKeyPress(e)}
-            language_direction={language_direction}
-            // onFocus={() => handleOnFocus?.(value)}
-          />
-        </>
-      );
-    } else {
-      return (
-        <>
-          <StyledInputBase
-            placeholder={t(label)}
-            value={value}
-            onChange={(e) => handleChange(e.target.value)}
-            onKeyPress={(e) => handleKeyPress(e)}
-            language_direction={language_direction}
-            // onFocus={() => handleOnFocus?.(value)}
-          />
-          {value === "" ? (
-            <SearchIcon sx={{ marginInlineEnd: "12px" }} />
-          ) : (
-            <>
-              {isLoading ? (
-                <CloseIconWrapper
-                  right={-1}
-                  language_direction={language_direction}
+    return (
+        <CustomStackFullWidth>
+            <form onSubmit={handleKeyPress}>
+                <Search
+                    borderRadius={borderRadius}
+                    backgroundColor={backgroundColor}
                 >
-                  <LoadingButton
-                    loading
-                    variant="text"
-                    sx={{ width: "10px" }}
-                  />
-                </CloseIconWrapper>
-              ) : (
-                <CloseIconWrapper
-                  onClick={() => handleReset()}
-                  language_direction={language_direction}
-                  right="20px"
-                >
-                  <IconButton sx={{ marginRight: "-4px !important" }}>
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </CloseIconWrapper>
-              )}
-            </>
-          )}
-        </>
-      );
-    }
-  };
+                    <NoSsr>
+                        <StyledInputBase
+                            placeholder={t(label)}
+                            value={value}
+                            onChange={(e) => handleChange(e.target.value)}
+                            inputProps={{ 'aria-label': 'search' }}
+                            onKeyPress={(e) => handleKeyPress(e)}
+                            languageDirection={languageDirection}
+                            forMobile={forMobile}
+                            startAdornment={
+                                // Add startAdornment here
+                                <InputAdornment
+                                    position="start"
+                                    sx={{
+                                        marginInlineStart: '10px',
+                                        cursor: 'pointer',
+                                        marginInlineEnd: '0px',
+                                    }}
+                                    // Add your content for the startAdornment here
+                                >
+                                    <SearchIcon fontSize="medium" />
+                                </InputAdornment>
+                            }
+                        />
+                    </NoSsr>
+                    {value !== '' && (
+                        <>
+                            {isLoading ? (
+                                <CloseIconWrapper
+                                    right={-1}
+                                    languageDirection={languageDirection}
+                                >
+                                    <LoadingButton
+                                        loading
+                                        variant="text"
+                                        sx={{ width: '10px' }}
+                                    />
+                                </CloseIconWrapper>
+                            ) : (
+                                <CloseIconWrapper
+                                    onClick={() => handleReset()}
+                                    languageDirection={languageDirection}
+                                >
+                                    <IconButton>
+                                        <CloseIcon fontSize="small" />
+                                    </IconButton>
+                                </CloseIconWrapper>
+                            )}
+                        </>
+                    )}
+                </Search>
+            </form>
+        </CustomStackFullWidth>
+    )
+}
 
-  return (
-    <form onSubmit={handleKeyPress}>
-      <Search direction="row" alignItems="center" type2={type2}>
-        {getTypeWiseChanges()}
-      </Search>
-    </form>
-  );
-};
+CustomSearch.propTypes = {}
 
-CustomSearch.propTypes = {};
-
-export default CustomSearch;
+export default CustomSearch

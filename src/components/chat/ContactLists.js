@@ -1,139 +1,122 @@
-import { Box, List, Stack } from "@mui/material";
-import React from "react";
-import SimpleBar from "simplebar-react";
+import { List, Stack, Box } from '@mui/material'
 import {
-	CustomListItem,
-	CustomStackFullWidth,
-} from "../../styled-components/CustomStyles.style";
-import InfoCard from "./InfoCard";
-
-import Skeleton from "@mui/material/Skeleton";
-import { t } from "i18next";
-import "simplebar-react/dist/simplebar.min.css";
-
-import { useSelector } from "react-redux";
-import { CustomTypography } from "../landing-page/hero-section/HeroSection.style";
+    CustomListItem,
+    CustomStackFullWidth,
+} from '@/styled-components/CustomStyles.style'
+import InfoCard from './InfoCard'
+import SimpleBar from 'simplebar-react'
+import 'simplebar-react/dist/simplebar.min.css'
+import Skeleton from '@mui/material/Skeleton'
+import { useSelector } from 'react-redux'
 
 const ContactLists = ({
-	channelList,
-	handleChannelOnClick,
-	channelLoading,
-	selectedId,
-	activeTab,
-	setResetState,
-	notAdmin,
+    channelList,
+    handleChannelOnClick,
+    channelLoading,
+    selectedId,
 }) => {
-	const { configData } = useSelector((state) => state.configData);
+    const { global } = useSelector((state) => state.globalSettings)
 
-	if (channelLoading) {
-		return (
-			<>
-				{[...Array(1, 2, 3, 4)].map((_, index) => {
-					return (
-						<Box padding=".5rem" key={index}>
-							<Stack direction="row" spacing={1}>
-								<Skeleton
-									animation="wave"
-									variant="circular"
-									width={60}
-									height={50}
-								/>
-								<Stack direction="column" width="100%">
-									<Skeleton
-										animation="wave"
-										height={15}
-										width="20%"
-									/>
-									<Skeleton
-										animation="wave"
-										height={15}
-										width="40%"
-									/>
-								</Stack>
-							</Stack>
-						</Box>
-					);
-				})}
-			</>
-		);
-	}
-	const handleInfoCard = (item) => {
-		if (item.sender_type === "customer") {
-			return (
-				<InfoCard
-					name={item.receiver_type.replaceAll("_", " ")}
-					messageTime={item.last_message_time}
-					last_message={item?.last_message}
-					receiver={
-						item.receiver
-							? item.receiver.f_name
-							: configData?.business_name
-					}
-					unRead={item.unread_message_count}
-					userList={item}
-					selectedId={selectedId}
-					currentId={item.id}
-					adminImage={configData?.fav_icon}
-				/>
-			);
-		} else {
-			return (
-				<InfoCard
-					name={item.sender_type.replaceAll("_", " ")}
-					messageTime={item.last_message_time}
-					last_message={item?.last_message}
-					receiver={
-						item?.sender?.f_name.concat(
-							" ",
-							item?.sender?.l_name
-						) || " "
-					}
-					unRead={item.unread_message_count}
-					userList={item}
-					selectedId={selectedId}
-					currentId={item.id}
-					adminImage={configData?.fav_icon}
-				/>
-			);
-		}
-	};
+    if (channelLoading) {
+        return (
+            <>
+                {[...Array(1, 2, 3, 4)].map(() => {
+                    return (
+                        <Box padding=".5rem">
+                            <Stack direction="row" spacing={3}>
+                                <Skeleton
+                                    animation="wave"
+                                    variant="circular"
+                                    width={80}
+                                    height={50}
+                                />
+                                <Stack
+                                    justifyContent="space-between"
+                                    direction="column"
+                                    width="100%"
+                                >
+                                    <Skeleton
+                                        animation="wave"
+                                        height={15}
+                                        width="40%"
+                                    />
+                                    <Skeleton
+                                        animation="wave"
+                                        height={15}
+                                        width="80%"
+                                    />
+                                </Stack>
+                            </Stack>
+                        </Box>
+                    )
+                })}
+            </>
+        )
+    }
+    const handleInfoCard = (item) => {
+        if (item.sender_type === 'customer') {
+            return (
+                <InfoCard
+                    name={item.receiver_type.replaceAll('_', ' ')}
+                    messageTime={item?.last_message_time}
+                    receiver={
+                        item.receiver
+                            ? item.receiver.f_name
+                            : global?.business_name
+                    }
+                    unRead={item.unread_message_count}
+                    userList={item}
+                    selectedId={selectedId}
+                    currentId={item.id}
+                    last_message={item?.last_message}
+                    email={item?.receiver?.email}
+                />
+            )
+        } else {
+            return (
+                <InfoCard
+                    name={item.sender_type.replaceAll('_', ' ')}
+                    messageTime={item.created_at}
+                    last_message={item?.last_message}
+                    receiver={
+                        item?.sender?.f_name.concat(
+                            ' ',
+                            item?.sender?.l_name
+                        ) || ' '
+                    }
+                    unRead={item.unread_message_count}
+                    userList={item}
+                    selectedId={selectedId}
+                    currentId={item.id}
+                    email={item?.sender?.email}
+                />
+            )
+        }
+    }
 
-	return (
-		<CustomStackFullWidth>
-			{channelList?.length > 0 && (
-				<SimpleBar
-					style={{ maxHeight: selectedId ? "430px" : "270px" }}
-				>
-					<List disablePadding>
-						{channelList?.map(
-							(item, index) =>
-								(item?.receiver_type == activeTab ||
-									item?.sender_type == activeTab) && (
-									<CustomListItem
-										key={index}
-										disableGutters
-										disablePadding
-										cursor="true"
-										onClick={() =>
-											handleChannelOnClick(item)
-										}
-									>
-										{handleInfoCard(item)}
-									</CustomListItem>
-								)
-						)}
-					</List>
-				</SimpleBar>
-			)}
-			{channelList.length === 0 && (
-				<Stack width="100%" justifyContent="center" alignItems="center">
-					<CustomTypography>
-						{t("You have no channels.")}
-					</CustomTypography>
-				</Stack>
-			)}
-		</CustomStackFullWidth>
-	);
-};
+    return (
+        <CustomStackFullWidth>
+            {channelList?.length > 0 && (
+                <SimpleBar style={{ maxHeight: '60vh' }}>
+                    <List disablePadding>
+                        {channelList?.map((item, index) => {
+                            return (
+                                <CustomListItem
+                                    key={index}
+                                    disableGutters
+                                    disablePadding
+                                    cursor="true"
+                                    onClick={() => handleChannelOnClick(item)}
+                                >
+                                    {handleInfoCard(item)}
+                                </CustomListItem>
+                            )
+                        })}
+                    </List>
+                </SimpleBar>
+            )}
+        </CustomStackFullWidth>
+    )
+}
 
-export default ContactLists;
+export default ContactLists

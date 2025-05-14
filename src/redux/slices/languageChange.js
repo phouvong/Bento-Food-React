@@ -1,24 +1,28 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  language: "",
-  countryCode: "",
-};
+    language: '',
+    countryCode: 'US',
+    countryFlag: '/_next/static/media/us.b358a5c6.svg'
+}
 
 // Action creators are generated for each case reducer function
 export const languageSlice = createSlice({
-  name: "language",
-  initialState,
-  reducers: {
-    setLanguage: (state, action) => {
-      state.language = action.payload;
+    name: 'language',
+    initialState,
+    reducers: {
+        setLanguage: (state, action) => {
+            state.language = action.payload
+        },
+        setCountryCode: (state, action) => {
+            state.countryCode = action.payload
+        },
+        setCountryFlag: (state, action) => {
+            state.countryFlag = action.payload
+        },
     },
-    setCountryCode: (state, action) => {
-      state.countryCode = action.payload;
-    },
-  },
-});
+})
 
-export const { setLanguage, setCountryCode } = languageSlice.actions;
+export const { setLanguage, setCountryCode, setCountryFlag } = languageSlice.actions
 
-export default languageSlice.reducer;
+export default languageSlice.reducer

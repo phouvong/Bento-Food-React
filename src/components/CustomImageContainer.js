@@ -1,74 +1,82 @@
-import React, { memo, useEffect, useState } from "react";
-import { CustomImageContainerStyled } from "styled-components/CustomStyles.style";
-import placeholder from "../../public/static/no-image-found.png";
-import { Box } from "@mui/system";
+import React, { useEffect, useRef, useState } from 'react'
+import { CustomImageContainerStyled } from '@/styled-components/CustomStyles.style'
+import placeholder from '../../public/static/notimage.png'
 
 const CustomImageContainer = ({
-  cursor,
-  mdHeight,
-  maxWidth,
-  height,
-  width,
-  objectfit,
-  minwidth,
-  src,
-  alt,
-  borderRadius,
-  marginBottom,
-  smHeight,
-  smMb,
-  smMaxWidth,
-  smWidth,
-  aspectRatio,
-  padding,
-  loading,
-    bg,
-  ...rest
+    cursor,
+    mdHeight,
+    maxWidth,
+    height,
+    width,
+    objectFit,
+    minwidth,
+    src,
+    alt,
+    borderRadius,
+    marginBottom,
+    smHeight,
+    smMb,
+    smMaxWidth,
+    smWidth,
+    test_image,
+    aspectRatio,
+    boxShadow,
+    loading,
+    fetchPriority='auto',
 }) => {
-  const [imageFile, setState] = useState(null);
-  useEffect(() => {
-    setState(src ? src : placeholder?.src);
-  }, [src]);
+    // const [imageFile, setState] = useState(null)
+    // const [newObjectFit, setNewObjectFit] = useState(objectFit)
+    // useEffect(() => {
+    //     if (src) {
+    //         setState(src)
+    //     } else {
+    //         // setState(placeholder?.src)
+    //         setState(placeholder?.src)
+    //         setNewObjectFit('contain')
+    //     }
+    // }, [src])
 
-  return (
-    <CustomImageContainerStyled
-      height={height}
-      width={width}
-      objectfit={objectfit}
-      minwidth={minwidth}
-      border_radius={borderRadius}
-      margin_bottom={marginBottom}
-      smheight={smHeight}
-      sm_mb={smMb}
-      max_width={maxWidth}
-      sm_max_width={smMaxWidth}
-      sm_width={smWidth}
-      md_height={mdHeight}
-      cursor={cursor}
-      aspect_ratio={aspectRatio}
-      padding={padding}
-      bg={bg}
-      {...rest}
-    >
-      {!imageFile ? (
-        <Box
-          sx={{
-            height: "100%",
-            width: "100%",
-            border: (theme) => `1px solid ${theme.palette.neutral[200]}`,
-          }}
-        />
-      ) : (
-        <img
-          src={imageFile}
-          alt={alt || "image"}
-          onError={() => {
-            setState(placeholder?.src);
-          }}
-          loading={loading || "lazy"}
-        />
-      )}
-    </CustomImageContainerStyled>
-  );
-};
-export default memo(CustomImageContainer);
+    // for avoid warnings
+    const imgRef = useRef(null)
+    useEffect(() => {
+        if (imgRef.current) {
+            imgRef.current.setAttribute('fetchpriority', fetchPriority)
+        }
+    }, [fetchPriority])
+
+
+    return (
+        <CustomImageContainerStyled
+            height={height}
+            width={width}
+            objectFit={src ? objectFit : 'contain'}
+            minwidth={minwidth}
+            borderRadu={borderRadius}
+            marginBottom={marginBottom}
+            smHeight={smHeight}
+            smMb={smMb}
+            maxWidth={maxWidth}
+            smMaxWidth={smMaxWidth}
+            smWidth={smWidth}
+            mdHeight={mdHeight}
+            cursor={cursor}
+            aspectRatio={aspectRatio}
+            boxShadow={boxShadow}
+        >
+            <img
+                ref={imgRef}
+                src={src || placeholder?.src}
+                alt={alt}
+                onError={(e) => {
+                    // currentTarget.onerror = null; // prevents looping
+                    // setState(placeholder?.src)
+                    // e.target.style =
+                    //     'objectFit:contain !important;width:auto !important;'
+                    // e.target.style.margin = 'auto'
+                }}
+                loading={loading || 'lazy'}
+            />
+        </CustomImageContainerStyled>
+    )
+}
+export default CustomImageContainer

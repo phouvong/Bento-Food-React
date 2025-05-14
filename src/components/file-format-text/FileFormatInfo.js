@@ -1,17 +1,16 @@
-import React from "react";
-
-import Typography from "@mui/material/Typography";
-import { CustomBoxImageText } from "../file-previewer/FilePreviewer.style";
+import Typography from '@mui/material/Typography'
+import { CustomBoxImageText } from '@/components/file-previewer/FilePreviewer.style'
 
 const FileFormatInfo = (props) => {
-  const { text } = props;
-  return (
-    <CustomBoxImageText>
-      <Typography>{text}</Typography>
-    </CustomBoxImageText>
-  );
-};
+    const { text } = props
 
-FileFormatInfo.propTypes = {};
+    return (
+        <CustomBoxImageText>
+            <Typography>{text}</Typography>
+        </CustomBoxImageText>
+    )
+}
 
-export default FileFormatInfo;
+FileFormatInfo.propTypes = {}
+
+export default FileFormatInfo

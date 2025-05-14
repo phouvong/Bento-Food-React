@@ -1,35 +1,63 @@
-import { alpha, InputBase, styled } from "@mui/material";
-import { CustomStackFullWidth } from "styled-components/CustomStyles.style";
-import { getCurrentModuleType } from "helper-functions/getCurrentModuleType";
-import { ModuleTypes } from "helper-functions/moduleTypes";
+import { alpha, InputBase, styled } from '@mui/material'
 
-export const Search = styled(CustomStackFullWidth)(({ theme, type2 }) => ({
-  backgroundColor: theme.palette.neutral[100],
-  color: theme.palette.neutral[600],
-  height: "40px",
-  border:
-    type2 &&
-    `1px solid ${alpha(
-      getCurrentModuleType() === ModuleTypes.FOOD
-        ? theme.palette.moduleTheme.food
-        : theme.palette.primary.main,
-      0.4
-    )}`,
-  borderRadius: "5px",
-}));
+export const Search = styled('div')(({ theme, borderRadius, backgroundColor}) => ({
+    display: 'flex',
+    alignItems: 'center',
+    position: 'relative',
+    borderRadius: borderRadius ? borderRadius : '24px',
+    background:
+    backgroundColor ?backgroundColor:  theme.palette.mode === 'dark'
+            ? alpha(theme.palette.primary.main, 0.05)
+            : alpha(theme.palette.primary.main, 0.1),
+    color: theme.palette.neutral[600],
+    //border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+    width: '100%',
+    //margin: 'auto',
+    [theme.breakpoints.up('sm')]: {},
+}))
+export const SearchIconWrapper = styled('div')(
+    ({ theme, languageDirection ,nav}) => ({
+        padding: theme.spacing(0, 2),
+        height: '100%',
+        position: 'absolute',
+        pointerEvents: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+         top:!nav && 0,
+         right:!nav && 0,
+        left:!nav && 'unset',
+        [theme.breakpoints.down('sm')]: {
+            padding: theme.spacing(0, .5),
+        },
+    })
+)
 
 export const StyledInputBase = styled(InputBase)(
-  ({ theme, language_direction }) => ({
-    color:
-      getCurrentModuleType() === ModuleTypes.FOOD
-        ? theme.palette.moduleTheme.food
-        : "primary.main",
-    width: "100%",
+    ({ theme, languageDirection, backgroundColor, forMobile }) => ({
+        color: 'inherit',
+        borderRadius:"8px",
+        width: '100%',
+        backgroundColor: backgroundColor ? backgroundColor : '',
+        '& .MuiInputBase-input': {
+            fontSize:"12px",
+            padding:
+                forMobile === 'true'
+                    ? theme.spacing(0.7, 0.7, 0.7, 0.7)
+                    : theme.spacing(1.5, 1, 1.5, 1),
+            // vertical padding + font size from searchIcon
 
-    "& .MuiInputBase-input": {
-      padding: "10px 17px",
-      transition: theme.transitions.create("width"),
-      width: "100%",
-    },
-  })
-);
+         // paddingLeft: `calc(1em + ${theme.spacing(0)})`,
+          paddingRight:
+            languageDirection === "rtl" && `calc(1em + ${theme.spacing(4)})`,
+            transition: theme.transitions.create('width'),
+            width: '100%',
+            [theme.breakpoints.down('sm')]: {
+               fontSize:"13px",height:"1em"
+            },
+            // [theme.breakpoints.up('md')]: {
+            //     width: '20ch',
+            // },
+        },
+    })
+)
