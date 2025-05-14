@@ -1,203 +1,251 @@
-import React, { useEffect, useState } from 'react'
-import CustomModal from '../../../custom-modal/CustomModal'
-import CustomImageContainer from '../../../CustomImageContainer'
-import FacebookLogin from '@greatsumini/react-facebook-login';
-import { usePostEmail } from '@/hooks/react-query/social-login/usePostEmail'
-import { onErrorResponse } from '../../../ErrorResponse'
-import OtpForm from '../../forgot-password/OtpForm'
-import { useVerifyPhone } from '@/hooks/react-query/otp/useVerifyPhone'
-import { toast } from 'react-hot-toast'
-import facebookLatest from '../../../../../public/static/Facebook.png'
-import { Stack } from '@mui/material'
+import { useEffect, useState } from "react";
+import { Stack, Typography, useMediaQuery, useTheme } from "@mui/material";
+import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
+import { toast } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+import { onErrorResponse } from "api-manage/api-error-response/ErrorResponses";
+import { useVerifyPhone } from "api-manage/hooks/react-query/forgot-password/useVerifyPhone";
+import { usePostEmail } from "api-manage/hooks/react-query/social-login/useEmailPost";
+import { getLanguage } from "helper-functions/getLanguage";
 import {
-    CustomColouredTypography,
-    CustomStackFullWidth,
-} from '@/styled-components/CustomStyles.style'
-import { useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
-import {
-    setJwtTokenByDispatch,
-    setUserInfoByDispatch,
-} from '@/redux/slices/fbCredentials'
-import { facebookAppId } from '@/utils/staticCredentials'
-import { useTheme } from '@mui/styles'
-import { getGuestId } from '@/components/checkout-page/functions/getGuestUserId'
+  setJwtTokenByDispatch,
+  setUserInfoByDispatch,
+} from "redux/slices/fbCredentials";
+import { CustomStackFullWidth } from "../../../../styled-components/CustomStyles.style";
+import { fb_app_id } from "utils/staticCredential";
+import CustomImageContainer from "../../../CustomImageContainer";
+import CustomModal from "../../../modal";
+import OtpForm from "../../sign-up/OtpForm";
+import { CustomGoogleButton } from "components/auth/sign-in/social-login/GoogleLoginComp";
+import googleLatest from "../../asset/Facebook.png";
+import { getGuestId } from "helper-functions/getToken";
 
 const FbLoginComp = (props) => {
-    const {
-        handleSuccess,
-        handleParentModalClose,
-        setModalFor,
-        setMedium,
-        setLoginInfo,
-    } = props
-    const theme = useTheme()
-    const [loginValue, setLoginValue] = useState(null)
-    const [openModal, setOpenModal] = useState(false)
-    const [openOtpModal, setOpenOtpModal] = useState(false)
-    const [otpData, setOtpData] = useState({ phone: '' })
-    const [mainToken, setMainToken] = useState(null)
-    const dispatch = useDispatch()
-    const appId = facebookAppId
-    const { mutate } = usePostEmail()
-    const handleToken = (response) => {
-        if (response?.token) {
-            handleSuccess(response.token)
-        } else {
-            setMedium('facebook')
-            setModalFor('phone_modal')
-            setOpenModal(true)
-        }
+  const {
+    handleSuccess,
+    configData,
+    socialLength,
+    state,
+    setModalFor,
+    setMedium,
+    loginMutation,
+    setLoginInfo,
+  } = props;
+  const { userInfo, jwtToken } = useSelector(
+    (state) => state.fbCredentialsStore
+  );
+  const theme = useTheme();
+  const isSmall = useMediaQuery(theme.breakpoints.down("md"));
+  const [loginValue, setLoginValue] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+  const [openOtpModal, setOpenOtpModal] = useState(false);
+  const [otpData, setOtpData] = useState({ phone: "" });
+  const [mainToken, setMainToken] = useState(null);
+  const dispatch = useDispatch();
+  const appId = fb_app_id;
+  const { mutate } = usePostEmail();
+  const handleToken = (response) => {
+    if (response?.token) {
+      handleSuccess(response.token);
+    } else {
+      setMedium("facebook");
+      setModalFor("phone_modal");
+      setOpenModal(true);
     }
-    useEffect(() => {
-        if (otpData?.phone !== '') {
-            setOpenOtpModal(true)
-        }
-    }, [otpData])
-    const handlePostRequestOnSuccess = (response) => {
-        const res = response?.data
-        if (
-            response?.data?.is_exist_user === null &&
-            response?.data?.is_personal_info === 1
-        ) {
-            handleToken(response?.data)
-        } else if (response?.data?.is_personal_info === 0) {
-            setLoginInfo({
-                ...res,
-                email: response?.data?.email,
-                is_email: true,
-            })
-            setModalFor('user_info')
-        } else {
-            setMedium('google')
-            setLoginInfo({
-                ...res,
-                email: response?.data?.email,
-                is_email: true,
-            })
-            setModalFor('is_exist_user')
-        }
+  };
+  useEffect(() => {
+    if (otpData?.phone !== "") {
+      setOpenOtpModal(true);
     }
-    const responseFacebook = async (res) => {
-        dispatch(setUserInfoByDispatch(res))
-        dispatch(setJwtTokenByDispatch(res))
-        if (res?.status !== 'unknown') {
-            const tempValue = {
-                email: res?.email,
-                token: res?.accessToken,
-                unique_id: res?.id,
-                medium: 'facebook',
-                phone: res?.phone,
-                login_type: 'social',
-                guest_id: getGuestId(),
-            }
-            setLoginValue(tempValue)
-            await mutate(tempValue, {
-                onSuccess: (res) =>
-                    handlePostRequestOnSuccess({
-                        ...res,
-                    }),
-                onError: (error) => {
-                    error?.response?.data?.errors?.forEach((item) =>
-                        item.code === 'email'
-                            ? handleToken()
-                            : toast.error(item.message)
-                    )
-                },
-            })
-        }
+  }, [otpData]);
+
+  const handlePostRequestOnSuccess = (response) => {
+    const res = response?.data;
+    if (
+      response?.data?.is_exist_user === null &&
+      response?.data?.is_personal_info === 1
+    ) {
+      handleToken(response?.data);
+    } else if (response?.data?.is_personal_info === 0) {
+      setLoginInfo({
+        ...res,
+        email: response?.data?.email,
+        is_email: true,
+      });
+      setModalFor("user_info");
+    } else {
+      setMedium("facebook");
+      setLoginInfo({
+        ...res,
+        email: response?.data?.email,
+        is_email: true,
+      });
+      setModalFor("is_exist_user");
+    }
+  };
+  const responseFacebook = async (res) => {
+    dispatch(setUserInfoByDispatch(res));
+    dispatch(setJwtTokenByDispatch(res));
+    if (res?.status !== "unknown") {
+      const tempValue = {
+        email: res?.email,
+        token: res?.accessToken,
+        unique_id: res?.id,
+        medium: "facebook",
+        phone: res?.phone,
+        login_type: "social",
+        guest_id: getGuestId(),
+      };
+      setLoginValue(tempValue);
+      await mutate(tempValue, {
+        onSuccess: (res) =>
+          handlePostRequestOnSuccess({
+            ...res,
+          }),
+        onError: (error) => {
+          error?.response?.data?.errors?.forEach((item) =>
+            item.code === "email" ? handleToken() : toast.error(item.message)
+          );
+        },
+      });
+    }
+  };
+
+  const { mutate: signInMutate, isLoading } = useVerifyPhone();
+
+  const onSuccessHandlerOtp = async (res) => {
+    toast.success(res?.message);
+    setOpenOtpModal(false);
+    setOpenModal(false);
+    await handleSuccess(mainToken);
+  };
+
+  const formSubmitHandler = (values) => {
+    signInMutate(values, {
+      onSuccess: onSuccessHandlerOtp,
+      onError: onErrorResponse,
+    });
+  };
+
+  const handleView = (fbHandler) => {
+    if (state?.status === "social") {
+      return (
+        <CustomGoogleButton
+          onClick={fbHandler}
+          direction="row"
+          spacing={1}
+          width={isSmall ? "275px" : "320px"}
+          sx={{
+            marginInlineStart: {
+              xs: "13px !important",
+              sm: "13px !important",
+              md: "0px",
+            },
+          }}
+        >
+          <CustomImageContainer
+            src={googleLatest.src}
+            alt="facebook"
+            height="24px"
+            width="24px"
+            objectFit="cover"
+            borderRadius="50%"
+          />
+          <Typography fontSize="14px" fontWeight="600">
+            {t("Continue with Facebook")}
+          </Typography>
+        </CustomGoogleButton>
+      );
     }
 
-    const onSuccessHandler = (res) => {
-        toast.success(res?.message)
-        setOpenOtpModal(false)
-        handleToken(mainToken)
-        handleParentModalClose()
-    }
-    const { mutate: signInMutate, isLoading } = useVerifyPhone()
-    const formSubmitHandler = (values) => {
-        signInMutate(values, {
-            onSuccess: onSuccessHandler,
-            onError: onErrorResponse,
-        })
-    }
-    const { t } = useTranslation()
-    return (
-        <Stack width={'100%'} maxWidth="355px" justifyContent="center">
-            <FacebookLogin
-                appId={appId}
-                autoLoad={false}
-                fields="name,email,picture"
-                onSuccess={responseFacebook}
-                render={(renderProps) => (
-                    <div
-                        style={{ cursor: 'pointer', width: '100%' }}
-                        onClick={renderProps.onClick}
-                    >
-                        <Stack
-                            alignItems="center"
-                            sx={{
-                                width: '100%',
-                                backgroundColor: theme.palette.neutral[100],
-                                height: '45px',
-                                justifyContent: 'center',
-                                borderRadius: '10px',
-                                padding: '10px',
-                                color: theme.palette.neutral[600],
-                                boxShadow: `0px 2px 3px 0px rgba(0, 0, 0, 0.17), 0px 0px 3px 0px rgba(0, 0, 0, 0.08)`,
-                                //maxWidth: '355px',
-
-                                transition: 'box-shadow 0.3s',
-                                '&:hover': {
-                                    boxShadow: `0px 5px 10px 0px rgba(0, 0, 0, 0.3), 0px 2px 5px 0px rgba(0, 0, 0, 0.15)`,
-                                },
-                            }}
-                        >
-                            <CustomStackFullWidth
-                                direction="row"
-                                alignItems="center"
-                                justifyContent="center"
-                                spacing={2}
-                            >
-                                <CustomImageContainer
-                                    src={facebookLatest.src}
-                                    alt="facebook"
-                                    height="24px"
-                                    width="24px"
-                                    objectFit="cover"
-                                    borderRadius="50%"
-                                />
-                                <CustomColouredTypography
-                                    sx={{
-                                        color: theme.palette.neutral[600],
-                                        fontWeight: '600',
-                                        fontSize: '14px',
-                                    }}
-                                >
-                                    {t('Continue with Facebook')}
-                                </CustomColouredTypography>
-                            </CustomStackFullWidth>
-                        </Stack>
-                    </div>
-                )}
+    switch (socialLength) {
+      case 1:
+        return (
+          <CustomGoogleButton
+            direction="row"
+            spacing={1}
+            width="100%"
+            onClick={fbHandler}
+          >
+            <CustomImageContainer
+              src={googleLatest.src}
+              alt="facebook"
+              height="24px"
+              width="24px"
+              objectFit="cover"
+              borderRadius="50%"
             />
+            <Typography fontSize="14px" fontWeight="600">
+              {t("Continue with Facebook")}
+            </Typography>
+          </CustomGoogleButton>
+        );
+      case 2:
+        return (
+          <CustomGoogleButton
+            direction="row"
+            spacing={1}
+            width="100%"
+            onClick={fbHandler}
+          >
+            <CustomImageContainer
+              src={googleLatest.src}
+              alt="facebook"
+              height="24px"
+              width="24px"
+              objectFit="cover"
+              borderRadius="50%"
+            />
+            <Typography fontSize="14px" fontWeight="600">
+              {t("Facebook")}
+            </Typography>
+          </CustomGoogleButton>
+        );
+      case 3:
+        return (
+          <CustomGoogleButton direction="row" spacing={1} onClick={fbHandler}>
+            <CustomImageContainer
+              src={googleLatest.src}
+              alt="facebook"
+              height="24px"
+              width="24px"
+              objectFit="cover"
+              borderRadius="50%"
+            />
+          </CustomGoogleButton>
+        );
+      default:
+        break;
+    }
+  };
+  const { t } = useTranslation();
+  const lanDirection = getLanguage() ? getLanguage() : "ltr";
+  return (
+    <>
+      <FacebookLogin
+        appId={appId}
+        autoLoad={false}
+        fields="name,email,picture"
+        callback={responseFacebook}
+        render={(renderProps) => <>{handleView(renderProps.onClick)}</>}
+      />
+      <CustomModal
+        openModal={openOtpModal}
+        setModalOpen={setOpenOtpModal}
+        handleClose={() => setOpenModal(false)}
+      >
+        <OtpForm
+          data={otpData}
+          formSubmitHandler={formSubmitHandler}
+          isLoading={isLoading}
+          loginValue={loginValue}
+        />
+      </CustomModal>
+    </>
+  );
+};
 
-            <CustomModal
-                openModal={openOtpModal}
-                setModalOpen={setOpenOtpModal}
-            >
-                <OtpForm
-                    data={otpData?.phone}
-                    formSubmitHandler={formSubmitHandler}
-                    isLoading={isLoading}
-                    reSendOtp={responseFacebook}
-                    loginValue={loginValue}
-                />
-            </CustomModal>
-        </Stack>
-    )
-}
+FbLoginComp.propTypes = {};
 
-FbLoginComp.propTypes = {}
-
-export default FbLoginComp
+export default FbLoginComp;

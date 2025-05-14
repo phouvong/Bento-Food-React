@@ -1,422 +1,383 @@
-import React, { useRef, useState } from 'react'
-import { Stack, Typography, Box } from '@mui/material'
-import CheckIcon from '@mui/icons-material/Check'
-import { useTheme } from '@mui/material/styles'
-import { useSelector } from 'react-redux'
-import CustomImageContainer from '../CustomImageContainer'
+import CheckIcon from "@mui/icons-material/Check";
+import { alpha, Stack, Typography } from "@mui/material";
+import React from "react";
 import {
-    BodyWrapper,
-    CardWrapper,
-    ChatMessageWrapper,
-    CustomAvatar,
-    TimeWrapper,
-} from './Message.style'
-import AttachmentBox from '@/components/chat/AttachmentBox'
-import IconButton from '@mui/material/IconButton'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-import FullscreenIcon from '@mui/icons-material/Fullscreen'
-import PauseIcon from '@mui/icons-material/Pause'
-import CustomModal from '@/components/custom-modal/CustomModal'
-import CloseIcon from '@mui/icons-material/Close'
-import moment from 'moment'
+	BodyWrapper,
+	CardWrapper,
+	ChatMessageWrapper,
+	CustomAvatar,
+	TimeWrapper,
+} from "./Message.style";
 
-export const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp']
-export const videoExtensions = ['mp4', 'avi', 'mov', 'wmv']
-export const documentExtensions = ['pdf']
-export const getFileExtension = (url) => {
-    const parts = url?.split('.')
-    return parts?.length > 1 ? parts.pop().toLowerCase() : ''
-}
+import { useTheme } from "@mui/material/styles";
+import { useSelector } from "react-redux";
+
+import { Box } from "@mui/system";
+import {
+	capitalizeText,
+	FormatedDateWithTime,
+	formatPhoneNumber,
+} from "utils/CustomFunctions";
+import CustomImageContainer from "../CustomImageContainer";
+import { t } from "i18next";
+import { getAmountWithSign } from "helper-functions/CardHelpers";
+import moment from "moment";
 
 const ChatMessage = (props) => {
-    const theme = useTheme()
-    const {
-        body,
-        createdAt,
-        messgageData,
-        authorAvatar,
-        conversationData,
-        image,
-        handleImageOnClick,
-        setAllImages,
-    } = props
+	const theme = useTheme();
+	const {
+		body,
+		createdAt,
+		messgageData,
+		authorAvatar,
+		conversationData,
+		image,
+		handleImageOnClick,
+		receiverType,
+	} = props;
+	const { configData } = useSelector((state) => state.configData);
+	const language_direction = localStorage.getItem("direction");
+	const receiverImageUrl = () => {
+		if (conversationData?.conversation?.receiver_type === "vendor") {
+			return conversationData.conversation?.receiver?.image_full_url;
+		} else if (
+			conversationData?.conversation?.receiver_type === "delivery_man"
+		) {
+			return conversationData.conversation?.sender?.image_full_url;
+		} else return configData?.logo_full_url;
+	};
 
-    const { global } = useSelector((state) => state.globalSettings)
-    const languageDirection = localStorage.getItem('direction')
-    const authorType = messgageData.sender_id //sender
-    let userType, userImage, senderImage
-    const videoRef = useRef(null)
-    const [isPlaying, setIsPlaying] = useState(false)
-    const [videoModal, setVideoModal] = useState(false)
-    const [videoItem, setVideoItem] = useState(null)
+	const customerImageUrl = configData?.base_urls?.customer_image_url;
+	const authorType = messgageData.sender_id; //sender
+	let userType;
+	let userImage;
+	let senderImage;
+	const chatImageUrl = configData?.base_urls?.chat_image_url;
+	if (conversationData?.conversation?.sender_type === "customer") {
+		userType = conversationData?.conversation.sender_id;
+		userImage =
+			receiverType === "admin"
+				? configData?.fav_icon
+				: conversationData?.conversation?.receiver?.image;
+		senderImage = conversationData?.conversation?.sender?.image;
+	} else {
+		userType = conversationData?.conversation?.receiver?.id;
+	}
+	const nameHandler = () => {
+		if (conversationData?.conversation?.sender_type === "customer") {
+			if (authorType === userType) {
+				return conversationData?.conversation?.sender?.f_name.concat(
+					" ",
+					conversationData?.conversation?.sender?.l_name
+				);
+			} else {
+				if (conversationData?.conversation?.receiver?.f_name) {
+					return conversationData?.conversation?.receiver?.f_name.concat(
+						" ",
+						conversationData?.conversation?.receiver?.l_name
+					);
+				} else {
+					return configData?.business_name;
+				}
+			}
+		} else {
+			if (authorType === userType) {
+				return (
+					conversationData?.conversation?.receiver?.f_name.concat(
+						" ",
+						conversationData?.conversation?.receiver?.l_name
+					) || " "
+				);
+			} else {
+				return (
+					conversationData?.conversation?.sender?.f_name.concat(
+						" ",
+						conversationData?.conversation?.sender?.l_name
+					) || " "
+				);
+			}
+		}
+	};
 
-    const handlePlayPause = () => {
-        if (videoRef.current) {
-            if (isPlaying) {
-                videoRef.current.pause()
-            } else {
-                videoRef.current.play()
-            }
-            setIsPlaying(!isPlaying)
-        }
-    }
-    const handlePlay = (item) => {
-        setVideoItem(item)
-        setVideoModal(true)
-    }
+	return (
+		<ChatMessageWrapper
+			authortype={authorType}
+			usertype={userType}
+			language_direction={language_direction}
+		>
+			{authorType !== userType && (
+				<CustomAvatar
+					src={
+						authorType === userType
+							? customerImageUrl
+							: receiverImageUrl()
+					}
+					authortype={authorType}
+					usertype={userType}
+				/>
+			)}
 
-    const handleFullscreen = () => {
-        if (videoRef.current) {
-            if (videoRef.current.requestFullscreen) {
-                videoRef.current.requestFullscreen()
-            } else if (videoRef.current.webkitRequestFullscreen) {
-                /* Safari */
-                videoRef.current.webkitRequestFullscreen()
-            } else if (videoRef.current.msRequestFullscreen) {
-                /* IE11 */
-                videoRef.current.msRequestFullscreen()
-            }
-        }
-    }
+			<BodyWrapper authortype={authorType} usertype={userType}>
+				<Stack
+					direction="row"
+					spacing={3}
+					justifyContent={
+						authorType === userType ? "flex-end" : "flex-start"
+					}
 
-    const checkFileType = (url) => {
-        const extension = getFileExtension(url)
-        if (imageExtensions.includes(extension)) {
-            return 'image'
-        } else if (videoExtensions.includes(extension)) {
-            return 'video'
-        } else if (documentExtensions.includes(extension)) {
-            return 'document'
-        } else {
-            return 'unknown'
-        }
-    }
+					// overflow-x="scroll"
+				>
+					{image?.map((item, index) => {
+						return (
+							<Box
+								key={index}
+								sx={{ cursor: "pointer" }}
+								onClick={() => handleImageOnClick(item)}
+							>
+								<CustomImageContainer
+									src={item}
+									width="60px"
+									height="60px"
+									objectFit="cover"
+									borderRadius="4px"
+								/>
+							</Box>
+						);
+					})}
+				</Stack>
+				{body && (
+					<>
+						{messgageData?.order && (
+							<Stack
+								border="1px solid"
+								borderColor={alpha(
+									theme.palette.neutral[400],
+									0.5
+								)}
+								marginBottom="10px"
+								borderRadius="10px"
+								width="100%"
+								maxWidth="290px"
+							>
+								<Stack
+									sx={{
+										borderTopLeftRadius: "10px",
+										borderTopRightRadius: "10px",
+									}}
+									padding="10px"
+									backgroundColor={alpha(
+										theme.palette.neutral[400],
+										0.1
+									)}
+								>
+									<Stack
+										direction="row"
+										justifyContent="space-between"
+									>
+										<Typography
+											component="span"
+											fontSize="14px"
+											fontWeight="400"
+										>
+											{t("Order ID")}
+											<Typography
+												component="span"
+												fontSize="14px"
+												fontWeight="500"
+												px="5px"
+											>
+												#{messgageData?.order?.id}
+											</Typography>
+											<Typography
+												fontSize="10px"
+												p="3px"
+												fontWeight="500"
+												component="span"
+												backgroundColor={alpha(
+													theme.palette.info.main,
+													0.2
+												)}
+												borderRadius="4px"
+												sx={{
+													textTransform: "capitalize",
+												}}
+											>
+												{t(
+													capitalizeText(
+														messgageData?.order
+															?.order_status
+													)
+												)}
+											</Typography>
+										</Typography>
+										<Typography
+											fontSize="12px"
+											color={alpha(
+												theme.palette.neutral[400],
+												9
+											)}
+										>
+											{t("Order Placed")}
+										</Typography>
+									</Stack>
+									<Stack
+										direction="row"
+										justifyContent="space-between"
+									>
+										<Typography
+											component="span"
+											fontSize="14px"
+											fontWeight="400"
+											color={theme.palette.primary.main}
+										>
+											{t("Total")}:
+											<Typography component="span">
+												{" "}
+												{getAmountWithSign(
+													messgageData?.order
+														?.order_amount
+												)}
+											</Typography>
+										</Typography>
 
-    const receiverImageUrl = () => {
-        if (conversationData?.conversation?.receiver_type === 'vendor') {
-            return global?.base_urls?.restaurant_image_url
-        }
-        if (conversationData?.conversation?.receiver_type === 'delivery_man') {
-            return global?.base_urls?.delivery_man_image_url
-        } else {
-            return global?.base_urls?.business_logo_url
-        }
-    }
+										<Typography fontSize="12px">
+											{moment(
+												messgageData?.order?.created_at
+											).format("DD MMM, YYYY")}
+										</Typography>
+									</Stack>
+								</Stack>
+								<Stack
+									padding="10px"
+									direction="row"
+									justifyContent="space-between"
+								>
+									<Stack>
+										<Typography
+											fontSize="12px"
+											color={alpha(
+												theme.palette.neutral[400],
+												9
+											)}
+											marginBottom="10px"
+										>
+											{t("Delivery Address")}
+										</Typography>
+										<Typography fontSize="12px">
+											{formatPhoneNumber(
+												messgageData?.order
+													?.delivery_address
+													?.contact_person_number
+											)}
+										</Typography>
+										<Typography Typography fontSize="12px">
+											{
+												messgageData?.order
+													?.delivery_address?.address
+											}
+										</Typography>
+									</Stack>
+									{messgageData?.order?.details_count > 0 && (
+										<Stack
+											paddingY="5px"
+											paddingX="16px"
+											backgroundColor={alpha(
+												theme.palette.neutral[400],
+												0.1
+											)}
+											justifyContent="center"
+											alignItems="center"
+											borderRadius="5px"
+										>
+											<Typography
+												fontSize="12px"
+												color={alpha(
+													theme.palette.neutral[400],
+													9
+												)}
+											>
+												{t("Items")}
+											</Typography>
+											<Typography
+												fontSize="1rem"
+												fontWeight="500"
+											>
+												{
+													messgageData?.order
+														?.details_count
+												}
+											</Typography>
+										</Stack>
+									)}
+								</Stack>
+							</Stack>
+						)}
 
-    const customerImageUrl = global?.base_urls?.customer_image_url
+						<CardWrapper
+							authortype={authorType}
+							usertype={userType}
+						>
+							{/*<Stack mb={1}>*/}
+							{/*  <Typography*/}
+							{/*    pt="3px"*/}
+							{/*    color={*/}
+							{/*      authorType === userType*/}
+							{/*        ? theme.palette.footer.appDownloadButtonBg*/}
+							{/*        : theme.palette.neutral[100]*/}
+							{/*    }*/}
+							{/*    variant="subtitle2"*/}
+							{/*    align={authorType === userType ? "right" : "left"}*/}
 
-    if (conversationData?.conversation?.sender_type === 'customer') {
-        userType = conversationData?.conversation.sender_id
-        userImage =
-            conversationData?.conversation?.receiver_type === 'admin'
-                ? global?.logo_full_url
-                : conversationData?.conversation?.receiver?.image_full_url
-        senderImage = conversationData?.conversation?.sender?.image_full_url
-    } else {
-        userType = conversationData?.conversation?.receiver?.id
-        userImage =
-            conversationData?.conversation?.receiver_type === 'admin'
-                ? global?.logo_full_url
-                : conversationData?.conversation?.sender?.image_full_url
-        senderImage = conversationData?.conversation?.receiver?.image_full_url
-    }
-    const handleClick = (url) => {
-        window.open(url, '_blank')
-    }
+							{/*  >*/}
+							{/*    {nameHandler()}*/}
+							{/*  </Typography>*/}
+							{/*</Stack>*/}
+							<Typography
+								fontSize={{ xs: "12px", md: "14px" }}
+								color={
+									authorType === userType
+										? theme.palette.neutral[100]
+										: theme.palette.text.primary
+								}
+								sx={{ wordBreak: "break-word" }}
+								align={
+									authorType === userType ? "left" : "right"
+								}
+							>
+								{body ? body : ""}
+							</Typography>
+						</CardWrapper>
+					</>
+				)}
 
-    return (
-        <ChatMessageWrapper
-            authorType={authorType}
-            userType={userType}
-            languageDirection={languageDirection}
-        >
-            <CustomAvatar
-                src={authorType === userType ? senderImage : userImage}
-                authorType={authorType}
-                userType={userType}
-            />
-            <BodyWrapper authorType={authorType} userType={userType}>
-                <Stack
-                    direction="row"
-                    width="130px"
-                    gap="10px"
-                    justifyContent={
-                        authorType === userType ? 'flex-end' : 'flex-start'
-                    }
-                    marginInlineStart={authorType === userType ? 'auto' : ''}
-                    flexWrap="wrap"
-                >
-                    {image?.slice(0, 4).map((item, index) => {
-                        const fileType = checkFileType(item)
-                        if (fileType === 'image' && index < 3) {
-                            return (
-                                <Box
-                                    key={item}
-                                    sx={{
-                                        cursor: 'pointer',
-                                        borderRadius: '10px',
-                                        width: 'calc(50% - 8px)',
-                                        display: 'inline-flex',
-                                    }}
-                                    onClick={() =>
-                                        handleImageOnClick(item, image)
-                                    }
-                                >
-                                    <CustomImageContainer
-                                        src={item}
-                                        width="60px"
-                                        height="60px"
-                                        objectFit="cover"
-                                        borderRadius=".5rem"
-                                    />
-                                </Box>
-                            )
-                        } else if (fileType === 'image' && index === 3) {
-                            const remainingImagesCount = image.length - 3
-                            return (
-                                <Box
-                                    key={item}
-                                    sx={{
-                                        cursor: 'pointer',
-                                        borderRadius: '10px',
-                                        width: 'calc(50% - 8px)',
-                                        display: 'inline-flex',
-                                        position: 'relative',
-                                    }}
-                                    onClick={() =>
-                                        handleImageOnClick(item, image)
-                                    }
-                                >
-                                    <CustomImageContainer
-                                        src={item}
-                                        width="60px"
-                                        height="60px"
-                                        objectFit="cover"
-                                        borderRadius=".5rem"
-                                    />
-                                    {remainingImagesCount > 0 && (
-                                        <Box
-                                            sx={{
-                                                position: 'absolute',
-                                                top: 0,
-                                                left: 0,
-                                                width: '100%',
-                                                height: '100%',
-                                                backgroundColor:
-                                                    'rgba(0, 0, 0, 0.5)',
-                                                color: '#fff',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                borderRadius: '10px',
-                                            }}
-                                        >
-                                            +{remainingImagesCount}
-                                        </Box>
-                                    )}
-                                </Box>
-                            )
-                        } else if (fileType === 'video') {
-                            return (
-                                <Box
-                                    key={item}
-                                    width="100%"
-                                    sx={{ position: 'relative' }}
-                                >
-                                    <video
-                                        style={{
-                                            width: '100%',
-                                            borderRadius: '.5rem',
-                                        }}
-                                        preload="metadata"
-                                    >
-                                        <source src={item} type="video/mp4" />
-                                        Your browser does not support the video
-                                        tag.
-                                    </video>
+				<TimeWrapper authortype={authorType} usertype={userType}>
+					{authorType === userType ? (
+						<CheckIcon
+							fontSize="14px"
+							style={{
+								color:
+									messgageData.is_seen === 0
+										? theme.palette.primary.main
+										: theme.palette.neutral[1000],
+							}}
+						/>
+					) : (
+						""
+					)}
+					<Typography
+						color="textSecondary"
+						noWrap
+						variant="caption"
+						fontSize={{ xs: "10px", md: "12px" }}
+					>
+						{FormatedDateWithTime(createdAt)}
+					</Typography>
+				</TimeWrapper>
+			</BodyWrapper>
+		</ChatMessageWrapper>
+	);
+};
 
-                                    <Box
-                                        sx={{
-                                            position: 'absolute',
-                                            top: '50%',
-                                            left: '50%',
-                                            transform: 'translate(-50%, -50%)',
-                                            display: 'flex',
-                                            gap: '10px',
-                                        }}
-                                    >
-                                        <IconButton
-                                            onClick={() => handlePlay(item)}
-                                            sx={{
-                                                backgroundColor:
-                                                    'rgba(0, 0, 0, 0.5)',
-                                            }}
-                                        >
-                                            <PlayArrowIcon
-                                                sx={{ color: '#fff' }}
-                                            />
-                                        </IconButton>
-                                    </Box>
-                                    <Box
-                                        sx={{
-                                            position: 'absolute',
-                                            right: '2%',
-                                            bottom: '10%',
-                                            display: 'flex',
-                                        }}
-                                    >
-                                        <FullscreenIcon
-                                            onClick={handleFullscreen}
-                                            sx={{
-                                                color: 'rgba(0, 0, 0, 0.5)',
-                                                cursor: 'pointer',
-                                            }}
-                                        />
-                                    </Box>
-                                </Box>
-                            )
-                        } else if (fileType === 'document') {
-                            return (
-                                <Stack
-                                    key={item}
-                                    onClick={() => handleClick(item)}
-                                    sx={{ cursor: 'pointer' }}
-                                >
-                                    <AttachmentBox
-                                        item={{
-                                            name: `attachment_${index + 1}.pdf`,
-                                            size: 0,
-                                        }}
-                                        removeImage={null}
-                                        view
-                                    />
-                                </Stack>
-                            )
-                        } else if (fileType === 'unknown') {
-                            return (
-                                <Typography key={item} variant="body2">
-                                    Unsupported file type
-                                </Typography>
-                            )
-                        }
-                    })}
-                </Stack>
-                {body && (
-                    <CardWrapper authorType={authorType} userType={userType}>
-                        <Typography
-                            color={
-                                authorType === userType
-                                    ? theme.palette.whiteContainer.main
-                                    : theme.palette.neutral[1000]
-                            }
-                            align={authorType === userType ? 'right' : 'left'}
-                            fontSize="13px"
-                        >
-                            {body}
-                        </Typography>
-                    </CardWrapper>
-                )}
-                <TimeWrapper>
-                    {authorType === userType && (
-                        <CheckIcon
-                            fontSize="14px"
-                            style={{
-                                color:
-                                    messgageData.is_seen === 0
-                                        ? theme.palette.primary.main
-                                        : 'green',
-                            }}
-                        />
-                    )}
-                    <Typography color="textSecondary" noWrap variant="caption">
-                        {moment(createdAt).format('h:mm A')}
-                    </Typography>
-                </TimeWrapper>
-            </BodyWrapper>
-            <CustomModal
-                openModal={videoModal}
-                setModalOpen={() => setVideoModal(false)}
-                maxWidth="400px"
-                bgColor="none"
-            >
-                <Box width="100%" sx={{ position: 'relative' }}>
-                    <button
-                        onClick={() => setVideoModal(false)}
-                        className="closebtn"
-                        style={{
-                            position: 'absolute',
-                            top: '-7%',
-                            right: '-7%',
-                            height: '22px',
-                            width: '22px',
-                            display: 'inline-flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        <CloseIcon sx={{ fontSize: '16px' }} />
-                    </button>
-                    <video
-                        ref={videoRef}
-                        style={{
-                            width: '100%',
-                            borderRadius: '.5rem',
-                        }}
-                        preload="metadata"
-                        controls
-                    >
-                        <source src={videoItem} type="video/mp4" />
-                        Your browser does not support the video tag.
-                    </video>
+ChatMessage.propTypes = {};
 
-                    <Box
-                        sx={{
-                            position: 'absolute',
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            display: 'flex',
-                            gap: '10px',
-                        }}
-                    >
-                        <IconButton
-                            onClick={() => handlePlayPause()}
-                            sx={{
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                            }}
-                        >
-                            {isPlaying ? (
-                                <PauseIcon sx={{ color: '#fff' }} />
-                            ) : (
-                                <PlayArrowIcon sx={{ color: '#fff' }} />
-                            )}
-                        </IconButton>
-                    </Box>
-                    <Box
-                        sx={{
-                            position: 'absolute',
-                            // top: '50%',
-                            right: '2%',
-                            bottom: '10%',
-
-                            //transform: 'translate(-50%, -50%)',
-                            display: 'flex',
-                            // gap: '10px'
-                        }}
-                    >
-                        <FullscreenIcon
-                            onClick={handleFullscreen}
-                            sx={{
-                                color: 'rgba(0, 0, 0, 0.5)',
-                                cursor: 'pointer',
-                            }}
-                        />
-                    </Box>
-                </Box>
-            </CustomModal>
-        </ChatMessageWrapper>
-    )
-}
-
-export default ChatMessage
+export default ChatMessage;

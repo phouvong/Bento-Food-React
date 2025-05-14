@@ -1,82 +1,75 @@
-import React, { useEffect, useRef, useState } from 'react'
-import Box from '@mui/material/Box'
-import ChatMessage, { getFileExtension, imageExtensions } from './ChatMessage'
-import CustomModal from '../custom-modal/CustomModal'
-import { ScrollToBottom } from './ChatView'
-import ImagePreviewOnModal from '../image-preview-on-modal'
+import React, { useEffect, useRef, useState } from "react";
+import Box from "@mui/material/Box";
+import ChatMessage from "./ChatMessage";
 
-import 'simplebar-react/dist/simplebar.min.css'
+import { ScrollToBottom } from "./ChatView";
+import CustomModal from "../modal";
+import ImagePreviewOnModal from "./ImagePreviewOnModal";
 
-const ChatMessages = ({ conversationData, scrollBottom }) => {
-    const [messagesData, setMessagesData] = useState([])
-    const [isMessage, setIsMessage] = useState(false)
-    const [conversationDetails, setConversationDetails] = useState()
-    const [openModal, setModalOpen] = useState(false)
-    const [modalImage, setModalImage] = useState(null)
-    const [AllImages, setAllImages] = useState([])
-    const messagesEndRef = useRef(null)
-    useEffect(() => {
-        let a = []
-        if (conversationData.length > 0) {
-            conversationData.forEach((page) => {
-                setConversationDetails(page)
-                page?.messages?.forEach((item) => a.push(item))
-            })
-            setMessagesData(a)
-            setIsMessage(true)
-        }
-    }, [conversationData])
-    useEffect(() => {
-        modalImage && setModalOpen(true)
-    }, [modalImage])
+const ChatMessages = ({ conversationData, scrollBottom, receiverType }) => {
+	const [messagesData, setMessagesData] = useState([]);
+	const [isMessage, setIsMessage] = useState(false);
+	const [conversationDetails, setConversationDetails] = useState();
+	const [openModal, setModalOpen] = useState(false);
+	const [modalImage, setModalImage] = useState(null);
+	const messagesEndRef = useRef(null);
+	useEffect(() => {
+		let a = [];
+		if (conversationData.length > 0) {
+			conversationData.forEach((page) => {
+				setConversationDetails(page);
+				page?.messages?.forEach((item) => a.push(item));
+			});
+			setMessagesData(a);
+			setIsMessage(true);
+		}
+	}, [conversationData]);
+	useEffect(() => {
+		modalImage && setModalOpen(true);
+	}, [modalImage]);
 
-    const handleImageOnClick = (value, images) => {
-        const getOnlyImage = images?.filter((item) =>
-            imageExtensions?.includes(getFileExtension(item))
-        )
-        setAllImages(getOnlyImage)
-        setModalImage(value)
-    }
-    const handleModalClose = (value) => {
-        setModalOpen(value)
-        setModalImage(null)
-    }
+	const handleImageOnClick = (value) => {
+		setModalImage(value);
+	};
+	const handleModalClose = (value) => {
+		setModalOpen(value);
+		setModalImage(null);
+	};
 
-    return (
-        <Box sx={{ p: 2 }}>
-            <>
-                {messagesData
-                    ?.map((item, index) => (
-                        <ChatMessage
-                            key={index}
-                            body={item?.message}
-                            messgageData={item && item}
-                            createdAt={item?.created_at}
-                            conversationData={conversationDetails}
-                            image={item?.file_full_url}
-                            handleImageOnClick={handleImageOnClick}
-                            setAllImages={setAllImages}
-                        />
-                    ))
-                    .reverse()}
-                <CustomModal
-                    openModal={openModal}
-                    setModalOpen={handleModalClose}
-                    maxWidth="400px"
-                    bgColor="none"
-                >
-                    <ImagePreviewOnModal
-                        modalImage={modalImage}
-                        handleModalClose={handleModalClose}
-                        AllImages={AllImages}
-                    />
-                </CustomModal>
-                {scrollBottom && <ScrollToBottom />}
-            </>
-        </Box>
-    )
-}
+	return (
+		<Box sx={{ p: 2 }}>
+			<>
+				{messagesData
+					?.map((item, index) => (
+						<ChatMessage
+							key={index}
+							body={item?.message}
+							messgageData={item && item}
+							createdAt={item?.updated_at}
+							conversationData={conversationDetails}
+							image={item?.file_full_url}
+							handleImageOnClick={handleImageOnClick}
+							receiverType={receiverType}
+						/>
+					))
+					.reverse()}
+				<CustomModal
+					openModal={openModal}
+					setModalOpen={handleModalClose}
+					handleClose={handleModalClose}
+				>
+					<ImagePreviewOnModal
+						modalImage={modalImage}
+						handleModalClose={handleModalClose}
+					/>
+				</CustomModal>
 
-ChatMessages.propTypes = {}
+				{scrollBottom && <ScrollToBottom />}
+			</>
+		</Box>
+	);
+};
 
-export default ChatMessages
+ChatMessages.propTypes = {};
+
+export default ChatMessages;
