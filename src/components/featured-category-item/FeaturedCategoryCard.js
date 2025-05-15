@@ -5,8 +5,6 @@ import { useTheme } from '@mui/material/styles'
 import CustomImageContainer from '../CustomImageContainer'
 import { FeatureImageBox } from './FeaturedCategory.style'
 import Router, { useRouter } from 'next/router'
-import CustomNextImage from '@/components/CustomNextImage'
-import Image from 'next/image'
 
 const FeaturedCategoryCard = ({
     categoryImage,
@@ -16,8 +14,7 @@ const FeaturedCategoryCard = ({
 }) => {
     const theme = useTheme()
     const router = useRouter()
-    const isSmall = useMediaQuery(theme.breakpoints.down('md'))
-    const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
+    const isXSmall = useMediaQuery(theme.breakpoints.down('md'))
     const image = categoryImage
     const handleClick = () => {
         Router.push(
@@ -29,17 +26,7 @@ const FeaturedCategoryCard = ({
             { shallow: true }
         )
     }
-    const getSize = () => {
-        if (isSmall) {
-            return image ? 55 : 30;
-        } else if (categoryIsSticky) {
-            return image ? 50 : 30;
-        } else {
-            return image ? 100 : 60;
-        }
-    };
 
-    const size = getSize();
     return (
         <Grid item sx={{ overflow: 'hidden' }} onClick={handleClick}>
             <FeatureImageBox
@@ -49,7 +36,6 @@ const FeaturedCategoryCard = ({
             >
                 <Box
                     sx={{
-
                         height: {
                             xs: '55px',
                             md: categoryIsSticky ? '50px' : '100px',
@@ -68,36 +54,23 @@ const FeaturedCategoryCard = ({
                         },
                         animation: 'fadeInRight 2s  1',
                         alignItems: 'center',
-                        justifyContent: 'center',
                     }}
                 >
-                    {/*<CustomImageContainer*/}
-                    {/*    src={image}*/}
-                    {/*    alt={name}*/}
-                    {/*    height={image ? '100%' : '70px'}*/}
-                    {/*    width="100%"*/}
-                    {/*    objectFit="cover"*/}
-                    {/*    smMb="5px"*/}
-                    {/*    smHeight="100%"*/}
-                    {/*    smMaxWidth="55px"*/}
-                    {/*    cursor="pointer"*/}
-                    {/*    borderRadius={*/}
-                    {/*        router.pathname === '/categories' && isXSmall*/}
-                    {/*            ? '16px'*/}
-                    {/*            : '32px'*/}
-                    {/*    }*/}
-                    {/*/>*/}
-                    <CustomNextImage
+                    <CustomImageContainer
                         src={image}
                         alt={name}
-                        width={size}
-                        height={size}
+                        height={image ? '100%' : '70px'}
+                        width="100%"
+                        objectFit="cover"
+                        smMb="5px"
+                        smHeight="100%"
+                        smMaxWidth="55px"
+                        cursor="pointer"
                         borderRadius={
                             router.pathname === '/categories' && isXSmall
                                 ? '16px'
                                 : '32px'
                         }
-                        objectFit={image ? 'cover':"contain"}
                     />
                 </Box>
                 <Typography

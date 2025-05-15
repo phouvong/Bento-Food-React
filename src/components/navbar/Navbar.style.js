@@ -29,36 +29,7 @@ export const ButtonContainer = styled(Stack)(({ theme, marginBottom }) => ({
     marginBottom: marginBottom ?? '40px',
 }))
 
-// export const AppBarStyle = styled(AppBar)(({ theme, scrolling, isSmall }) => ({
-//     background: 'transparent !important',
-//     boxShadow: 'none !important',
-//     top: !scrolling ? '0' : isSmall ? '0' : '-50px',
-//     WebkitAnimation:
-//         !isSmall && scrolling ? 'fadeInUp 0.4s' : 'fadeInDown 0.4s',
-//     animation: !isSmall && scrolling ? 'fadeInUp 0.4s' : 'fadeInDown 0.4s',
-//     '@keyframes fadeInUp': {
-//         '0%': {
-//             transform: 'translateY(30px)',
-//         },
-//         '100%': {
-//             transform: 'translateY(0)',
-//         },
-//     },
-//     '@keyframes fadeInDown': {
-//         '0%': {
-//             transform: 'translateY(-30px)',
-//         },
-//         '100%': {
-//             transform: 'translateY(0)',
-//         },
-//     },
-// }))
-
-// shouldForwardProp stops disableGutters, scrolling, and isSmall from reaching the DOM.
-// These props are used internally for styling logic, not for DOM output.
-export const AppBarStyle = styled(AppBar, {
-    shouldForwardProp: (prop) => !['scrolling', 'isSmall', 'disableGutters'].includes(prop),
-})(({ theme, scrolling, isSmall }) => ({
+export const AppBarStyle = styled(AppBar)(({ theme, scrolling, isSmall }) => ({
     background: 'transparent !important',
     boxShadow: 'none !important',
     top: !scrolling ? '0' : isSmall ? '0' : '-50px',
@@ -81,8 +52,7 @@ export const AppBarStyle = styled(AppBar, {
             transform: 'translateY(0)',
         },
     },
-}));
-
+}))
 export const NavLinkStyle = styled(Stack)(({ theme, languageDirection }) => ({
     color: `${theme.palette.mode === 'dark' ? '#fff' : '#000'}`,
     marginLeft: `${languageDirection === 'rtl' && '20px'}`,

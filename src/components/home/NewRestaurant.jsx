@@ -159,7 +159,7 @@ const NewRestaurant = () => {
             {
                 breakpoint: 400,
                 settings: {
-                    slidesToShow: 1.2,
+                    slidesToShow: 1,
                     slidesToScroll: 1,
                     infinite: false,
                 },

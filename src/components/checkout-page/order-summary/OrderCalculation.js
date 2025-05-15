@@ -1,6 +1,6 @@
 import { onSingleErrorResponse } from '@/components/ErrorResponse'
 import { CouponApi } from '@/hooks/react-query/config/couponApi'
-import { setCouponAmount, setSubscriptionSubTotal, setTotalAmount } from '@/redux/slices/cart'
+import { setSubscriptionSubTotal, setTotalAmount } from '@/redux/slices/cart'
 import { setCouponType } from '@/redux/slices/global'
 import {
     bad_weather_fees,
@@ -77,7 +77,6 @@ const OrderCalculation = (props) => {
     const { t } = useTranslation()
     const [freeDelivery, setFreeDelivery] = useState('false')
     const [anchorEl, setAnchorEl] = useState(null)
-    const [open,setOpen]=useState(false)
     const theme = useTheme()
 
     let currencySymbol
@@ -105,12 +104,6 @@ const OrderCalculation = (props) => {
           getCouponDiscount(couponDiscount, restaurantData, cartList)
         : getSubTotalPrice(cartList) -
           getProductDiscount(cartList, restaurantData)
-
-    useEffect(() => {
-        dispatch(setCouponAmount(totalAmountForRefer))
-    },[totalAmountForRefer])
-
-
 
     const referDiscount = getReferDiscount(
         totalAmountForRefer,
@@ -240,16 +233,16 @@ const OrderCalculation = (props) => {
 
     const vat = t('VAT/TAX')
     const handleClick = (event) => {
-      setOpen(true)
+        setAnchorEl(event.currentTarget)
     }
     const handleClose = () => {
-        setOpen(false)
+        setAnchorEl(null)
     }
     const { isLoading, data, isError, error, refetch } = useQuery(
         ['coupon-list'],
-        ()=>CouponApi.couponList(totalAmountForRefer,restaurantData?.data?.id),
+        CouponApi.couponList,
         {
-            enabled: !!token && !!restaurantData?.data?.id && !!totalAmountForRefer,
+            enabled: !!token,
             retry: 1,
             onError: onSingleErrorResponse,
         }
@@ -591,10 +584,6 @@ const OrderCalculation = (props) => {
                             anchorEl={anchorEl}
                             setAnchorEl={setAnchorEl}
                             handleClose={handleClose}
-                            totalAmountForRefer={totalAmountForRefer}
-                            open={open}
-                            setOpen={setOpen}
-
                         />
                     )}
                 </Grid>

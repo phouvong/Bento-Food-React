@@ -143,7 +143,7 @@ const BestReviewedFood = ({ isLoading }) => {
             {
                 breakpoint: 400,
                 settings: {
-                    slidesToShow: 1.4,
+                    slidesToShow: 1.25,
                     slidesToScroll: 1,
                     initialSlide: 0,
                 },

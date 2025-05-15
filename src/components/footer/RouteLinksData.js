@@ -3,7 +3,7 @@ export const RouteLinksData = [
         name: 'Open Restaurant',
         value: 'restaurant_owner',
         // link: `${process.env.NEXT_PUBLIC_BASE_URL}/restaurant/apply`,
-        link: '/restaurant-registration-landing',
+        link: '/restaurant-registration?active=active',
     },
     {
         name: 'Become a delivery man',

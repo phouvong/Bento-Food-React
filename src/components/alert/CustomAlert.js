@@ -10,4 +10,6 @@ const CustomAlert = (props) => {
     )
 }
 
+CustomAlert.propTypes = {}
+
 export default CustomAlert

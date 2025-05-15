@@ -18,7 +18,6 @@ import { useMutation } from 'react-query'
 import toast from 'react-hot-toast'
 import { ReviewApi } from './ReviewApi'
 import { onErrorResponse } from '../ErrorResponse'
-import CustomNextImage from '@/components/CustomNextImage'
 
 const ItemForm = ({ data,notNow,id,refetchOrderReview,refetchTrackData ,setReviewedItem,refetch}) => {
     const { t } = useTranslation()
@@ -97,10 +96,10 @@ const ItemForm = ({ data,notNow,id,refetchOrderReview,refetchTrackData ,setRevie
                                         : '0rem'
                                 }
                             >
-                                <CustomNextImage
+                                <CustomImageContainer
                                     src={data?.food_details?.image_full_url}
-                                    width={60}
-                                    height={60}
+                                    width="60px"
+                                    height="60px"
                                     borderRadius="5px"
                                     objectFit="cover"
                                 />

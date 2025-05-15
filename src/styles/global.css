@@ -1,4 +1,4 @@
-/*@import url('https://fonts.googleapis.com/css2?family=Signika+Negative:wght@400;600;700&display=swap');*/
+@import url('https://fonts.googleapis.com/css2?family=Signika+Negative:wght@400;600;700&display=swap');
 
 html,
 body {
@@ -9,12 +9,10 @@ body {
     'Helvetica Neue', 'Signika Negative', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /*overflow-x: clip;*/
+    overflow-x: clip !important;
 
 }
-#__next{
-    overflow: clip;
-}
+
 .footer-wrap,
 .sm,
 .lg a {
@@ -27,7 +25,9 @@ body {
 }
 
 .gm-style-iw-chr button {
+
     height: 25px !important;
+
 }
 .gm-style-iw-chr button span{
     height: 20px !important;

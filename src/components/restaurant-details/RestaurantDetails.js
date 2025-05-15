@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Box, Stack } from '@mui/material'
 import TopBanner from './HeadingBannerSection/TopBanner'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
@@ -82,8 +82,7 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const refs = useRef([])
-    const restaurantCategoryIds = restaurantData?.category_ids;
-    const [scrollingByClick, setScrollingByClick] = useState(false)
+    const restaurantCategoryIds = restaurantData?.category_ids
     const { ref, inView } = useInView()
     const handleOnSuccess = (res) => {
         setAllFoods(res?.data?.products)
@@ -150,46 +149,31 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
     }, [allFoods, allCategories, recommendProducts])
 
     const handleFocusedSection = debounce((val) => {
-        if (!clickedOnCategoryRef.current) {
-            setSelectedId(val?.id);
+        setSelectedId(val?.id)
+        if (!isFirstRender) {
+            if (!clickedOnCategoryRef.current) {
+                setSelectedId(val?.id)
+            }
+            clickedOnCategoryRef.current = false
         }
-        clickedOnCategoryRef.current = false;
-    }, 300);
-
+    }, 300)
     const handleClick = (val) => {
-        clickedOnCategoryRef.current = true;
-        setScrollingByClick(true); // <--- NEW
-        setSelectedId(val);
-    };
+        //setClickedCategory(val)
+        setSelectedId(val)
 
-    // useEffect(() => {
-    //     if (refs.current.length > 0) {
-    //         if (selectedId) {
-    //             refs.current[selectedId]?.scrollIntoView({
-    //                 behavior: 'smooth',
-    //             })
-    //         }
-    //     }
-    // }, [selectedId])
+        clickedOnCategoryRef.current = true
+        // setClickedOnCategory(true)
+    }
 
     useEffect(() => {
-        if (!selectedId) return;
-        if (!scrollingByClick) return; // <-- Only scroll when clicking
-
-        const node = refs.current[selectedId];
-        if (node) {
-            const timeout = setTimeout(() => {
-                node.scrollIntoView({
+        if (refs.current.length > 0) {
+            if (selectedId) {
+                refs.current[selectedId]?.scrollIntoView({
                     behavior: 'smooth',
-                    block: 'start',
-                    inline: 'nearest',
-                });
-                setScrollingByClick(false); // After scroll once, reset
-            }, 100);
-
-            return () => clearTimeout(timeout);
+                })
+            }
         }
-    }, [selectedId, data, scrollingByClick]); // depend on scrollingByClick
+    }, [selectedId])
 
     const handleFilter = () => {
         setCheckFilter((prevState) => !prevState)
@@ -200,40 +184,48 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
     }, [checkFilter])
 
     const handleFilteredData = () => {
-        const {
-            discount: filterDiscount,
-            nonVeg: filterNonVeg,
-            veg: filterVeg,
-            currentlyAvailable: filterAvailable
-        } = filterKey || {}
-
         const combined = getCombinedCategoriesAndProducts(
             allCategories,
             allFoods,
             restaurantCategoryIds,
             recommendProducts
+            // popularProducts
         )
 
-        const filteredData = combined
-            ?.map((category) => {
-                const filteredProducts = category.products?.filter((food) => {
-                    if (filterDiscount && food.discount <= 0) return false
-                    if (filterNonVeg && food.veg !== 0) return false
-                    if (filterVeg && food.veg !== 1) return false
-                    if (filterAvailable && !isAvailable(food.available_time_starts, food.available_time_ends)) return false
+        const filterData = combined?.map((item) => {
+            return {
+                ...item,
+                products: item?.products?.filter((foods) => {
+                    const isDiscountMatch = filterKey?.discount
+                        ? foods?.discount > 0
+                        : true
+                    const isNonVegMatch = filterKey?.nonVeg
+                        ? foods?.veg === 0
+                        : true
+                    const isVegMatch = filterKey?.veg ? foods?.veg === 1 : true
+                    const isAvailableMatch = filterKey?.currentlyAvailable
+                        ? isAvailable(
+                              foods?.available_time_starts,
+                              foods?.available_time_ends
+                          )
+                        : true
 
-                    return true
-                })
+                    return (
+                        isDiscountMatch &&
+                        isNonVegMatch &&
+                        isVegMatch &&
+                        isAvailableMatch
+                    )
+                }),
+            }
+        })
 
-                return {
-                    ...category,
-                    products: filteredProducts
-                }
-            })
-            ?.filter((category) => category.products?.length > 0)
-
-        setData(filteredData)
+        const hasProducts = filterData?.filter(
+            (item) => item?.products?.length > 0
+        )
+        setData(hasProducts)
     }
+
     const handleSearchResult = async (values) => {
         if (values === '') {
             setSearchKey('')

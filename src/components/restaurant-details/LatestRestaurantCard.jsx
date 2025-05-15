@@ -1,4 +1,4 @@
-import { alpha, Stack, styled, Typography, Box, useMediaQuery } from '@mui/material'
+import { alpha, Stack, styled, Typography, Box } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
@@ -16,7 +16,6 @@ import { HomeTextTypography } from '../home/HomeStyle'
 import DelivaryTruckIcon from '../../assets/images/icons/DelivaryTruckIcon'
 import DistanceIcon from '../../assets/images/icons/DistanceIcon'
 import RestaurantItemsIcon from '../../assets/images/icons/RestaurantItemsIcon'
-import CustomNextImage from '@/components/CustomNextImage'
 
 const ProfilePhotoWrapper = styled(Stack)(({ theme }) => ({
     justifyContent: 'center',
@@ -46,7 +45,6 @@ const LatestRestaurantCard = (props) => {
     const { t } = useTranslation()
     const theme = useTheme()
     const router = useRouter()
-    const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const { global } = useSelector((state) => state.globalSettings)
     let currencySymbol
     let currencySymbolDirection
@@ -236,11 +234,11 @@ const LatestRestaurantCard = (props) => {
                                         {discountChip()}
                                     </Stack>
                                 )}
-                                <CustomNextImage
+                                <CustomImageContainer
                                     src={image}
-                                    width="310"
-                                    height="100"
-                                    objectFit={image?"cover":"contain"}
+                                    width="100%"
+                                    height="100%"
+                                    objectFit="cover"
                                     borderRadius="8px"
                                 />
                             </Box>
@@ -253,15 +251,14 @@ const LatestRestaurantCard = (props) => {
                         >
                             <ProfilePhotoWrapper
                                 width={{ xs: '50px', md: '70px' }}
-                                minWidth={{ xs: '50px', md: '70px' }}
-                                height={{ xs: '50px', md: '70px' }}
+                                height={{ xs: '42px', md: '70px' }}
                                 padding={{ xs: '5px', md: '10px' }}
                             >
-                                <CustomNextImage
+                                <CustomImageContainer
                                     src={logo}
-                                    width={isSmall?'30':'50'}
-                                    height={isSmall?'30':'50'}
-                                    objectFit={logo?"cover":"contain"}
+                                    width={{ xs: '30px', md: '50px' }}
+                                    height={{ xs: '30px', md: '50px' }}
+                                    objectFit="cover"
                                     borderRadius="100%"
                                 />
                             </ProfilePhotoWrapper>

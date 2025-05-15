@@ -83,7 +83,6 @@ import LocationIcon from '@/components/order-details/assets/LocationIcon'
 import ContactAddressMap from '@/components/help-page/ContactAddressMap'
 import DeliveryTimeInfo from '@/components/order-details/DeliveryTimeInfo'
 import DIneInOrderTimeInfo from '@/components/order-details/DIneInOrderTimeInfo'
-import CustomNextImage from '@/components/CustomNextImage'
 const CustomTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} arrow classes={{ popper: className }} />
 ))(({ theme }) => ({
@@ -353,10 +352,10 @@ const OrderDetails = ({ OrderIdDigital }) => {
                         gap={{ xs: '5px', sm: '6px', md: '10px' }}
                         flexWrap="wrap"
                     >
-                        <CustomNextImage
-                            src={startReview}
-                            width={isXSmall?'15':'20'}
-                            height={isXSmall?'15':'20'}
+                        <CustomImageContainer
+                            src={startReview.src}
+                            width={{ xs: '15px', md: '20px' }}
+                            height={{ xs: '15px', md: '20px' }}
                         />
                         <CustomColouredTypography
                             color="primary"
@@ -389,10 +388,10 @@ const OrderDetails = ({ OrderIdDigital }) => {
                         gap={{ xs: '5px', sm: '6px', md: '10px' }}
                         flexWrap="wrap"
                     >
-                        <CustomNextImage
+                        <CustomImageContainer
                             src={startReview.src}
-                            width={isXSmall?'15':'20'}
-                            height={isXSmall?'15':'20'}
+                            width={{ xs: '15px', md: '20px' }}
+                            height={{ xs: '15px', md: '20px' }}
                         />
                         <CustomColouredTypography
                             color="primary"
@@ -425,10 +424,10 @@ const OrderDetails = ({ OrderIdDigital }) => {
                         gap={{ xs: '5px', sm: '6px', md: '10px' }}
                         flexWrap="wrap"
                     >
-                        <CustomNextImage
-                            src={startReview}
-                            width={isXSmall?'15':'20'}
-                            height={isXSmall?'15':'20'}
+                        <CustomImageContainer
+                            src={startReview.src}
+                            width={{ xs: '15px', md: '20px' }}
+                            height={{ xs: '15px', md: '20px' }}
                         />
                         <CustomColouredTypography
                             color="primary"
@@ -827,15 +826,17 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                         >
                                                             <Stack>
                                                                 {product.item_campaign_id ? (
-                                                                    <CustomNextImage
+                                                                    <CustomImageContainer
                                                                         src={
                                                                             product
                                                                                 .food_details
                                                                                 .image_full_url
                                                                         }
-                                                                        height="60"
-                                                                        maxWidth="60"
+                                                                        height="60px"
+                                                                        maxWidth="60px"
                                                                         width="100%"
+                                                                        loading="lazy"
+                                                                        smHeight="50px"
                                                                         borderRadius="5px"
                                                                     />
                                                                 ) : (
@@ -1185,14 +1186,14 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                         >
                                             <Stack>
                                                 {trackData && (
-                                                    <CustomNextImage
+                                                    <CustomImageContainer
                                                         src={
                                                             trackData?.data
                                                                 ?.restaurant
                                                                 ?.logo_full_url
                                                         }
-                                                        height="80"
-                                                        width="80"
+                                                        height="80px"
+                                                        width="80px"
                                                         borderRadius=".5rem"
                                                         objectFit="contain"
                                                     />

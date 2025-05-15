@@ -177,7 +177,7 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
                             <Box
                                 align="center"
                                 component={ButtonBase}
-                                alignItems="center"
+                                alignItem="center"
                                 onClick={() => handleClick('inbox')}
                             >
                                 <IconButton>
@@ -222,9 +222,9 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
                                         width: 30,
                                         backgroundColor: userData?.image
                                             ? (theme) =>
-                                                theme.palette.neutral[100]
+                                                  theme.palette.neutral[100]
                                             : (theme) =>
-                                                theme.palette.neutral[400],
+                                                  theme.palette.neutral[400],
                                     }}
                                     src={userData?.image_full_url}
                                 />
@@ -273,6 +273,7 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
     }
 
     return (
+        <NoSsr>
             <CustomNavBox isSticky={isSticky}>
                 <CustomContainer>
                     <Toolbar disableGutters={true}>
@@ -347,6 +348,7 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
                     </Toolbar>
                 </CustomContainer>
             </CustomNavBox>
+        </NoSsr>
     )
 }
 export default SecondNavbar

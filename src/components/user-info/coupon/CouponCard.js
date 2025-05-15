@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
-import { IconButton, Stack, Typography, Card } from '@mui/material'
+import { IconButton, Stack, Typography } from '@mui/material'
 import CustomImageContainer from '../../CustomImageContainer'
 import percentageCoupon from '../../../../public/static/profile/couponper.svg'
 import CouponVector from './CouponVector'
@@ -9,71 +9,68 @@ import { useSelector } from 'react-redux'
 import { getAmount } from '@/utils/customFunctions'
 import { t } from 'i18next'
 import CustomCopyWithTooltip from './CustomCopyWithToolTip'
+import Card from '@mui/material/Card'
 import amount_coupon from '../../../../public/static/profile/amountcoupon.svg'
 import { CouponTypography } from '../loyality/Loyality.style'
 import moment from 'moment'
 import LoadingButton from '@mui/lab/LoadingButton'
-import CustomNextImage from '@/components/CustomNextImage'
 
 const CouponCard = ({
-                        coupon,
-                        fromCheckout,
-                        getCouponCodeFromCard,
-                        loading,
-                        disabled
-                    }) => {
+    coupon,
+    fromCheckout,
+    getCouponCodeFromCard,
+    loading,
+}) => {
     const theme = useTheme()
     const valid_until = t('Valid until')
     const min = t('*min purchase')
     const [tooltipOpen, setTooltipOpen] = useState(false)
     const { global } = useSelector((state) => state.globalSettings)
-    let currencySymbol, currencySymbolDirection, digitAfterDecimalPoint
+    let currencySymbol
+    let currencySymbolDirection
+    let digitAfterDecimalPoint
 
     if (global) {
         currencySymbol = global.currency_symbol
         currencySymbolDirection = global.currency_symbol_direction
         digitAfterDecimalPoint = global.digit_after_decimal_point
     }
-
     const imageHandler = () => {
         if (coupon?.discount_type === 'percent') {
             return (
-                <CustomNextImage
-                    src={percentageCoupon}
-                    width="30"
-                    height="30"
+                <CustomImageContainer
+                    src={percentageCoupon.src}
+                    width="30px"
+                    height="30px"
                 />
             )
         } else {
             return (
                 <Stack position="relative">
                     <CouponTypography>{currencySymbol}</CouponTypography>
-                    <CustomNextImage
-                        src={amount_coupon}
-                        width="30"
-                        height="30"
+                    <CustomImageContainer
+                        src={amount_coupon.src}
+                        width="30px"
+                        height="30px"
                     />
                 </Stack>
             )
         }
     }
-
     return (
         <Card
             elevation={9}
             sx={{
                 padding: '.5rem',
-                opacity: disabled ? 0.5 : 1,
-                pointerEvents: disabled ? 'none' : 'auto',
                 boxShadow:
                     '0px 0px 2px rgba(0, 0, 0, 0.1), 0px 5px 10px rgba(0, 0, 0, 0.05)',
-                position: 'relative',
+                position: ' relative',
                 backgroundColor: (theme) =>
                     theme.palette.mode === 'dark'
                         ? theme.palette.cardBackground1
                         : theme.palette.neutral[100],
                 '&::after': {
-                    position: 'absolute',
+                    position: ' absolute',
                     content: '""',
                     height: '40px',
                     right: '-20px',
@@ -87,7 +84,7 @@ const CouponCard = ({
                     width: '40px',
                 },
                 '&::before': {
-                    position: 'absolute',
+                    position: ' absolute',
                     content: '""',
                     height: '40px',
                     left: '-20px',
@@ -126,13 +123,13 @@ const CouponCard = ({
                         {coupon?.coupon_type === 'free_delivery'
                             ? 'Free Delivery'
                             : coupon?.discount_type === 'percent'
-                                ? `${coupon?.discount} %`
-                                : getAmount(
-                                    coupon.discount,
-                                    currencySymbolDirection,
-                                    currencySymbol,
-                                    digitAfterDecimalPoint
-                                )}{' '}
+                            ? `${coupon?.discount} %`
+                            : getAmount(
+                                  coupon.discount,
+                                  currencySymbolDirection,
+                                  currencySymbol,
+                                  digitAfterDecimalPoint
+                              )}{' '}
                         {coupon?.coupon_type === 'free_delivery'
                             ? ''
                             : t('OFF')}
@@ -145,7 +142,11 @@ const CouponCard = ({
                     justifyContent="center"
                     alignItems="center"
                 >
-                   
+                    {coupon?.coupon_type === 'restaurant_wise' && (
+                        <Typography fontSize="12px" fontWeight="500">
+                            {coupon?.data}
+                        </Typography>
+                    )}
                     <Typography
                         fontSize="12px"
                         fontWeight="500"
@@ -173,7 +174,7 @@ const CouponCard = ({
                     {fromCheckout && (
                         <LoadingButton
                             variant="contained"
-                            disabled={disabled}
+                            // loading={loading}
                             onClick={() => getCouponCodeFromCard(coupon?.code)}
                             sx={{
                                 padding: '4px 4px',
@@ -181,18 +182,19 @@ const CouponCard = ({
                                 fontSize: '12px',
                             }}
                         >
-                            {t('Apply')}
+                            {'Apply'}
                         </LoadingButton>
                     )}
                 </CustomStackFullWidth>
 
                 <Stack alignSelf="start">
                     {!fromCheckout && (
-                        <IconButton disabled={disabled}>
+                        <IconButton>
                             <CustomCopyWithTooltip t={t} value={coupon?.code} />
                         </IconButton>
                     )}
                 </Stack>
+                {/*<CouponPercentage/>*/}
             </CustomStackFullWidth>
         </Card>
     )

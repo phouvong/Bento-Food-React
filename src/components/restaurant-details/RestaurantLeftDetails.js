@@ -390,7 +390,14 @@ const RestaurantLeftDetails = (props) => {
                                     position="absolute"
                                     top={scrollPosition === 0 ? '-35px' : '0px'}
                                     sx={{ zIndex: 9999 }}
-
+                                    // height={{
+                                    //     xs:
+                                    //         scrollPosition === 0
+                                    //             ? '100px'
+                                    //             : '74px',
+                                    //     sm: '100px',
+                                    //     md: '100px',
+                                    // }}
                                 >
                                     <CustomImageContainer
                                         src={details?.logo_full_url}

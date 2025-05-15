@@ -2,7 +2,6 @@ import { Stack, Typography, alpha, styled, useTheme } from '@mui/material'
 import React from 'react'
 import CustomImageContainer from '../CustomImageContainer'
 import { t } from 'i18next'
-import CustomNextImage from '@/components/CustomNextImage'
 
 const ContactItemWrapper = styled(Stack)(({ theme }) => ({
     borderRadius: "10px",
@@ -19,12 +18,11 @@ const ContactItem = ({ icon, title, subTitle, onClick }) => {
     const theme = useTheme();
     return (
         <ContactItemWrapper onClick={onClick}>
-            <CustomNextImage
+            <CustomImageContainer
                 src={icon}
                 alt='logo'
-                width="70"
-                height="70"
-                objectFit='contain'
+                width="70px"
+                objectFit='contained'
             />
             <Stack alignItems="center" gap="7px">
                 <Typography fontWeight={600} color={theme.palette.neutral[1000]}>{t(title)}</Typography>

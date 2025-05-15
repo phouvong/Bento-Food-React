@@ -82,7 +82,7 @@ const ProductSearchPage = ({
     }
 
     const isDineIn = restaurantType === 'dine_in' ? restaurantType : ''
-    const {  data, isError, error, refetch, isRefetching,isFetching,isLoading } = useQuery(
+    const { isLoading, data, isError, error, refetch, isRefetching } = useQuery(
         [
             apiKey,
             foodOrRestaurant,
@@ -308,7 +308,7 @@ const ProductSearchPage = ({
                         isLoading={
                             isLoading ||
                             restaurantIsLoading ||
-                            popularFoodisLoading ||isFetching
+                            popularFoodisLoading
                         }
                         isNetworkCalling={isRefetching}
                         data={pageData}

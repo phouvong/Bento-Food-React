@@ -24,7 +24,7 @@ const ImagePreviewer = ({
 }) => {
     // Function to determine the file type
     const getFileType = (file) => {
-        if (typeof window !== 'undefined' && (file instanceof Blob || file instanceof File)) {
+        if (file instanceof Blob || file instanceof File) {
             const fileType = file.type.split('/')[0]
             if (fileType === 'image') {
                 return 'image'
@@ -69,31 +69,31 @@ const ImagePreviewer = ({
                     >
                         {fileType === 'image' ? (
                             <CustomImageContainer
-                                src={previewImage?.url}
+                                src={previewImage.url}
                                 alt="preview"
                                 objectFit="cover"
                             />
                         ) : fileType === 'pdf' ? (
                             <CustomImageContainer
-                                src={pdfIcon?.src}
+                                src={pdfIcon.src}
                                 alt="preview"
                                 objectFit="cover"
                             />
                         ) : fileType === 'doc' ? (
                             <CustomImageContainer
-                                src={docIcon?.src}
+                                src={docIcon.src}
                                 alt="preview"
                                 objectFit="cover"
                             />
                         ) : fileType === 'txt' ? (
                             <CustomImageContainer
-                                src={txtIcon?.src}
+                                src={txtIcon.src}
                                 alt="preview"
                                 objectFit="cover"
                             />
                         ) : (
                             <CustomImageContainer
-                                src={txtIcon?.src}
+                                src={txtIcon.src}
                                 alt="preview"
                                 objectFit="cover"
                             />

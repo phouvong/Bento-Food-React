@@ -68,7 +68,7 @@ const BasicInformationForm = ({
             name: f_name ? `${f_name}${l_name}` : '',
             email: email ? email : '',
             phone: phone ? phone : '',
-            image: image_full_url || '',
+            image: imaimage_full_urlge ? image_full_url : '',
         })
     }
     const handleVerified = (type) => {

@@ -270,7 +270,7 @@ const NearbyPopularFood = ({ isLoading }) => {
                                 {[...Array(12)].map((item, index) => (
                                     <FoodCardHorizontalShimmer
                                         key={index}
-                                        maxwidth="375px"
+                                        maxWidth="375px"
                                     />
                                 ))}
                             </Slider>

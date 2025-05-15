@@ -8,7 +8,6 @@ const initialState = {
     totalAmount: null,
     walletAmount: null,
     subscriptionSubTotal: null,
-    couponAmount: null,
 }
 const isEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 export const cartSlice = createSlice({
@@ -195,9 +194,6 @@ export const cartSlice = createSlice({
         setReorderCartItemByDispatch: (state, action) => {
             state.cartList = [...state.cartList, ...action.payload]
         },
-        setCouponAmount: (state, action) => {
-            state.couponAmount = action.payload
-        },
     },
 })
 
@@ -216,6 +212,5 @@ export const {
     setCartItemByDispatch,
     setTotalAmount,
     setWalletAmount,
-    setCouponAmount
 } = cartSlice.actions
 export default cartSlice.reducer

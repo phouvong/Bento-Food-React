@@ -19,7 +19,6 @@ import CustomPopover from "@/components/custom-popover/CustomPopover";
 import CheckOutPromo from "@/components/checkout-page/order-summary/CheckOutPromo";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
-import CustomModal from '@/components/custom-modal/CustomModal'
 
 const HaveCoupon = ({
                         restaurant_id,
@@ -30,10 +29,9 @@ const HaveCoupon = ({
                         couponCode,
                         setCouponCode,
                         data,
-
-                        handleClose,
-                        totalAmountForRefer,
-    open,setOpen
+                        anchorEl,
+                        setAnchorEl,
+                        handleClose
                     }) => {
     const theme = useTheme();
     const router = useRouter();
@@ -116,7 +114,7 @@ const HaveCoupon = ({
 
     const { isLoading, refetch, isRefetching } = useQuery(
         "apply-coupon",
-        () => CouponApi.applyCoupon(couponCode, restaurant_id,totalAmountForRefer),
+        () => CouponApi.applyCoupon(couponCode, restaurant_id),
         {
             retry: 0,
             onSuccess: handleSuccess,
@@ -222,16 +220,17 @@ const HaveCoupon = ({
                     </InputField>
                 </Grid>
             }
-            <CustomModal
-               openModal={open}
+            <CustomPopover
+                anchorEl={anchorEl}
+                setAnchorEl={setAnchorEl}
                 handleClose={handleClose}
-
+                padding="20px 10px 10px 10px"
                 maxWidth="450px"
 
             >
                 <CheckOutPromo loading={isLoading || isRefetching} handleClose={handleClose} data={data}
                                handleApply={handleApply} />
-            </CustomModal>
+            </CustomPopover>
         </Grid>
     );
 };

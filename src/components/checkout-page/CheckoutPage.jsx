@@ -81,7 +81,6 @@ import useGetMostTrips from '@/hooks/react-query/useGetMostTrips'
 import { setIsNeedLoad } from '@/redux/slices/utils'
 import GuestUserInforForm from '@/components/checkout-page/guest-user/GuestUserInforForm'
 import DineInPreferableTime from '@/components/checkout-page/DineInPreferableTime'
-import CustomNextImage from '@/components/CustomNextImage'
 
 let currentDate = moment().format('YYYY/MM/DD HH:mm')
 let nextday = moment(currentDate).add(1, 'days').format('YYYY/MM/DD')
@@ -134,7 +133,6 @@ const CheckoutPage = ({ isDineIn }) => {
         totalAmount,
         walletAmount,
         subscriptionSubTotal,
-        couponAmount
     } = useSelector((state) => state.cart)
     let currentLatLng = undefined
     const [address, setAddress] = useState(undefined)
@@ -885,11 +883,11 @@ const CheckoutPage = ({ isDineIn }) => {
                                     padding: '5px 10px',
                                 }}
                             >
-                                <CustomNextImage
-                                    height="40"
-                                    width="40"
+                                <CustomImageContainer
+                                    height="40px"
+                                    width="40px"
                                     src={thunderstorm.src}
-                                    objectFit="contain"
+                                    objectFit="contained"
                                 />
 
                                 <Typography>
@@ -1060,7 +1058,7 @@ const CheckoutPage = ({ isDineIn }) => {
     }, [restaurantData, global])
 
     const handleExtraPackaging = (e) => {
-        setExtraPackagingCharge(e.target.checked)
+        setIsExtraPackaging(e.target.checked)
         if (e.target.checked) {
             setExtraPackagingCharge(
                 restaurantData?.data?.extra_packaging_amount

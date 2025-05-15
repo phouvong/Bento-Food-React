@@ -115,9 +115,8 @@ const BusinessPlan = ({ formSubmit, isLoading, configData }) => {
 
                 <CustomStackFullWidth
                     direction={{ xs: 'column', md: 'row' }}
-
+                    spacing={2}
                     mt="1rem"
-                    gap="20px"
                 >
                     {configData?.commission_business_model !== 0 && (
                         <Stack
@@ -176,7 +175,7 @@ const BusinessPlan = ({ formSubmit, isLoading, configData }) => {
                                 color={theme.palette.neutral[400]}
                             >
                                 {t(
-                                    `Store will pay ${configData?.admin_commission}% commission to ${configData?.business_name} from each order. You will get access of all the features and options  in store panel , app and interaction with user.`
+                                    `Store will pay ${configData?.admin_commission}% commission to 6amMart from each order. You will get access of all the features and options  in store panel , app and interaction with user.`
                                 )}
                             </Typography>
                         </Stack>

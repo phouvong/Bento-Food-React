@@ -43,10 +43,17 @@ const CategoryDetailsPage = ({
     const [anchorEl, setAnchorEl] = useState(null)
     const [highestPrice, setHighestPrice] = useState(0)
     const open = Boolean(anchorEl)
+    //const [foodOrRestaurant, setFoodOrRestaurant] = useState('products')
+    // const [priceAndRating,setPriceAndRating] = useState({
+    //     price:'',
+    //     rating:''
+    // })
     const [checkedFilterKey, setCheckedFilterKey] = useState(mockData)
     const { foodOrRestaurant } = useSelector((state) => state.searchFilterStore)
     const [forFilter, setForFilter] = useState(false)
     const [isFirstRender, setIsFirstRender] = useState(true)
+    //const [offset, setOffSet] = useState(1)
+    //const [filterByData, setFilterByData] = useState({})
     const [catetoryMenus, setCategoryMenus] = useState([])
     const { global } = useSelector((state) => state.globalSettings)
     const { t } = useTranslation()

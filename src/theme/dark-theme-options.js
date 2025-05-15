@@ -49,7 +49,7 @@ const skeletonColorAfter =
     'linear-gradient(78.58deg, #F5F6F8 3.23%, #FDFDFD 53.13%, #F6F7F8 100%)'
 
 const primary = {
-    main: '#FF7918',
+    main: '#ff4940',
     light: '#ff6700',
     dark: '#a3460a',
     contrastText: neutral[900],

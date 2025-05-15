@@ -32,7 +32,7 @@ const ValidationSchemaForRestaurant = (
             .test(
                 'min-less-than-max',
                 t(
-                    'Min Delivery Time cannot be more than Max Delivery Time'
+                    'Minimum Delivery Time cannot be more than Maximum Delivery Time'
                 ),
                 function (value) {
                     const { max_delivery_time } = this.parent
@@ -47,7 +47,7 @@ const ValidationSchemaForRestaurant = (
             .test(
                 'max-greater-than-min',
                 t(
-                    'Max Delivery Time must be greater than Min Delivery Time'
+                    'Maximum Delivery Time must be greater than Minimum Delivery Time'
                 ),
                 function (value) {
                     const { min_delivery_time } = this.parent

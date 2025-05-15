@@ -2,7 +2,6 @@ import React from 'react'
 import { TextField, InputAdornment, Chip } from '@mui/material'
 import Autocomplete from '@mui/lab/Autocomplete'
 import { t } from 'i18next'
-import CancelIcon from '@mui/icons-material/Cancel'
 
 const CustomMultiSelectTags = ({
     label,
@@ -47,15 +46,6 @@ const CustomMultiSelectTags = ({
                                 color: '#333',
                                 fontSize: '12px',
                             }}
-                            deleteIcon={
-                                <CancelIcon
-                                    style={{
-                                        margin: "0 5px 0 5px",
-
-                                        fontSize: "20px"
-                                    }}
-                                />
-                            }
                         />
                     </>
                 ))
