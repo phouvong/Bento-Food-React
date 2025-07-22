@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import InputLabel from '@mui/material/InputLabel'
 import { Box, Grid, Typography } from '@mui/material'
 import ImageUploaderWithPreview from '../single-file-uploader-with-preview/ImageUploaderWithPreview'
+import { useSelector } from 'react-redux'
 
 const ImageSection = ({
     RestaurantJoinFormik,
@@ -13,6 +14,7 @@ const ImageSection = ({
 }) => {
     const { t } = useTranslation()
     const languageDirection = localStorage.getItem('direction')
+
     return (
         <>
             <Grid

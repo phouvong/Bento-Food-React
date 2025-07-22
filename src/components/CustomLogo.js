@@ -31,6 +31,9 @@ const CustomLogo = ({ logoImg, atlText, height, width }) => {
                 height={height}
                 src={logoImg}
                 alt={atlText}
+                loading="eager"
+                fetchpriority="high"
+                minwidth="40px"
             />
         </Logo>
     )

@@ -5,6 +5,7 @@ import {
     IconButton,
     Stack,
     useMediaQuery,
+    Box
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import markerIcon from '../../../../public/static/markerIcon.png'
@@ -14,7 +15,7 @@ import MapMarker from './MapMarker'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import { IconWrapper, grayscaleMapStyles } from './Map.style'
-
+import GpsFixedIcon from '@mui/icons-material/GpsFixed'
 const GoogleMapComponent = ({
     setDisablePickButton,
     setLocationEnabled,
@@ -29,13 +30,15 @@ const GoogleMapComponent = ({
     height,
     isGps,
     polygonPaths,
+                                handleAgreeLocation
 }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const containerStyle = {
         width: '100%',
         height: height ? height : isSmall ? '350px' : '400px',
-        borderRadius: '10px',
+        borderRadiusTopLeft: '10px',
+        borderRadiusTopRight:"10px",
         border: `1px solid ${theme.palette.neutral[300]}`,
     }
 
@@ -133,30 +136,42 @@ const GoogleMapComponent = ({
             map.fitBounds(bounds)
         }
     }, [polygonPaths, map])
+
+    const handleCurrentLocation=()=>{
+        handleAgreeLocation?.()
+    }
+
     return isLoaded ? (
         <CustomStackFullWidth position="relative" className="map">
             <Stack
                 position="absolute"
                 zIndex={1}
-                right="15px"
+                left="15px"
                 bottom={isGps ? '18%' : '6%'}
                 direction="column"
                 spacing={1}
             >
-                <IconWrapper
-                    padding={{ xs: '3px', sm: '5px' }}
-                    onClick={handleZoomIn}
-                    disabled={zoom > 21}
-                >
-                    <AddIcon color="primary" />
+                <IconWrapper sx={{borderRadius:"5px"}} onClick={handleCurrentLocation}>
+                    <GpsFixedIcon />
                 </IconWrapper>
-                <IconWrapper
-                    padding={{ xs: '3px', sm: '5px' }}
-                    onClick={handleZoomOut}
-                    disabled={zoom < 1}
-                >
-                    <RemoveIcon color="primary" />
-                </IconWrapper>
+                <Stack sx={{backgroundColor:theme=>theme.palette.neutral[100]}}>
+                    <IconWrapper
+                        sx={{borderRadius:"5px"}}
+                        padding={{ xs: '3px', sm: '5px' }}
+                        onClick={handleZoomIn}
+                        disabled={zoom > 21}
+                    >
+                        <AddIcon color="primary" />
+                    </IconWrapper>
+                    <IconWrapper
+                        sx={{borderRadius:"5px"}}
+                        padding={{ xs: '3px', sm: '5px' }}
+                        onClick={handleZoomOut}
+                        disabled={zoom < 1}
+                    >
+                        <RemoveIcon color="primary" />
+                    </IconWrapper>
+                </Stack>
             </Stack>
             <GoogleMap
                 mapContainerStyle={containerStyle}
@@ -166,11 +181,11 @@ const GoogleMapComponent = ({
                 onUnmount={onUnmount}
                 onMouseDown={(e) => {
                     setMapSetup(true)
-                    setDisablePickButton(true)
+                    setDisablePickButton?.(true)
                 }}
                 onMouseUp={(e) => {
                     setMapSetup(false)
-                    setDisablePickButton(false)
+                    setDisablePickButton?.(false)
                     setLocationEnabled(true)
                     setLocation({
                         lat: map?.center?.lat(),

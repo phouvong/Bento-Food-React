@@ -1,6 +1,6 @@
 import { onSingleErrorResponse } from '@/components/ErrorResponse'
 import { CouponApi } from '@/hooks/react-query/config/couponApi'
-import { setSubscriptionSubTotal, setTotalAmount } from '@/redux/slices/cart'
+import { setCouponAmount, setSubscriptionSubTotal, setTotalAmount } from '@/redux/slices/cart'
 import { setCouponType } from '@/redux/slices/global'
 import {
     bad_weather_fees,
@@ -31,6 +31,9 @@ import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import Skeleton from '@mui/material/Skeleton'
 import { CustomTooltip } from '@/components/user-info/coupon/CustomCopyWithToolTip'
 import InfoIcon from '@mui/icons-material/Info'
+import { getToken } from '@/components/checkout-page/functions/getGuestUserId'
+
+
 
 const OrderCalculation = (props) => {
     const {
@@ -64,6 +67,8 @@ const OrderCalculation = (props) => {
         cashbackAmount,
         extraPackagingCharge,
         distanceLoading,
+        taxData,
+        handleCouponDiscount
     } = props
     const dispatch = useDispatch()
     const { couponType, zoneData } = useSelector(
@@ -77,6 +82,7 @@ const OrderCalculation = (props) => {
     const { t } = useTranslation()
     const [freeDelivery, setFreeDelivery] = useState('false')
     const [anchorEl, setAnchorEl] = useState(null)
+    const [open,setOpen]=useState(false)
     const theme = useTheme()
 
     let currencySymbol
@@ -105,6 +111,7 @@ const OrderCalculation = (props) => {
         : getSubTotalPrice(cartList) -
           getProductDiscount(cartList, restaurantData)
 
+
     const referDiscount = getReferDiscount(
         totalAmountForRefer,
         userData?.discount_amount,
@@ -127,15 +134,17 @@ const OrderCalculation = (props) => {
         tempExtraCharge,
         global?.additional_charge_status != 0 ? additionalCharge : 0,
         extraPackagingCharge,
-        referDiscount
-    )
+        referDiscount,
+        taxData?.tax_status === 'excluded' ? taxData?.tax_amount : 0
 
+    )
+    console.log({distanceData})
     const handleDeliveryFee = () => {
         let price = getDeliveryFees(
             restaurantData,
             global,
             cartList,
-            distanceData?.data,
+            distanceData,
             couponDiscount,
             couponType,
             orderType,
@@ -169,29 +178,6 @@ const OrderCalculation = (props) => {
             )
         }
     }
-    const handleCouponDiscount = () => {
-        let couponDiscountValue = getCouponDiscount(
-            couponDiscount,
-            restaurantData,
-            cartList
-        )
-        if (couponDiscount && couponDiscount.coupon_type === 'free_delivery') {
-            setFreeDelivery('true')
-            return 0
-        } else {
-            let discount = getAmount(
-                couponDiscountValue,
-                currencySymbolDirection,
-                currencySymbol,
-                digitAfterDecimalPoint
-            )
-            return discount
-        }
-    }
-    useEffect(() => {
-        dispatch(setCouponType(''))
-    }, [])
-
     const handleOrderAmount = () => {
         let totalAmount = 0
         if (subscriptionOrderCount > 0) {
@@ -232,30 +218,6 @@ const OrderCalculation = (props) => {
     const totalAmountAfterPartial = totalPrice - walletBalance
 
     const vat = t('VAT/TAX')
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget)
-    }
-    const handleClose = () => {
-        setAnchorEl(null)
-    }
-    const { isLoading, data, isError, error, refetch } = useQuery(
-        ['coupon-list'],
-        CouponApi.couponList,
-        {
-            enabled: !!token,
-            retry: 1,
-            onError: onSingleErrorResponse,
-        }
-    )
-    const getCouponCodeFromCard = (value) => {
-        setCouponCode(value)
-        handleClose()
-    }
-    const restaurantChargeInfo = zoneData?.find(
-        (item) =>
-            Number.parseInt(item.id) ===
-            Number.parseInt(restaurantData?.data?.zone_id)
-    )
     const extraText = t('This charge includes extra vehicle charge')
     const badText = t('and bad weather charge')
     const deliveryToolTipsText = `${extraText} ${getAmount(
@@ -278,10 +240,29 @@ const OrderCalculation = (props) => {
         <>
             <CalculationGrid container md={12} xs={12} spacing={1}>
                 <Grid item md={8} xs={8}>
-                    {subscriptionOrderCount > 0
-                        ? t('Items price')
-                        : t('Subtotal')}
+                    {subscriptionOrderCount > 0 ? (
+                        <>
+                            {t('Items price')}
+
+                        </>
+                    ) : (
+                        <>
+                           {t('Subtotal')}
+                            {taxData?.tax_included === 1 && taxData?.tax_included !== null && taxData?.tax_amount>0 && (
+                                <Typography
+                                    fontSize="12px"
+                                    sx={{ marginInlineStart: '5px' }}
+                                    color="primary"
+                                    component="span"
+                                >
+                                    {t('(Vat/Tax incl.)')}
+                                </Typography>
+                            )}
+                        </>
+
+                    )}
                 </Grid>
+
                 <Grid
                     item
                     md={4}
@@ -369,14 +350,10 @@ const OrderCalculation = (props) => {
                         </Grid>
                     </>
                 ) : null}
-                {restaurantData?.data?.tax ? (
+                {taxData?.tax_status==="excluded" && taxData?.tax_amount>0  ? (
                     <>
                         <Grid item md={8} xs={8}>
-                            {`${vat} (${restaurantData?.data?.tax}% ${
-                                global?.tax_included === 1
-                                    ? t('Included')
-                                    : t('Excluded')
-                            })`}
+                            {`${vat}`}
                         </Grid>
                         <Grid item md={4} xs={4} align="right">
                             <Stack
@@ -386,16 +363,11 @@ const OrderCalculation = (props) => {
                                 spacing={0.5}
                             >
                                 <Typography variant="h4">
-                                    {global?.tax_included === 1 ? '' : '(+)'}
+                                    {'(+)'}
                                 </Typography>
                                 <Typography variant="h4">
                                     {getAmount(
-                                        getTaxableTotalPrice(
-                                            cartList,
-                                            couponDiscount,
-                                            restaurantData,
-                                            referDiscount
-                                        ),
+                                       taxData?.tax_amount,
                                         currencySymbolDirection,
                                         currencySymbol,
                                         digitAfterDecimalPoint
@@ -539,54 +511,6 @@ const OrderCalculation = (props) => {
                     </>
                 )}
 
-                {token && (
-                    <Grid item md={12} xs={12} marginTop="5px">
-                        <Stack
-                            direction="row"
-                            justifyContent="space-between"
-                            alignItems="center"
-                        >
-                            <Typography
-                                fontSize="14px"
-                                fontWeight="600"
-                                color={theme.palette.neutral[1000]}
-                            >
-                                {t('Promo Code')}
-                            </Typography>
-                            <Button
-                                endIcon={
-                                    <AddIcon
-                                        style={{
-                                            fontSize: '18px',
-                                            fontWeight: '700',
-                                        }}
-                                    />
-                                }
-                                onClick={handleClick}
-                            >
-                                {t('Add Voucher')}
-                            </Button>
-                        </Stack>
-                    </Grid>
-                )}
-                <Grid item md={12} xs={12} marginBottom="1rem">
-                    {restaurantData?.data && token && (
-                        <HaveCoupon
-                            restaurant_id={restaurantData?.data?.id}
-                            setCouponDiscount={setCouponDiscount}
-                            counponRemove={counponRemove}
-                            couponDiscount={couponDiscount}
-                            cartList={cartList}
-                            total_order_amount={total_order_amount}
-                            setCouponCode={setCouponCode}
-                            couponCode={couponCode}
-                            data={data}
-                            anchorEl={anchorEl}
-                            setAnchorEl={setAnchorEl}
-                            handleClose={handleClose}
-                        />
-                    )}
-                </Grid>
                 <CustomDivider />
                 {subscriptionOrderCount > 0 && (
                     <>

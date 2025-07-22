@@ -3,9 +3,9 @@ import { CustomFoodCardNew } from './FoodCard.style'
 import { Stack } from '@mui/material'
 import Skeleton from '@mui/material/Skeleton'
 
-const FoodCardHorizontalShimmer = ({ maxWidth }) => {
+const FoodCardHorizontalShimmer = ({ maxwidth }) => {
     return (
-        <CustomFoodCardNew maxWidth={maxWidth}>
+        <CustomFoodCardNew maxwidth={maxwidth}>
             <Stack direction="row" spacing={1}>
                 <Skeleton
                     animation="wave"

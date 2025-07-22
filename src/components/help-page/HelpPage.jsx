@@ -10,6 +10,7 @@ import mailIcon from './assets/mailIcon.svg'
 import addressIcon from './assets/addressIcon.svg'
 import ContactAddressMap from "./ContactAddressMap";
 import NeedHelpSvg from './assets/NeedHelp.svg'
+import CustomNextImage from '@/components/CustomNextImage'
 
 const HelpPage = ({ configData }) => {
     const { t } = useTranslation()
@@ -40,10 +41,11 @@ const HelpPage = ({ configData }) => {
             >
                 <Grid item md={12} xs={12} sx={{ paddingBottom: '50px' }}>
                     <Stack alignItems="center" gap="30px">
-                        <CustomImageContainer
-                            src={NeedHelpSvg.src}
+                        <CustomNextImage
+                            src={NeedHelpSvg}
                             alt='logo'
-                            width="300px"
+                            width="300"
+                            height="185"
                             objectFit='contained'
                         />
                         <Stack alignItems="center">

@@ -28,6 +28,7 @@ import CustomPopoverWithItem from '../custom-popover/CustomPopoverWithItem'
 import WishListImage from '../../assets/images/WishListImage'
 import DeleteIcon from '../../assets/images/icons/DeleteIcon'
 import HalalSvg from '@/components/food-card/HalalSvg'
+import CustomNextImage from '@/components/CustomNextImage'
 
 const HorizontalFoodCard = (props) => {
     const {
@@ -94,6 +95,8 @@ const HorizontalFoodCard = (props) => {
                         <Stack
                             position="relative"
                             sx={{
+                                width:"100%",
+                                maxWidth:"115px",
                                 transition: `${theme.transitions.create(
                                     ['background-color', 'transform'],
                                     {
@@ -109,15 +112,14 @@ const HorizontalFoodCard = (props) => {
                                 },
                             }}
                         >
-                            <CustomImageContainer
+                            <CustomNextImage
                                 src={imageUrl}
-                                width="115px"
-                                smWidth="95px"
-                                smHeight="95px"
-                                height="95px"
+                                width="115"
+                                height="95"
                                 borderRadius="3px"
-                                objectFit="cover"
+                                objectFit={imageUrl? 'cover' : 'contain'}
                             />
+
 
                             {!isAvailable(
                                 available_time_starts,

@@ -1070,4 +1070,14 @@ export const english = {
         'See our most popular restaurant and foods',
     'Currently Open': 'Currently Open',
     'View From Map': 'View From Map',
+    "We Make it Simple and Easy":"We Make it Simple and Easy",
+    "Brings new Opportunities":"Brings new Opportunities",
+    "Frequently Asked Questions":"Frequently Asked Questions",
+    "Boost your revenue with":"Boost your revenue with",
+    "Sign up now and start earning more with":"Sign up now and start earning more with",
+    "food delivery service.":"food delivery service.",
+    "Click to upload":"Click to upload",
+    "Business Logo":"Business Logo"
+
+
 }

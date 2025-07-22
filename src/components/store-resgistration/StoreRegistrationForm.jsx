@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 // import { CustomStackFullWidth } from 'styled-components/CustomStyles.style'
 import {
     alpha,
@@ -10,14 +10,11 @@ import {
     useTheme,
 } from '@mui/material'
 import * as Yup from 'yup'
-
 import RoomIcon from '@mui/icons-material/Room'
-
 import { useFormik } from 'formik'
 import { useTranslation } from 'react-i18next'
 
 import { useQuery } from 'react-query'
-// import { GoogleApi } from 'api-manage/hooks/react-query/googleApi'
 import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
 import {
@@ -40,6 +37,8 @@ import { setAllData } from '@/redux/slices/storeRegistrationData'
 import StoreAdditionalInfo from './StoreAdditionalInfo'
 import { useGetLocation } from '@/utils/custom-hook/useGetLocation'
 import { formatPhoneNumber } from '@/utils/customFunctions'
+import toast from 'react-hot-toast'
+import BusinessTin from '@/components/store-resgistration/BusinessTin'
 
 export const generateInitialValues = (languages, allData, configData) => {
     const initialValues = {
@@ -64,13 +63,13 @@ export const generateInitialValues = (languages, allData, configData) => {
         module_id: allData?.module_id || '',
         delivery_time_type: allData?.delivery_time_type || '',
         // additional_documents: allData?.additional_documents || [],
-        additional_data: { ...allData?.additional_data } || {}, // Make a shallow copy of additional_data
+        additional_data: { ...allData?.additional_data } || {},
+        tin: allData?.tin || "",
+        tin_expire_date: allData?.tin_expire_date || "",
+        tin_certificate_image: allData?.tin_certificate_image || "",
     }
 
-    // Create a copy of the initialValues to avoid mutation
     const updatedInitialValues = { ...initialValues }
-
-    // Loop through the dynamic fields in configData to set initial values for additional_data
     configData?.restaurant_additional_join_us_page_data?.data?.forEach(
         (item) => {
             if (item.field_type === 'file') {
@@ -78,7 +77,6 @@ export const generateInitialValues = (languages, allData, configData) => {
                     item.media_data.upload_multiple_files === 1 ||
                     item.media_data.upload_multiple_files === 0
                 ) {
-                    // If multiple files are allowed, initialize with an empty array
                     updatedInitialValues[item.input_data] =
                         allData?.[item.input_data] || '' // Empty array for file uploads
                 }
@@ -116,17 +114,22 @@ const StoreRegistrationForm = ({
     const [selectedLanguage, setSelectedLanguage] = React.useState('en')
     const [selectedZone, setSelectedZone] = React.useState(null)
     const [inZone, setInZone] = React.useState(null)
-    const { allData, activeStep } = useSelector((state) => state.storeRegData)
-    const [rerenderMap, setRerenderMap] = useState(false)
+    const { allData, activeStep, zoneOptions } = useSelector((state) => state.storeRegData);
+    const { businessLogo } = useSelector((state) => state.globalSettings);
+    const [rerenderMap, setRerenderMap] = useState(false);
+    const landingFormData = router.query.data && JSON.parse(router.query.data);
     const [additionalDataKey, setAdditionalDataKey] = useState(0)
+    const [selectedDates, setSelectedDates] = useState(null);
+    const [file, setFile] = useState(null);
+    const [preview, setPreview] = useState(null);
+
     const initialValues = generateInitialValues(
         configData?.language,
         allData,
         configData
     )
-
-    const { coords, isGeolocationAvailable, isGeolocationEnabled } =
-        useGeolocated({
+const [submitForm,setSubmitForm]=useState(false)
+    const { coords, isGeolocationAvailable, isGeolocationEnabled } = useGeolocated({
             positionOptions: {
                 enableHighAccuracy: false,
             },
@@ -294,6 +297,7 @@ const StoreRegistrationForm = ({
         return Yup.object().shape(dynamicSchema)
     }
 
+
     const RestaurantJoinFormik = useFormik({
         initialValues,
         validationSchema: ValidationSchemaForRestaurant(
@@ -303,10 +307,14 @@ const StoreRegistrationForm = ({
         enableReinitialize: true, // This ensures form values are reinitialized when initialValues change
         onSubmit: async (values, helpers) => {
             try {
-                formSubmitOnSuccess(values)
-            } catch (err) {}
+                if (inZone) {
+                    formSubmitOnSuccess(values);
+                } else {
+                    toast.error(t("Please select a zone"));
+                }
+            } catch (err) {
+            }
 
-            console.log(values)
         },
     })
 
@@ -333,10 +341,39 @@ const StoreRegistrationForm = ({
     }, [RestaurantJoinFormik?.values?.zoneId])
 
     const formSubmitOnSuccess = (values) => {
+
         setFormValues(values)
+
         dispatch(setActiveStep(1))
         dispatch(setAllData(values))
     }
+
+    const hydratedRef = useRef(false);
+
+    useEffect(() => {
+        if (!landingFormData) return;
+
+        // Run only once
+        if (hydratedRef.current) return;
+        hydratedRef.current = true;
+
+        if (landingFormData?.restaurant_name) {
+            RestaurantJoinFormik.setFieldValue('restaurant_name', {
+                ...RestaurantJoinFormik.values.restaurant_name,
+                en: landingFormData.restaurant_name,
+            });
+        }
+
+
+        if (landingFormData?.zoneId) {
+            setSelectedZone(landingFormData.zoneId);
+            RestaurantJoinFormik.setFieldValue('zoneId', landingFormData.zoneId);
+        }
+
+        if (businessLogo) {
+            RestaurantJoinFormik.setFieldValue('logo', businessLogo);
+        }
+    }, [landingFormData]);
 
     const fNameHandler = (value) => {
         RestaurantJoinFormik.setFieldValue('f_name', value)
@@ -402,6 +439,23 @@ const StoreRegistrationForm = ({
     const moduleHandler = (value) => {
         RestaurantJoinFormik.setFieldValue('module_id', value)
     }
+    const singleFileUploadHandlerForTinFile = (value) => {
+        // const file = e.currentTarget.files[0];
+        RestaurantJoinFormik.setFieldValue("tin_certificate_image", value);
+    };
+    const imageOnchangeHandlerForTinImage = (value) => {
+        RestaurantJoinFormik.setFieldValue("tin_certificate_image", value);
+    };
+    useEffect(() => {
+        if(selectedDates && selectedDates[0]){
+            const tempSelectedDates = new Date(selectedDates[0]);
+            RestaurantJoinFormik.setFieldValue(
+                "tin_expire_date",
+                tempSelectedDates
+            );
+        }
+
+    }, [selectedDates]);
     const cuisinesHandler = (selectedOptions) => {
         const newValues = selectedOptions.map((item) => item.value)
 
@@ -430,15 +484,25 @@ const StoreRegistrationForm = ({
         RestaurantJoinFormik.setFieldValue('lng', value?.lat)
         RestaurantJoinFormik.setFieldValue('lat', value?.lng)
     }
-    const {
-        data: zoneList,
-        isLoading: zoneListLoading,
+    const { data: zoneList, refetch: zoneListRefetch } = useGetZoneList()
 
-        refetch: zoneListRefetch,
-    } = useGetZoneList()
     useEffect(() => {
-        zoneListRefetch() // Fetches data when the component mounts
-    }, [])
+        if (!zoneOptions || zoneOptions.length === 0) {
+            zoneListRefetch();
+        }
+    }, [zoneOptions]);
+
+    const fallbackZoneOptions = useMemo(() => {
+        if (!zoneList || zoneList.length === 0) return [];
+        return zoneList.map(zone => ({
+            label: zone.name,
+            value: zone.id,
+        }));
+    }, [zoneList]);
+
+    const zoneOptionData = zoneOptions && zoneOptions.length > 0
+        ? zoneOptions
+        : fallbackZoneOptions;
 
     const { data: zoneData, refetch } = useQuery(
         ['zoneId'],
@@ -449,14 +513,7 @@ const StoreRegistrationForm = ({
         }
     )
 
-    let zoneOption = []
-    zoneList?.forEach((zone) => {
-        let obj = {
-            label: zone.name,
-            value: zone.id,
-        }
-        zoneOption.push(obj)
-    })
+
 
     let tabs = []
     configData?.language?.forEach((lan) => {
@@ -488,8 +545,17 @@ const StoreRegistrationForm = ({
     const [renderKey, setRenderKey] = useState(0)
 
     useEffect(() => {
-        setLocations(configData?.default_location)
+        if (landingFormData?.restaurant_address) {
+            setLocations( landingFormData.restaurant_address)
+        } else {
+            setLocations(configData?.default_location)
+        }
     }, [])
+    const tinNumberHandler = (value) => {
+        const filtered = value.replace(/[^0-9\-\/]/g, "")
+        RestaurantJoinFormik.setFieldValue("tin", filtered);
+    };
+
     return (
         <CustomStackFullWidth
             key={renderKey}
@@ -520,7 +586,7 @@ const StoreRegistrationForm = ({
                     >
                         {t('Restaurant Info')}
                     </Typography>
-                    <CustomDivider border="1px" paddingBottom="5px" />
+                    
                     <CustomStackFullWidth
                         // padding={{ xs: '7px', md: '2rem' }}
                         mt="20px"
@@ -541,6 +607,7 @@ const StoreRegistrationForm = ({
                         <Grid container spacing={3}>
                             <Grid item xs={12} md={6}>
                                 <RestaurantDetailsForm
+                                    submitForm={submitForm}
                                     RestaurantJoinFormik={RestaurantJoinFormik}
                                     restaurantNameHandler={
                                         restaurantNameHandler
@@ -556,7 +623,7 @@ const StoreRegistrationForm = ({
                                         maxDeliveryTimeHandler
                                     }
                                     cuisinesHandler={cuisinesHandler}
-                                    zoneOption={zoneOption}
+                                    zoneOption={zoneOptionData}
                                     zoneHandler={zoneHandler}
                                     moduleHandler={moduleHandler}
                                     handleTimeTypeChangeHandler={
@@ -570,6 +637,7 @@ const StoreRegistrationForm = ({
                                     handleCurrentTab={handleCurrentTab}
                                     tabs={tabs}
                                     selectedLanguage={selectedLanguage}
+                                    setInZone={setInZone}
                                 />
                             </Grid>
                             <Grid item xs={12} md={6}>
@@ -639,6 +707,8 @@ const StoreRegistrationForm = ({
                                                 restaurantAddressHandler
                                             }
                                             handleLocation={handleLocation}
+                                            setInZone={setInZone}
+                                            zoneId={RestaurantJoinFormik?.values?.zoneId}
                                         />
                                     </Box>
 
@@ -707,12 +777,39 @@ const StoreRegistrationForm = ({
                         // backgroundColor: (theme) => alpha(theme.palette.neutral[400], 0.1),
 
                         borderRadius: '8px',
+                        padding:"1rem"
+                    }}
+                >
+                    <BusinessTin
+                        RestaurantJoinFormik={RestaurantJoinFormik}
+                        //restaurantVatHandler={restaurantVatHandler}
+                        configData={configData}
+                        tinNumberHandler={tinNumberHandler}
+                        selectedDates={selectedDates}
+                        setSelectedDates={setSelectedDates}
+                        imageOnchangeHandlerForTinImage={imageOnchangeHandlerForTinImage}
+                        singleFileUploadHandlerForTinFile={singleFileUploadHandlerForTinFile}
+                        preview={preview}
+                        setFile={setFile}
+                        file={file}
+                        setPreview={setPreview}
+                    />
+                </CustomStackFullWidth>
+                <CustomStackFullWidth
+                    mt="20px"
+                    sx={{
+                        backgroundColor: (theme) =>
+                            alpha(theme.palette.neutral[200], 0.6),
+                        // backgroundColor: (theme) => alpha(theme.palette.neutral[400], 0.1),
+
+                        borderRadius: '8px',
                     }}
                 >
                     <StoreAdditionalInfo
                         additionalDataKey={additionalDataKey}
                         RestaurantJoinFormik={RestaurantJoinFormik}
                         configData={configData}
+                        submitForm={submitForm}
                     />
                 </CustomStackFullWidth>
                 <Grid item md={12} xs={12} mt="1rem" align="end">

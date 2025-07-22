@@ -5,36 +5,31 @@ import { imageNotFoundPlaceholder } from '@/utils/LocalImages'
 import { useTranslation } from 'react-i18next'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import CustomContainer from '../container'
+import CustomNextImage from '@/components/CustomNextImage'
 
 const DownloadSection = ({ landing_page_links, download_app_data }) => {
     const { t } = useTranslation()
     return (
         <CustomContainer>
             <CustomStackFullWidth
-                sx={{ marginBottom: '30px', marginTop: '30px' }}
+                sx={{ marginBottom: '60px', marginTop: '60px' }}
             >
-                <Grid container spacing={2} sx={{ my: 1 }} alignItems="center">
+                <Grid container spacing={2} alignItems="center">
                     <Grid item xs={12} md={6} align="center">
                         <Stack
                             direction="row"
                             width="100%"
                             justifyContent="center"
-                            sx={{ paddingInline: '10px' }}
+                            sx={{ paddingInline: '10px', img: {height: 'auto'} }}
                         >
-                            <Stack>
-                                <CustomImageContainer
-                                    src={
-                                        download_app_data?.react_download_apps_image_full_url
-                                            ? `${download_app_data?.react_download_apps_image_full_url}`
-                                            : imageNotFoundPlaceholder.src
-                                    }
-                                    height="471px"
-                                    smHeight="325px"
-                                    maxWidth="430px"
-                                    objectFit="cover"
-                                    alt={t('App View')}
-                                />
-                            </Stack>
+                            <CustomNextImage
+                                src={download_app_data?.react_download_apps_image_full_url}
+                                altSrc={imageNotFoundPlaceholder}
+                                height={471}
+                                width={430}
+                                objectFit="cover"
+                                alt={t('App View')}
+                            />
                         </Stack>
                     </Grid>
                     <Grid item xs={12} md={6} align="center">

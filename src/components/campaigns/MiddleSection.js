@@ -11,6 +11,7 @@ import Skeleton from '@mui/material/Skeleton'
 import { useTheme } from '@emotion/react'
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled'
 import { ReadMore } from '../landingpage/ReadMore'
+import CustomNextImage from '@/components/CustomNextImage'
 
 const MiddleSection = ({ campaignsDetails, image, isLoading }) => {
     const theme = useTheme()
@@ -27,12 +28,12 @@ const MiddleSection = ({ campaignsDetails, image, isLoading }) => {
                                 height="100%"
                             />
                         ) : (
-                            <CustomImageContainer
+                            <CustomNextImage
                                 src={image}
-                                height="100%"
-                                width="100%"
+                                height={190}
+                                width={380}
                                 borderRadius=".6rem"
-                                objectFit="contained"
+                                objectFit="contain"
                             />
                         )}
                     </Stack>

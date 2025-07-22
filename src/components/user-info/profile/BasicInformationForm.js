@@ -68,7 +68,7 @@ const BasicInformationForm = ({
             name: f_name ? `${f_name}${l_name}` : '',
             email: email ? email : '',
             phone: phone ? phone : '',
-            image: imaimage_full_urlge ? image_full_url : '',
+            image: image_full_url || '',
         })
     }
     const handleVerified = (type) => {
@@ -337,6 +337,7 @@ const BasicInformationForm = ({
             {open && (
                 <CustomModal openModal={open} setModalOpen={setOpen}>
                     <OtpForm
+                        notForgotPass
                         data={data?.phone}
                         handleClose={handleClosePhone}
                         formSubmitHandler={formSubmit}
@@ -348,6 +349,7 @@ const BasicInformationForm = ({
             {openEmail && (
                 <CustomModal openModal={openEmail} setModalOpen={setOpenEmail}>
                     <OtpForm
+                        notForgotPass
                         data={data?.email}
                         handleClose={handleCloseEmail}
                         formSubmitHandler={formSubmit}

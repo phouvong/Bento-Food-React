@@ -1,9 +1,8 @@
-export const googleClientId =
-    ''
+export const googleClientId = ''
 export const facebookAppId = ''
 
 export const appleLoginCredential = {
-    appleId: 'f',
+    appleId: '',
     serviceId: '',
     privateKey: '',
     redirectURI: ``,

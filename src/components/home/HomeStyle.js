@@ -2,31 +2,38 @@ import { styled } from '@mui/material/styles'
 import { Box, Card, Typography, Stack } from '@mui/material'
 import map from '../../assets/images/map.png'
 
-export const LeftArrowStyle = styled(Box)(
-    ({ theme, languageDirection, left, isdisabled }) => ({
-        zIndex: 999,
-        top: '42%',
-        position: 'absolute',
-        display: isdisabled && 'none',
-        left: `${languageDirection === 'rtl' ? '2%' : left}`,
-        [theme.breakpoints.down('sm')]: {
-            display: 'none',
-        },
-    })
-)
-export const RightArrowStyle = styled(Box)(
-    ({ theme, languageDirection, right, isdisabled }) => ({
-        zIndex: 999,
-        position: 'absolute',
-        top: '42%',
-        right: `${languageDirection === 'rtl' ? '2%' : right}`,
-        display: isdisabled && 'none',
+export const LeftArrowStyle = styled(Box, {
+    shouldForwardProp: (prop) =>
+        prop !== 'languageDirection' &&
+        prop !== 'left' &&
+        prop !== 'isdisabled',
+})(({ theme, languageDirection, left, isdisabled }) => ({
+    zIndex: 999,
+    top: '42%',
+    position: 'absolute',
+    display: isdisabled ? 'none' : 'block',
+    left: languageDirection === 'rtl' ? '2%' : left,
+    [theme.breakpoints.down('sm')]: {
+        display: 'none',
+    },
+}))
 
-        [theme.breakpoints.down('sm')]: {
-            display: 'none',
-        },
-    })
-)
+export const RightArrowStyle = styled(Box, {
+    shouldForwardProp: (prop) =>
+        prop !== 'languageDirection' &&
+        prop !== 'right' &&
+        prop !== 'isdisabled',
+})(({ theme, languageDirection, right, isdisabled }) => ({
+    zIndex: 999,
+    position: 'absolute',
+    top: '42%',
+    right: languageDirection === 'rtl' ? '2%' : right,
+    display: isdisabled ? 'none' : 'block',
+
+    [theme.breakpoints.down('sm')]: {
+        display: 'none',
+    },
+}))
 
 export const HomeTitleTypography = styled(Typography)(({ theme }) => ({
     fontWeight: '800',
@@ -122,7 +129,7 @@ export const CustomSpinner = styled(Stack)(({ theme, color }) => ({
 }))
 
 export const MapSetionWrapper = styled(Stack)(({ theme }) => ({
-    backgroundImage: `url(${map.src})`,
+     backgroundImage: `url(${map.src})`,
     backgroundRepeat: 'no-repeat',
     backgroundSize: 'cover',
     borderRadius: '16px',

@@ -10,6 +10,8 @@ import {
     TextField,
     Grid,
     useTheme,
+    alpha,
+    Stack
 } from '@mui/material'
 import LoadingButton from '@mui/lab/LoadingButton'
 import GpsFixedIcon from '@mui/icons-material/GpsFixed'
@@ -39,7 +41,7 @@ const CustomBoxWrapper = styled(Box)(({ theme }) => ({
     transform: 'translate(-50%, -50%)',
     bgColor: 'background.paper',
     boxShadow: 24,
-    padding: '25px',
+    paddingTop:"25px",
     maxWidth: '800px',
     minWidth: '100px',
     width: '100%',
@@ -68,9 +70,10 @@ const CssTextField = styled(TextField)(({ theme }) => ({
     },
     '& .MuiOutlinedInput-root': {
         fontSize: '13px',
-        padding: '7px',
-        border: '2px solid',
-        borderColor: theme.palette.primary.main,
+        padding: '4px',
+        border: '1px solid',
+        borderColor:  alpha(theme.palette.neutral[400],.5),
+        borderRadius:"4px",
         '& fieldset': {
             borderColor: theme.palette.primary.main,
         },
@@ -215,7 +218,7 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
         if (places) {
            const tempData= places?.data?.suggestions?.map((item) => ({
             place_id: item.placePrediction.placeId,
-                description: `${item?.placePrediction?.structuredFormat?.mainText?.text}, ${item?.placePrediction?.structuredFormat?.secondaryText?.text}`
+                description: `${item?.placePrediction?.structuredFormat?.mainText?.text}, ${item?.placePrediction?.structuredFormat?.secondaryText?.text || ""}`
             }))
             setPredictions(tempData)
         }
@@ -281,7 +284,7 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
             aria-describedby="modal-modal-description"
         >
             <CustomBoxWrapper>
-                <Grid container spacing={1}>
+                <Grid container spacing={1} sx={{ paddingX: '25px',}}>
                     <Grid item md={12}>
                         <Typography
                             fontWeight="600"
@@ -299,7 +302,7 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                             )}
                         </Typography>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={8}>
+                    <Grid item xs={12} sm={12} md={12}>
                         <Paper sx={{ outline: 'none' }}>
                             {loadingAuto ? (
                                 <Skeleton
@@ -364,24 +367,7 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                             )}
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={4}>
-                        <LoadingButton
-                            sx={{
-                                fontSize: { xs: '13px', sm: '14px' },
-                                width: '100%',
-                                padding: { xs: '12px', sm: '13.5px' },
-                                color: (theme) =>
-                                    theme.palette.whiteContainer.main,
-                            }}
-                            onClick={() => handleAgreeLocation()}
-                            startIcon={<GpsFixedIcon />}
-                            loadingPosition="start"
-                            variant="contained"
-                            loading={isLoadingCurrentLocation}
-                        >
-                            {t('Use Current Location')}
-                        </LoadingButton>
-                    </Grid>
+
                 </Grid>
                 <Box
                     spacing={2}
@@ -404,6 +390,7 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                         mt: 2,
                         color: (theme) => theme.palette.neutral[1000],
                         Height: '400px',
+                        paddingX: '25px',
                     }}
                 >
                     {!!location ? (
@@ -418,6 +405,7 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                             placeDetailsEnabled={placeDetailsEnabled}
                             locationEnabled={locationEnabled}
                             setPlaceDescription={setPlaceDescription}
+                            handleAgreeLocation={handleAgreeLocation}
                         />
                     ) : (
                         <CustomStackFullWidth
@@ -437,36 +425,49 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                         alignItems="center"
                     ></CustomStackFullWidth>
 
-                    {errorLocation?.response?.data ? (
-                        <Button
-                            aria-label="picklocation"
-                            sx={{
-                                flex: '1 0',
-                                width: '100%',
-                                top: '.7rem',
+
+                </Box>
+                {errorLocation?.response?.data ? (
+                    <Button
+                        aria-label="picklocation"
+                        sx={{
+                            flex: '1 0',
+                            width: '100%',
+                            top: '.7rem',
+                        }}
+                        disabled={locationLoading}
+                        variant="contained"
+                        color="error"
+                        onClick={() => {
+                            if (zoneId) {
+                                localStorage.setItem('zoneid', zoneId)
+                            }
+                            handleClose()
+                        }}
+                    >
+                        {errorLocation?.response?.data?.errors[0]?.message}
+                    </Button>
+                ) : (
+                    <>
+                        {!!location && (
+                            <Stack width="100%" justifyContent="flex-end" alignItems="flex-end"
+                            sx={{borderRadius: "5px",
+                                background: theme=>theme.palette.neutral[100],
+                                boxShadow: "0px -1px 25px 0px rgba(0, 0, 0, 0.08)",
+                                paddingX:"25px",
+                                paddingY:"10px"
                             }}
-                            disabled={locationLoading}
-                            variant="contained"
-                            color="error"
-                            onClick={() => {
-                                if (zoneId) {
-                                    localStorage.setItem('zoneid', zoneId)
-                                }
-                                handleClose()
-                            }}
-                        >
-                            {errorLocation?.response?.data?.errors[0]?.message}
-                        </Button>
-                    ) : (
-                        <>
-                            {!!location && (
+
+                            >
                                 <PrimaryButton
                                     align="center"
                                     aria-label="picklocation"
                                     sx={{
                                         flex: '1 0',
+                                        maxWidth:"194px",
                                         width: '100%',
-                                        top: '.7rem',
+
+                                        borderRadius:"5px"
                                     }}
                                     disabled={locationLoading}
                                     variant="contained"
@@ -474,10 +475,10 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                                 >
                                     {t('Pick Locations')}
                                 </PrimaryButton>
-                            )}
-                        </>
-                    )}
-                </Box>
+                            </Stack>
+                        )}
+                    </>
+                )}
                 <LocationEnableCheck
                     openLocation={isEnableLocation}
                     handleCloseLocation={() => setIsEnableLocation(false)}

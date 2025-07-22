@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { CustomImageContainerStyled } from '@/styled-components/CustomStyles.style'
 import placeholder from '../../public/static/notimage.png'
 
@@ -22,23 +22,34 @@ const CustomImageContainer = ({
     aspectRatio,
     boxShadow,
     loading,
+    fetchPriority='auto',
 }) => {
-    const [imageFile, setState] = useState(null)
-    const [newObjectFit, setNewObjectFit] = useState(objectFit)
+    // const [imageFile, setState] = useState(null)
+    // const [newObjectFit, setNewObjectFit] = useState(objectFit)
+    // useEffect(() => {
+    //     if (src) {
+    //         setState(src)
+    //     } else {
+    //         // setState(placeholder?.src)
+    //         setState(placeholder?.src)
+    //         setNewObjectFit('contain')
+    //     }
+    // }, [src])
+
+    // for avoid warnings
+    const imgRef = useRef(null)
     useEffect(() => {
-        if (src) {
-            setState(src)
-        } else {
-            setState(placeholder.src)
-            setNewObjectFit('contain')
+        if (imgRef.current) {
+            imgRef.current.setAttribute('fetchpriority', fetchPriority)
         }
-    }, [src])
+    }, [fetchPriority])
+
 
     return (
         <CustomImageContainerStyled
             height={height}
             width={width}
-            objectFit={newObjectFit}
+            objectFit={src ? objectFit : 'contain'}
             minwidth={minwidth}
             borderRadu={borderRadius}
             marginBottom={marginBottom}
@@ -53,14 +64,15 @@ const CustomImageContainer = ({
             boxShadow={boxShadow}
         >
             <img
-                src={imageFile}
+                ref={imgRef}
+                src={src || placeholder?.src}
                 alt={alt}
                 onError={(e) => {
                     // currentTarget.onerror = null; // prevents looping
-                    setState(test_image ? test_image.src : placeholder.src)
-                    e.target.style =
-                        'objectFit:contain !important;width:auto !important;'
-                    e.target.style.margin = 'auto'
+                    // setState(placeholder?.src)
+                    // e.target.style =
+                    //     'objectFit:contain !important;width:auto !important;'
+                    // e.target.style.margin = 'auto'
                 }}
                 loading={loading || 'lazy'}
             />

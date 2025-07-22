@@ -80,9 +80,16 @@ const CustomSelectWithFormik = (props) => {
                             borderRadius: borderRadius ?? '5px',
                             background: background,
                             '& .MuiOutlinedInput-root': {
+                                fontSize:"12px",
                                 '& fieldset>legend': {
                                     fontSize: '2px', //or whatever works for you
                                 },
+
+                            },
+                            '& .MuiInputBase-input': {
+                                fontSize: '13px',
+                                color: theme.palette.neutral[1000],
+                                fontWeight:"400"
                             },
                         }}
                         input={

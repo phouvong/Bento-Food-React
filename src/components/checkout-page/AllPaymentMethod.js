@@ -32,6 +32,7 @@ import PartialPayment from './PartialPayment'
 import { getAmount } from '@/utils/customFunctions'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { getToken } from './functions/getGuestUserId'
+import CustomNextImage from '@/components/CustomNextImage'
 const PayButton = styled(Button)(({ theme, value, paymentMethod }) => ({
     padding: '16px 16px',
     gap: '10px',
@@ -444,10 +445,10 @@ const  AllPaymentMethod = ({
                                             />
                                         )}
                                         <Stack direction="row" alignItems="center" gap="10px" alignSelf="flex-start" width="100%"> 
-                                        <CustomImageContainer
+                                        <CustomNextImage
                                             src={money.src}
-                                            width="20px"
-                                            height="20px"
+                                            width="20"
+                                            height="20"
                                             alt="cod"
                                         />
                                         <Typography
@@ -491,10 +492,10 @@ const  AllPaymentMethod = ({
                                                     />
                                                 )}
                                             <Stack direction="row" alignItems="center" gap="10px">
-                                                <CustomImageContainer
+                                                <CustomNextImage
                                                     src={money.src}
-                                                    width="20px"
-                                                    height="20px"
+                                                    width="20"
+                                                    height="20"
                                                     alt="cod"
                                                 />
                                                 <Typography
@@ -687,10 +688,10 @@ const  AllPaymentMethod = ({
                                             />
                                         )}
                                         <Stack direction="row" alignItems="center" gap="10px" alignSelf="flex-start" width="100%"> 
-                                        <CustomImageContainer
+                                        <CustomNextImage
                                             src={money.src}
-                                            width="20px"
-                                            height="20px"
+                                            width="20"
+                                            height="20"
                                             alt="cod"
                                         />
                                         <Typography

@@ -39,7 +39,7 @@ const ProductUpdateModal = ({
                 <RTL direction={languageDirection}>
                     <FoodDetailModal
                         product={product}
-                        image={`${global?.base_urls?.product_image_url}/${product.image}`}
+                        image={product.image_full_url}
                         open={openModal}
                         handleModalClose={handleModalClose}
                         setOpen={setOpenModal}

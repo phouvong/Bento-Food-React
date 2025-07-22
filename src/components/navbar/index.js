@@ -37,12 +37,11 @@ const Navigation = () => {
     const scrolling = useScrollTrigger()
     const [userLocation, setUserLocation] = useState(null)
     const { userLocationUpdate } = useSelector((state) => state.globalSettings)
-
+    let location = undefined
+    if (typeof window !== 'undefined') {
+        location = localStorage.getItem('location')
+    }
     useEffect(() => {
-        let location = undefined
-        if (typeof window !== 'undefined') {
-            location = localStorage.getItem('location')
-        }
         setUserLocation(location)
     }, [userLocationUpdate])
 
@@ -117,6 +116,7 @@ const Navigation = () => {
             }
         }
     }, [global])
+
     return (
         <AppBarStyle
             disableGutters={true}
@@ -125,9 +125,10 @@ const Navigation = () => {
             }
             isSmall={isSmall}
         >
-            {(isSmall || userLocation) && (
+            {(isSmall || location) && (
                 <TopNav cartListRefetch={cartListRefetch} />
             )}
+
             {!isSmall && (
                 <SecondNavbar
                     isSticky={isSticky}

@@ -7,7 +7,6 @@ import {
     SliderCustom,
 } from '@/styled-components/CustomStyles.style'
 import PaidAddsCard from '@/components/home/add-section/PaidAddsCard'
-import { useGetAdds } from '@/hooks/react-query/useGetAdds'
 import Slider from 'react-slick'
 import { HandleNext, HandlePrev } from '@/components/CustomSliderIcon'
 
@@ -118,7 +117,7 @@ const AddsSection = ({ data, isLoading }) => {
                 settings: {
                     slidesToShow: 1,
                     slidesToScroll: 1,
-                    infinite: true,
+                    infinite: data?.length > 3 && true,
                 },
             },
             {
@@ -126,7 +125,7 @@ const AddsSection = ({ data, isLoading }) => {
                 settings: {
                     slidesToShow: 1,
                     slidesToScroll: 1,
-                    infinite: true,
+                    infinite: data?.length > 3 && true,
                 },
             },
             {
@@ -134,7 +133,7 @@ const AddsSection = ({ data, isLoading }) => {
                 settings: {
                     slidesToShow: 1,
                     slidesToScroll: 1,
-                    infinite: true,
+                    infinite: data?.length > 2 && true,
                 },
             },
             {
@@ -142,7 +141,7 @@ const AddsSection = ({ data, isLoading }) => {
                 settings: {
                     slidesToShow: 1,
                     slidesToScroll: 1,
-                    infinite: true,
+                    infinite: data?.length > 2 && true,
                 },
             },
             {

@@ -20,8 +20,9 @@ import {
     setOfflineMethod,
 } from '@/redux/slices/OfflinePayment'
 import PartialPayment from '../PartialPayment'
+import CustomNextImage from '@/components/CustomNextImage'
 
-const PaymentOptions = (props) => {
+const  PaymentOptions = (props) => {
     const theme = useTheme()
     const {
         global,
@@ -131,11 +132,10 @@ const PaymentOptions = (props) => {
                             {paymentMethodDetails?.name === 'wallet' ||
                             paymentMethodDetails?.name ===
                                 'cash_on_delivery' ? (
-                                <CustomImageContainer
-                                    maxWidth="100%"
-                                    width="unset"
-                                    height="32px"
-                                    objectfit="contain"
+                                <CustomNextImage
+                                  width="20"
+                                    height="32"
+                                    objectFit="contain"
                                     src={paymentMethodDetails?.image.src}
                                 />
                             ) : (
@@ -144,11 +144,10 @@ const PaymentOptions = (props) => {
                                     'offline_payment' ? (
                                         <OfflinePayment />
                                     ) : (
-                                        <CustomImageContainer
-                                            maxWidth="100%"
-                                            width="unset"
-                                            height="32px"
-                                            objectfit="contain"
+                                        <CustomNextImage
+                                            width="20"
+                                            height="32"
+                                            objectFit="contain"
                                             src={paymentMethodDetails?.image}
                                         />
                                     )}

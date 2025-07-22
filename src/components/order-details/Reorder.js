@@ -80,6 +80,7 @@ const Reorder = ({ orderData, orderZoneId }) => {
         return orderItemVariationValues.length === count;
     }
     const getReorderAbleItems = (apiData, orderDetailsData) => {
+
         let items = []
         apiData?.forEach((item) => {
             if (item?.variations.length > 0) {
@@ -92,21 +93,38 @@ const Reorder = ({ orderData, orderZoneId }) => {
                                     //selected variation check
                                     if (orderVariation?.values?.length > 0) {
                                         if (itemVariation?.name === orderVariation?.name) {
-                                            isVariationValuesSame(itemVariation?.values, orderVariation?.values)
-                                            items.push(item)
+                                            //console.log("vvv",isVariationValuesSame(itemVariation?.values, orderVariation?.values))
+                                            const isSameValues = isVariationValuesSame(itemVariation?.values, orderVariation?.values);
+                                            if(isSameValues){
+                                                const filterAddon = orderDetailsData
+                                                    .find(oItem => oItem.food_id === item.id)?.add_ons || [];
+
+                                                const exists = items.find(i => i.id === item.id);
+
+                                                if (!exists) {
+                                                    items.push({ ...item, add_on: filterAddon });
+                                                }
+                                            }
+
                                         }
                                     } else {
                                         if (itemVariation?.name === orderVariation?.name) {
-                                            items.push(item)
+                                            items.push({ ...item,add_on:orderData?.add_ons })
                                         }
                                     }
                                 })
                             }
+                        }else{
+                            const filterAddon = orderDetailsData
+                                .find(oItem => oItem.food_id === item.id)?.add_ons || [];
+                            items.push({ ...item,add_on:filterAddon})
                         }
                     })
                 })
             } else {
-                items.push(item)
+                const filterAddon = orderDetailsData
+                    .find(oItem => oItem.food_id === item.id)?.add_ons || [];
+                items.push({ ...item,add_on:filterAddon})
             }
         })
         return [...new Set(items)]
@@ -160,6 +178,8 @@ const Reorder = ({ orderData, orderZoneId }) => {
 
     }
 
+    const getFilteredAddOns = (selectedIds, allAddOns) =>
+        allAddOns.filter(addon => selectedIds.includes(addon.id));
 
     const handleSuccess = (res) => {
         if (res) {
@@ -178,7 +198,7 @@ const Reorder = ({ orderData, orderZoneId }) => {
                         )
                         *
                         item?.quantity,
-                    selectedAddons: getSelectedAddons(item?.item?.addons),
+                    selectedAddons: item?.item?.addons.filter(addon => addon.quantity > 0),
                     itemBasePrice: getConvertDiscount(
                         item?.item?.discount,
                         item?.item?.discount_type,
@@ -241,10 +261,9 @@ const Reorder = ({ orderData, orderZoneId }) => {
                             calculateItemBasePrice(rItem, selectedOptions),
                             rItem?.restaurant_discount
                         )
-                        let totalPrice = (itemsBasePrice * similar?.[0]?.quantity)
+                       // let totalPrice = (itemsBasePrice * similar?.[0]?.quantity)
                         let totalQty = 0;
-
-
+                        const dd = rItem?.add_on?.length > 0 ? rItem?.add_on?.map((add) => add.id) : [];
                         return {
                             model: rItem.available_date_starts ? "ItemCampaign" : "Food",
                             add_on_ids: rItem?.add_on?.length > 0 ? rItem?.add_on?.map((add) => {
@@ -274,24 +293,15 @@ const Reorder = ({ orderData, orderZoneId }) => {
                                     },
                                 }
                             }),
-
-
-                            // totalPrice: totalPrice,
-                            // selectedAddons: getNewAddons(similar),
-                            // itemBasePrice: itemsBasePrice
                         }
                     }
                 })
-
                 if (item_list?.length > 0) {
                     if (item_list?.every(item => item !== undefined)) {
                         reorderAddToCartMutate(item_list, {
                             onSuccess: handleSuccess,
                             onError: onErrorResponse
                         })
-                        // toast.success(t('Reorder-able items added to the cart successfully.'))
-                        // dispatch(setClearCart())
-                        // dispatch(setReorderCartItemByDispatch(newArray))
                     }
 
                 }

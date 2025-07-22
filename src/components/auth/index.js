@@ -30,21 +30,30 @@ const SignInPage = dynamic(() => import('./sign-in'))
 const SignUpPage = dynamic(() => import('./sign-up'))
 
 export const setUpRecaptcha = () => {
+    if (!auth) {
+        console.error('Firebase Auth not initialized');
+        return;
+    }
+
     if (document.getElementById('recaptcha-container')) {
         if (!window.recaptchaVerifier) {
-            window.recaptchaVerifier = new RecaptchaVerifier(
-                'recaptcha-container',
-                {
-                    size: 'invisible',
-                    callback: (response) => {
-                        console.log('Recaptcha verified', response)
-                    },
-                    'expired-callback': () => {
-                        window.recaptchaVerifier?.reset()
-                    },
-                },
-                auth
-            )
+            try {
+                window.recaptchaVerifier = new RecaptchaVerifier(
+                    auth,
+                    'recaptcha-container',
+                    {
+                        size: 'invisible',
+                        callback: (response) => {
+                            console.log('Recaptcha verified', response)
+                        },
+                        'expired-callback': () => {
+                            window.recaptchaVerifier?.reset()
+                        },
+                    }
+                )
+            } catch (error) {
+                console.error('Error creating RecaptchaVerifier:', error);
+            }
         } else {
             window.recaptchaVerifier.clear()
             window.recaptchaVerifier = null
@@ -81,6 +90,7 @@ const AuthModal = ({
         'sign-in',
         AuthApi.signIn
     )
+
     const userOnSuccessHandler = (res) => {
         dispatch(setUser(res?.data))
     }

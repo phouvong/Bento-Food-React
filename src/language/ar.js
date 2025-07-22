@@ -1157,6 +1157,13 @@ export const arabic = {
     'Run restaurant by puchasing subsciption packages. You will have access the features of in restaurant panel , app and interaction with user according to the subscription packages.':
         'قم بتشغيل المطعم عن طريق شراء حزم الاشتراك. سيكون لديك إمكانية الوصول إلى الميزات الموجودة في لوحة المطعم والتطبيق والتفاعل مع المستخدم وفقًا لحزم الاشتراك.',
         "Click to Upload":"انقر للتحميل",
-        "or drag and drop":"أو السحب والإفلات"
+        "or drag and drop":"أو السحب والإفلات",
+    "We Make it Simple and Easy": "نجعلها بسيطة وسهلة",
+    "Brings new Opportunities": "يجلب فرصًا جديدة",
+    "Frequently Asked Questions": "الأسئلة الشائعة",
+    "Boost your revenue with": "عزز إيراداتك مع",
+    "Sign up now and start earning more with": "سجل الآن وابدأ في كسب المزيد مع",
+    "food delivery service.": "خدمة توصيل الطعام.",
+    "Business Logo":"شعار الأعمال"
 
     }

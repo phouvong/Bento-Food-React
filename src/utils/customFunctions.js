@@ -205,6 +205,15 @@ export const handleProductValueWithOutDiscount = (product) => {
         return productPrice
     }
 }
+export const onlyProductDiscount=(dis,disType,price,quantity)=>{
+    let q = quantity ? quantity : 1
+    if (disType === 'amount') {
+        price = price - dis * q
+    } else if (disType === 'percent') {
+        price = price - (dis / 100) * price
+    }
+    return price
+}
 
 export const getProductDiscount = (items, restaurantData) => {
     if (restaurantData?.data?.discount) {
@@ -227,20 +236,20 @@ export const getProductDiscount = (items, restaurantData) => {
                 (total, product) =>
                     (product.variations.length > 0
                         ? handleProductValueWithOutDiscount(product) -
-                          getConvertDiscount(
-                              restaurentDiscount,
-                              resDisType,
-                              handleProductValueWithOutDiscount(product),
-                              product.restaurant_discount
-                          )
+                        getConvertDiscount(
+                            restaurentDiscount,
+                            resDisType,
+                            handleProductValueWithOutDiscount(product),
+                            product.restaurant_discount
+                        )
                         : product.price -
-                          getConvertDiscount(
-                              restaurentDiscount,
-                              resDisType,
-                              product.price,
-                              product.restaurant_discount
-                          )) *
-                        product.quantity +
+                        getConvertDiscount(
+                            restaurentDiscount,
+                            resDisType,
+                            product.price,
+                            product.restaurant_discount
+                        )) *
+                    product.quantity +
                     total,
                 0
             )
@@ -248,16 +257,16 @@ export const getProductDiscount = (items, restaurantData) => {
             let purchasedAmount = items.reduce(
                 (total, product) =>
                     ((product?.variations?.length > 0
-                        ? handleProductValueWithOutDiscount(product)
-                        : product.price) +
+                            ? handleProductValueWithOutDiscount(product)
+                            : product.price) +
                         (product?.selectedAddons?.length > 0
                             ? product?.selectedAddons?.reduce(
-                                  (total, addOn) =>
-                                      addOn.price * addOn.quantity + total,
-                                  0
-                              )
+                                (total, addOn) =>
+                                    addOn.price * addOn.quantity + total,
+                                0
+                            )
                             : 0)) *
-                        product.quantity +
+                    product.quantity +
                     total,
                 0
             )
@@ -297,7 +306,7 @@ export const getProductDiscount = (items, restaurantData) => {
             return (
                 total +
                 (handleProductValueWithOutDiscount(product) - discountAmount) *
-                    product.quantity
+                product.quantity
             )
         }, 0)
         return totalDiscount
@@ -328,6 +337,7 @@ function distanceInKmBetweenEarthCoordinates(lat1, lon1, lat2, lon2) {
 }
 
 export const handleDistance = (distance, origin, destination) => {
+    console.log({distance})
     if ( distance?.distanceMeters) {
         return  distance?.distanceMeters / 1000
     } else if ( distance?.status === 'ZERO_RESULTS') {
@@ -381,19 +391,25 @@ export const getDeliveryFees = (
 ) => {
     //convert m to km
     let convertedDistance = handleDistance(
-        distance?.data,
+        distance,
         origin,
         destination
     )
+    console.log({convertedDistance})
     let deliveryFee
     let totalOrderAmount = cartItemsTotalAmount(cartList)
-
+    const isAdminFreeDeliveryEnabled = global?.admin_free_delivery?.status === true;
+    const freeDeliveryType = global?.admin_free_delivery?.type;
+    const freeDeliveryThreshold = global?.admin_free_delivery?.free_delivery_over;
+    const isFreeDeliveryByAmount =
+        freeDeliveryType === "free_delivery_by_specific_criteria" &&
+        freeDeliveryThreshold > 0 &&
+        totalOrderAmount >= freeDeliveryThreshold;
+    const isFreeDeliveryToAllStores = freeDeliveryType === "free_delivery_to_all_store";
     //restaurant self delivery system checking
     if (Number.parseInt(restaurantData?.data?.self_delivery_system) === 1) {
         if (
-            (global?.free_delivery_over !== null &&
-                global?.free_delivery_over > 0 &&
-                totalOrderAmount > global?.free_delivery_over) ||
+            ((isAdminFreeDeliveryEnabled && (isFreeDeliveryByAmount || isFreeDeliveryToAllStores))) ||
             restaurantData?.data?.free_delivery ||
             orderType === 'take_away' ||
             orderType === 'dine_in' ||
@@ -434,7 +450,6 @@ export const getDeliveryFees = (
                     Number.parseInt(item.id) ===
                     Number.parseInt(restaurantData?.data?.zone_id)
             )
-
             ///SELF DELIVERY OFF
             if (
                 restaurantChargeInfo &&
@@ -442,12 +457,10 @@ export const getDeliveryFees = (
                     1
             ) {
                 if (
-                    (global?.free_delivery_over !== null &&
-                        global?.free_delivery_over > 0 &&
-                        totalOrderAmount > global?.free_delivery_over) ||
+                    (isAdminFreeDeliveryEnabled && (isFreeDeliveryByAmount || isFreeDeliveryToAllStores)) ||
                     orderType === 'take_away' ||
                     orderType === 'dine_in' ||
-                    convertedDistance < global?.free_delivery_distance
+                    convertedDistance < global?.admin_free_delivery?.free_delivery_distance
                 ) {
                     return 0
                 } else {
@@ -699,7 +712,8 @@ export const getCalculatedTotal = (
     extraCharge,
     additionalCharge,
     extraPackagingCharge,
-    referDiscount
+    referDiscount,
+    taxAmount
 ) => {
     if (couponDiscount) {
         if (couponDiscount?.coupon_type === 'free_delivery') {
@@ -713,16 +727,7 @@ export const getCalculatedTotal = (
                     global?.digit_after_decimal_point
                 ) +
                 //here we check tex is included or exclude
-                (global?.tax_included !== 1 &&
-                    truncate(
-                        getTaxableTotalPrice(
-                            cartList,
-                            couponDiscount,
-                            restaurantData,
-                            referDiscount
-                        )?.toString(),
-                        global?.digit_after_decimal_point
-                    )) -
+                taxAmount -
                 (couponDiscount
                     ? truncate(
                           getCouponDiscount(
@@ -751,16 +756,7 @@ export const getCalculatedTotal = (
                     global?.digit_after_decimal_point
                 ) +
                 //here we check tex is included or exclude
-                (global?.tax_included !== 1 &&
-                    truncate(
-                        getTaxableTotalPrice(
-                            cartList,
-                            couponDiscount,
-                            restaurantData,
-                            referDiscount
-                        ).toString(),
-                        global?.digit_after_decimal_point
-                    )) -
+                taxAmount -
                 (couponDiscount
                     ? truncate(
                           getCouponDiscount(
@@ -806,16 +802,7 @@ export const getCalculatedTotal = (
                 global?.digit_after_decimal_point
             ) +
             ///here we check tex is included or exclude
-            (global?.tax_included !== 1 &&
-                truncate(
-                    getTaxableTotalPrice(
-                        cartList,
-                        couponDiscount,
-                        restaurantData,
-                        referDiscount
-                    )?.toString(),
-                    global?.digit_after_decimal_point
-                )) -
+            taxAmount -
             0 +
             truncate(
                 getDeliveryFees(
@@ -1062,17 +1049,17 @@ export const handleBadge = (
                         label={
                             !product.available_date_ends
                                 ? ` ${getAmount(
-                                      product?.discount,
-                                      currencySymbolDirection,
-                                      currencySymbol,
-                                      digitAfterDecimalPoint
-                                  )}`
+                                    product?.discount,
+                                    currencySymbolDirection,
+                                    currencySymbol,
+                                    digitAfterDecimalPoint
+                                )}`
                                 : ` ${getAmount(
-                                      product?.discount,
-                                      currencySymbolDirection,
-                                      currencySymbol,
-                                      digitAfterDecimalPoint
-                                  )} ${OFF}`
+                                    product?.discount,
+                                    currencySymbolDirection,
+                                    currencySymbol,
+                                    digitAfterDecimalPoint
+                                )} ${OFF}`
                         }
                         campaign={product.available_date_ends}
                     />

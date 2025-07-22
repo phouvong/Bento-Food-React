@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { useTheme } from '@mui/material/styles'
 import VisibleVariations from '../../floating-cart/VisibleVariations'
 import { handleTotalAmountWithAddonsFF } from '@/utils/customFunctions'
+import CustomNextImage from '@/components/CustomNextImage'
 
 const RegularOrders = ({ orderType }) => {
     const theme = useTheme()
@@ -41,13 +42,13 @@ const RegularOrders = ({ orderType }) => {
                         mt={index !== 0 && '1rem'}
                     >
                         <Stack position="relative">
-                            <CustomImageContainer
-                                height="90px"
-                                width="90px"
+                            <CustomNextImage
+                                height="90"
+                                width="90"
                                 src={item.image_full_url}
-                                loading="lazy"
                                 borderRadius="10px"
-                                objectFit="cover"
+                                objectFit={item.image_full_url?"cover":"contain"}
+
                             />
                             <Stack
                                 sx={{

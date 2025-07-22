@@ -230,24 +230,26 @@ const AddNewAddress = ({
                                     coords={coords}
                                     orderType={orderType}
                                     mapHeight="200px"
+                                    handleAgreeLocation={setUserCurrentLocation}
                                 />
-                                <IconButton
-                                    sx={{
-                                        background: (theme) =>
-                                            theme.palette.neutral[100],
-                                        padding: '10px',
-                                        position: 'absolute',
-                                        bottom: {
-                                            xs: '55%',
-                                            sm: '50%',
-                                            md: '20px',
-                                        },
-                                        left: '20px',
-                                    }}
-                                    onClick={setUserCurrentLocation}
-                                >
-                                    <GpsFixedIcon color="primary" />
-                                </IconButton>
+                                {/*<IconButton*/}
+                                {/*    sx={{*/}
+                                {/*        background: (theme) =>*/}
+                                {/*            theme.palette.neutral[100],*/}
+                                {/*        padding: '10px',*/}
+                                {/*        position: 'absolute',*/}
+                                {/*        bottom: {*/}
+                                {/*            xs: '55%',*/}
+                                {/*            sm: '50%',*/}
+                                {/*            md: '22%',*/}
+                                {/*        },*/}
+                                {/*        left: '10px',*/}
+                                {/*        zIndex:999*/}
+                                {/*    }}*/}
+                                {/*    onClick={setUserCurrentLocation}*/}
+                                {/*>*/}
+                                {/*    <GpsFixedIcon color="primary" />*/}
+                                {/*</IconButton>*/}
                                 <AddressForm
                                     deliveryAddress={formatted_address}
                                     personName={data?.data?.f_name}

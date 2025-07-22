@@ -50,16 +50,16 @@ const supportedFormatMultiImages = [
     'deb',
 ]
 const StoreAdditionalInfo = ({
-    additionalDataKey,
-    RestaurantJoinFormik,
-    configData,
-    identityHandler,
-    identityNumberHandler,
-    handleIdentityImageUpload,
-    additionalImage,
-    setAdditionalImage,
-    handleFieldChange,
-}) => {
+                                 additionalDataKey,
+                                 RestaurantJoinFormik,
+                                 configData,
+                                 identityHandler,
+                                 identityNumberHandler,
+                                 handleIdentityImageUpload,
+                                 additionalImage,
+                                 setAdditionalImage,
+                                 handleFieldChange,
+                             }) => {
     const theme = useTheme()
     // useEffect(() => {
     //     typeof additionalImage !== 'string' &&
@@ -247,13 +247,13 @@ const StoreAdditionalInfo = ({
                                                                     .additional_data?.[
                                                                     item
                                                                         .input_data
-                                                                ]
+                                                                    ]
                                                             }
                                                             errors={capitalize(
                                                                 RestaurantJoinFormik.errors.additional_data?.[
                                                                     item
                                                                         ?.input_data
-                                                                ]
+                                                                    ]
                                                                     ?.split('_')
                                                                     ?.join(' ')
                                                             )}
@@ -269,7 +269,7 @@ const StoreAdditionalInfo = ({
                                                                             .values
                                                                             .additional_data,
                                                                         [item.input_data]:
-                                                                            value,
+                                                                        value,
                                                                     }
 
                                                                 RestaurantJoinFormik.setFieldValue(
@@ -284,7 +284,7 @@ const StoreAdditionalInfo = ({
                                                                     .additional_data?.[
                                                                     item
                                                                         .input_data
-                                                                ]
+                                                                    ]
                                                             }
                                                             fontSize="12px"
                                                             startIcon={
@@ -299,15 +299,15 @@ const StoreAdditionalInfo = ({
                                                                                     .errors
                                                                                     .identity_number
                                                                                     ? theme
-                                                                                          .palette
-                                                                                          .primary
-                                                                                          .main
+                                                                                        .palette
+                                                                                        .primary
+                                                                                        .main
                                                                                     : alpha(
-                                                                                          theme
-                                                                                              .palette
-                                                                                              .neutral[400],
-                                                                                          0.7
-                                                                                      ),
+                                                                                        theme
+                                                                                            .palette
+                                                                                            .neutral[400],
+                                                                                        0.7
+                                                                                    ),
                                                                             fontSize:
                                                                                 '18px',
                                                                         }}
@@ -337,7 +337,7 @@ const StoreAdditionalInfo = ({
                                                                     .additional_data?.[
                                                                     item
                                                                         .input_data
-                                                                ]
+                                                                    ]
                                                             }
                                                             // required={
                                                             //     item.is_required
@@ -376,13 +376,13 @@ const StoreAdditionalInfo = ({
                                                                     .additional_data?.[
                                                                     item
                                                                         .input_data
-                                                                ]
+                                                                    ]
                                                             }
                                                             errors={capitalize(
                                                                 RestaurantJoinFormik?.errors?.additional_data?.[
                                                                     item
                                                                         ?.input_data
-                                                                ]
+                                                                    ]
                                                                     ?.split('_')
                                                                     ?.join(' ')
                                                             )}
@@ -523,7 +523,7 @@ const StoreAdditionalInfo = ({
                                                                     ?.additional_data?.[
                                                                     item
                                                                         ?.input_data
-                                                                ] || ''
+                                                                    ] || ''
                                                             }
                                                             borderRadius="10px"
                                                             onClick={() =>
@@ -549,15 +549,15 @@ const StoreAdditionalInfo = ({
                                                                                         .errors
                                                                                         .identity_number
                                                                                         ? theme
-                                                                                              .palette
-                                                                                              .primary
-                                                                                              .main
+                                                                                            .palette
+                                                                                            .primary
+                                                                                            .main
                                                                                         : alpha(
-                                                                                              theme
-                                                                                                  .palette
-                                                                                                  .neutral[400],
-                                                                                              0.7
-                                                                                          ),
+                                                                                            theme
+                                                                                                .palette
+                                                                                                .neutral[400],
+                                                                                            0.7
+                                                                                        ),
                                                                                 fontSize:
                                                                                     '18px',
                                                                             }}
@@ -572,7 +572,7 @@ const StoreAdditionalInfo = ({
                                                             ref={(el) =>
                                                                 (calendarRefs.current[
                                                                     item.input_data
-                                                                ] = el)
+                                                                    ] = el)
                                                             }
                                                             sx={{
                                                                 position:
@@ -582,7 +582,7 @@ const StoreAdditionalInfo = ({
                                                         >
                                                             {openCalendars[
                                                                 item.input_data
-                                                            ] && (
+                                                                ] && (
                                                                 <Calendar
                                                                     date={
                                                                         RestaurantJoinFormik
@@ -590,12 +590,12 @@ const StoreAdditionalInfo = ({
                                                                             ?.additional_data?.[
                                                                             item
                                                                                 ?.input_data
-                                                                        ]
+                                                                            ]
                                                                             ? new Date(
-                                                                                  RestaurantJoinFormik.values.additional_data?.[
-                                                                                      item?.input_data
-                                                                                  ]
-                                                                              )
+                                                                                RestaurantJoinFormik.values.additional_data?.[
+                                                                                    item?.input_data
+                                                                                    ]
+                                                                            )
                                                                             : new Date()
                                                                     } // Prefill with Formik value or current date
                                                                     onChange={(
@@ -623,7 +623,7 @@ const StoreAdditionalInfo = ({
                                                         .touched
                                                         .additional_data?.[
                                                         item.input_data
-                                                    ] && (
+                                                        ] && (
                                                         <Typography
                                                             sx={{
                                                                 mt: '-15px',
@@ -642,7 +642,7 @@ const StoreAdditionalInfo = ({
                                                                 RestaurantJoinFormik.errors.additional_data?.[
                                                                     item
                                                                         .input_data
-                                                                ]
+                                                                    ]
                                                                     ?.split('_')
                                                                     ?.join(' ')
                                                             )}
@@ -713,7 +713,7 @@ const StoreAdditionalInfo = ({
                                                                                     RestaurantJoinFormik.values.additional_data?.[
                                                                                         item
                                                                                             .input_data
-                                                                                    ]?.includes(
+                                                                                        ]?.includes(
                                                                                         data
                                                                                     ) ||
                                                                                     false
@@ -735,11 +735,11 @@ const StoreAdditionalInfo = ({
                                                                                             fieldName,
                                                                                             [
                                                                                                 ...(RestaurantJoinFormik
-                                                                                                    .values
-                                                                                                    .additional_data?.[
-                                                                                                    item
-                                                                                                        .input_data
-                                                                                                ] ||
+                                                                                                        .values
+                                                                                                        .additional_data?.[
+                                                                                                        item
+                                                                                                            .input_data
+                                                                                                        ] ||
                                                                                                     []),
                                                                                                 data,
                                                                                             ]
@@ -751,14 +751,14 @@ const StoreAdditionalInfo = ({
                                                                                             RestaurantJoinFormik.values.additional_data?.[
                                                                                                 item
                                                                                                     .input_data
-                                                                                            ]?.filter(
+                                                                                                ]?.filter(
                                                                                                 (
                                                                                                     item
                                                                                                 ) =>
                                                                                                     item !==
                                                                                                     data
                                                                                             ) ||
-                                                                                                []
+                                                                                            []
                                                                                         )
                                                                                     }
                                                                                 }}
@@ -850,15 +850,15 @@ const StoreAdditionalInfo = ({
                                                                 )}
                                                                 file={
                                                                     (RestaurantJoinFormik
-                                                                        ?.values?.[
-                                                                        item
-                                                                            .input_data
-                                                                    ] &&
+                                                                            ?.values?.[
+                                                                            item
+                                                                                .input_data
+                                                                            ] &&
                                                                         RestaurantJoinFormik
                                                                             ?.values?.[
                                                                             item
                                                                                 ?.input_data
-                                                                        ]) ||
+                                                                            ]) ||
                                                                     ''
                                                                 }
                                                                 onChange={
@@ -906,15 +906,15 @@ const StoreAdditionalInfo = ({
                                                             }}
                                                             totalFiles={
                                                                 (RestaurantJoinFormik
-                                                                    ?.values?.[
-                                                                    item
-                                                                        .input_data
-                                                                ] &&
+                                                                        ?.values?.[
+                                                                        item
+                                                                            .input_data
+                                                                        ] &&
                                                                     RestaurantJoinFormik
                                                                         ?.values?.[
                                                                         item
                                                                             .input_data
-                                                                    ]) ||
+                                                                        ]) ||
                                                                 ''
                                                             }
                                                             maxFileSize={

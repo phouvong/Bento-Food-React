@@ -18,6 +18,7 @@ import Card from '@mui/material/Card'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import ReviewSideDrawer from '@/components/order-details/ReviewSideDrawer'
+import CustomNextImage from '@/components/CustomNextImage'
 
 const OrderCard = ({ order, index, offset, limit, refetch }) => {
     const { t } = useTranslation()
@@ -91,10 +92,10 @@ const OrderCard = ({ order, index, offset, limit, refetch }) => {
                             gap={{ xs: '5px', sm: '6px', md: '10px' }}
                             flexWrap="wrap"
                         >
-                            <CustomImageContainer
+                            <CustomNextImage
                                 src={startReview.src}
-                                width={{ xs: '15px', md: '20px' }}
-                                height={{ xs: '15px', md: '20px' }}
+                                width={isXSmall?'15':'20'}
+                                height={isXSmall?'15':'20'}
                             />
                             <CustomColouredTypography
                                 color="primary"
@@ -168,10 +169,10 @@ const OrderCard = ({ order, index, offset, limit, refetch }) => {
                             spacing={2}
                             onClick={handleClick}
                         >
-                            <CustomImageContainer
+                            <CustomNextImage
                                 src={order?.restaurant?.logo_full_url}
-                                width="60px"
-                                height="60px"
+                                width="60"
+                                height="60"
                                 borderRadius="5px"
                                 objectFit="cover"
                             />

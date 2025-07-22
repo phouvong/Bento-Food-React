@@ -2,6 +2,7 @@ import React from 'react'
 import CustomImageContainer from '../../CustomImageContainer'
 import { Stack, Typography } from '@mui/material'
 import Link from 'next/link'
+import CustomNextImage from '@/components/CustomNextImage'
 
 const CuisinesCard = ({ item }) => {
     return (
@@ -20,17 +21,16 @@ const CuisinesCard = ({ item }) => {
                             },
                         }}
                     >
-                        <CustomImageContainer
+                        <CustomNextImage
                             src={item?.image_full_url}
-                            height="100px"
-                            maxWidth="100px"
-                            width="100%"
+                            height="100"
+                            width="100"
                             borderRadius="50%"
                             objectFit="cover"
-                            smMb="5px"
-                            smHeight="50px"
-                            smMaxWidth="50px"
-                            cursor="pointer"
+                            // smMb="5px"
+                            // smHeight="50px"
+                            // smMaxWidth="50px"
+                            // cursor="pointer"
                         />
                     </Stack>{' '}
                     <Typography

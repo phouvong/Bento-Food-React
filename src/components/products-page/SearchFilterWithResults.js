@@ -1,3 +1,4 @@
+
 import React from 'react'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 
@@ -11,21 +12,21 @@ import { AnimationDots } from './AnimationDots'
 import { noFoodFoundImage, noRestaurantsImage } from '@/utils/LocalImages'
 
 const SearchFilterWithResults = ({
-    searchValue,
-    count,
-    foodOrRestaurant,
-    setFoodOrRestaurant,
-    data,
-    isLoading,
-    offset,
-    page_limit,
-    setOffset,
-    global,
-    isNetworkCalling,
-    page,
-    restaurantType,
-    filterData,
-}) => {
+                                     searchValue,
+                                     count,
+                                     foodOrRestaurant,
+                                     setFoodOrRestaurant,
+                                     data,
+                                     isLoading,
+                                     offset,
+                                     page_limit,
+                                     setOffset,
+                                     global,
+                                     isNetworkCalling,
+                                     page,
+                                     restaurantType,
+                                     filterData,
+                                 }) => {
     const theme = useTheme()
     return (
         <CustomStackFullWidth
@@ -111,15 +112,6 @@ const SearchFilterWithResults = ({
                         </>
                     )}
                 </Grid>
-                {/*{totalData>0 && totalData>page_limit && !isLoading&&*/}
-                {/*    <Grid item md={12} xs={12} sm={12}>*/}
-                {/*    <CustomePagination page_limit={page_limit}*/}
-                {/*                       setOffset={setOffset}*/}
-                {/*                       offset={offset}*/}
-                {/*                       total_size={totalData}*/}
-                {/*    />*/}
-                {/*   </Grid>*/}
-                {/*}*/}
             </Grid>
         </CustomStackFullWidth>
     )

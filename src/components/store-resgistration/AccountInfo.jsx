@@ -42,7 +42,7 @@ const AccountInfo = ({
             </Typography>
             <Grid container spacing={3} sx={{ p: '1rem' }}>
                 <Grid item xs={12} md={12} align="left">
-                    <CustomDivider border="1px" paddingTop="5px" />
+
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                     <CustomTextFieldWithFormik

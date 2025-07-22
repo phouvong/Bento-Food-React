@@ -25,7 +25,7 @@ export const getActiveLoginStatus = (state, setForWidth, loginDispatch) => {
             newStatus = 'otp'
             setForWidth(false)
             break
-        case manual:
+        case manual && !social && !otp:
             newStatus = 'manual'
             setForWidth(false)
             break
@@ -34,7 +34,7 @@ export const getActiveLoginStatus = (state, setForWidth, loginDispatch) => {
             setForWidth(false)
             break
         default:
-            newStatus = 'manual'
+            newStatus = ''
     }
     loginDispatch({
         type: ACTIONS.setStatus,

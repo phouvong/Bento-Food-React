@@ -82,7 +82,7 @@ const ProductSearchPage = ({
     }
 
     const isDineIn = restaurantType === 'dine_in' ? restaurantType : ''
-    const { isLoading, data, isError, error, refetch, isRefetching } = useQuery(
+    const {  data, isError, error, refetch, isRefetching,isFetching,isLoading } = useQuery(
         [
             apiKey,
             foodOrRestaurant,
@@ -143,25 +143,6 @@ const ProductSearchPage = ({
             onError: onErrorResponse,
         }
     )
-    // const {
-    //     isLoading: isLoadingDineIn,
-    //     data: newRestuarants,
-    //     refetch: dineRefetch,
-    // } = useQuery(
-    //     ['latest-restaurants'],
-    //     () => RestaurantsApi?.latestRestaurants(),
-    //     {
-    //         enabled: false,
-    //         onSuccess: handleAPiCallOnSuccess,
-    //         onError: onErrorResponse,
-    //     }
-    // )
-    //
-    // useEffect(() => {
-    //     if (page === 'dine_in') {
-    //         dineRefetch()
-    //     }
-    // }, [page, offset])
 
     useEffect(() => {
         const refetchData = () => {
@@ -290,7 +271,6 @@ const ProductSearchPage = ({
     useEffect(() => {
         setOffset(1)
     }, [searchTagData, selectedName, searchValue])
-
     return (
         <>
             <Meta
@@ -308,7 +288,7 @@ const ProductSearchPage = ({
                         isLoading={
                             isLoading ||
                             restaurantIsLoading ||
-                            popularFoodisLoading
+                            popularFoodisLoading ||isFetching
                         }
                         isNetworkCalling={isRefetching}
                         data={pageData}

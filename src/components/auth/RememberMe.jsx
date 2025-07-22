@@ -4,7 +4,7 @@ import Checkbox from '@mui/material/Checkbox'
 import { CustomTypography } from '@/components/custom-tables/Tables.style'
 import { t } from 'i18next'
 
-const RememberMe = ({ rememberMeHandleChange }) => {
+const RememberMe = ({ rememberMeHandleChange,loginFormik,isRemember}) => {
     return (
         <>
             <FormControlLabel
@@ -13,6 +13,7 @@ const RememberMe = ({ rememberMeHandleChange }) => {
                         value="remember"
                         color="primary"
                         onChange={rememberMeHandleChange}
+                        checked={isRemember || false}
                     />
                 }
                 label={

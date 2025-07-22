@@ -46,7 +46,7 @@ const AppLinks = ({ download_app_data, isFooter }) => {
             {download_app_data?.react_download_apps_play_store
                 ?.react_download_apps_play_store_status === '1' && (
                 <CustomButton
-                    backgroundColor={backgroundColor}
+                   sx={{backgroundColor:theme=>theme.palette.neutral[1000]}}
                     onClick={() =>
                         goToApp(
                             download_app_data?.react_download_apps_play_store
@@ -83,7 +83,7 @@ const AppLinks = ({ download_app_data, isFooter }) => {
             {download_app_data?.react_download_apps_app_store
                 ?.react_download_apps_link_status === '1' && (
                 <CustomButton
-                    backgroundColor={backgroundColor}
+                    sx={{backgroundColor:theme=>theme.palette.neutral[1000]}}
                     onClick={() =>
                         goToApp(
                             download_app_data?.react_download_apps_app_store

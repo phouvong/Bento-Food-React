@@ -84,29 +84,7 @@ const AddressReselect = ({ location }) => {
 
     return (
         <>
-            {location ? (
-                <Stack
-                    sx={{
-                        color: (theme) => theme.palette.neutral[1000],
-                        cursor: 'pointer',
-                    }}
-                    direction="row"
-                    onClick={handleClickToLandingPage}
-                    ref={anchorRef}
-                    alignItems="center"
-                    spacing={0.5}
-                >
-                    <RoomIcon
-                        fontSize="small"
-                        color="primary"
-                        style={{ width: '16px', height: '16px' }}
-                    />
-                    <AddressTypographyGray align="left">
-                        {location}
-                    </AddressTypographyGray>
-                    <KeyboardArrowDownIcon />
-                </Stack>
-            ) : (
+            {!location ? (
                 <Stack
                     direction="row"
                     onClick={handleClickToLandingPage}
@@ -115,6 +93,7 @@ const AddressReselect = ({ location }) => {
                     sx={{
                         cursor: 'pointer',
                         color: (theme) => theme.palette.neutral[1000],
+                        minWidth:"174px"
                     }}
                 >
                     <RoomIcon
@@ -125,7 +104,30 @@ const AddressReselect = ({ location }) => {
                     <AddressTypographyGray align="left">
                         {t('Select your location')}
                     </AddressTypographyGray>
-                    <KeyboardArrowDownIcon />
+                    <KeyboardArrowDownIcon sx={{minWidth:"10px"}} />
+                </Stack>
+            ) : (
+                <Stack
+                    sx={{
+                        color: (theme) => theme.palette.neutral[1000],
+                        cursor: 'pointer',
+                    }}
+                    direction="row"
+                    onClick={handleClickToLandingPage}
+                    ref={anchorRef}
+                    alignItems="center"
+                    gap="5px"
+                    minWidth="174px"
+                >
+                    <RoomIcon
+                        fontSize="small"
+                        color="primary"
+                        style={{ width: '16px', height: '16px' }}
+                    />
+                    <AddressTypographyGray align="left">
+                        {location}
+                    </AddressTypographyGray>
+                    <KeyboardArrowDownIcon sx={{minWidth:"10px", fontSize:"1rem"}} />
                 </Stack>
             )}
             <AddressReselectPopover

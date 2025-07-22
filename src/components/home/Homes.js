@@ -107,7 +107,7 @@ const Homes = ({ configData }) => {
     const {
         data,
         refetch: refetchBannerData,
-        isLoading: bannerIsLoading,
+        isFetched
     } = useQuery(['banner-image'], BannerApi.bannerList, {
         enabled: false,
         staleTime: 1000 * 60 * 8,
@@ -169,8 +169,6 @@ const Homes = ({ configData }) => {
             }
         }
     useEffect(() => {
-        
-
         apiRefetch()
     }, [])
 
@@ -281,7 +279,7 @@ const Homes = ({ configData }) => {
                                             }}
                                         >
                                             <CustomImageContainer
-                                                src={mapIcon.src}
+                                                src={mapIcon?.src}
                                                 alt="map"
                                                 width="24px"
                                                 height="24px"
@@ -303,7 +301,7 @@ const Homes = ({ configData }) => {
                                             }}
                                         >
                                             <CustomImageContainer
-                                                src={mapIcon.src}
+                                                src={mapIcon?.src}
                                                 alt="map"
                                                 width="24px"
                                                 height="24px"
@@ -338,7 +336,7 @@ const Homes = ({ configData }) => {
             ) : (
                 <>
                     <CustomContainer>
-                        <Banner bannerIsLoading={bannerIsLoading} />
+                        <Banner isFetched={isFetched} data={data} />
                     </CustomContainer>
                     <Box>
                         <FeatureCatagories height="70px" />

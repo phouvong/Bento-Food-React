@@ -15,8 +15,9 @@ import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
 import { HandleNext, HandlePrev } from '../CustomSliderIcon'
 import { useTheme } from '@emotion/react'
+import CustomNextImage from '@/components/CustomNextImage'
 
-const BannerSection = ({ banner_section_half, isLoading }) => {
+const BannerSection = ({ banner_section_half }) => {
     const [hoverOn, setHoverOn] = useState(false)
     const discountRef = useRef(null)
     const theme = useTheme()
@@ -150,130 +151,111 @@ const BannerSection = ({ banner_section_half, isLoading }) => {
     return (
         <RTL direction={languageDirection}>
             <CustomContainer>
-                <Stack width="100%" direction="row" sx={{ marginTop: '25px' }}>
+                <Stack width="100%" direction="row" sx={{ marginTop: '60px' }}>
                     <CustomStackFullWidth
                         onMouseEnter={() => setHoverOn(true)}
                         onMouseLeave={() => setHoverOn(false)}
                     >
-                        {!isLoading ? (
-                            <SliderCustom
-                                languageDirection={languageDirection}
-                                gap="0px"
-                            >
-                                <Slider ref={discountRef} {...settings}>
-                                    {banner_section_half?.map((item, index) => {
-                                        return (
-                                            <>
-                                                <Stack
-                                                    height={{
-                                                        xs: '131px',
-                                                        sm: '155px',
-                                                    }}
-                                                    key={index}
+                        <SliderCustom
+                            languageDirection={languageDirection}
+                            gap="0px"
+                        >
+                            <Slider ref={discountRef} {...settings}>
+                                {banner_section_half?.map((item, index) => {
+                                    return (
+                                        <>
+                                            <Stack
+                                                height={{
+                                                    xs: '131px',
+                                                    sm: '155px',
+                                                }}
+                                                key={index}
+                                                sx={{
+                                                    paddingInlineEnd: {
+                                                        xs: '12px',
+                                                        sm: '20px',
+                                                        md: '20px',
+                                                    },
+                                                }}
+                                            >
+                                                <Card
+                                                    elevation={0}
                                                     sx={{
-                                                        paddingInlineEnd: {
-                                                            xs: '12px',
-                                                            sm: '20px',
-                                                            md: '20px',
-                                                        },
-                                                    }}
-                                                >
-                                                    <Card
-                                                        elevation={0}
-                                                        sx={{
-                                                            backgroundImage: `url(${
-                                                                typeof item.image_full_url ===
-                                                                'string'
-                                                                    ? `${item?.image_full_url}`
-                                                                    : ImageNotFound.src
-                                                            })`,
+                                                        position: 'relative',
+                                                        height: '100%',
+                                                        zIndex: 1,
+                                                        "> img": {
                                                             height: '100%',
                                                             width: '100%',
-                                                            backgroundSize:
-                                                                'cover',
-                                                            backgroundRepeat:
-                                                                'no-repeat',
                                                             borderRadius: '4px',
-                                                            backgroundPosition:
-                                                                'center',
-                                                            transition:
-                                                                'transform .3s ease-in-out',
-                                                            '&:hover': {
-                                                                transform:
-                                                                    'scale(1.03)',
-                                                            },
-                                                        }}
+                                                            objectFit: 'cover',
+                                                            transition: 'transform .3s ease-in-out',
+                                                            '&:hover': { transform: 'scale(1.03)', },
+                                                            position: 'absolute',
+                                                            zIndex: -1,
+                                                            top: 0,
+                                                            left: 0,
+                                                        }
+                                                    }}
+                                                >
+                                                    <CustomNextImage
+                                                        src={item?.image_full_url}
+                                                        width={364}
+                                                        height={155}
+                                                        altSrc={ImageNotFound}
+                                                        priority={true}
+                                                    />
+                                                    <Stack
+                                                        width="250px"
+                                                        padding="20px 26px 20px 26px"
+                                                        justifyContent="center"
+                                                        alignItems="flex-start"
+                                                        height="100%"
                                                     >
-                                                        <Stack
-                                                            width="250px"
-                                                            padding="20px 26px 20px 26px"
-                                                            justifyContent="center"
-                                                            alignItems="flex-start"
-                                                            height="100%"
+                                                        <LandingPageTypography
+                                                            fontWeight="700"
+                                                            color={
+                                                                theme
+                                                                    .palette
+                                                                    .customColor
+                                                                    .seven
+                                                            }
+                                                            fontSize="19px"
+                                                            sx={{
+                                                                textTransform:
+                                                                    'capitalize',
+                                                            }}
                                                         >
-                                                            <LandingPageTypography
-                                                                fontWeight="700"
-                                                                color={
-                                                                    theme
-                                                                        .palette
-                                                                        .customColor
-                                                                        .seven
-                                                                }
-                                                                fontSize="19px"
-                                                                sx={{
-                                                                    textTransform:
-                                                                        'capitalize',
-                                                                }}
-                                                            >
-                                                                {item.title}
-                                                            </LandingPageTypography>
-                                                            <LandingPageTypography
-                                                                color={
-                                                                    theme
-                                                                        .palette
-                                                                        .customColor
-                                                                        .seven
-                                                                }
-                                                                sx={{
-                                                                    mt: 1,
+                                                            {item.title}
+                                                        </LandingPageTypography>
+                                                        <LandingPageTypography
+                                                            color={
+                                                                theme
+                                                                    .palette
+                                                                    .customColor
+                                                                    .seven
+                                                            }
+                                                            sx={{
+                                                                mt: 1,
 
-                                                                    textAlign:
-                                                                        'left',
-                                                                }}
-                                                                fontWeight="400"
-                                                                fontSize="16px"
-                                                            >
-                                                                {
-                                                                    item.description
-                                                                }
-                                                            </LandingPageTypography>
-                                                        </Stack>
-                                                    </Card>
-                                                </Stack>
-                                            </>
-                                        )
-                                    })}
-                                </Slider>
-                            </SliderCustom>
-                        ) : (
-                            <Slider ref={discountRef} {...settings}>
-                                {[...Array(3)].map((item) => {
-                                    return (
-                                        <Stack
-                                            maxWidth="375px"
-                                            width="100%"
-                                            height="155px"
-                                        >
-                                            <Skeleton
-                                                variant="rectangular"
-                                                width="100%"
-                                                height="200px"
-                                            />
-                                        </Stack>
+                                                                textAlign:
+                                                                    'left',
+                                                            }}
+                                                            fontWeight="400"
+                                                            fontSize="16px"
+                                                        >
+                                                            {
+                                                                item.description
+                                                            }
+                                                        </LandingPageTypography>
+                                                    </Stack>
+                                                </Card>
+                                            </Stack>
+                                        </>
                                     )
                                 })}
                             </Slider>
-                        )}
+                        </SliderCustom>
                     </CustomStackFullWidth>
                 </Stack>
             </CustomContainer>

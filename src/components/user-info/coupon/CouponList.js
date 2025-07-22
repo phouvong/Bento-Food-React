@@ -45,6 +45,7 @@ const CouponList = () => {
         }
     }, [zoneId, refetch])
 
+
     return (
         <>
             <Meta
@@ -61,18 +62,19 @@ const CouponList = () => {
                 }}
             >
                 <CustomStackFullWidth spacing={2}>
-                    {!isXSmall && (
-                        <Typography fontWeight="600" fontSize="16px">
-                            {t('My Coupons')}
-                        </Typography>
-                    )}
+                    {/*{!isXSmall && (*/}
+                    {/*    <Typography fontWeight="600" fontSize="16px">*/}
+                    {/*        {t('My Coupons')}*/}
+                    {/*    </Typography>*/}
+                    {/*)}*/}
                     <Grid
                         container
                         rowSpacing={2}
                         columnSpacing={isXSmall ? 0 : 2}
                         sx={{ paddingRight: !isXSmall && '10px' }}
                     >
-                        {data?.data?.map((item) => (
+                       <Grid item xs={12}> <Typography fontWeight="600" fontSize="16px">{t("Available Coupon")}</Typography></Grid>
+                        {data?.data?.available?.map((item) => (
                             <Grid
                                 item
                                 xs={12}
@@ -110,7 +112,7 @@ const CouponList = () => {
                                 </Grid>
                             </Grid>
                         )}
-                        {((data?.data?.length === 0 && !isLoading) ||
+                        {((data?.data?.available?.length === 0 && !isLoading) ||
                             (data === undefined && !isLoading)) && (
                             <Stack
                                 justifyContent="center"
@@ -128,6 +130,74 @@ const CouponList = () => {
                             </Stack>
                         )}
                     </Grid>
+                    {/*<Grid*/}
+                    {/*    container*/}
+                    {/*    rowSpacing={2}*/}
+                    {/*    columnSpacing={isXSmall ? 0 : 2}*/}
+                    {/*    sx={{ paddingRight: !isXSmall && '10px' }}*/}
+                    {/*>*/}
+                    {/*    {data?.data?.unavailable?.length > 0 && (*/}
+                    {/*        <Grid item xs={12}>*/}
+                    {/*            <Typography fontWeight="600" fontSize="16px">{t("Unavailable Coupon")}</Typography>*/}
+                    {/*        </Grid>*/}
+                    {/*    )}*/}
+
+                    {/*    {data?.data?.unavailable?.map((item) => (*/}
+                    {/*        <Grid*/}
+                    {/*            item*/}
+                    {/*            xs={12}*/}
+                    {/*            sm={matches ? 12 : 6}*/}
+                    {/*            md={6}*/}
+                    {/*            key={item.id}*/}
+                    {/*        >*/}
+                    {/*            <CouponCard coupon={item} disabled />*/}
+                    {/*        </Grid>*/}
+                    {/*    ))}*/}
+                    {/*    {isLoading && (*/}
+                    {/*        <Grid*/}
+                    {/*            container*/}
+                    {/*            spacing={3}*/}
+                    {/*            sx={{*/}
+                    {/*                paddingTop: '20px',*/}
+                    {/*                paddingInlineStart: '20px',*/}
+                    {/*            }}*/}
+                    {/*        >*/}
+                    {/*            <Grid item xs={12} sm={12} md={6}>*/}
+                    {/*                <Skeleton*/}
+                    {/*                    variant="rectangular"*/}
+                    {/*                    width="100%"*/}
+                    {/*                    height="127px"*/}
+                    {/*                    style={{ borderRadius: '5px' }}*/}
+                    {/*                />*/}
+                    {/*            </Grid>*/}
+                    {/*            <Grid item xs={12} sm={12} md={6}>*/}
+                    {/*                <Skeleton*/}
+                    {/*                    variant="rectangular"*/}
+                    {/*                    width="100%"*/}
+                    {/*                    height="127px"*/}
+                    {/*                    style={{ borderRadius: '5px' }}*/}
+                    {/*                />*/}
+                    {/*            </Grid>*/}
+                    {/*        </Grid>*/}
+                    {/*    )}*/}
+                    {/*    /!*{((data?.data?.unavailable?.length === 0 && !isLoading) ||*!/*/}
+                    {/*    /!*    (data === undefined && !isLoading)) && (*!/*/}
+                    {/*    /!*    <Stack*!/*/}
+                    {/*    /!*        justifyContent="center"*!/*/}
+                    {/*    /!*        alignItems="center"*!/*/}
+                    {/*    /!*        width="100%"*!/*/}
+                    {/*    /!*        minHeight="30vh"*!/*/}
+                    {/*    /!*        pt={{ xs: '40px', md: '110px' }}*!/*/}
+                    {/*    /!*    >*!/*/}
+                    {/*    /!*        <CustomEmptyResult*!/*/}
+                    {/*    /!*            label="No Coupon Found"*!/*/}
+                    {/*    /!*            image={noDataFound}*!/*/}
+                    {/*    /!*            height={80}*!/*/}
+                    {/*    /!*            width={80}*!/*/}
+                    {/*    /!*        />*!/*/}
+                    {/*    /!*    </Stack>*!/*/}
+                    {/*    /!*)}*!/*/}
+                    {/*</Grid>*/}
                 </CustomStackFullWidth>
             </CustomPaperBigCard>
         </>

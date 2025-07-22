@@ -422,7 +422,7 @@ const SignUpPage = ({ handleClose, setModalFor, verificationId, sendOTP }) => {
                                             }
                                             id="password"
                                             name="password"
-                                            placeholder={t('6+ Character')}
+                                            placeholder={t('7+ Character')}
                                             value={signUpFormik.values.password}
                                             onChange={signUpFormik.handleChange}
                                             error={
@@ -555,7 +555,7 @@ const SignUpPage = ({ handleClose, setModalFor, verificationId, sendOTP }) => {
                                             }
                                             id="confirm_password"
                                             name="confirm_password"
-                                            placeholder={t('8+ Character')}
+                                            placeholder={t('Re-enter your password')}
                                             value={
                                                 signUpFormik.values
                                                     .confirm_password
@@ -807,6 +807,7 @@ const SignUpPage = ({ handleClose, setModalFor, verificationId, sendOTP }) => {
                     setModalOpen={setOpenOtpModal}
                 >
                     <OtpForm
+                        notForgotPass
                         handleClose={() => setOpenOtpModal(false)}
                         data={otpData?.type}
                         formSubmitHandler={otpFormSubmitHandler}

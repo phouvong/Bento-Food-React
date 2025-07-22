@@ -20,6 +20,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import RestaurantBoxCard from '@/components/restaurant-details/RestaurantBoxCard'
 import { useRouter } from 'next/router'
 import dineInImage from '../../../../public/dinein.png'
+import CustomNextImage from '@/components/CustomNextImage'
 const DineIn = () => {
     const theme = useTheme()
     const router = useRouter()
@@ -198,10 +199,10 @@ const DineIn = () => {
                         borderRadius="10px"
                         padding="20px"
                     >
-                        <CustomImageContainer
+                        <CustomNextImage
                             src={dineInImage?.src}
-                            width="116px"
-                            height="90px"
+                            width="116"
+                            height="90"
                         />
                         <Typography
                             color={theme.palette.neutral[1000]}

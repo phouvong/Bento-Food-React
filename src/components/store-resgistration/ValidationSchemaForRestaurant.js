@@ -26,13 +26,13 @@ const ValidationSchemaForRestaurant = (
         f_name: Yup.string().required(t('Name is required')),
         l_name: Yup.string().required(t('last name required')),
         phone: Yup.string().required(t('phone number required')),
-        vat: Yup.string().required(t('vat is required')),
+
         min_delivery_time: Yup.string()
             .required(t('Minimum Delivery Time'))
             .test(
                 'min-less-than-max',
                 t(
-                    'Minimum Delivery Time cannot be more than Maximum Delivery Time'
+                    'Min Delivery Time cannot be more than Max Delivery Time'
                 ),
                 function (value) {
                     const { max_delivery_time } = this.parent
@@ -47,7 +47,7 @@ const ValidationSchemaForRestaurant = (
             .test(
                 'max-greater-than-min',
                 t(
-                    'Maximum Delivery Time must be greater than Minimum Delivery Time'
+                    'Max Delivery Time must be greater than Min Delivery Time'
                 ),
                 function (value) {
                     const { min_delivery_time } = this.parent
@@ -112,6 +112,7 @@ const ValidationSchemaForRestaurant = (
             .required(t('Confirm Password required'))
             .oneOf([Yup.ref('password'), null], t('Passwords must match')),
         additional_data: additionalDataValidation,
+
         // additional_documents: additionalDocumentsValidation,
     })
 }

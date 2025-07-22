@@ -65,26 +65,50 @@ export const CustomFoodCard = styled(Card)(({ theme }) => ({
         maxWidth: '150px',
     },
 }))
-export const CustomFoodCardNew = styled(Card)(
+// export const CustomFoodCardNew = styled(Card)(
+//     ({ theme, width, maxwidth, height, smheight, background, horizontal }) => ({
+//         backgroundColor: background,
+//         position: 'relative',
+//         padding: '8px',
+//         overflow: 'hidden',
+//         width: horizontal ? width : '100%',
+//         maxWidth: maxwidth || 'initial',
+//         cursor: 'pointer',
+//         borderRadius: horizontal ? '8px' : '10px',
+//         boxShadow: horizontal
+//             ? `8px 10px 10px rgba(154 154 154 / 10%)`
+//             : ` 8px 10px 10px rgba(0, 0, 0, 0.10)`,
+//         height: height ? height : '100%',
+//         [theme.breakpoints.down('sm')]: {
+//             height: smheight ? smheight : '100%',
+//             padding: '5px',
+//         },
+//     })
+// )
+
+export const CustomFoodCardNew = styled(Card, {
+    shouldForwardProp: (prop) =>
+        !['width', 'maxwidth', 'height', 'smheight', 'background', 'horizontal'].includes(prop),
+})(
     ({ theme, width, maxwidth, height, smheight, background, horizontal }) => ({
         backgroundColor: background,
         position: 'relative',
         padding: '8px',
         overflow: 'hidden',
         width: horizontal ? width : '100%',
-        maxWidth: maxwidth,
+        maxWidth: maxwidth || 'initial',
         cursor: 'pointer',
         borderRadius: horizontal ? '8px' : '10px',
         boxShadow: horizontal
             ? `8px 10px 10px rgba(154 154 154 / 10%)`
-            : ` 8px 10px 10px rgba(0, 0, 0, 0.10)`,
-        height: height ? height : '100%',
+            : `8px 10px 10px rgba(0, 0, 0, 0.10)`,
+        height: height || '100%',
         [theme.breakpoints.down('sm')]: {
-            height: smheight ? smheight : '100%',
+            height: smheight || '100%',
             padding: '5px',
         },
     })
-)
+);
 
 export const CustomMoreButtonContainer = styled(Card)(({ theme }) => ({
     maxWidth: '237px',

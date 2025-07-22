@@ -13,25 +13,18 @@ export const LandingPageTypography = styled(Typography)(
 export const DiscountBannerBox = styled(Box)(({ theme }) => ({
     position: 'relative',
     zIndex: 1,
-    padding: '10px',
-    width: '100%',
-    height: '250px',
-    alignItems: 'center',
-    justifyContent: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    backgroundSize: 'cover',
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center',
-    borderRadius: '5px',
-    [theme.breakpoints.down('sm')]: {
-        height: '68px',
+    lineHeight: 1,
+    "img": {
+        borderRadius: '5px',
+        height: "auto",
+        maxHeight: '250px',
     },
     '&::after': {
         content: '" "',
         position: 'absolute',
         width: '100%',
-        height: 'calc(100% - 2px)',
+        height: 'calc(100% - 3px)',
+        borderRadius: '5px',
         left: '0',
         backgroundColor: alpha(theme.palette.primary.dark, 0.1),
         zIndex: '-1',
@@ -40,14 +33,21 @@ export const DiscountBannerBox = styled(Box)(({ theme }) => ({
 }))
 
 export const LandingHeroBox = styled(Box)(
-    ({ theme, heroImg, ImageNotFound, isXSmall }) => ({
-        backgroundImage: `url(${heroImg ? heroImg : ImageNotFound.src})`,
-        backgroundSize: 'cover',
-        backgroundRepeat: 'no-repeat',
+    ({ theme, isXSmall }) => ({
         display: 'flex',
-        backgroundPosition: 'center',
         marginInline: isXSmall && '15px',
         borderRadius: isXSmall && '5px',
-        paddingTop: isXSmall ? '0px' : '83px',
+        position: 'relative',
+        zIndex: 1,
+        '> img': {
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: isXSmall && '5px',
+            position: 'absolute',
+            zIndex: -1,
+            bottom: 0,
+            left: 0,
+        },
     })
 )

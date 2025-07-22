@@ -6,6 +6,7 @@ import RadioGroup from '@mui/material/RadioGroup'
 import FormControl from '@mui/material/FormControl'
 import { useDispatch } from 'react-redux'
 import { setOfflineInfoStep } from '@/redux/slices/OfflinePayment'
+import CustomNextImage from '@/components/CustomNextImage'
 
 const PaymentMethodCard = (props) => {
     const { image, type, paymentType, getPaymentMethod, selected } = props
@@ -25,11 +26,11 @@ const PaymentMethodCard = (props) => {
                 alignItems="center"
                 paddingLeft={{ xs: '5px', sm: '5px', md: '10px' }}
             >
-                <CustomImageContainer
-                    maxWidth="70px"
-                    width="unset"
-                    height="32px"
-                    objectfit="contain"
+                <CustomNextImage
+                   // maxWidth="70px"
+                    width="70"
+                    height="32"
+                    objectFit="contain"
                     src={image}
                 />
 

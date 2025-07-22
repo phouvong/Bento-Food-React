@@ -10,6 +10,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import FoodRating from '../food-card/FoodRating'
 import { useRouter } from 'next/router'
+import CustomNextImage from '@/components/CustomNextImage'
 
 const FoodModalTopSection = ({
     product,
@@ -47,12 +48,12 @@ const FoodModalTopSection = ({
             >
                 <CloseIcon sx={{ fontSize: '16px', fontWeight: 'bold' }} />
             </IconButton>
-            <CustomImageContainer
+            <CustomNextImage
                 src={image}
-                width="100%"
-                height="167px"
+                width="475"
+                height="167"
                 borderRadius="10px"
-                objectFit="cover"
+                objectFit={image?"cover":"contain"}
             />
             <CustomStackForFoodModal width="100%" spacing={2}>
                 <Stack

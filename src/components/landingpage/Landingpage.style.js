@@ -41,56 +41,60 @@ export const StyledButton = styled(CustomButtonPrimary)(
                 : '6px',
     })
 )
+
 export const CssTextField = styled(TextField)(
-    ({ theme, languageDirection, mobileview }) => ({
-        width: '100%',
-        '& label.Mui-focused': {
-            color: theme.palette.primary.main,
-            background: theme.palette.neutral[100],
-        },
-        '& .MuiInput-underline:after': {
-            borderBottomColor: theme.palette.primary.main,
-            background: theme.palette.neutral[100],
-        },
-        '& .MuiOutlinedInput-notchedOutline': {
-            border:
-                mobileview === 'true'
-                    ? `.5px solid ${alpha(theme.palette.primary.main, 0.3)}`
-                    : 'none',
-        },
-        '& .MuiOutlinedInput-root': {
-            paddingTop: '0px',
-            paddingBottom: '0px',
-            borderTopRightRadius:
-                mobileview === 'true'
-                    ? '5px'
-                    : (languageDirection === 'ltr' || !languageDirection) &&
-                      '0px',
-            borderBottomRightRadius:
-                mobileview === 'true'
-                    ? '5px'
-                    : (languageDirection === 'ltr' || !languageDirection) &&
-                      '0px',
-            borderTopLeftRadius:
-                mobileview === 'true'
-                    ? '5px'
-                    : languageDirection === 'rtl' && '0px',
-            borderBottomLeftRadius:
-                mobileview === 'true'
-                    ? '5px'
-                    : languageDirection === 'rtl' && '0px',
-            '& fieldset': {
-                borderColor: theme.palette.primary.main,
-            },
-            '&:hover fieldset': {
-                borderColor: theme.palette.primary.main,
-            },
-            '&.Mui-focused fieldset': {
-                borderColor: theme.palette.primary.main,
-            },
-        },
+    ({ theme, languageDirection, mobileview, getLocation }) => ({
+        ...(getLocation
+            ? {} // If getLocation is true, apply no styles
+            : {
+                width: '100%',
+                '& label.Mui-focused': {
+                    color: theme.palette.primary.main,
+                    background: theme.palette.neutral[100],
+                },
+                '& .MuiInput-underline:after': {
+                    borderBottomColor: theme.palette.primary.main,
+                    background: theme.palette.neutral[100],
+                },
+                '& .MuiOutlinedInput-notchedOutline': {
+                    border:
+                        mobileview === 'true'
+                            ? `.5px solid ${alpha(theme.palette.primary.main, 0.3)}`
+                            : 'none',
+                },
+                '& .MuiOutlinedInput-root': {
+                    paddingTop: '0px',
+                    paddingBottom: '0px',
+                    borderTopRightRadius:
+                        mobileview === 'true'
+                            ? '5px'
+                            : (languageDirection === 'ltr' || !languageDirection) && '0px',
+                    borderBottomRightRadius:
+                        mobileview === 'true'
+                            ? '5px'
+                            : (languageDirection === 'ltr' || !languageDirection) && '0px',
+                    borderTopLeftRadius:
+                        mobileview === 'true'
+                            ? '5px'
+                            : languageDirection === 'rtl' && '0px',
+                    borderBottomLeftRadius:
+                        mobileview === 'true'
+                            ? '5px'
+                            : languageDirection === 'rtl' && '0px',
+                    '& fieldset': {
+                        borderColor: theme.palette.primary.main,
+                    },
+                    '&:hover fieldset': {
+                        borderColor: theme.palette.primary.main,
+                    },
+                    '&.Mui-focused fieldset': {
+                        borderColor: theme.palette.primary.main,
+                    },
+                },
+            }),
     })
-)
+);
+
 export const CustomButton = styled(Paper)(({ theme, backgroundColor }) => ({
     height: '50px',
     borderRadius: '5px',

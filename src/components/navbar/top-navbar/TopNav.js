@@ -63,69 +63,63 @@ const TopNav = ({ cartListRefetch }) => {
     }, [guestData])
 
     return (
-        <NoSsr>
-            <Card
-                sx={{ borderRadius: '0px', zIndex: '99', position: 'relative' }}
+        <Card
+            sx={{ borderRadius: '0px', zIndex: '99', position: 'relative' }}
+        >
+            <Toolbar
+                sx={{ minHeight: '45px !important' }}
+                disableGutters={true}
             >
-                <Toolbar
-                    sx={{ minHeight: '45px !important' }}
-                    disableGutters={true}
-                >
-                    <Container maxWidth="lg">
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                borderRadius: '0',
-                                paddingBlock: { xs: '.0rem', md: '.8rem' },
-                                justifyContent: 'space-between',
-                            }}
+                <Container maxWidth="lg">
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            borderRadius: '0',
+                            paddingBlock: { xs: '.0rem', md: '.8rem' },
+                            justifyContent: 'space-between',
+                        }}
+                    >
+                        <Stack
+                            width="100%"
+                            direction="row"
+                            justifyContent="space-between"
                         >
-                            <Stack
-                                width="100%"
+                            <CustomStackForLoaction
                                 direction="row"
-                                justifyContent="space-between"
+                                spacing={2}
                             >
-                                <CustomStackForLoaction
+                                <LogoSide
+                                    global={global}
+                                    width="unset"
+                                    businessLogo={businessLogo}
+                                />
+
+                                <AddressReselect
+                                    location={userLocation}
+                                    userLocationUpdate={userLocationUpdate}
+                                />
+                            </CustomStackForLoaction>
+                            {!isSmall && (
+                                <Stack
                                     direction="row"
                                     spacing={2}
+                                    justifyContent="end"
                                 >
-                                    {global ? (
-                                        <LogoSide
-                                            global={global}
-                                            width="unset"
-                                            businessLogo={businessLogo}
-                                        />
-                                    ) : (
-                                        <Skeleton width="40px" />
-                                    )}
-
-                                    <AddressReselect
-                                        location={userLocation}
-                                        userLocationUpdate={userLocationUpdate}
-                                    />
-                                </CustomStackForLoaction>
-                                {!isSmall && (
-                                    <Stack
-                                        direction="row"
-                                        spacing={2}
-                                        justifyContent="end"
-                                    >
-                                        <ThemeSwitches />
-                                    </Stack>
-                                )}
-                            </Stack>
-                            {isSmall && (
-                                <DrawerMenu
-                                    zoneid={zoneid}
-                                    cartListRefetch={cartListRefetch}
-                                />
+                                    <ThemeSwitches />
+                                </Stack>
                             )}
-                        </Box>
-                    </Container>
-                </Toolbar>
-            </Card>
-        </NoSsr>
+                        </Stack>
+                        {isSmall && (
+                            <DrawerMenu
+                                zoneid={zoneid}
+                                cartListRefetch={cartListRefetch}
+                            />
+                        )}
+                    </Box>
+                </Container>
+            </Toolbar>
+        </Card>
     )
 }
 export default withTranslation()(TopNav)

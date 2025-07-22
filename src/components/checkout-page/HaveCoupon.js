@@ -19,6 +19,7 @@ import CustomPopover from "@/components/custom-popover/CustomPopover";
 import CheckOutPromo from "@/components/checkout-page/order-summary/CheckOutPromo";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
+import CustomModal from '@/components/custom-modal/CustomModal'
 
 const HaveCoupon = ({
                         restaurant_id,
@@ -29,9 +30,10 @@ const HaveCoupon = ({
                         couponCode,
                         setCouponCode,
                         data,
-                        anchorEl,
-                        setAnchorEl,
-                        handleClose
+
+                        handleClose,
+                        totalAmountForRefer,
+    open,setOpen
                     }) => {
     const theme = useTheme();
     const router = useRouter();
@@ -114,7 +116,7 @@ const HaveCoupon = ({
 
     const { isLoading, refetch, isRefetching } = useQuery(
         "apply-coupon",
-        () => CouponApi.applyCoupon(couponCode, restaurant_id),
+        () => CouponApi.applyCoupon(couponCode, restaurant_id,totalAmountForRefer),
         {
             retry: 0,
             onSuccess: handleSuccess,
@@ -161,7 +163,7 @@ const HaveCoupon = ({
     }, [couponCode]);
     const borderColor = theme.palette.primary.main;
     return (
-        <Grid container spacing={{ xs: 1, md: 2 }} justifyContent="flex-start">
+        <Grid container spacing={{ xs: 1, md: 2 }} justifyContent="flex-start" mb="10px">
             {method !== "offline" &&
                 <Grid item md={12} xs={12} sm={7}>
                     <InputField
@@ -220,17 +222,16 @@ const HaveCoupon = ({
                     </InputField>
                 </Grid>
             }
-            <CustomPopover
-                anchorEl={anchorEl}
-                setAnchorEl={setAnchorEl}
+            <CustomModal
+               openModal={open}
                 handleClose={handleClose}
-                padding="20px 10px 10px 10px"
+
                 maxWidth="450px"
 
             >
                 <CheckOutPromo loading={isLoading || isRefetching} handleClose={handleClose} data={data}
                                handleApply={handleApply} />
-            </CustomPopover>
+            </CustomModal>
         </Grid>
     );
 };

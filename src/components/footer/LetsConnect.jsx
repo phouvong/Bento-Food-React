@@ -27,7 +27,7 @@ const LetsConnect = ({ languageDirection, web }) => {
                     variant="h6"
                     className="title font-signika-negative"
                 >
-                    Lets Connect !
+                    {/*Lets Connect !*/}
                 </Typography>
                 <Typography className="subtitle font-signika-negative">
                     Stay upto date with restaurants and foods around you

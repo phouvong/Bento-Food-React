@@ -38,6 +38,9 @@ const postData = async (storeData, configData) => {
         cuisine_ids: JSON.stringify(storeData?.cuisine_ids),
         tags: JSON.stringify(storeData?.tags),
         additional_data: JSON.stringify(storeData?.additional_data),
+        tin: storeData?.tin || "",
+        tin_expire_date: storeData?.tin_expire_date || "",
+        tin_certificate_image: storeData?.tin_certificate_image || "",
     }
 
     const formData = new FormData()

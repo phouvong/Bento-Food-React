@@ -83,6 +83,7 @@ import LocationIcon from '@/components/order-details/assets/LocationIcon'
 import ContactAddressMap from '@/components/help-page/ContactAddressMap'
 import DeliveryTimeInfo from '@/components/order-details/DeliveryTimeInfo'
 import DIneInOrderTimeInfo from '@/components/order-details/DIneInOrderTimeInfo'
+import CustomNextImage from '@/components/CustomNextImage'
 const CustomTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} arrow classes={{ popper: className }} />
 ))(({ theme }) => ({
@@ -94,66 +95,6 @@ const CustomTooltip = styled(({ className, ...props }) => (
         color: theme.palette.neutral[100],
     },
 }))
-function getRestaurantValue(data, key) {
-    return data?.data?.details[0]?.food_details?.[key]
-}
-
-function getSubTotal(data, addOnsPrice = 0) {
-    // let sun_total = 0;
-    let totalPrice = 0
-    if (data?.data?.details?.length > 0) {
-        data?.data?.details?.map((item) => {
-            totalPrice +=
-                item.food_details.price * item.food_details.order_count
-        })
-        if (addOnsPrice > 0) return totalPrice + addOnsPrice
-        return totalPrice
-    }
-
-    return totalPrice
-}
-
-function getAddons(data) {
-    let totalAddons = 0
-    if (data?.data?.details?.length > 0) {
-        data?.data?.details?.map((item) => {
-            totalAddons += item.total_add_on_price
-        })
-        return totalAddons
-    }
-    return totalAddons
-}
-
-function getDiscount(data) {
-    let totalDiscount = 0
-    if (data?.data?.details?.length > 0) {
-        data?.data?.details?.map((item) => {
-            totalDiscount += item.discount_on_food
-        })
-
-        return totalDiscount
-    }
-
-    return totalDiscount
-}
-
-function getTotalTax(data) {
-    let totalTax = 0
-    if (data?.data?.details?.length > 0) {
-        data?.data?.details.map((item) => {
-            totalTax += item.tax_amount
-        })
-
-        return totalTax
-    }
-
-    return totalTax
-}
-
-function getTotalPrice(subTotal, discountPrice, taxAmount) {
-    return subTotal + taxAmount - discountPrice
-}
-
 const getItemsPrice = (items) => {
     const productPrice = items?.reduce(
         (total, product) => product?.price * product?.quantity + total,
@@ -176,18 +117,15 @@ const getAddOnsPrice = (items) => {
     return productAddonsPrice
 }
 
-const getSubTotalPrice = (dataList) => {
-    return getItemsPrice(dataList) + getAddOnsPrice(dataList)
-}
 const getAddOnsNames = (addOns) => {
-    const names = addOns.map(
-        (item, index) =>
-            `${addOns[0].name}(${addOns[0]?.quantity})${
-                index !== addOns?.length - 1 ? ',' : ''
-            }`
-    )
-    return names
-}
+    const filteredAddOns = addOns.filter(item => item.quantity > 0);
+
+    const names = filteredAddOns.map((item, index) =>
+        `${item.name}(${item.quantity})${index !== filteredAddOns.length - 1 ? ',' : ''}`
+    );
+    return names;
+};
+
 
 const OrderDetails = ({ OrderIdDigital }) => {
     const theme = useTheme()
@@ -332,7 +270,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
     //
 
     const getReviewButton = (trackData) => {
-        if (!trackData?.data?.is_reviewed && !trackData?.data?.is_dm_reviewed) {
+        if (!trackData?.data?.is_reviewed && !trackData?.data?.is_dm_reviewed && trackData?.data?.subscription === null) {
             return (
                 <Button
                     onClick={handleSideDrawer}
@@ -352,10 +290,10 @@ const OrderDetails = ({ OrderIdDigital }) => {
                         gap={{ xs: '5px', sm: '6px', md: '10px' }}
                         flexWrap="wrap"
                     >
-                        <CustomImageContainer
-                            src={startReview.src}
-                            width={{ xs: '15px', md: '20px' }}
-                            height={{ xs: '15px', md: '20px' }}
+                        <CustomNextImage
+                            src={startReview}
+                            width={isXSmall?'15':'20'}
+                            height={isXSmall?'15':'20'}
                         />
                         <CustomColouredTypography
                             color="primary"
@@ -388,10 +326,10 @@ const OrderDetails = ({ OrderIdDigital }) => {
                         gap={{ xs: '5px', sm: '6px', md: '10px' }}
                         flexWrap="wrap"
                     >
-                        <CustomImageContainer
+                        <CustomNextImage
                             src={startReview.src}
-                            width={{ xs: '15px', md: '20px' }}
-                            height={{ xs: '15px', md: '20px' }}
+                            width={isXSmall?'15':'20'}
+                            height={isXSmall?'15':'20'}
                         />
                         <CustomColouredTypography
                             color="primary"
@@ -424,10 +362,10 @@ const OrderDetails = ({ OrderIdDigital }) => {
                         gap={{ xs: '5px', sm: '6px', md: '10px' }}
                         flexWrap="wrap"
                     >
-                        <CustomImageContainer
-                            src={startReview.src}
-                            width={{ xs: '15px', md: '20px' }}
-                            height={{ xs: '15px', md: '20px' }}
+                        <CustomNextImage
+                            src={startReview}
+                            width={isXSmall?'15':'20'}
+                            height={isXSmall?'15':'20'}
                         />
                         <CustomColouredTypography
                             color="primary"
@@ -838,6 +776,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                                         loading="lazy"
                                                                         smHeight="50px"
                                                                         borderRadius="5px"
+                                                                        objectFit="contained"
                                                                     />
                                                                 ) : (
                                                                     <CustomImageContainer
@@ -875,8 +814,9 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                                             ?.name
                                                                     }
                                                                 </OrderFoodName>
-                                                                {product
-                                                                    ?.add_ons
+                                                                {getAddOnsNames(
+                                                                        product?.add_ons
+                                                                    )
                                                                     .length >
                                                                     0 && (
                                                                     <OrderFoodName
@@ -1186,14 +1126,14 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                         >
                                             <Stack>
                                                 {trackData && (
-                                                    <CustomImageContainer
+                                                    <CustomNextImage
                                                         src={
                                                             trackData?.data
                                                                 ?.restaurant
                                                                 ?.logo_full_url
                                                         }
-                                                        height="80px"
-                                                        width="80px"
+                                                        height="80"
+                                                        width="80"
                                                         borderRadius=".5rem"
                                                         objectFit="contain"
                                                     />
@@ -1230,12 +1170,9 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                         }}
                                                     />{' '}
                                                 </InfoTypography>
-                                                <InfoTypography>
+                                                <InfoTypography sx={{ wordBreak: 'break-word', width: '100%' }}>
                                                     {t('Address')} :{' '}
-                                                    {trackData &&
-                                                        trackData?.data
-                                                            ?.restaurant
-                                                            ?.address}
+                                                    {trackData?.data?.restaurant?.address}
                                                 </InfoTypography>
                                             </Stack>
                                         </Stack>
@@ -1884,24 +1821,29 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                     )}
                                             </InfoTypography>
                                         </Grid>
-                                        <Grid item md={8} xs={8}>
-                                            <InfoTypography>
-                                                {t('Addons Price')}
-                                            </InfoTypography>
-                                        </Grid>
-                                        <Grid item md={4} xs={4}>
-                                            <InfoTypography align="right">
-                                                {data &&
-                                                    getAmount(
-                                                        getAddOnsPrice(
-                                                            data?.data?.details
-                                                        ),
-                                                        currencySymbolDirection,
-                                                        currencySymbol,
-                                                        digitAfterDecimalPoint
-                                                    )}
-                                            </InfoTypography>
-                                        </Grid>
+                                        { getAddOnsPrice(
+                                            data?.data?.details
+                                        )>0 ?(<>
+                                            <Grid item md={8} xs={8}>
+                                                <InfoTypography>
+                                                    {t('Addons Price')}
+                                                </InfoTypography>
+                                            </Grid>
+                                            <Grid item md={4} xs={4}>
+                                                <InfoTypography align="right">
+                                                    {data &&
+                                                        getAmount(
+                                                            getAddOnsPrice(
+                                                                data?.data?.details
+                                                            ),
+                                                            currencySymbolDirection,
+                                                            currencySymbol,
+                                                            digitAfterDecimalPoint
+                                                        )}
+                                                </InfoTypography>
+                                            </Grid>
+                                        </>):null}
+
                                         <Grid item md={7} xs={8}>
                                             <InfoTypography>
                                                 {t('Discount')}
@@ -2020,39 +1962,36 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                         ) : (
                                             ''
                                         )}
-                                        <Grid item md={8} xs={8}>
-                                            <InfoTypography>
-                                                {t('VAT/TAX')}(
-                                                {getRestaurantValue(
-                                                    data,
-                                                    'tax'
-                                                )}
-                                                %{' '}
-                                                {global?.tax_included === 1 &&
-                                                    t('Included')}{' '}
-                                                )
-                                            </InfoTypography>
-                                        </Grid>
-                                        <Grid item md={4} xs={4} align="end">
-                                            <InfoTypography>
-                                                {global?.tax_included === 1
-                                                    ? ''
-                                                    : '(+)'}
-                                                <InfoTypography
-                                                    component="span"
-                                                    marginLeft="4px"
-                                                >
-                                                    {trackData &&
-                                                        getAmount(
-                                                            trackData?.data
-                                                                ?.total_tax_amount,
-                                                            currencySymbolDirection,
-                                                            currencySymbol,
-                                                            digitAfterDecimalPoint
-                                                        )}
-                                                </InfoTypography>
-                                            </InfoTypography>
-                                        </Grid>
+                                        {trackData?.data?.tax_status ==="excluded" && trackData?.data?.total_tax_amount>0 && (
+                                            <>
+                                                <Grid item md={8} xs={8}>
+                                                    <InfoTypography>
+                                                        {t('VAT/TAX')}
+                                                    </InfoTypography>
+                                                </Grid>
+                                                <Grid item md={4} xs={4} align="end">
+                                                    <InfoTypography>
+                                                       (+)
+                                                        <InfoTypography
+                                                            component="span"
+                                                            marginLeft="4px"
+                                                        >
+                                                            {trackData &&
+                                                                getAmount(
+                                                                    trackData?.data
+                                                                        ?.total_tax_amount,
+                                                                    currencySymbolDirection,
+                                                                    currencySymbol,
+                                                                    digitAfterDecimalPoint
+                                                                )}
+                                                        </InfoTypography>
+                                                    </InfoTypography>
+                                                </Grid>
+                                            </>
+                                        )}
+
+
+
                                         {trackData &&
                                             trackData?.data?.dm_tips > 0 && (
                                                 <>
@@ -2171,6 +2110,16 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                 }}
                                             >
                                                 {t('Total')}
+                                                {trackData?.data?.tax_status === "included" && (
+                                                    <Typography
+                                                        fontSize="12px"
+                                                        sx={{ marginInlineStart: '5px' }}
+                                                        color="primary"
+                                                        component="span"
+                                                    >
+                                                        {t('(Vat/Tax incl.)')}
+                                                    </Typography>
+                                                )}
                                             </Typography>
                                         </Grid>
                                         <Grid item md={4} xs={4} align="right">
@@ -2499,26 +2448,11 @@ const OrderDetails = ({ OrderIdDigital }) => {
                     </CustomStackFullWidth>
                     <OfflineDetailsModal
                         trackData={trackData?.data}
-                        // trackDataIsLoading={trackDataIsLoading}
-                        // trackDataIsFetching={trackDataIsFetching}
                         handleOfflineClose={handleOfflineClose}
                     />
                 </CustomModal>
             )}
-            {/*{*/}
-            {/*    trackData &&*/}
-            {/*    trackData?.data?.subscription !== null &&*/}
-            {/*    trackData?.data?.subscription?.status !== 'canceled' && (*/}
-            {/*        //this bottom actions are for subscriptions order*/}
-            {/*        <BottomActions*/}
-            {/*            refetchAll={refetchAll}*/}
-            {/*            subscriptionId={trackData?.data?.subscription?.id}*/}
-            {/*            t={t}*/}
-            {/*            minDate={trackData?.data?.subscription?.start_at}*/}
-            {/*            maxDate={trackData?.data?.subscription?.end_at}*/}
-            {/*        />*/}
-            {/*    )*/}
-            {/*}*/}
+
             <ContactAddressMap
                 global={global}
                 open={openRes}

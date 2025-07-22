@@ -33,7 +33,8 @@ const ManualLogin = (props) => {
         rememberMeHandleChange,
         handleClick,
         setModalFor,
-        setForWidth,
+        setForWidth,isRemember
+
     } = props
     const theme = useTheme()
     const [isPhone, setIsPhone] = useState('')
@@ -53,6 +54,7 @@ const ManualLogin = (props) => {
             setIsPhone('email')
         }
     }, [loginFormik.values.email_or_phone])
+
     return (
         <form onSubmit={loginFormik.handleSubmit} noValidate>
             <CustomStackFullWidth
@@ -260,6 +262,9 @@ const ManualLogin = (props) => {
                 >
                     <RememberMe
                         rememberMeHandleChange={rememberMeHandleChange}
+                        loginFormik={loginFormik}
+                        isRemember={isRemember}
+
                     />
                     <Typography
                         onClick={handlePasswordClick}

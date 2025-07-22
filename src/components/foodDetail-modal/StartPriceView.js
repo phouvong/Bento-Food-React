@@ -21,28 +21,17 @@ const StartPriceView = (props) => {
     }
 
     const handleConvertedPrice = () => {
-        if (data?.restaurant_discount === 0) {
-            return getAmount(
-                getConvertDiscount(
-                    data.discount,
-                    data.discount_type,
-                    data.price,
-                    data.restaurant_discount
-                ),
-                currencySymbolDirection,
-                currencySymbol,
-                digitAfterDecimalPoint
-            )
-        } else {
-            let price =
-                data?.price - (data?.price * data?.restaurant_discount) / 100
-            return getAmount(
-                price,
-                currencySymbolDirection,
-                currencySymbol,
-                digitAfterDecimalPoint
-            )
-        }
+        return getAmount(
+            getConvertDiscount(
+                data.discount,
+                data.discount_type,
+                data.price,
+                data.restaurant_discount
+            ),
+            currencySymbolDirection,
+            currencySymbol,
+            digitAfterDecimalPoint
+        )
     }
 
     return (

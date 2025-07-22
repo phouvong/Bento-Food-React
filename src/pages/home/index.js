@@ -3,12 +3,12 @@ import Meta from '../../components/Meta'
 import HomeGuard from '../../components/home-guard/HomeGuard'
 import { getServerSideProps } from '../index'
 
-const HomePage = ({ configData, landingPageData, pathName }) => {
+const HomePage = ({ configData, pathName }) => {
     return (
         <>
             <Meta
                 title={configData?.business_name}
-                ogImage={`${configData?.base_urls?.react_landing_page_images}/${landingPageData?.banner_section_full?.banner_section_img_full}`}
+                ogImage={`${configData?.logo_full_url}`}
                 pathName={pathName}
             />
             <Homes configData={configData} />

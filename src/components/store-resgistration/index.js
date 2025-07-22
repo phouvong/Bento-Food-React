@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react'
-// import CustomContainer from 'components/container'
-// import { CustomStackFullWidth } from 'styled-components/CustomStyles.style'
 import { Box, NoSsr, Typography } from '@mui/material'
 import { t } from 'i18next'
-
-// import FormSubmitButton from 'components/profile/FormSubmitButton'
 import { useDispatch, useSelector } from 'react-redux'
-
 import { useRouter } from 'next/router'
 import { setActiveStep, setAllData } from '@/redux/slices/storeRegistrationData'
 import CustomContainer from '../container'
@@ -16,7 +11,6 @@ import StoreRegistrationForm from './StoreRegistrationForm'
 import BusinessPlan from './BusinessPlan'
 import PaymentSelect from './PaymentSelect'
 import SuccessStoreRegistration from './SuccessStoreRegistration'
-import CustomMultiSelectTags from '../custom-multi-select-tags/CustomMultiSelectTags'
 import { usePostStoreRegistration } from '@/hooks/react-query/store-registraion/usePostStoreRegistration'
 import { usePostBusiness } from '@/hooks/react-query/store-registraion/usePostBusiness'
 import { onErrorResponse } from '../ErrorResponse'
@@ -28,45 +22,12 @@ const StoreRegistration = ({ configData }) => {
     const { flag, active } = router.query
     const { allData, activeStep } = useSelector((state) => state.storeRegData)
     const [formValues, setFormValues] = useState({})
-    const { mutate, isLoading: regIsloading } =
-        usePostStoreRegistration(configData)
-    const { mutate: businessMutate, isLoading } = usePostBusiness()
+    const { mutate, isLoading: regIsloading } = usePostStoreRegistration(configData)
+    const { mutate: businessMutate, isLoading } = usePostBusiness();
 
     const formSubmit = (value) => {
         const tempData = { ...formValues, value }
 
-        // // Ensure additional_documents is initialized as an array
-        // tempData.additional_documents = [
-        //     ...(tempData.additional_documents || []),
-        // ]
-        // configData?.restaurant_additional_join_us_page_data?.data?.forEach(
-        //     (item) => {
-        //         const inputKey = item.input_data
-
-        //         if (tempData[inputKey]) {
-        //             if (item.field_type === 'file') {
-        //                 if (item.media_data?.upload_multiple_files === 1) {
-        //                     // Multiple files
-        //                     tempData.additional_documents = [
-        //                         ...tempData.additional_documents,
-        //                         ...(Array.isArray(tempData[inputKey])
-        //                             ? tempData[inputKey]
-        //                             : [tempData[inputKey]]),
-        //                     ]
-        //                 } else {
-        //                     // Single file
-        //                     tempData.additional_documents = [
-        //                         ...tempData.additional_documents,
-        //                         tempData[inputKey],
-        //                     ]
-        //                 }
-
-        //                 // Remove the key from tempData
-        //                 delete tempData[inputKey]
-        //             }
-        //         }
-        //     }
-        // )
 
         mutate(
             { tempData, configData },

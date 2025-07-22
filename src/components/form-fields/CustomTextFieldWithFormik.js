@@ -29,7 +29,6 @@ const CustomTextFieldWithFormik = (props) => {
     } = props
     const [inputValue, setInputValue] = useState(value)
     const [showPassword, setShowPassword] = useState(false)
-    const theme = useTheme()
     const onChangeHandlerForField = (e) => {
         setInputValue(e.target.value)
     }

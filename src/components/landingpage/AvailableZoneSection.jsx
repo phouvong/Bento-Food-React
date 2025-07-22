@@ -4,10 +4,12 @@ import { alpha, Grid, Typography, useMediaQuery, Box } from '@mui/material'
 import CustomImageContainer from '@/components/CustomImageContainer'
 import { useTheme } from '@mui/styles'
 import DollarSignHighlighter from '@/components/DollarSignHighlighter'
+import CustomNextImage from '@/components/CustomNextImage'
 
 const AvailableZoneSection = ({ landingPageData }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
+    const isMd = useMediaQuery(theme.breakpoints.down('md'))
     let languageDirection = undefined
     if (typeof window !== 'undefined') {
         languageDirection = localStorage.getItem('direction')
@@ -16,8 +18,8 @@ const AvailableZoneSection = ({ landingPageData }) => {
         <CustomContainer>
             <Grid
                 sx={{
-                    paddingTop: { xs: '50px', md: '70px' },
-                    paddingBottom: { xs: '10px', md: '70px' },
+                    paddingTop: { xs: '50px', md: '60px' },
+                    paddingBottom: { xs: '10px', md: '60px' },
                 }}
                 container
                 alignItems="center"
@@ -37,18 +39,7 @@ const AvailableZoneSection = ({ landingPageData }) => {
                             : 'left'
                     }
                 >
-                    <Box
-                        sx={{
-                            position: 'relative',
-                            width: { xs: '300px', md: '440px' },
-                            height: { xs: '250px', md: '380px' },
-                        }}
-                    >
-                        <CustomImageContainer
-                            src={landingPageData?.available_zone_image_full_url}
-                            alt="zone"
-                        />
-                    </Box>
+                    <CustomNextImage src={landingPageData?.available_zone_image_full_url} width={isMd ? 300 : 440} height={isMd ? 250 : 380} objectFit="contain" />
                 </Grid>
                 <Grid
                     item
@@ -81,7 +72,7 @@ const AvailableZoneSection = ({ landingPageData }) => {
                         {/* Scrollable container with custom scrollbar */}
                         <Box
                             sx={{
-                                height: 200,
+                                maxHeight: 200,
                                 overflowY: 'auto',
                                 paddingRight: '10px',
                                 '&::-webkit-scrollbar': {

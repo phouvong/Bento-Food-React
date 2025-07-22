@@ -17,6 +17,7 @@ import CustomImageContainer from '../CustomImageContainer'
 import { RestaurantDiscountStack } from '../food-card/FoodCard.style'
 import FoodRating from '../food-card/FoodRating'
 import { HomeTextTypography } from '../home/HomeStyle'
+import CustomNextImage from '@/components/CustomNextImage'
 // import 'react-multi-carousel/lib/styles.css'
 
 export const SliderStack = styled(Stack)(
@@ -267,6 +268,8 @@ const RestaurantBoxCard = (props) => {
 
                         <Box
                             sx={{
+                                display:"flex",
+                                justifyContent:"center",
                                 width: '100%',
                                 height: '130px',
                                 transition: `${theme.transitions.create(
@@ -281,13 +284,16 @@ const RestaurantBoxCard = (props) => {
                                 },
                             }}
                         >
-                            <CustomImageContainer
+                            <CustomNextImage
                                 src={image}
-                                width="100%"
-                                height="100%"
-                                objectFit="cover"
+                                alt={name}
+                                width={image ? '300' : '180'}
+                                height={image?"130":'120'}
+                                objectFit={image?'cover':"contain"}
+                                priority={true}
                                 borderRadius="8px"
                             />
+
                         </Box>
                     </Stack>
                     <CustomStackFullWidth paddingX="5px" spacing={0.4}>
@@ -296,7 +302,9 @@ const RestaurantBoxCard = (props) => {
                             justifyContent="space-between"
                             sx={{ position: 'relative' }}
                         >
-                            <HomeTextTypography component="h3">{name}</HomeTextTypography>
+                            <HomeTextTypography component="h3">
+                                {name}
+                            </HomeTextTypography>
                             <Stack flexDirection="row" gap="5px">
                                 <Typography
                                     fontSize="14px"

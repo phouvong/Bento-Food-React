@@ -19,14 +19,19 @@ const OtpForm = ({
     isForgot,
     handleClose,
     reSendOtp,
-    loginValue,
+    loginValue,setIsResend,
+                     phoneOrEmail,notForgotPass
+
 }) => {
     const { t } = useTranslation()
     const theme = useTheme()
     const otpFormik = useFormik({
         initialValues: {
-            reset_token: '',
-            phone: data,
+            reset_token: "",
+            phone:notForgotPass?data: !data?.verification_method ? data.phone:data?.verification_method==="phone"?data?.phone:"",
+            email:notForgotPass?data:data?.verification_method==="email"?data?.email:"",
+            verification_method:data?.verification_method,
+
         },
         validationSchema: Yup.object({
             reset_token: Yup.string().required(t('field is empty')),
@@ -53,7 +58,10 @@ const OtpForm = ({
 
     const handleResendClick = () => {
         if (!isResendDisabled) {
-            reSendOtp(loginValue)
+            reSendOtp({
+                phone: phoneOrEmail==="phone"?data ? data.phone : "":"",
+                email:phoneOrEmail==="email"?data? data?.email:"":""
+                ,verification_method:phoneOrEmail})
             setCounter(60) // Reset counter to 30 seconds
             setIsResendDisabled(true)
             // Add logic to trigger resend code action here (API call, etc.)
@@ -123,7 +131,7 @@ const OtpForm = ({
                     >
                         {t(
                             `We’ve sent a verification code to ${maskSensitiveInfo(
-                                data
+                                notForgotPass?data:!data?.verification_method ? data.phone:data?.verification_method==="phone"?  data?.type|| data?.phone:data?.type|| data?.email
                             )}
                           `
                         )}

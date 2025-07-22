@@ -183,6 +183,7 @@ const GoogleLoginComp = (props) => {
                 setModalOpen={setOpenOtpModal}
             >
                 <OtpForm
+                    notForgotPass
                     data={otpData?.phone}
                     formSubmitHandler={formSubmitHandler}
                     isLoading={isLoading}

@@ -24,7 +24,6 @@ class CustomDocument extends Document {
                         src="https://accounts.google.com/gsi/client"
                         async
                     />
-                   
 
                 </Head>
                 <body>

@@ -5,7 +5,7 @@ import { useMutation } from 'react-query'
 import { toast } from 'react-hot-toast'
 import AccountInformation from './AccountInformation'
 import BasicInformationForm from './BasicInformationForm'
-import { onSingleErrorResponse } from '@/components/ErrorResponse'
+import { onErrorResponse, onSingleErrorResponse } from '@/components/ErrorResponse'
 import { useDispatch, useSelector } from 'react-redux'
 import { setEditProfile } from '@/redux/slices/editProfile'
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth'
@@ -27,36 +27,70 @@ const BasicInformation = ({ data, refetch, deleteUserHandler }) => {
     const { mutate: fireBaseOtpMutation, isLoading: fireIsLoading } =
         useFireBaseOtpVerify()
     const setUpRecaptcha = () => {
-        if (!window.recaptchaVerifier) {
-            window.recaptchaVerifier = new RecaptchaVerifier(
-                'recaptcha-update',
+        // Check if auth is available and we're in browser environment
+        if (!auth || typeof window === 'undefined') return;
+
+        try {
+            // First, properly clean up any existing instances to avoid memory leaks or conflicts
+            if (window.recaptchaVerifier) {
+                try {
+                    window.recaptchaVerifier.clear();
+                } catch (e) {
+                    console.error('Error clearing existing window verifier:', e);
+                }
+                window.recaptchaVerifier = null;
+            }
+
+            // Reset our ref as well to be safe
+            recaptchaWrapperRef.current = null;
+
+            // Create a new verifier
+            const verifier = new RecaptchaVerifier(
+                auth,
+                'recaptcha-update', // Make sure this element exists in your DOM
                 {
                     size: 'invisible',
                     callback: (response) => {
-                        console.log('Recaptcha verified', response)
+                        console.log('Recaptcha verified', response);
                     },
                     'expired-callback': () => {
-                        window.recaptchaVerifier?.reset()
+                        console.log('Recaptcha expired');
+                        // Access directly from window for reliability
+                        if (window.recaptchaVerifier) {
+                            window.recaptchaVerifier.reset();
+                        }
                     },
-                },
-                auth
-            )
-        } else {
-            window.recaptchaVerifier.clear()
-            window.recaptchaVerifier = null
-            // setUpRecaptcha()
+                }
+            );
+
+            // Store references - make sure both are pointing to the same object
+            window.recaptchaVerifier = verifier;
+            recaptchaWrapperRef.current = verifier;
+
+            // No need to call render() - it's done automatically by the constructor
+        } catch (error) {
+            console.error('Error setting up recaptcha:', error);
         }
-    }
+    };
 
     useEffect(() => {
-        setUpRecaptcha()
+        setUpRecaptcha();
+
+        // Cleanup function when component unmounts
         return () => {
-            if (recaptchaWrapperRef.current) {
-                recaptchaWrapperRef.current.clear() // Clear Recaptcha when component unmounts
-                recaptchaWrapperRef.current = null
+            // Use window.recaptchaVerifier for cleanup as it's guaranteed to have the clear method
+            if (window.recaptchaVerifier) {
+                try {
+                    window.recaptchaVerifier.clear();
+                    window.recaptchaVerifier = null;
+                    // Also reset our ref
+                    recaptchaWrapperRef.current = null;
+                } catch (error) {
+                    console.error('Error clearing recaptcha:', error);
+                }
             }
-        }
-    }, [])
+        };
+    }, []);
     const sendOTP = (response, values) => {
         const phoneNumber = values?.phone
         if (!phoneNumber) {
@@ -154,14 +188,8 @@ const BasicInformation = ({ data, refetch, deleteUserHandler }) => {
         }
         profileUpdateByMutate(formData, {
             onSuccess: onSuccessHandler,
-            onError: onSingleErrorResponse,
+            onError: onErrorResponse,
         })
-        // if (global?.firebase_otp_verification === 1) {
-        //     console.log('call')
-        //     sendOTP(values?.phone)
-        // } else {
-        //
-        // }
     }
 
     const handleCloseEmail = () => {

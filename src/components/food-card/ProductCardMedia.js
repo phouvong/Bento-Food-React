@@ -19,6 +19,7 @@ import { CustomStackForFoodModal } from '../foodDetail-modal/FoodModalStyle'
 import FoodRating from './FoodRating'
 import QuickView from './QuickView'
 import { useRouter } from 'next/router'
+import CustomNextImage from '@/components/CustomNextImage'
 const CardWrapper = styled(Box)(({ theme }) => ({
     position: 'relative',
     maxHeight: '160px',
@@ -155,14 +156,14 @@ const ProductCardMedia = (props) => {
                                 />
                             </CustomOverLay>
                         )}
-                        <CustomImageContainer
+                        <CustomNextImage
                             src={imageUrl}
                             alt={alt}
-                            width="100%"
-                            height="160px"
+                            width='250'
+                            height={isSmall?"130":"160"}
                             borderRadius="8px"
-                            objectFit="cover"
-                            smHeight="130px"
+                            objectFit={imageUrl?"cover":"contain"}
+
                         />
                         {router.pathname !== `/restaurant/[id]` && (
                             <CustomStackForFoodModal

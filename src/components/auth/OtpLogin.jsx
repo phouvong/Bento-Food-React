@@ -17,7 +17,8 @@ const OtpLogin = ({
     isLoading,
     handleClick,
     rememberMeHandleChange,
-    fireBaseId,
+    fireBaseId, setInitialLoginType,
+                      isRemember
 }) => {
     const theme = useTheme()
     return (
@@ -35,6 +36,8 @@ const OtpLogin = ({
                     />
                     <RememberMe
                         rememberMeHandleChange={rememberMeHandleChange}
+                        loginFormik={otpLoginFormik}
+                        isRemember={false}
                     />
                     <CustomStackFullWidth sx={{ paddingY: '5px' }}>
                         <CustomColouredTypography
@@ -81,6 +84,25 @@ const OtpLogin = ({
                     >
                         {t('Login')}
                     </LoadingButton>
+                    <CustomStackFullWidth
+                        sx={{
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            gap: '10px',
+                        }}>
+                        <CustomColouredTypography
+                            onClick={setInitialLoginType}
+                            color={theme.palette.neutral[1000]}
+                            sx={{
+                                fontSize: '14px',
+                                fontWeight: '400',
+                                textAlign: 'center',
+                                cursor: 'pointer',
+                                textDecoration: 'underline',
+                            }}>
+                            {t("Go back")}
+                        </CustomColouredTypography>
+                    </CustomStackFullWidth>
                 </CustomStackFullWidth>
             </form>
         </CustomStackFullWidth>

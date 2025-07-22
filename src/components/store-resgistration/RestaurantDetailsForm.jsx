@@ -24,15 +24,14 @@ import MultiSelectTypedInput from '@/components/MultiSelectTypedInput/MultiSelec
 const RestaurantDetailsForm = ({
     RestaurantJoinFormik,
     restaurantNameHandler,
-
     handleClearAllCuisines,
     zoneOption,
     zoneHandler,
-
     handleTimeTypeChangeHandler,
     selectedLanguage,
     handleDeleteCuisine,
-    cuisinesHandler,
+    cuisinesHandler,submitForm
+                                   ,setInZone
 }) => {
     const { data: cuisines, refetch, isRefetching } = useGetCuisines()
     useEffect(() => {
@@ -243,56 +242,9 @@ const RestaurantDetailsForm = ({
                         formik={RestaurantJoinFormik}
                     />
                 </Grid>
-                <Grid item xs={12} sm={12} md={12}>
-                    <CustomTextFieldWithFormik
-                        required
-                        type="number"
-                        borderRadius="8px"
-                        fieldsetGap="9px"
-                        label={
-                            <span>
-                                {t('VAT/TAX')}
-                                <Tooltip title="Enter vat/tax" placement="top">
-                                    <ErrorOutlineIcon
-                                        sx={{
-                                            fontSize: '12px',
-                                            cursor: 'pointer',
-                                            ml: 0.3,
-                                        }}
-                                    />
-                                </Tooltip>
-                            </span>
-                        }
-                        // label={t('VAT/TAX')}
-                        placeholder={t('VAT/TAX')}
-                        touched={RestaurantJoinFormik.touched.vat}
-                        errors={RestaurantJoinFormik.errors.vat}
-                        fieldProps={RestaurantJoinFormik.getFieldProps('vat')}
-                        onChangeHandler={restaurantNameHandler}
-                        value={RestaurantJoinFormik.values.vat}
-                        fontSize="12px"
-                        startIcon={
-                            <InputAdornment position="start">
-                                <PaidIcon
-                                    sx={{
-                                        color:
-                                            RestaurantJoinFormik.touched.vat &&
-                                            !RestaurantJoinFormik.errors.vat
-                                                ? theme.palette.primary.main
-                                                : alpha(
-                                                      theme.palette
-                                                          .neutral[400],
-                                                      0.7
-                                                  ),
-                                        fontSize: '18px',
-                                    }}
-                                />
-                            </InputAdornment>
-                        }
-                    />
-                </Grid>
+
                 <Grid item container xs={12} sm={12} md={12} spacing={2}>
-                    <Grid item md={4} xs={12}>
+                    <Grid item md={4} xs={12}  marginBottom={RestaurantJoinFormik.errors.min_delivery_time?"10px":"0px"}>
                         <CustomTextFieldWithFormik
                             placeholder={t('Min Delivery Time')}
                             required
@@ -335,7 +287,7 @@ const RestaurantDetailsForm = ({
                             }
                         />
                     </Grid>
-                    <Grid item md={4} xs={12}>
+                    <Grid item md={4} xs={12} marginBottom={RestaurantJoinFormik.errors.max_delivery_time?"10px":"0px"}>
                         <CustomTextFieldWithFormik
                             placeholder={t('Max Delivery Time')}
                             required="true"

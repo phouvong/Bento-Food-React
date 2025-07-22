@@ -18,6 +18,7 @@ import { useWishListResDelete } from '@/hooks/react-query/config/wish-list/useWi
 import { useDispatch, useSelector } from 'react-redux'
 import { t } from 'i18next'
 import FavoriteIcon from '@mui/icons-material/Favorite'
+import CustomNextImage from '@/components/CustomNextImage'
 
 const PaidAddsCard = ({
     item,
@@ -261,18 +262,25 @@ const PaidAddsCard = ({
                                 </Stack>
                             )}
 
-                            <CustomImageContainer
-                                boxShadow={
-                                    theme.palette.mode === 'dark'
-                                        ? '0px 15px 30px rgba(0, 0, 0, 0.8)'
-                                        : '0px 15px 30px rgba(150, 150, 154, 0.40)'
-                                }
-                                src={item?.cover_image_full_url}
-                                width="100%"
-                                height="200px"
-                                objectFit="cover"
-                                borderRadius="10px"
-                            />
+                            <Box
+                                sx={(theme) => ({
+                                    boxShadow:
+                                        theme.palette.mode === 'dark'
+                                            ? '0px 15px 30px rgba(0, 0, 0, 0.8)'
+                                            : '0px 15px 30px rgba(150, 150, 154, 0.4)',
+                                    borderRadius: '10px',
+                                })}
+                            >
+                                <CustomNextImage
+                                    src={item?.cover_image_full_url}
+                                    width="390"
+                                    height="200"
+                                    objectFit={item?.cover_image_full_url?"cover":"contain"}
+                                    alt="cover image"
+                                    borderRadius="10px"
+                                />
+                                {/* content here */}
+                            </Box>
                         </Stack>
                     </Stack>
                 ) : (
@@ -321,11 +329,11 @@ const PaidAddsCard = ({
                                     borderRadius: '50%',
                                 }}
                             >
-                                <CustomImageContainer
+                                <CustomNextImage
                                     src={item?.profile_image_full_url}
-                                    width="70px"
-                                    height="70px"
-                                    objectFit="cover"
+                                    width="70"
+                                    height="70"
+                                    objectFit={item?.profile_image_full_url?"cover":"contain"}
                                     borderRadius="50%"
                                 />
                             </Stack>

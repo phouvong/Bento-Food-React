@@ -1,5 +1,5 @@
 import { Grid, Modal, Tooltip, Typography, Stack } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState,useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { ProductsApi } from '@/hooks/react-query/config/productsApi'
@@ -80,7 +80,7 @@ const FoodDetailModal = ({
     const [add_on, setAddOns] = useState([])
     const { cartList } = useSelector((state) => state.cart)
     const [quantity, setQuantity] = useState(1)
-    const [clearCartModal, setClearCartModal] = React.useState(false)
+    const [clearCartModal, setClearCartModal] = useState(false)
     const handleClearCartModalOpen = () => setClearCartModal(true)
     const { token } = useSelector((state) => state.userToken)
     const { wishLists } = useSelector((state) => state.wishList)
@@ -89,27 +89,33 @@ const FoodDetailModal = ({
         useAddCartItem()
     const { mutate: updateMutate } = useCartItemUpdate()
     const { mutate: deleteCartItemMutate } = useDeleteAllCartItem()
-
     const itemSuccess = (res) => {
-        if (res) {
-            handleInitialTotalPriceVarPriceQuantitySet(
-                res,
-                setModalData,
-                productUpdate,
-                setTotalPrice,
-                setQuantity,
-                setSelectedOptions
-            )
-            setAddOns([])
-            setSelectedOptions([])
-        }
+
     }
     const {
         data: foodDetails,
         refetch,
         isLoading: itemIsLoading,
         isRefetching,
-    } = useGetFoodDetails({ id: product?.id, campaign }, itemSuccess)
+    } = useGetFoodDetails({ id: product?.id, campaign }, itemSuccess,productUpdate)
+
+
+    useEffect(()=>{
+       if(foodDetails){
+           {
+               handleInitialTotalPriceVarPriceQuantitySet(
+                   foodDetails,
+                   setModalData,
+                   productUpdate,
+                   setTotalPrice,
+                   setQuantity,
+                   setSelectedOptions
+               )
+               setAddOns([])
+               setSelectedOptions([])
+           }
+       }
+    },[foodDetails])
 
     useEffect(() => {
         if (productUpdate) {
@@ -125,11 +131,6 @@ const FoodDetailModal = ({
 
         //initially setting these states to use further
     }, [product])
-    useEffect(() => {
-        if (!productUpdate) {
-            refetch()
-        }
-    }, [])
     let location = undefined
     if (typeof window !== 'undefined') {
         location = localStorage.getItem('location')
@@ -897,12 +898,8 @@ const FoodDetailModal = ({
 
     const orderNow = () => {
         if (location) {
-            if (getToken()) {
-                let checkingFor = 'campaign'
-                handleAddToCartOnDispatch(checkingFor)
-            } else {
-                setAuthModalOpen(true)
-            }
+            let checkingFor = 'campaign'
+            handleAddToCartOnDispatch(checkingFor)
         } else {
             setIsLocation(true)
         }
@@ -968,7 +965,7 @@ const FoodDetailModal = ({
                 aria-describedby="modal-modal-description"
                 disableAutoFocus={true}
             >
-                <FoodDetailModalStyle sx={{ bgcolor: 'background.paper' }}>
+                <FoodDetailModalStyle sx={{ bgcolor: 'background.paper' }} >
                     {!itemIsLoading && modalData[0] ? (
                         <>
                             {isLocation ? (

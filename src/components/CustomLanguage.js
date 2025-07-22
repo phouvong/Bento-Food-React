@@ -17,6 +17,7 @@ import { CustomToaster } from './custom-toaster/CustomToaster'
 import { LefRightBorderBox, TopBarButton } from './navbar/Navbar.style'
 import { languageLists } from './navbar/second-navbar/custom-language/languageLists'
 import { StyledMenu } from './navbar/top-navbar/TopNav.style'
+
 const CustomLanguage = ({ formMobileMenu, language, isMobile }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
@@ -78,6 +79,8 @@ const CustomLanguage = ({ formMobileMenu, language, isMobile }) => {
         window.location.reload()
     }
     const arrowColor = theme.palette.neutral[500]
+    const marginRight = languageDirection === 'rtl' ? '1rem' : '0px';
+
 
     return (
         <>
@@ -101,7 +104,7 @@ const CustomLanguage = ({ formMobileMenu, language, isMobile }) => {
                         )}
                         <CustomColouredTypography
                             color={theme.palette.neutral[600]}
-                            sx={{ textTransform: 'capitalize' }}
+                            sx={{ textTransform: 'capitalize',width:"10px" }}
                             fontSize={{ xs: '14px', sm: '16px' }}
                         >
                             {languageValue(language)?.languageCode}
@@ -138,9 +141,7 @@ const CustomLanguage = ({ formMobileMenu, language, isMobile }) => {
                         </ListItemIcon>
                         <Typography
                             fontSize={{ xs: '14px', sm: '16px' }}
-                            marginRight={
-                                languageDirection === 'rtl' ? '1rem' : '0px'
-                            }
+                            marginRight={marginRight}
                         >
                             {lan.languageName}
                         </Typography>

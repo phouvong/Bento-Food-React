@@ -80,6 +80,12 @@ const useStyles = makeStyles((theme) => ({
         '&.react-tel-input .country-list .search': {
             backgroundColor: theme.palette.background.paper,
         },
+        "&.react-tel-input .country-list .country.highlight":{
+            backgroundColor:theme.palette.mode==="dark"?"#646464":"#f1f1f1"
+        },
+        "&.react-tel-input .country-list .country:hover":{
+            backgroundColor:theme.palette.mode==="dark"?"#646464":"#f1f1f1"
+        }
     }),
 }))
 

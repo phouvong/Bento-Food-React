@@ -18,6 +18,7 @@ import { useTheme } from '@emotion/react'
 import Skeleton from '@mui/material/Skeleton'
 import { HandleNext, HandlePrev } from '../../CustomSliderIcon'
 import { useSelector } from 'react-redux'
+import CustomNextImage from '@/components/CustomNextImage'
 
 const Cuisines = () => {
     const [hoverOn, setHoverOn] = useState(false)
@@ -25,6 +26,7 @@ const Cuisines = () => {
     const router = useRouter()
     const sliderRef = useRef(null)
     const { cuisines } = useSelector((state) => state.storedData)
+
     const settings = {
         dots: false,
         infinite: false,
@@ -70,16 +72,30 @@ const Cuisines = () => {
             {
                 breakpoint: 600,
                 settings: {
-                    slidesToShow: 7,
-                    slidesToScroll: 5,
+                    slidesToShow: 4.5,
+                    slidesToScroll: 4,
                     initialSlide: 2,
                 },
             },
             {
                 breakpoint: 500,
                 settings: {
-                    slidesToShow: 5,
-                    slidesToScroll: 5,
+                    slidesToShow: 3.5,
+                    slidesToScroll: 3,
+                },
+            },
+            {
+                breakpoint: 400,
+                settings: {
+                    slidesToShow: 3,
+                    slidesToScroll: 3,
+                },
+            },
+            {
+                breakpoint: 350,
+                settings: {
+                    slidesToShow: 2.5,
+                    slidesToScroll: 2,
                 },
             },
         ],
@@ -126,8 +142,8 @@ const Cuisines = () => {
                                             width="100%"
                                         >
                                             <Stack direction="row" spacing={1}>
-                                                <CustomImageContainer
-                                                    src={cuisine_image.src}
+                                                <CustomNextImage
+                                                    src={cuisine_image}
                                                     width="26px"
                                                     height="26px"
                                                 />

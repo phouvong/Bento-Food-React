@@ -167,7 +167,7 @@ const AddressForm = ({
     return (
         <Stack width={{ xs: '100%', md: '58%' }}>
             <form noValidate onSubmit={addAddressFormik.handleSubmit}>
-                <SimpleBar style={{ height: isXs ? '250px' : '475px' }}>
+                <SimpleBar style={{ height: isXs ? '250px' : 'auto' }}>
                     <Grid
                         container
                         spacing={0}

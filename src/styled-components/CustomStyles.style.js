@@ -10,7 +10,7 @@ import {
     Tabs,
     ListItem,
     Accordion,
-    Button,
+    Button, alpha,
 } from '@mui/material'
 import Link from '@mui/material/Link'
 import { transform } from 'lodash'
@@ -143,7 +143,7 @@ export const CustomStackFullWidth = styled(Stack)(
 )
 
 export const Logo = styled('div')(({ theme, height, width }) => ({
-    width: width,
+    width: width||"50px",
     height: '24px',
     justifyContent: 'center',
     maxWidth: '100px',
@@ -225,56 +225,74 @@ export const CustomFab = styled(Fab)(({ theme }) => ({
         height: '35px',
     },
 }))
-export const CustomImageContainerStyled = styled(Box)(
+
+const filteredProps = [
+    'objectFit',
+    'aspectRatio',
+    'minwidth',
+    'borderRadu',
+    'smMb',
+    'smHeight',
+    'smWidth',
+    'smMaxWidth',
+    'maxWidth',
+    'mdHeight',
+    'cursor',
+    'marginBottom',
+]
+
+export const CustomImageContainerStyled = styled(Box, {
+    shouldForwardProp: (prop) => !filteredProps.includes(prop),
+})(
     ({
-        theme,
-        smWidth,
-        maxWidth,
-        marginBottom,
-        width,
-        smHeight,
-        height,
-        objectFit,
-        minwidth,
-        borderRadu,
-        smMb,
-        smMaxWidth,
-        mdHeight,
-        cursor,
-        aspectRatio,
-        boxShadow,
-    }) => ({
+         theme,
+         smWidth,
+         maxWidth,
+         marginBottom,
+         width,
+         smHeight,
+         height,
+         objectFit,
+         minwidth,
+         borderRadu,
+         smMb,
+         smMaxWidth,
+         mdHeight,
+         cursor,
+         aspectRatio,
+         boxShadow,
+     }) => ({
         display: 'inline-flex',
         background: 'transparent',
-        width: width ? width : '100%',
-        height: height ? height : '100%',
+        width: width || '100%',
+        height: height || '100%',
         minWidth: minwidth,
         maxWidth: maxWidth,
         marginBottom: marginBottom,
         position: 'relative',
         boxShadow: boxShadow,
         borderRadius: borderRadu,
-        cursor: cursor ? cursor : 'inherit',
+        cursor: cursor || 'inherit',
         [theme.breakpoints.down('md')]: {
-            height: mdHeight ? mdHeight : '',
-            width: smWidth ? smWidth : '',
+            height: mdHeight || '',
+            width: smWidth || '',
         },
-
         [theme.breakpoints.down('sm')]: {
-            marginBottom: smMb ? smMb : '',
-            height: smHeight ? smHeight : '',
-            maxWidth: smMaxWidth ? smMaxWidth : '',
-            width: smWidth ? smWidth : '',
+            marginBottom: smMb || '',
+            height: smHeight || '',
+            maxWidth: smMaxWidth || '',
+            width: smWidth || '',
         },
         '& img': {
-            width: '100% ',
+            width: '100%',
             height: '100%',
-            objectFit: objectFit ? objectFit : 'contain',
+            objectFit: objectFit || 'contain',
             borderRadius: borderRadu,
-            aspectRatio: aspectRatio ? aspectRatio : 'auto',
+            aspectRatio: aspectRatio || 'auto',
         },
     })
 )
+
 export const CustomListItem = styled(ListItem)(
     ({ theme, display, cursor }) => ({
         display: display,
@@ -285,6 +303,7 @@ export const SliderCustom = styled(Stack)(
     ({ theme, languageDirection, gap, paddingBottom, isCenter, ads }) => ({
         alignItems: 'center',
         paddingY: '1rem',
+        width: '100%',
         '& .slick-slider': {
             '& .slick-list': {
                 '& .slick-track': {
@@ -360,6 +379,31 @@ export const CustomAccordion = styled(Accordion)(({ theme, background }) => ({
         padding: '2px 5px 10px',
     },
 }))
+
+export const CustomAccordion2 = styled(Accordion)(({ theme, background,expanded }) => ({
+    boxShadow: 'none !important',
+    border: `1px solid ${expanded?theme.palette.primary.main:alpha(theme.palette.primary.main,.2)}`,
+    borderRadius: "8px",
+    padding: "16px",
+    margin: "0 !important",
+    '&::before': {
+        display: 'none',
+    },
+    '.MuiAccordionSummary-content': {
+        width: '100%',
+        display: 'inline',
+        margin: 0,
+    },
+    '.MuiAccordionDetails-root': {
+        padding: '0',
+        marginTop: "16px",
+    },
+    '.MuiButtonBase-root': {
+        padding: '0',
+        minHeight: 'unset !important',
+    },
+}))
+
 export const WrapperForSideDrawerFilter = styled(Box)(
     ({ theme, smminwith }) => ({
         paddingTop: '2rem',

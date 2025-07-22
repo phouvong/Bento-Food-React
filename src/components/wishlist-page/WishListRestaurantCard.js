@@ -10,6 +10,7 @@ import CustomPopoverWithItem from '../custom-popover/CustomPopoverWithItem'
 import DeleteIcon from '../../assets/images/icons/DeleteIcon'
 import { useRouter } from 'next/router'
 import FoodRating from '../food-card/FoodRating'
+import CustomNextImage from '@/components/CustomNextImage'
 
 const WishListRestaurantCard = ({ restaurant, deleteWishlistRes }) => {
     const theme = useTheme()
@@ -51,16 +52,14 @@ const WishListRestaurantCard = ({ restaurant, deleteWishlistRes }) => {
                 onClick={routeToRestaurant}
             >
                 <Grid item md={4} sm={4} xs={4}>
-                    <CustomImageContainer
+                    <CustomNextImage
                         src={imageUrl}
                         alt={name}
-                        maxWidth="120px"
-                        smMaxWidth="80px"
-                        height="120px"
-                        smHeight="80px"
-                        objectFit="cover"
+                        width={isXSmall? '80px' : '120'}
+                        height={isXSmall? '80px' : '120'}
+                        objectFit={imageUrl?"cover":"contain"}
                         borderRadius=".7rem"
-                        smWidth="80px"
+
                     />
                 </Grid>
                 <Grid item md={7} sm={6} xs={6} alignSelf="center">

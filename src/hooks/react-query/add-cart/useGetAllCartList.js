@@ -20,5 +20,7 @@ export default function useGetAllCartList(guestId, cartListSuccessHandler) {
     onSuccess: cartListSuccessHandler,
     enabled: typeof guestId !== 'undefined', // Enable the query only when guestId is defined
     onError: onErrorResponse,
+    refetchOnWindowFocus: false,
+
   });
 }

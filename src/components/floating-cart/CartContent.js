@@ -1,5 +1,5 @@
 import React from 'react'
-import { Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material'
+import { Grid, IconButton, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import CustomImageContainer from '../CustomImageContainer'
 import {
     OrderFoodAmount,
@@ -34,10 +34,15 @@ import { useDispatch, useSelector } from 'react-redux'
 import { getGuestId } from '../checkout-page/functions/getGuestUserId'
 import HalalSvg from '@/components/food-card/HalalSvg'
 import { CustomToaster } from '@/components/custom-toaster/CustomToaster'
+import { useTheme } from '@mui/styles'
+import CustomNextImage from '@/components/CustomNextImage'
 
 const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
     const dispatch = useDispatch()
     const guestId = getGuestId()
+    const theme = useTheme()
+    const isSmall = useMediaQuery(theme.breakpoints.down('md'))
+    const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const { global } = useSelector((state) => state.globalSettings)
     const { mutate: itemRemove, isLoading: removeIsLoading } =
         useDeleteCartItem()
@@ -200,26 +205,16 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
                 xs={3}
                 sm={3}
                 onClick={() => handleProductUpdateModal(item)}
-                sx={{ cursor: 'pointer', paddingInlineEnd: '1rem' }}
+                sx={{ cursor: 'pointer', paddingInlineEnd: '0' }}
             >
-                <CustomImageContainer
-                    height="90px"
-                    width="90px"
+                <CustomNextImage
+                    height={isSmall?"70":"90"}
+                    width={isSmall?"70":"90"}
                     src={item.image_full_url}
-                    smHeight="70px"
-                    smWidth="70px"
-                    objectFit="cover"
+                    objectFit={item.image_full_url?"cover":"contain"}
                     borderRadius="1rem"
                 />
-                {/*<img*/}
-                {/*    height="90px"*/}
-                {/*    width="90px"*/}
-                {/*    src={ImageSource(*/}
-                {/*        productBaseUrl,*/}
-                {/*        item.image*/}
-                {/*    )}*/}
-                {/*    loading="lazy"*/}
-                {/*/>*/}
+
             </Grid>
             <Grid item md={9} xs={9} sx={{ paddingInlineStart: '.7rem' }}>
                 <Grid container md={12} sm={12} xs={12} spacing={{ xs: 1 }}>

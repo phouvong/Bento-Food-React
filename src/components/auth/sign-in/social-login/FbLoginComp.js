@@ -187,6 +187,7 @@ const FbLoginComp = (props) => {
                 setModalOpen={setOpenOtpModal}
             >
                 <OtpForm
+
                     data={otpData?.phone}
                     formSubmitHandler={formSubmitHandler}
                     isLoading={isLoading}
