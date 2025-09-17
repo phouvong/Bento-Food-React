@@ -361,10 +361,10 @@ const LatestRestaurantCard = (props) => {
                                             fontSize="12px"
                                             fontWeight={400}
                                         >
-                                            {foods_count?.length
-                                                ? foods_count?.length > 99
-                                                    ? `${foods_count?.length}+`
-                                                    : `${foods_count?.length}` +
+                                            {foods_count
+                                                ? foods_count> 99
+                                                    ? `${foods_count}+`
+                                                    : `${foods_count}` +
                                                       ` items`
                                                 : ''}
                                         </Typography>

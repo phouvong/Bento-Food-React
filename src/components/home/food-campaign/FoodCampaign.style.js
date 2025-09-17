@@ -45,7 +45,7 @@ export const CustomGridWithBgColor = styled(Grid)(
                 ? theme.palette.mode === 'dark'
                     ? `linear-gradient(123deg, #262830 16.3%, #19213D 33.95%, #19213D 46.04%, #19213D 61.93%, #262830 81.67%)`
                     : `linear-gradient(123deg, #F6F6F6 16.3%, #F9FAFF 35.29%, #EFF3FF 49.83%, #F4F7FF 61.93%, #F6F6F6 81.67%)`
-                : `${theme.palette.sectionBg}`,
+                : "",
         padding: foodsize > 0 && (padding || '23px 0px 23px 23px'),
         borderRadius: '8px',
         position: 'relative',

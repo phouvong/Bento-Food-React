@@ -1,12 +1,13 @@
 import MainApi from '../../../api/MainApi'
 import { getToken } from '@/components/checkout-page/functions/getGuestUserId'
-
+import toast from 'react-hot-toast'
 let token = undefined
 if (typeof window != 'undefined') {
     token = localStorage.getItem('token')
 }
 export const OrderApi = {
     placeOrder: (formData) => {
+        
         return MainApi.post('/api/v1/customer/order/place', formData)
     },
     orderHistory: (orderType, limit, offset) => {

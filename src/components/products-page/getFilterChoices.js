@@ -63,6 +63,14 @@ export const getFilterChoices = (filterData, data, foodOrRestaurant) => {
         if (!filterData.filterBy.nonVeg && filterData.filterBy.veg) {
             productsList = productsList.filter((product) => product.veg === 1)
         }
+        // Halal filter
+        if (filterData?.filterBy?.halal) {
+            productsList = productsList.filter((item) => {
+                // For products: use item.is_halal === 1
+                // For restaurants (if provided): fall back to is_halal if present
+                return item?.is_halal === 1
+            })
+        }
         if (filterData.filterBy.currentlyAvailable) {
             productsList = productsList.filter((product) => {
                 if (foodOrRestaurant === 'products') {

@@ -86,6 +86,7 @@ import { useGetTax } from '@/hooks/react-query/order-place/useGetTax'
 import { CouponApi } from '@/hooks/react-query/config/couponApi'
 import HaveCoupon from '@/components/checkout-page/HaveCoupon'
 import AddIcon from '@mui/icons-material/Add'
+import money from '@/components/checkout-page/assets/fi_2704332.png'
 
 let currentDate = moment().format('YYYY/MM/DD HH:mm')
 let nextday = moment(currentDate).add(1, 'days').format('YYYY/MM/DD')
@@ -129,7 +130,7 @@ const CheckoutPage = ({ isDineIn }) => {
     } = useSelector((state) => state.cart)
     let currentLatLng = undefined
     const [address, setAddress] = useState(undefined)
-    const [paymenMethod, setPaymenMethod] = useState('')
+    const [paymenMethod, setPaymenMethod] = useState('cash_on_delivery')
     const [numberOfDay, setDayNumber] = useState(getDayNumber(today))
     const [orderType, setOrderType] = useState('')
     const [couponDiscount, setCouponDiscount] = useState(null)
@@ -146,8 +147,13 @@ const CheckoutPage = ({ isDineIn }) => {
     const [openModal, setOpenModal] = useState(false)
     const [openPartialModel, setOpenPartialModel] = useState(false)
     const [deliveryTip, setDeliveryTip] = useState(0)
-    const [selected, setSelected] = useState('')
-    const [paymentMethodDetails, setPaymentMethodDetails] = useState({})
+    const [selected, setSelected] = useState({
+
+    })
+    const [paymentMethodDetails, setPaymentMethodDetails] = useState({
+        name: 'cash_on_delivery',
+        image: money,
+    })
     const [cashbackAmount, setCashbackAmount] = useState(null)
     const [extraPackagingCharge, setExtraPackagingCharge] = useState(0)
     const [changeAmount, setChangeAmount] = useState()
@@ -503,13 +509,15 @@ const CheckoutPage = ({ isDineIn }) => {
     }
 
     const handlePlaceOrder = () => {
+   
+     let productList = page === 'campaign' ? campFoodList : cartList
+      
         let isAvailable =
             page === 'campaign'
                 ? true
                 : isFoodAvailableBySchedule(cartList, scheduleAt)
         if (isAvailable) {
             //const walletBalance = localStorage.getItem('wallet_amount')
-            let productList = page === 'campaign' ? campFoodList : cartList
             if (paymenMethod === 'wallet') {
                 if (Number(walletAmount) < Number(totalAmount)) {
                     toast.error(t('Wallet balance is below total amount.'), {
@@ -660,6 +668,7 @@ const CheckoutPage = ({ isDineIn }) => {
         }
     }
     const placeOrder = () => {
+      
         localStorage.setItem('access', totalAmount)
         if (page !== 'campaign') {
             if (subscriptionStates.order === '1') {
@@ -1092,6 +1101,15 @@ const CheckoutPage = ({ isDineIn }) => {
                 image: global?.active_payment_method_list[0]
                     ?.gateway_image_full_url,
             })
+        }else{
+
+            if(global?.cash_on_delivery){
+                setSelected({
+                    name:"cash_on_delivery",
+                    image:money
+                })
+            }
+
         }
     }
 

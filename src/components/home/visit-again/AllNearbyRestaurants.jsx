@@ -93,7 +93,7 @@ const AllNearbyRestaurants = ({
                                         image={
                                             restaurantData?.cover_photo_full_url
                                         }
-                                        logo={restaurantData?.logo}
+                                        logo={restaurantData?.logo_full_url}
                                         name={restaurantData?.name}
                                         restaurantImageUrl={global?.base_urls}
                                         restaurantDiscount={

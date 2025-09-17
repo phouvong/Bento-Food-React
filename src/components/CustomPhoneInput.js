@@ -6,6 +6,7 @@ import { useTheme } from '@mui/material/styles'
 import { makeStyles } from '@mui/styles'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { CustomTypography } from './custom-tables/Tables.style'
+import toast from 'react-hot-toast'
 
 const useStyles = makeStyles((theme) => ({
     borderClass: ({ theme, focus, languageDirection, borderradius }) => ({
@@ -108,15 +109,26 @@ const CustomPhoneInput = ({
     }, [])
 
     const changeHandler = (e) => {
+
         onHandleChange(e)
     }
+
+   const handleBlur = () => {
+    if(value?.length < 10 && value?.length > 2){
+        toast.error(t('Please enter a valid phone number'))
+    }
+   }
+    
+
+    
 
     return (
         <CustomStackFullWidth alignItems="flex-start" spacing={0.8}>
             <PhoneInput
                 autoFormat={false}
                 onFocus={() => setFocus(true)}
-                onBlur={() => setFocus(false)}
+                onBlur={handleBlur}
+
                 placeholder={t('Enter phone number')}
                 value={value}
                 enableSearchField

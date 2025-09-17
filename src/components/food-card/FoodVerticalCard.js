@@ -97,7 +97,7 @@ const FoodVerticalCard = (props) => {
                                 maxWidth={{
                                     xs: '120px',
                                     sm: '130px',
-                                    md: '150px',
+                                    md: '140px',
                                 }}
                                 noWrap
                                 sx={{
@@ -138,13 +138,16 @@ const FoodVerticalCard = (props) => {
                         marginTop="2px"
                         marginBottom="2px"
                     >
-                        <Typography
-                            fontSize={{ xs: '12px', md: '14px' }}
-                            fontWeight={400}
-                            color={theme.palette.text.secondary}
-                        >
-                            {getReviewCount(product?.rating_count)}
-                        </Typography>
+                        {product?.rating_count > 0 && (
+                            <Typography
+                                fontSize={{ xs: '12px', md: '14px' }}
+                                fontWeight={400}
+                                color={theme.palette.text.secondary}
+                            >
+                                {getReviewCount(product?.rating_count)}
+                            </Typography>
+                        )}
+
                         {(product?.avg_rating !== 0 &&
                             isRestaurantDetails &&
                             !isSmall) ||

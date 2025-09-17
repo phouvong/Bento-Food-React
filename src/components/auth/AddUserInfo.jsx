@@ -1,10 +1,9 @@
-import React, { memo } from 'react'
+import { memo } from 'react'
 import { alpha, Typography } from '@mui/material'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import CustomImageContainer from '@/components/CustomImageContainer'
 import { t } from 'i18next'
 import { useFormik } from 'formik'
-import * as Yup from 'yup'
 import InputAdornment from '@mui/material/InputAdornment'
 import MailIcon from '@mui/icons-material/Mail'
 import { CustomSignUpTextField } from '@/components/auth/sign-up'
@@ -22,12 +21,7 @@ const AddUserInfo = ({ global, formSubmitHandler, loginInfo, isLoading }) => {
             ref_code: '',
             phone: '',
         },
-        validationSchema: Yup.object({
-            // phone: Yup.string()
-            //     .required(t('Please give a phone number'))
-            //     .min(10, 'number must be 10 digits'),
-        }),
-        onSubmit: async (values, helpers) => {
+        onSubmit: async (values) => {
             try {
                 formSubmitHandler({
                     ...values,
@@ -109,7 +103,6 @@ const AddUserInfo = ({ global, formSubmitHandler, loginInfo, isLoading }) => {
                                         </InputAdornment>
                                     ),
                                 }}
-                                //  autoFocus
                             />
                             {loginInfo?.is_email ? (
                                 <CustomPhoneInput
@@ -183,7 +176,6 @@ const AddUserInfo = ({ global, formSubmitHandler, loginInfo, isLoading }) => {
                                         touched={
                                             userInfoFormik.touched.ref_code
                                         }
-                                        //   autoFocus
                                         InputProps={{
                                             startAdornment: (
                                                 <InputAdornment position="start">

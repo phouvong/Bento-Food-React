@@ -238,6 +238,7 @@ const Homes = ({ configData }) => {
         setOpenDrawer(!openDrawer)
     }
 
+    
     return (
         <PushNotificationLayout>
             <CustomContainer>
@@ -346,7 +347,7 @@ const Homes = ({ configData }) => {
                                 data={addStores}
                                 isLoading={addIsLoading}
                             />
-                            {configData?.dine_in_order_option === 1 ? (
+                            {configData?.data?.dine_in_order_option === 1 ? (
                                 <DineIn />
                             ) : null}
                         </CustomContainer>
@@ -360,10 +361,10 @@ const Homes = ({ configData }) => {
                             }
                         />
                         <NewRestaurant />
-                        {global && <Cuisines />}
+                        {configData && <Cuisines />}
 
-                        {global?.banner_data?.promotional_banner_image && (
-                            <PromotionalBanner global={global} />
+                        {configData?.banner_data?.promotional_banner_image && (
+                            <PromotionalBanner global={configData} />
                         )}
 
                         <Restaurant />

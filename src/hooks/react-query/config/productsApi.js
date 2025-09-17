@@ -80,6 +80,7 @@ export const ProductsApi = {
                 }
                 & cuisine=${JSON.stringify(cuisineId)}
                 &open=${filterData?.filterBy?.currentlyAvailable ? 1 : 0}
+                &halal=${filterData?.filterBy?.halal ? 1 : 0}
                 `
             )
         }

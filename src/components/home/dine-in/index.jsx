@@ -47,6 +47,7 @@ const DineIn = () => {
         apiRefetch()
     }, [])
 
+
     const settings = {
         speed: 500,
         slidesToShow: 3.4,
@@ -54,6 +55,7 @@ const DineIn = () => {
         initialSlide: 0,
         nextArrow: hoverOn && <HandleNext overLay={true} />,
         prevArrow: hoverOn && <HandlePrev />,
+        infinite: false,
         responsive: [
             {
                 breakpoint: 2000,
@@ -151,14 +153,7 @@ const DineIn = () => {
                     infinite: false,
                 },
             },
-            // {
-            //     breakpoint: 370,
-            //     settings: {
-            //         slidesToShow: 1,
-            //         slidesToScroll: 1,
-            //         infinite: false,
-            //     },
-            // },
+
         ],
     }
     const handleClick = () => {
@@ -216,6 +211,10 @@ const DineIn = () => {
                             backgroundColor={theme.palette.primary.main}
                             variant="contained"
                             onClick={handleClick}
+                            sx={{
+                                padding:"4px 10px",
+                                fontWeight:"500",
+                            }}
                         >
                             {t('View Restaurants')}
                         </PrimaryButton>

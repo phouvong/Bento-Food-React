@@ -1,15 +1,14 @@
+import React from 'react';
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style';
+import { Grid, Stack } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
-import React from 'react'
-import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
-
-import { Grid, Stack } from '@mui/material'
-import FoodOrRestaurant from './FoodOrRestaurant'
-import ProductList from './ProductList'
-import RestaurantsData from '../category/RestaurantsData'
-import CustomEmptyResult from '../empty-view/CustomEmptyResult'
-import { useTheme } from '@mui/material/styles'
-import { AnimationDots } from './AnimationDots'
-import { noFoodFoundImage, noRestaurantsImage } from '@/utils/LocalImages'
+import FoodOrRestaurant from './FoodOrRestaurant';
+import ProductList from './ProductList';
+import RestaurantsData from '../category/RestaurantsData';
+import CustomEmptyResult from '../empty-view/CustomEmptyResult';
+import { AnimationDots } from './AnimationDots';
+import { noFoodFoundImage, noRestaurantsImage } from '@/utils/LocalImages';
 
 const SearchFilterWithResults = ({
                                      searchValue,
@@ -27,7 +26,6 @@ const SearchFilterWithResults = ({
                                      restaurantType,
                                      filterData,
                                  }) => {
-    const theme = useTheme()
     return (
         <CustomStackFullWidth
             spacing={2}
@@ -46,6 +44,7 @@ const SearchFilterWithResults = ({
                         />
                     )}
                 </Grid>
+
                 <Grid
                     item
                     xs={12}
@@ -55,11 +54,11 @@ const SearchFilterWithResults = ({
                     spacing={2}
                     paddingTop="1rem"
                 >
+                    {/* Products Section */}
                     {(foodOrRestaurant === 'products' || page) && (
                         <>
                             {isLoading || isNetworkCalling ? (
                                 <Stack width="100%" minHeight="500px">
-                                    {' '}
                                     <AnimationDots align="center" />
                                 </Stack>
                             ) : (
@@ -82,11 +81,12 @@ const SearchFilterWithResults = ({
                             )}
                         </>
                     )}
+
+                    {/* Restaurants Section */}
                     {foodOrRestaurant === 'restaurants' && (
                         <>
                             {isLoading || isNetworkCalling ? (
                                 <Stack width="100%" minHeight="500px">
-                                    {' '}
                                     <AnimationDots align="center" />
                                 </Stack>
                             ) : (
@@ -114,9 +114,9 @@ const SearchFilterWithResults = ({
                 </Grid>
             </Grid>
         </CustomStackFullWidth>
-    )
-}
+    );
+};
 
-SearchFilterWithResults.propTypes = {}
+SearchFilterWithResults.propTypes = {};
 
-export default SearchFilterWithResults
+export default SearchFilterWithResults;

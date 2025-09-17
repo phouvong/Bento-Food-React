@@ -61,4 +61,10 @@ export const searchMockData = [
         value: 'currentlyAvailable',
         isActive: false,
     },
+    {
+        id: 10,
+        name: 'Halal',
+        value: 'halal',
+        isActive: false,
+    }
 ]

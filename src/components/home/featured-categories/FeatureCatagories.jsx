@@ -115,7 +115,7 @@ const FeatureCatagories = () => {
                     ref={catOffsetElementRef}
                     gap={{ xs: '.3rem', md: '.5rem' }}
                 >
-                    {!categoryIsSticky && (
+                    {!categoryIsSticky && featuredCategories?.length > 0 && (
                         <Grid item xs={12} md={12}>
                             <Stack
                                 direction="row"
@@ -173,13 +173,7 @@ const FeatureCatagories = () => {
                                     />
                                 ))}
                             </Slider>
-                        ) : (
-                            <CustomShimmerCategories
-                                noSearchShimmer="true"
-                                itemCount="7"
-                                smItemCount="5"
-                            />
-                        )}
+                        ) : null}
                     </Grid>
                 </Grid>
             </CustomContainer>

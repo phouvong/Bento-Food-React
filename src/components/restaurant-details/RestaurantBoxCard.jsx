@@ -306,13 +306,13 @@ const RestaurantBoxCard = (props) => {
                                 {name}
                             </HomeTextTypography>
                             <Stack flexDirection="row" gap="5px">
-                                <Typography
+                                {rating_count>0 && (<Typography
                                     fontSize="14px"
                                     fontWeight={400}
                                     color={theme.palette.text.secondary}
                                 >
                                     {getReviewCount(rating_count)}
-                                </Typography>
+                                </Typography>)}
                                 {rating !== 0 && (
                                     <FoodRating product_avg_rating={rating} />
                                 )}
@@ -393,8 +393,9 @@ const RestaurantBoxCard = (props) => {
                                         fontSize="12px"
                                         color={theme.palette.neutral[600]}
                                         marginLeft="5px"
+                                        sx={{ display: 'flex', alignItems: 'center' }}
                                     >
-                                        {t('Free Delivery')}
+                                        &#8226;&nbsp;{t('Free Delivery')}
                                     </Typography>
                                 )}
                             </Typography>

@@ -17,13 +17,13 @@ import routePNG from '../../../public/static/route.png'
 import directionPNG from '../../../public/static/delivery-truck.png'
 import { handleDistance } from '@/utils/customFunctions'
 import { getToken } from '@/components/checkout-page/functions/getGuestUserId'
-const DeliverymanInfo = ({ data }) => {
+const DeliverymanInfo = ({ data,resLat }) => {
     const { t } = useTranslation()
     const { global } = useSelector((state) => state.globalSettings)
     const productImage = global?.base_urls?.delivery_man_image_url
     const origin = {
-        latitude: data?.delivery_man?.lat ?? 0,
-        longitude: data?.delivery_man?.lng ?? 0,
+        latitude: resLat?.lat ?? 0,
+        longitude: resLat?.lng ?? 0,
     }
     const destination = {
         lat: data?.delivery_address?.latitude ?? 0,

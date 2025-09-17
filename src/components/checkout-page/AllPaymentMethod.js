@@ -15,6 +15,7 @@ import {
     AccordionSummary,
     AccordionDetails,
     TextField,
+    Collapse
 } from '@mui/material'
 import { PymentTitle } from './CheckOut.style'
 import { t } from 'i18next'
@@ -64,111 +65,103 @@ const OfflineButton = styled(Button)(({ theme, value, paymentMethod }) => ({
 }))
 
 
-export const BringChangeAmount = ({changeAmount, setChangeAmount,theme,expanded,setExpanded}) => {
+export const BringChangeAmount = ({changeAmount, setChangeAmount,theme,expanded,setExpanded,selected}) => {
     return (
-        <Accordion 
-                            elevation={0} 
-                            sx={{
-                                border: 'none',
-                                width: '100%',
-                            '&.MuiPaper-root.MuiAccordion-root::before': {
-                                display: 'none',
-                                height: '0px',
-                                position: 'absolute',
-                                top: '0',
-                                left: '0',
-                                right: '0',
-                                bottom: '0',
-                                zIndex: '1000',
-                                backgroundColor: 'transparent',
-                            }
-                            }}
-                        >
-                            <AccordionSummary
-                                expandIcon={null}
-                                aria-controls="panel1-content"
-                                id="panel1-header"
-                                sx={{
-                                    minHeight:'auto',
-                                    backgroundColor:theme.palette.customColor.ten,
-                                    '&.Mui-expanded': {
-                                        minHeight: '0px',
-                                        backgroundColor:theme.palette.customColor.ten,
-                                    },
-                                    '& .MuiAccordionSummary-content': {
-                                        justifyContent: 'center',
-                                        margin: '0',
-                                        backgroundColor:theme.palette.customColor.ten,
-                                    }
-                                }}
-                                onClick={() => setExpanded(!expanded)}
+        <Box
+            sx={{
+                borderRadius: "10px",
+                backgroundColor: theme.palette.customColor.ten,
+                width: "100%",
+                overflow: "hidden",
+            }}
+        >
+            {/* Expanded Content */}
+            <Collapse in={expanded}>
+                <Box
+                    sx={{
+                        padding: "16px",
+                        backgroundColor:
+                            theme.palette.mode === "dark"
+                                ? "#46494DB3"
+                                : alpha(theme.palette.neutral[300], 0.7),
+                        opacity: selected?.name === "cash_on_delivery" ? 1 : 0.4, // fade if not COD
+                        pointerEvents: selected?.name === "cash_on_delivery" ? "auto" : "none", // disable if not COD
+                    }}
+
+                >
+                    <Stack
+                        width="100%"
+                        direction={{ xs: "column", md: "row" }}
+                        justifyContent="space-between"
+                        alignItems={{ xs: "flex-start", md: "center" }}
+                        gap="10px"
+                    >
+                        <Stack>
+                            <Typography
+                                fontSize="12px"
+                                color={theme.palette.neutral[1000]}
+                                fontWeight="500"
                             >
-                                <Typography 
-                                    component="span" 
-                                    sx={{
-                                        fontSize:"12px",
-                                        color: theme.palette.primary.main,
-                                        fontWeight:"600"
-                                    }}
-                                >
-                                    {expanded ? t("See less") : t("See more")}
-                                </Typography>
-                            </AccordionSummary>
+                                {t("Bring Change Intruction")}
+                            </Typography>
+                            <Typography
+                                fontSize="12px"
+                                color={theme.palette.neutral[600]}
+                                fontWeight="400"
+                            >
+                                {t("Insert amount if you need deliveryman to bring")}
+                            </Typography>
+                        </Stack>
 
-                            <AccordionDetails sx={{padding: '8px 0px 8px',backgroundColor:theme.palette.customColor.ten}}>
-                                <Stack 
-                                    width="100%"
-                                    direction={{xs:"column",md:"row"}}
-                                    justifyContent="space-between"
-                                    alignItems={{xs:"flex-start",md:"center"}}
-                                    gap="10px"
-                                    padding="16px"
-                                    backgroundColor={theme.palette.mode === 'dark' ? "#46494DB3 " :   alpha(theme.palette.neutral[300], 0.7)}
-                                    borderRadius="10px"
-                                >
-                                    <Stack>
-                                        <Typography 
-                                            fontSize="12px" 
-                                            color={theme.palette.neutral[1000]} 
-                                            fontWeight="500"
-                                        >
-                                            {t("Bring Change Intruction")}
-                                        </Typography>
-                                        <Typography 
-                                            fontSize="12px" 
-                                            color={theme.palette.neutral[600]} 
-                                            fontWeight="400"
-                                        >
-                                            {t('Insert amount if you need deliveryman to bring')}
-                                        </Typography>
-                                    </Stack>
+                        <Stack>
+                            <Typography
+                                marginBottom="5px"
+                                fontSize="12px"
+                                color={theme.palette.neutral[1000]}
+                                fontWeight="500"
+                            >
+                                {t("Change Amount ($)")}
+                            </Typography>
+                            <TextField
+                                sx={{
+                                    width: "100%",
+                                    height: "33px",
+                                    backgroundColor: theme.palette.neutral[100],
+                                    borderRadius: "5px",
+                                    "& .MuiInputBase-input.MuiOutlinedInput-input": {
+                                        padding: "5.5px 14px",
+                                    },
+                                }}
+                                value={changeAmount}
+                                onChange={(e) => setChangeAmount(e.target.value)}
+                            />
+                        </Stack>
+                    </Stack>
+                </Box>
+            </Collapse>
 
-                                    <Stack>
-                                        <Typography  
-                                            marginBottom="5px" 
-                                            fontSize="12px" 
-                                            color={theme.palette.neutral[1000]} 
-                                            fontWeight="500"
-                                        >
-                                            {t("Change Amount ($)")}
-                                        </Typography>
-                                        <TextField
-                                            sx={{
-                                                width: '100%',
-                                                height: '33px',
-                                                backgroundColor: theme => theme.palette.neutral[100],
-                                                borderRadius: '5px',
-                                                '& .MuiInputBase-input.MuiOutlinedInput-input': {
-                                                    padding: '5.5px 14px'
-                                                }
-                                            }}
-                                            value={changeAmount}
-                                            onChange={(e) => setChangeAmount(e.target.value)}
-                                        />
-                                    </Stack>
-                                </Stack>
-                            </AccordionDetails>
-                        </Accordion>
+            {/* Bottom Toggle Button */}
+            <Box
+                onClick={() => setExpanded(!expanded)}
+                sx={{
+                    cursor: "pointer",
+                    textAlign: "center",
+                    py: 1,
+                    backgroundColor: theme.palette.customColor.ten,
+                }}
+            >
+                <Typography
+                    component="span"
+                    sx={{
+                        fontSize: "12px",
+                        color: theme.palette.primary.main,
+                        fontWeight: "600",
+                    }}
+                >
+                    {expanded ? t("See less") : t("See more")}
+                </Typography>
+            </Box>
+        </Box>
     )
 }
 
@@ -193,17 +186,22 @@ const  AllPaymentMethod = ({
     switchToWallet,
     paymenMethod,
     setChangeAmount,
-    changeAmount
+    changeAmount,
+                               openModal
 }) => {
     const theme = useTheme()
     const { token } = useSelector((state) => state.userToken)
     const [expanded, setExpanded] = useState(false)
     const [openOfflineOptions, setOpenOfflineOptions] = useState(false)
+    useEffect(() => {
+        if(selected?.name==="cash_on_delivery"){
+            setExpanded(true)
+        }
+    }, [selected])
+
 
     useEffect(() => {
-        if (paymentMethodDetails !== selected) {
-            setSelected(paymentMethodDetails)
-        }
+
         if (isCheckedOffline) {
             setOpenOfflineOptions(true)
         } else {
@@ -516,7 +514,7 @@ const  AllPaymentMethod = ({
                             )}
                         </Box>
 
-                        {selected?.name === "cash_on_delivery" && BringChangeAmount({changeAmount, setChangeAmount,theme,expanded,setExpanded})}
+                        {/*{selected?.name === "cash_on_delivery" && BringChangeAmount({changeAmount, setChangeAmount,theme,expanded,setExpanded})}*/}
                     </CustomStackFullWidth>
 
                     {global?.digital_payment && subscriptionStates.order !== '1' && (
@@ -712,7 +710,7 @@ const  AllPaymentMethod = ({
                         </Box>
                     </CustomStackFullWidth>
 
-                    {selected?.name === "cash_on_delivery" && BringChangeAmount({changeAmount, setChangeAmount,theme,expanded,setExpanded})}
+                    { BringChangeAmount({changeAmount, setChangeAmount,theme,expanded,setExpanded,selected})}
 
                     {global?.digital_payment && subscriptionStates.order !== '1' && (
                         <CustomStackFullWidth spacing={2.4} padding="0px 10px">

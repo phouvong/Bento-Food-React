@@ -75,7 +75,7 @@ const NavCuisines = ({ setRestaurantModal, languageDirection }) => {
             <Menu
                 disableScrollLock={true}
                 id="mouse-over-popover"
-                open={opendrop}
+                open={cuisines?.length>0 && opendrop}
                 anchorEl={anchorEl}
                 anchorOrigin={{
                     vertical: 'bottom',

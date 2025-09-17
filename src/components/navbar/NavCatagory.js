@@ -99,7 +99,7 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
             <Popover
                 disableScrollLock={true}
                 id="mouse-over-popover"
-                open={opendrop}
+                open={featuredCategories?.length>0 && opendrop}
                 anchorEl={anchorEl}
                 anchorOrigin={{
                     vertical: 'bottom',

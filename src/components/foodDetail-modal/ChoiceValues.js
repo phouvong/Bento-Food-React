@@ -46,7 +46,7 @@ export const ChoiceValues = (props) => {
         productUpdate,
     } = props
     const [radioData, setRadioData] = useState({ isChecked: false })
-
+    
     const theme = useTheme()
     useEffect(() => {
         radioData?.option &&
@@ -116,7 +116,8 @@ export const ChoiceValues = (props) => {
 
     return (
         <CustomStackFullWidth>
-            <FoodTitleTypography
+           <Stack direction="row" justifyContent='space-between' alignItems="center">
+             <FoodTitleTypography
                 gutterBottom
                 fontWeight="600"
                 component="h6"
@@ -138,7 +139,11 @@ export const ChoiceValues = (props) => {
                         />
                     </CustomTooltip>
                 )}
+             
             </FoodTitleTypography>
+            {choice?.required==="on" ? ( <Typography backgroundColor={alpha(theme.palette.error.main,.1)} color={theme.palette.error.main} padding="5px" borderRadius="5px" fontWeight="700" fontSize="10px">{t("Required")}</Typography>):
+            <Typography backgroundColor={alpha(theme.palette.success.main,.1)} color={theme.palette.success.main} padding="5px" borderRadius="5px" fontWeight="700" fontSize="10px">{t("Optional")}</Typography>}  
+            </Stack>    
             <FormControl sx={{ marginInlineStart: '-10px' }}>
                 <RadioGroup
                     aria-labelledby="demo-radio-buttons-group-label"

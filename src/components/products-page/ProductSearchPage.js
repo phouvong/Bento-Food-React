@@ -107,6 +107,7 @@ const ProductSearchPage = ({
             onError: onErrorResponse,
         }
     )
+    
     //POPULAR AND BEST REVIEW FOOD API
     const {
         isLoading: popularFoodisLoading,

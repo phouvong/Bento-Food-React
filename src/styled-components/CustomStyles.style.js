@@ -202,7 +202,7 @@ export const CustomOverlayBox = styled(Box)(({ theme, borderradius }) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 9,
+    zIndex: 1,
     borderRadius: borderradius || '8px',
 }))
 export const CustomViewAll = styled(Stack)(({ theme, marginRight }) => ({

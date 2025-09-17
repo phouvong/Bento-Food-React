@@ -163,6 +163,8 @@ const FoodCampaign = ({ isLoading }) => {
                     md={12}
                     sm={12}
                     lg={12}
+                    sx={{display: campaignFoods?.length > 0 ? 'block' : 'none'}}
+
                     onMouseEnter={() => setHoverOn(true)}
                     onMouseLeave={() => setHoverOn(false)}
                 >

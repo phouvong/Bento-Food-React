@@ -62,6 +62,7 @@ const GuestUserInforForm = ({
     }
 
     const numberHandler = (value) => {
+        
         if(dine_in){
             additionalInformationDispatch({
                 type: ACTIONS.setDineInPhone,

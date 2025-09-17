@@ -135,7 +135,7 @@ const HorizontalFoodCard = (props) => {
                                     position="absolute"
                                     top="10%"
                                     left="0"
-                                    zIndex="1"
+                                    zIndex="0"
                                 >
                                     {handleBadge(
                                         product,
@@ -159,7 +159,7 @@ const HorizontalFoodCard = (props) => {
                                     <Typography
                                         fontSize="14px"
                                         fontWeight="500"
-                                        maxWidth="120px"
+                                        maxWidth="100px"
                                         noWrap
                                         sx={{
                                             overflow: 'hidden',

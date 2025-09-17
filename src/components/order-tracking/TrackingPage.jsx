@@ -23,10 +23,13 @@ import GpsFixedIcon from '@mui/icons-material/GpsFixed'
 import { useGeolocated } from 'react-geolocated'
 import { getToken } from '@/components/checkout-page/functions/getGuestUserId'
 
-const TrackingPage = ({ data, guestOrderTracking }) => {
+const TrackingPage = ({ data, guestOrderTracking,refetch ,refetchTrackData}) => {
     const [actStep, setActStep] = useState(1)
     const [rerenderMap, setRerenderMap] = useState(false)
-
+    const [resLat,setResLat]=useState({
+        lat:"",
+        lng:""
+    })
     const steps = [
         {
             label: 'Order placed',
@@ -49,6 +52,27 @@ const TrackingPage = ({ data, guestOrderTracking }) => {
             time: data?.delivered,
         },
     ]
+    useEffect(()=>{
+        const resLat = data?.restaurant?.latitude
+        const resLong = data?.restaurant?.longitude
+        if(data?.delivery_man){
+            setResLat((prev) => {
+                const newLat = data?.delivery_man?.lat || resLat;
+                const newLng = data?.delivery_man?.lng || resLong;
+              
+                if (prev.lat === newLat && prev.lng === newLng) {
+                  return prev; 
+                }
+              
+                return { lat: newLat, lng: newLng }; 
+              });
+        }else{
+            setResLat({
+                lat: resLat,
+                lng:resLong
+            })
+        }
+    },[ data?.delivery_man?.lat,data?.delivery_man?.lng])
     useEffect(() => {
         if (data?.order_status === 'panding') {
             setActStep(1)
@@ -78,8 +102,7 @@ const TrackingPage = ({ data, guestOrderTracking }) => {
     }, [data])
     // const deliveryLat = data?.delivery_address?.latitude;
     // const deliveryLong = data?.delivery_address?.longitude;
-    const resLat = data?.restaurant?.latitude
-    const resLong = data?.restaurant?.longitude
+
     const { t } = useTranslation()
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
@@ -105,7 +128,23 @@ const TrackingPage = ({ data, guestOrderTracking }) => {
         })
         setRerenderMap((prvMap) => !prvMap)
     }
-    
+
+    useEffect(() => {
+        if (!data || !data.delivery_man) return;
+
+        let intervalId;
+
+        if (data?.order_status === 'picked_up') {
+            intervalId = setInterval(() => {
+                refetchTrackData();
+            }, 5000);
+        }
+
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
+    }, [data?.order_status, data?.delivery_man, refetchTrackData]);
+
     return (
         <RTL direction={languageDirection}>
             <CustomStackFullWidth>
@@ -169,8 +208,8 @@ const TrackingPage = ({ data, guestOrderTracking }) => {
                         <MapComponent
                             key={rerenderMap}
                             isRestaurant
-                            latitude={resLat}
-                            longitude={resLong}
+                            latitude={resLat?.lat}
+                            longitude={resLat?.lng}
                             userLat={userLocation?.lat}
                             userLong={userLocation?.lng}
                         />
@@ -180,7 +219,7 @@ const TrackingPage = ({ data, guestOrderTracking }) => {
                                     theme.palette.neutral[100],
                                 padding: '10px',
                                 position: 'absolute',
-                                bottom: '30px',
+                                top: '30px',
                                 right: '30px',
                             }}
                             onClick={setUserCurrentLocation}
@@ -192,7 +231,7 @@ const TrackingPage = ({ data, guestOrderTracking }) => {
                         <Grid item md={12} xs={12} align="center" p="1.4rem">
                             {data ? (
                                 data?.delivery_man ? (
-                                    <DeliverymanInfo data={data} />
+                                    <DeliverymanInfo resLat={resLat} data={data} />
                                 ) : (
                                     <Typography>
                                         {t(

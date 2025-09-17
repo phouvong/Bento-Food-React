@@ -53,7 +53,7 @@ const ChatView = ({
     const classes = useStyles()
     return (
         <StyledBox>
-            {/*<SimpleBar style={{ maxHeight: "70vh" }}>*/}
+        
             <Box
                 sx={{
                     overflowY: 'scroll',
@@ -70,12 +70,9 @@ const ChatView = ({
                     />
                 )}
                 {messageIsLoading && <LoadingBox />}
-                {/*<ScrollToBottom />*/}
-                {/*<Stack ref={messagesEndRef}></Stack>*/}
+            
             </Box>
 
-            {/*</SimpleBar>*/}
-            {/*{conversationData?.status && <ChatMessageAdd onSend={handleChatMessageSend}/>}*/}
             <ChatMessageAdd onSend={handleChatMessageSend} />
         </StyledBox>
     )

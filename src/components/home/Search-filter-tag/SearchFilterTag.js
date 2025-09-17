@@ -39,7 +39,6 @@ const SearchFilterTag = ({
     const router = useRouter()
     const theme = useTheme()
     const scrolling = useScrollTrigger()
-
     useEffect(() => {
         dispatch(setSearchTagData(storeData))
     }, [searchMockData])
@@ -63,6 +62,7 @@ const SearchFilterTag = ({
                         : item
                 )
             }
+
             setIsMount(true)
             setStoreData(newArr)
         }

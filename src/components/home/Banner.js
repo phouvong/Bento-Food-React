@@ -209,7 +209,7 @@ const Banner = ({ isFetched, data }) => {
             {FoodBannerData && openModal && (
                 <FoodDetailModal
                     product={FoodBannerData}
-                    image={`${global?.base_urls?.product_image_url}/${FoodBannerData?.image}`}
+                    image={FoodBannerData?.image_full_url}
                     open={openModal}
                     handleModalClose={handleModalClose}
                     setOpen={setOpenModal}

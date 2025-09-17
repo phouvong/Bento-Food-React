@@ -17,9 +17,6 @@ import { useGetCuisines } from '@/hooks/react-query/cuisines/useGetCuisines'
 const FilterCard = ({
     stateData,
     setStateData,
-
-    forcuisine,
-    restaurantType,
     setCuisineState,
     cuisineState,
 }) => {
@@ -51,7 +48,7 @@ const FilterCard = ({
                 <SimpleBar
                     style={{
                         width: '100%',
-                        maxHeight: '500px',
+                        maxHeight: '400px',
                         paddingInlineEnd: '.5rem',
                     }}
                 >
@@ -63,9 +60,11 @@ const FilterCard = ({
                             <CustomGroupCheckbox
                                 handleChangeFilter={handleFilterBy}
                                 checkboxData={
-                                    foodOrRestaurant === 'restaurants'
-                                        ? stateData?.slice(1)
-                                        : stateData?.slice(1, 9)
+                                    (
+                                        foodOrRestaurant === 'restaurants'
+                                            ? stateData?.slice(1)
+                                            : stateData?.filter((_, i) => i >= 1 && i <= 10)
+                                    )?.filter((item) => item?.value !== 'currentlyAvailable')
                                 }
                                 stateData={stateData}
                                 setStateData={setStateData}

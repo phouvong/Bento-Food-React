@@ -49,6 +49,7 @@ const MapComponentFindNear = ({
     const theme = useTheme()
     const { location } = useSelector((state) => state.addressData)
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
+    // const [hoveredMarkerId, setHoveredMarkerId] = useState("")
     const [userLocation, setUserLocation] = useState({
         lat: location?.lat,
         lng: location?.lng,
@@ -268,52 +269,42 @@ const MapComponentFindNear = ({
                 {data?.length > 0 ? (
                     data.map((restaurant) => (
                         <Marker
-                            key={`${restaurant.name}-${parseFloat(
-                                restaurant.latitude
-                            )}-${parseFloat(restaurant.longitude)}`}
+                            key={restaurant?.id}
                             position={{
                                 lat: parseFloat(restaurant.latitude),
                                 lng: parseFloat(restaurant.longitude),
                             }}
                             icon={{
-                                url: 'static/location-pins/restaurant_location_icon.svg',
+                                url: "static/location-pins/restaurant_location_icon.svg",
                                 scaledSize:
-                                    hoveredMarkerId ===
-                                    `restaurent-${restaurant.id}`
+                                    hoveredMarkerId === `restaurent-${restaurant.id}`
                                         ? new window.google.maps.Size(60, 60)
                                         : new window.google.maps.Size(45, 45),
                             }}
                             onClick={() => clickOnResIcon(restaurant.id)}
+                            onMouseOver={() => setHoveredMarkerId(`restaurent-${restaurant.id}`)}
+                            onMouseOut={() => setHoveredMarkerId(null)}
                         >
-                            {hoveredMarkerId ===
-                                `restaurent-${restaurant.id}` && (
+                            {hoveredMarkerId === `restaurent-${restaurant.id}` && (
                                 <InfoWindow
                                     position={{
                                         lat: parseFloat(restaurant.latitude),
                                         lng: parseFloat(restaurant.longitude),
                                     }}
-                                    pixelOffset={
-                                        new window.google.maps.Size(0, -30)
-                                    }
+                                    pixelOffset={new window.google.maps.Size(0, -30)}
+                                    onCloseClick={() => setHoveredMarkerId(null)}
                                 >
+                                    {/* Keep it open while hovered so it doesn't flicker */}
                                     <Box
                                         sx={{
                                             color: theme.palette.neutral[800],
-                                            svg: {
-                                                color: theme.palette.primary
-                                                    .main,
-                                            },
+                                            svg: { color: theme.palette.primary.main },
                                         }}
-                                        onClick={() =>
-                                            handleRouteToRestaurant(restaurant)
-                                        }
+                                        onMouseEnter={() => setHoveredMarkerId(`restaurent-${restaurant.id}`)}
+                                        onMouseLeave={() => setHoveredMarkerId(null)}
+                                        onClick={() => handleRouteToRestaurant(restaurant)}
                                     >
-                                        <Stack
-                                            direction="row"
-                                            gap={1}
-                                            mb={1}
-                                            alignItems="center"
-                                        >
+                                        <Stack direction="row" gap={1} mb={1} alignItems="center">
                                             <CustomImageContainer
                                                 width="20px"
                                                 height="20px"
@@ -321,33 +312,15 @@ const MapComponentFindNear = ({
                                                 src={restaurant?.logo_full_url}
                                                 objectfit="cover"
                                             />
-                                            <Box
-                                                width="0"
-                                                flexGrow="1"
-                                                sx={{ cursor: 'pointer' }}
-                                            >
-                                                {restaurant.name}{' '}
-                                                <Box
-                                                    component="small"
-                                                    color="primary.main"
-                                                >
-                                                    (
-                                                    {(
-                                                        restaurant.distance /
-                                                        1000
-                                                    ).toFixed(2)}
-                                                    km {t('away')})
+                                            <Box width="0" flexGrow="1" sx={{ cursor: "pointer" }}>
+                                                {restaurant.name}{" "}
+                                                <Box component="small" color="primary.main">
+                                                    ({(restaurant.distance / 1000).toFixed(2)} km {t("away")})
                                                 </Box>
                                             </Box>
                                         </Stack>
-                                        <Stack
-                                            direction="row"
-                                            gap={1}
-                                            fontSize="0.75rem"
-                                        >
-                                            <Box width="0" flexGrow="1">
-                                                {restaurant.address}
-                                            </Box>
+                                        <Stack direction="row" gap={1} fontSize="0.75rem">
+                                            <Box width="0" flexGrow="1">{restaurant.address}</Box>
                                         </Stack>
                                     </Box>
                                 </InfoWindow>
@@ -359,11 +332,11 @@ const MapComponentFindNear = ({
                         alignItems="center"
                         style={{
                             zIndex: 3,
-                            position: 'absolute',
+                            position: "absolute",
                             marginTop: -37,
                             marginLeft: -11,
-                            left: '50%',
-                            top: '50%',
+                            left: "50%",
+                            top: "50%",
                         }}
                     >
                         <CircularProgress />

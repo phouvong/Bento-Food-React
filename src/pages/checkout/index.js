@@ -40,4 +40,3 @@ const CheckoutLayout = ({ configdata }) => {
     )
 }
 export default CheckoutLayout
-// export { getServerSideProps }

@@ -296,7 +296,7 @@ const NewRestaurant = () => {
                                                     restaurantData?.distance
                                                 }
                                                 foods_count={
-                                                    restaurantData?.foods
+                                                    restaurantData?.foods_count
                                                 }
                                             />
                                         </Stack>

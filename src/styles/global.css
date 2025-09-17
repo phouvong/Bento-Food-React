@@ -878,6 +878,7 @@ img {
     height: 1rem;
     background: rgba(255, 255, 255, 0.7);
     z-index: 9999;
+    cursor: pointer;
 }
 
 /* home page banner slider css  */

@@ -165,6 +165,17 @@ const Chat = ({ page }) => {
         setMessagesData([data])
     }, [data])
     const handleChannelOnClick = async (value) => {
+        router.push(
+                {
+                    pathname: '/info',
+                    query: {
+                        page: 'inbox',
+                    
+                    },
+                },
+                undefined,
+                { shallow: true }
+            )
         setReceiverId(null)
         await refetchChannelList()
         if (value.receiver_type === 'admin') {
@@ -264,6 +275,7 @@ const Chat = ({ page }) => {
         receiver?.receiver_type === 'customer'
             ? receiver?.sender?.image_full_url
             : receiverImage
+             
     return (
         <PushNotificationLayout refetch={refetch} pathName="info">
             <Meta

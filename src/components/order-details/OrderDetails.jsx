@@ -31,7 +31,7 @@ import { useTheme } from '@mui/material/styles'
 import jwt from 'base-64'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from 'react-query'
@@ -210,6 +210,9 @@ const OrderDetails = ({ OrderIdDigital }) => {
         await refetchOrderDetails()
         await refetchTrackData()
     }
+    // Refetch trackData every 5 seconds
+
+
 
     const handleTotalAmount = () => {
         if (trackData?.data?.subscription) {
@@ -662,7 +665,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                 {isTrackOrder ? (
                     <>
                         {!trackOrderLoading && (
-                            <TrackingPage data={trackData?.data} />
+                            <TrackingPage data={trackData?.data} refetchTrackData={refetchTrackData} />
                         )}
                     </>
                 ) : (
@@ -913,10 +916,10 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                         )}
                                 </ProductDetailsWrapper>
 
-                                {trackData?.data?.order_reference
+                                {(trackData?.data?.order_reference
                                     ?.token_number ||
-                                    (trackData?.data?.order_reference
-                                        ?.table_number && (
+                                    trackData?.data?.order_reference
+                                        ?.table_number) && (
                                         <ProductDetailsWrapper>
                                             <Stack
                                                 sx={{
@@ -1005,7 +1008,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                 )}
                                             </Stack>
                                         </ProductDetailsWrapper>
-                                    ))}
+                                    )}
 
                                 {trackData &&
                                     trackData?.data?.delivery_instruction &&

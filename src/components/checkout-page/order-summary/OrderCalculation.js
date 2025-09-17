@@ -138,7 +138,6 @@ const OrderCalculation = (props) => {
         taxData?.tax_status === 'excluded' ? taxData?.tax_amount : 0
 
     )
-    console.log({distanceData})
     const handleDeliveryFee = () => {
         let price = getDeliveryFees(
             restaurantData,

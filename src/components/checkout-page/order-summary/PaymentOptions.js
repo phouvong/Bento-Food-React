@@ -221,6 +221,7 @@ const  PaymentOptions = (props) => {
                             switchToWallet={switchToWallet}
                             setChangeAmount={setChangeAmount}
                             changeAmount={changeAmount}
+                            openModal={openModal}
                         />
                     </CustomModal>
                 )}

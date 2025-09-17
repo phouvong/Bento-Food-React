@@ -331,149 +331,152 @@ const VisitAgain = () => {
                     </div>
                 </MapSetionWrapper>
             </Grid>
-            <Grid
-                item
-                xs={12}
-                md={8.5}
-                onMouseEnter={() => setHoverOn(true)}
-                onMouseLeave={() => setHoverOn(false)}
-            >
-                <VisitAgainWrapper>
-                    <Stack alignItems="center">
-                        <Typography
-                            fontSize={{ xs: '18px', md: '20px' }}
-                            fontWeight={{ xs: '500', md: '700' }}
-                            color={theme.palette.primary.main}
-                            component="h2"
-                        >
-                            {text?.title}
-                        </Typography>
-                        <Typography
-                            textAlign="center"
-                            fontSize={{ xs: '13px', md: '16px' }}
-                            fontWeight={{ xs: '400', md: '400' }}
-                            color={theme.palette.text.secondary}
-                            component="p"
-                        >
-                            {text?.subTitle}
-                        </Typography>
-                    </Stack>
-                    {isLoading || isLoadingRecent || isloadingRecommended ? (
-                        <Grid container>
-                            <Grid item xs={12} md={12}>
-                                <Stack
-                                    flexDirection="row"
-                                    gap="25px"
-                                    alignItems="center"
-                                    padding="0px 30px"
-                                >
-                                    {!isXSmall && (
-                                        <FoodCardShimmer
-                                            cardWidth="280px"
-                                            cardHeight="230px"
-                                        />
-                                    )}
-                                    <FoodCardShimmer
-                                        cardWidth="350px"
-                                        cardHeight="270px"
-                                    />
-                                    {!isXSmall && (
-                                        <FoodCardShimmer
-                                            cardWidth="280px"
-                                            cardHeight="230px"
-                                        />
-                                    )}
-                                </Stack>
-                            </Grid>
-                        </Grid>
-                    ) : (
-                        <Grid container>
-                            <Grid item xs={12} md={12}>
-                                <CustomSlider
-                                    gap="12px"
-                                    paddingBottom={isSmall ? '10px' : '20px'}
-                                    languageDirection={languageDirection}
-                                    isCenter={userData?.length > 3}
-                                    itemLength={userData?.length}
-                                >
-                                    <Slider {...settings}>
-                                        {userData?.map(
-                                            (restaurantData, index) => {
-                                                return (
-                                                    <RestaurantBoxCard
-                                                        key={index}
-                                                        className={
-                                                            index === imageIndex
-                                                                ? 'custom-active-slide'
-                                                                : 'custom-slide'
-                                                        }
-                                                        id={restaurantData.id}
-                                                        image={
-                                                            restaurantData?.cover_photo_full_url
-                                                        }
-                                                        name={
-                                                            restaurantData?.name
-                                                        }
-                                                        rating={
-                                                            restaurantData?.avg_rating
-                                                        }
-                                                        restaurantImageUrl={
-                                                            global?.base_urls
-                                                                ?.restaurant_cover_photo_url
-                                                        }
-                                                        restaurantDiscount={
-                                                            restaurantData.discount &&
-                                                            restaurantData.discount
-                                                        }
-                                                        freeDelivery={
-                                                            restaurantData.free_delivery
-                                                        }
-                                                        open={
-                                                            restaurantData?.open
-                                                        }
-                                                        active={
-                                                            restaurantData?.active
-                                                        }
-                                                        delivery_time={
-                                                            restaurantData?.delivery_time
-                                                        }
-                                                        cuisines={
-                                                            restaurantData?.cuisine
-                                                        }
-                                                        coupons={
-                                                            restaurantData?.coupons
-                                                        }
-                                                        slug={
-                                                            restaurantData?.slug
-                                                        }
-                                                        zone_id={
-                                                            restaurantData?.zone_id
-                                                        }
-                                                        rating_count={
-                                                            restaurantData?.rating_count
-                                                        }
-                                                        visitAgain={true}
-                                                        foods={
-                                                            restaurantData?.foods
-                                                        }
-                                                        opening_time={
-                                                            restaurantData?.current_opening_time
-                                                        }
-                                                        characteristics={
-                                                            restaurantData?.characteristics
-                                                        }
-                                                    />
-                                                )
-                                            }
+            {userData?.length>0 && (!isLoading || !isLoadingRecent || !isloadingRecommended) && (
+                <Grid
+                    item
+                    xs={12}
+                    md={8.5}
+                    onMouseEnter={() => setHoverOn(true)}
+                    onMouseLeave={() => setHoverOn(false)}
+                >
+                    <VisitAgainWrapper>
+                        <Stack alignItems="center">
+                            <Typography
+                                fontSize={{ xs: '18px', md: '20px' }}
+                                fontWeight={{ xs: '500', md: '700' }}
+                                color={theme.palette.primary.main}
+                                component="h2"
+                            >
+                                {text?.title}
+                            </Typography>
+                            <Typography
+                                textAlign="center"
+                                fontSize={{ xs: '13px', md: '16px' }}
+                                fontWeight={{ xs: '400', md: '400' }}
+                                color={theme.palette.text.secondary}
+                                component="p"
+                            >
+                                {text?.subTitle}
+                            </Typography>
+                        </Stack>
+                        {isLoading || isLoadingRecent || isloadingRecommended ? (
+                            <Grid container>
+                                <Grid item xs={12} md={12}>
+                                    <Stack
+                                        flexDirection="row"
+                                        gap="25px"
+                                        alignItems="center"
+                                        padding="0px 30px"
+                                    >
+                                        {!isXSmall && (
+                                            <FoodCardShimmer
+                                                cardWidth="280px"
+                                                cardHeight="230px"
+                                            />
                                         )}
-                                    </Slider>
-                                </CustomSlider>
+                                        <FoodCardShimmer
+                                            cardWidth="350px"
+                                            cardHeight="270px"
+                                        />
+                                        {!isXSmall && (
+                                            <FoodCardShimmer
+                                                cardWidth="280px"
+                                                cardHeight="230px"
+                                            />
+                                        )}
+                                    </Stack>
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    )}
-                </VisitAgainWrapper>
-                <Stack></Stack>
-            </Grid>
+                        ) : (
+                            <Grid container>
+                                <Grid item xs={12} md={12}>
+                                    <CustomSlider
+                                        gap="12px"
+                                        paddingBottom={isSmall ? '10px' : '20px'}
+                                        languageDirection={languageDirection}
+                                        isCenter={userData?.length > 3}
+                                        itemLength={userData?.length}
+                                    >
+                                        <Slider {...settings}>
+                                            {userData?.map(
+                                                (restaurantData, index) => {
+                                                    return (
+                                                        <RestaurantBoxCard
+                                                            key={index}
+                                                            className={
+                                                                index === imageIndex
+                                                                    ? 'custom-active-slide'
+                                                                    : 'custom-slide'
+                                                            }
+                                                            id={restaurantData.id}
+                                                            image={
+                                                                restaurantData?.cover_photo_full_url
+                                                            }
+                                                            name={
+                                                                restaurantData?.name
+                                                            }
+                                                            rating={
+                                                                restaurantData?.avg_rating
+                                                            }
+                                                            restaurantImageUrl={
+                                                                global?.base_urls
+                                                                    ?.restaurant_cover_photo_url
+                                                            }
+                                                            restaurantDiscount={
+                                                                restaurantData.discount &&
+                                                                restaurantData.discount
+                                                            }
+                                                            freeDelivery={
+                                                                restaurantData.free_delivery
+                                                            }
+                                                            open={
+                                                                restaurantData?.open
+                                                            }
+                                                            active={
+                                                                restaurantData?.active
+                                                            }
+                                                            delivery_time={
+                                                                restaurantData?.delivery_time
+                                                            }
+                                                            cuisines={
+                                                                restaurantData?.cuisine
+                                                            }
+                                                            coupons={
+                                                                restaurantData?.coupons
+                                                            }
+                                                            slug={
+                                                                restaurantData?.slug
+                                                            }
+                                                            zone_id={
+                                                                restaurantData?.zone_id
+                                                            }
+                                                            rating_count={
+                                                                restaurantData?.rating_count
+                                                            }
+                                                            visitAgain={true}
+                                                            foods={
+                                                                restaurantData?.foods
+                                                            }
+                                                            opening_time={
+                                                                restaurantData?.current_opening_time
+                                                            }
+                                                            characteristics={
+                                                                restaurantData?.characteristics
+                                                            }
+                                                        />
+                                                    )
+                                                }
+                                            )}
+                                        </Slider>
+                                    </CustomSlider>
+                                </Grid>
+                            </Grid>
+                        )}
+                    </VisitAgainWrapper>
+                    <Stack></Stack>
+                </Grid>
+            ) }
+
             {open && (
                 <CustomModal
                     openModal={open}

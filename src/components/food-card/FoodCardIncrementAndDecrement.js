@@ -71,7 +71,7 @@ const FoodCardIncrementAndDecrement = ({
 
     const handleIncrement = (e) => {
         e.stopPropagation()
-        if (getQuantity(product?.id) >= product?.item_stock) {
+        if (getQuantity(product?.id) >= product?.item_stock && product?.stock_type !== "unlimited") {
             CustomToaster('error', t('Out Of Stock'))
         } else {
             const updateQuantity = isInCart?.quantity + 1

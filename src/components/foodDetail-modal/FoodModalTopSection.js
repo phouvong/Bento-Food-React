@@ -11,6 +11,8 @@ import FavoriteIcon from '@mui/icons-material/Favorite'
 import FoodRating from '../food-card/FoodRating'
 import { useRouter } from 'next/router'
 import CustomNextImage from '@/components/CustomNextImage'
+import React from 'react'
+import { handleBadge } from '@/utils/customFunctions'
 
 const FoodModalTopSection = ({
     product,
@@ -29,6 +31,15 @@ const FoodModalTopSection = ({
     const handleClick = () => {
         router.push(`/restaurant/${product?.restaurant_id}`)
         handleModalClose()
+    }
+    let currencySymbol
+    let currencySymbolDirection
+    let digitAfterDecimalPoint
+
+    if (global) {
+        currencySymbol = global.currency_symbol
+        currencySymbolDirection = global.currency_symbol_direction
+        digitAfterDecimalPoint = global.digit_after_decimal_point
     }
     return (
         <CustomStackFullWidth sx={{ position: 'relative' }}>
@@ -63,6 +74,21 @@ const FoodModalTopSection = ({
                     {!product?.available_date_ends && (
                         <FoodRating product_avg_rating={product?.avg_rating} />
                     )}
+                    <Stack
+                        position="absolute"
+                        bottom="20%"
+                        left="28%"
+                        zIndex="999"
+                    >
+                        {handleBadge(
+                            product,
+                            currencySymbol,
+                            currencySymbolDirection,
+                            digitAfterDecimalPoint,
+
+                        )}
+                    </Stack>
+
                     {router.pathname !== `/restaurant/[id]` ? (
                         <Typography
                             sx={{
