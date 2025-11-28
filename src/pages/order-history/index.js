@@ -1,4 +1,5 @@
 import React from 'react'
+import { NoSsr } from '@mui/material'
 import OrderHistory from '../../components/order-history/OrderHistory'
 import Meta from '../../components/Meta'
 import AuthGuard from '../../components/authentication/AuthGuard'
@@ -9,10 +10,11 @@ const OrderLayout = ({ configData }) => {
         <>
             <div className="div">
                 <Meta title={`My Orders - ${configData?.business_name}`} />
-
-                <PushNotificationLayout>
-                    <OrderHistory />
-                </PushNotificationLayout>
+                <NoSsr>
+                    <PushNotificationLayout>
+                        <OrderHistory />
+                    </PushNotificationLayout>
+                </NoSsr>
             </div>
         </>
     )

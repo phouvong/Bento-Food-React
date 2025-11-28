@@ -75,6 +75,7 @@ const RestaurantLeftDetails = (props) => {
         currencySymbol,
         digitAfterDecimalPoint,
         scrollPosition,
+        threshold
     } = props
     const dispatch = useDispatch()
     const { wishLists } = useSelector((state) => state.wishList)
@@ -130,7 +131,7 @@ const RestaurantLeftDetails = (props) => {
                     )
                 }
             },
-            onError: (error) => {},
+            onError: (error) => { },
         }
     )
 
@@ -187,6 +188,7 @@ const RestaurantLeftDetails = (props) => {
                             t={t}
                             theme={theme}
                             scrollPosition={scrollPosition}
+                            threshold={threshold}
                             isSmall={isSmall}
                         />
                     )
@@ -197,6 +199,7 @@ const RestaurantLeftDetails = (props) => {
                         t={t}
                         theme={theme}
                         scrollPosition={scrollPosition}
+                        threshold={threshold}
                         isSmall={isSmall}
                     />
                 )
@@ -207,6 +210,7 @@ const RestaurantLeftDetails = (props) => {
                     t={t}
                     theme={theme}
                     scrollPosition={scrollPosition}
+                    threshold={threshold}
                     isSmall={isSmall}
                 />
             )
@@ -250,16 +254,77 @@ const RestaurantLeftDetails = (props) => {
                         <Stack
                             position="absolute"
                             top={
-                                scrollPosition === 0
-                                    ? '5%'
+                                scrollPosition <= threshold
+                                    ? '3%'
                                     : isSmall
-                                    ? '15%'
-                                    : '21%'
+                                        ? '15%'
+                                        : '38%'
                             }
-                            right="5%"
+                            right="2%"
                             zIndex="999"
                             gap="10px"
+                            direction={(scrollPosition > threshold || !isSmall) ? "row" : "column"}
+
                         >
+                            <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
+                                display={(scrollPosition <= threshold || isSmall) ? 'none' : 'flex'}
+                            >
+                                <FoodRating
+                                    product_avg_rating={details?.avg_rating}
+                                />
+                            </Stack>
+                            {details?.rating_count ? (
+                                <Stack
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center"
+                                    paddingInlineEnd="20px"
+                                    display={(scrollPosition <= threshold || isSmall) ? 'none' : 'flex'}
+                                >
+                                    <Typography
+                                        onClick={() => setOpenReviewModal(true)}
+                                        color={theme.palette.neutral[1000]}
+                                        fontSize="13px"
+                                        sx={{
+                                            textDecoration: 'underline',
+                                            cursor: 'pointer',
+                                        }}
+                                    >
+                                        {JSON.stringify(details?.rating_count)}{' '}
+                                        {t('Ratings')}
+                                    </Typography>
+
+                                    <Divider
+                                        orientation="vertical"
+                                        flexItem
+                                        width="3px"
+                                        height="100%"
+                                        sx={{
+                                            opacity: 1,
+                                            backgroundColor:
+                                                theme.palette.neutral[300],
+                                        }}
+                                    />
+
+                                    <Typography
+                                        onClick={() => setOpenReviewModal(true)}
+                                        color={theme.palette.neutral[1000]}
+                                        fontSize="13px"
+                                        sx={{
+                                            textDecoration: 'underline',
+                                            cursor: 'pointer',
+                                        }}
+                                    >
+                                        {JSON.stringify(
+                                            details?.reviews_comments_count
+                                        )}{' '}
+                                        {t('Reviews')}
+                                    </Typography>
+                                </Stack>
+                            ) : null}
                             {!isInList(id) ? (
                                 <IconButton
                                     sx={{
@@ -271,6 +336,13 @@ const RestaurantLeftDetails = (props) => {
                                             xs: '3px',
                                             sm: '5px',
                                             md: '7px',
+                                        },
+                                        transition: 'all 0.3s ease-in-out',
+                                        '&:hover': {
+                                            background: (theme) => theme.palette.primary.main,
+                                            '& .MuiSvgIcon-root': {
+                                                color: 'white',
+                                            },
                                         },
                                     }}
                                     onClick={(e) => addToFavorite(e)}
@@ -297,6 +369,13 @@ const RestaurantLeftDetails = (props) => {
                                             xs: '3px',
                                             sm: '5px',
                                             md: '7px',
+                                        },
+                                        transition: 'all 0.3s ease-in-out',
+                                        '&:hover': {
+                                            background: (theme) => theme.palette.primary.main,
+                                            '& .MuiSvgIcon-root': {
+                                                color: 'white',
+                                            },
                                         },
                                     }}
                                     onClick={(e) => deleteWishlistRes(id, e)}
@@ -326,6 +405,13 @@ const RestaurantLeftDetails = (props) => {
                                         sm: '5px',
                                         md: '7px',
                                     },
+                                    transition: 'all 0.3s ease-in-out',
+                                    '&:hover': {
+                                        background: (theme) => theme.palette.primary.main,
+                                        '& .MuiSvgIcon-root': {
+                                            color: 'white',
+                                        },
+                                    },
                                 }}
                                 onClick={() => setOpenModal(true)}
                             >
@@ -351,6 +437,13 @@ const RestaurantLeftDetails = (props) => {
                                         sm: '5px',
                                         md: '7px',
                                     },
+                                    transition: 'all 0.3s ease-in-out',
+                                    '&:hover': {
+                                        background: (theme) => theme.palette.primary.main,
+                                        '& .MuiSvgIcon-root': {
+                                            color: 'white',
+                                        },
+                                    },
                                 }}
                                 onClick={(e) => setOpenShareModal(true)}
                             >
@@ -369,17 +462,17 @@ const RestaurantLeftDetails = (props) => {
                         <Box
                             sx={{
                                 width:
-                                    scrollPosition === 0
+                                    scrollPosition <= threshold
                                         ? '100px'
                                         : isSmall
-                                        ? '74px'
-                                        : '100px',
+                                            ? '74px'
+                                            : '60px',
                                 height:
-                                    scrollPosition === 0
+                                    scrollPosition <= threshold
                                         ? '100px'
                                         : isSmall
-                                        ? '74px'
-                                        : '100px',
+                                            ? '74px'
+                                            : '60px',
                                 borderRadius: '50%',
                                 position: 'relative',
                             }}
@@ -388,7 +481,7 @@ const RestaurantLeftDetails = (props) => {
                             {isSmall ? (
                                 <Stack
                                     position="absolute"
-                                    top={scrollPosition === 0 ? '-35px' : '0px'}
+                                    top={scrollPosition <= threshold ? '-35px' : '0px'}
                                     sx={{ zIndex: 9999 }}
 
                                 >
@@ -445,7 +538,7 @@ const RestaurantLeftDetails = (props) => {
                                                 {details?.characteristics
                                                     .length -
                                                     1 ===
-                                                index
+                                                    index
                                                     ? ''
                                                     : ','}
                                             </>
@@ -453,62 +546,68 @@ const RestaurantLeftDetails = (props) => {
                                     )}
                             </Typography>
 
-                            <Stack
-                                direction="row"
-                                spacing={1}
-                                alignItems="center"
-                            >
-                                <FoodRating
-                                    product_avg_rating={details?.avg_rating}
-                                />
-                            </Stack>
-                            {details?.rating_count ? (
-                                <Stack
-                                    direction="row"
-                                    spacing={1}
-                                    alignItems="center"
-                                >
-                                    <Typography
-                                        onClick={() => setOpenReviewModal(true)}
-                                        color={theme.palette.neutral[1000]}
-                                        fontSize="13px"
-                                        sx={{
-                                            textDecoration: 'underline',
-                                            cursor: 'pointer',
-                                        }}
+                            {(scrollPosition <= threshold || isSmall) && (
+                                <>
+                                    <Stack
+                                        direction="row"
+                                        spacing={1}
+                                        alignItems="center"
                                     >
-                                        {JSON.stringify(details?.rating_count)}{' '}
-                                        {t('Ratings')}
-                                    </Typography>
+                                        <FoodRating
+                                            product_avg_rating={details?.avg_rating}
+                                        />
+                                    </Stack>
+                                    {details?.rating_count ? (
+                                        <Stack
+                                            direction="row"
+                                            spacing={1}
+                                            alignItems="center"
+                                        >
+                                            <Typography
+                                                onClick={() => setOpenReviewModal(true)}
+                                                color={theme.palette.neutral[1000]}
+                                                fontSize="13px"
+                                                sx={{
+                                                    textDecoration: 'underline',
+                                                    cursor: 'pointer',
+                                                }}
+                                            >
+                                                {JSON.stringify(details?.rating_count)}{' '}
+                                                {t('Ratings')}
+                                            </Typography>
 
-                                    <Divider
-                                        orientation="vertical"
-                                        flexItem
-                                        width="3px"
-                                        height="100%"
-                                        sx={{
-                                            opacity: 1,
-                                            backgroundColor:
-                                                theme.palette.neutral[300],
-                                        }}
-                                    />
+                                            <Divider
+                                                orientation="vertical"
+                                                flexItem
+                                                width="3px"
+                                                height="100%"
+                                                sx={{
+                                                    opacity: 1,
+                                                    backgroundColor:
+                                                        theme.palette.neutral[300],
+                                                }}
+                                            />
 
-                                    <Typography
-                                        onClick={() => setOpenReviewModal(true)}
-                                        color={theme.palette.neutral[1000]}
-                                        fontSize="13px"
-                                        sx={{
-                                            textDecoration: 'underline',
-                                            cursor: 'pointer',
-                                        }}
-                                    >
-                                        {JSON.stringify(
-                                            details?.reviews_comments_count
-                                        )}{' '}
-                                        {t('Reviews')}
-                                    </Typography>
-                                </Stack>
-                            ) : null}
+                                            <Typography
+                                                onClick={() => setOpenReviewModal(true)}
+                                                color={theme.palette.neutral[1000]}
+                                                fontSize="13px"
+                                                sx={{
+                                                    textDecoration: 'underline',
+                                                    cursor: 'pointer',
+                                                }}
+                                            >
+                                                {JSON.stringify(
+                                                    details?.reviews_comments_count
+                                                )}{' '}
+                                                {t('Reviews')}
+                                            </Typography>
+                                        </Stack>
+                                    ) : null}
+
+                                </>
+                            )}
+
                         </Stack>
                     </CustomStackFullWidth>
                 </Grid>
@@ -584,8 +683,8 @@ const RestaurantLeftDetails = (props) => {
     return (
         <CustomStackFullWidth
             sx={{
-                position: scrollPosition === 0 ? 'inherit' : 'sticky',
-                marginTop: scrollPosition === 0 ? '0px' : isSmall && '30px',
+                position: scrollPosition <= threshold ? 'inherit' : 'sticky',
+                marginTop: scrollPosition <= threshold ? '0px' : isSmall && '30px',
             }}
         >
             <CustomStackFullWidth
@@ -597,8 +696,8 @@ const RestaurantLeftDetails = (props) => {
             >
                 <CustomImageContainer
                     src={details.cover_photo_full_url}
-                    height={scrollPosition === 0 ? '250px' : '180px'}
-                    smHeight={scrollPosition === 0 ? '205px' : '140px'}
+                    height={scrollPosition <= threshold ? '250px' : '100px'}
+                    smHeight={scrollPosition <= threshold ? '205px' : '140px'}
                     objectFit="cover"
                 />
                 <CustomStackFullWidth
@@ -610,8 +709,8 @@ const RestaurantLeftDetails = (props) => {
                         height: '100%',
                     }}
                 >
-                    {scrollPosition === 0 && handleTop()}
-                    {scrollPosition === 0 ? handleBottom() : handleTop()}
+                    {scrollPosition <= threshold && handleTop()}
+                    {scrollPosition <= threshold ? handleBottom() : handleTop()}
                 </CustomStackFullWidth>
             </CustomStackFullWidth>
             <CustomModal
@@ -635,9 +734,16 @@ const RestaurantLeftDetails = (props) => {
                             backgroundColor: (theme) =>
                                 theme.palette.neutral[100],
                             borderRadius: '50%',
+                            transition: 'all 0.3s ease-in-out',
                             [theme.breakpoints.down('md')]: {
                                 top: 10,
                                 right: 5,
+                            },
+                            '&:hover': {
+                                backgroundColor: (theme) => theme.palette.primary.main,
+                                '& .MuiSvgIcon-root': {
+                                    color: 'white',
+                                },
                             },
                         }}
                     >
@@ -768,9 +874,12 @@ const RestaurantLeftDetails = (props) => {
                             backgroundColor: (theme) =>
                                 theme.palette.neutral[100],
                             borderRadius: '50%',
+                            transition: 'all 0.3s ease-in-out',
                             '&:hover': {
-                                backgroundColor: (theme) =>
-                                    theme.palette.neutral[200],
+                                backgroundColor: (theme) => theme.palette.primary.main,
+                                '& .MuiSvgIcon-root': {
+                                    color: 'white',
+                                },
                             },
                             [theme.breakpoints.down('md')]: {
                                 top: '2%',
@@ -809,9 +918,12 @@ const RestaurantLeftDetails = (props) => {
                             backgroundColor: (theme) =>
                                 theme.palette.neutral[100],
                             borderRadius: '50%',
+                            transition: 'all 0.3s ease-in-out',
                             '&:hover': {
-                                backgroundColor: (theme) =>
-                                    theme.palette.neutral[200],
+                                backgroundColor: (theme) => theme.palette.primary.main,
+                                '& .MuiSvgIcon-root': {
+                                    color: 'white',
+                                },
                             },
                             [theme.breakpoints.down('md')]: {
                                 top: '1%',

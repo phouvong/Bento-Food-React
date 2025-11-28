@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Grid, useMediaQuery } from '@mui/material'
 import RestaurantBoxCard from '../restaurant-details/RestaurantBoxCard'
 import CustomePagination from '../pagination/Pagination'
+import { useRouter } from 'next/router'
 
 const RestaurantsData = ({
     resData,
@@ -11,8 +12,15 @@ const RestaurantsData = ({
     global,
     restaurantType,
 }) => {
-    const matchesToMd = useMediaQuery('(min-width:740px)')
-    const matchesToSmall = useMediaQuery('(min-width:400px)')
+    const router = useRouter();
+    const matchesToMd = useMediaQuery('(min-width:740px)');
+    
+    useEffect(() => {
+        if (offset !== undefined) {
+            const url = `${router.asPath}&page=${offset}`;
+            window.history.replaceState(null, "", url);
+        }
+    }, [offset]);
 
     return (
         <>
@@ -38,7 +46,7 @@ const RestaurantsData = ({
                         rating_count={res?.rating_count}
                         freeDelivery={res?.free_delivery}
                         coupons={res?.coupons}
-                        //cuisines={restaurant?.cuisine}
+                        //cuisines={restaurants?.cuisine}
                         cuisines={res?.cuisine}
                         restaurantDiscount={res?.discount}
                         opening_time={res?.current_opening_time}

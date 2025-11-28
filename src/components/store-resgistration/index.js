@@ -22,12 +22,12 @@ const StoreRegistration = ({ configData }) => {
     const { flag, active } = router.query
     const { allData, activeStep } = useSelector((state) => state.storeRegData)
     const [formValues, setFormValues] = useState({})
-    const { mutate, isLoading: regIsloading } = usePostStoreRegistration(configData)
-    const { mutate: businessMutate, isLoading } = usePostBusiness();
+    const { mutate, isLoading: regIsloading } =
+        usePostStoreRegistration(configData)
+    const { mutate: businessMutate, isLoading } = usePostBusiness()
 
     const formSubmit = (value) => {
         const tempData = { ...formValues, value }
-
 
         mutate(
             { tempData, configData },

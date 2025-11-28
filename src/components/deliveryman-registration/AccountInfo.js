@@ -25,6 +25,7 @@ const AccountInfo = ({
             <Grid container spacing={3}>
                 <Grid item xs={12} lg={4}>
                     <CustomPhoneInput
+                        required
                         value={deliveryManFormik.values.phone}
                         onHandleChange={(value) => {
                             handleFieldChange('phone', formatPhoneNumber(value))
@@ -39,6 +40,7 @@ const AccountInfo = ({
                 </Grid>
                 <Grid item xs={12} lg={4}>
                     <CustomTextFieldWithFormik
+                        required
                         placeholder={t('Password')}
                         name="password"
                         type="password"
@@ -76,6 +78,7 @@ const AccountInfo = ({
                 </Grid>
                 <Grid item xs={12} lg={4}>
                     <CustomTextFieldWithFormik
+                        required
                         placeholder={t('Confirm Password')}
                         name="confirm_password"
                         type="password"

@@ -41,6 +41,7 @@ const Navigation = () => {
     if (typeof window !== 'undefined') {
         location = localStorage.getItem('location')
     }
+
     useEffect(() => {
         setUserLocation(location)
     }, [userLocationUpdate])
@@ -117,17 +118,32 @@ const Navigation = () => {
         }
     }, [global])
 
+
+
+
+
     return (
         <AppBarStyle
             disableGutters={true}
             scrolling={
-                userLocation && router.pathname !== '/home' ? scrolling : false
+                userLocation && router.pathname !== '/home' ? scrolling : router.pathname !== '/' && !userLocation ? scrolling : false
             }
             isSmall={isSmall}
         >
-            {(isSmall || location) && (
-                <TopNav cartListRefetch={cartListRefetch} />
+            {(isSmall && !location) ? (
+                <TopNav
+                    isSticky={isSticky}
+                    cartListRefetch={cartListRefetch}
+                />
+            ) : (
+                (location || (!location && router.pathname !== '/')) && (
+                    <TopNav
+                        isSticky={isSticky}
+                        cartListRefetch={cartListRefetch}
+                    />
+                )
             )}
+
 
             {!isSmall && (
                 <SecondNavbar

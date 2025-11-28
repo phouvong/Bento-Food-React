@@ -35,12 +35,15 @@ const ImageSection = ({
                         }}
                     >
                         {t('Cover Photo')}
+                        <span style={{ color: 'red', fontSize: '12px' }}>
+                            *
+                        </span>
                     </InputLabel>
                     <ImageUploaderWithPreview
                         type="file"
-                        height="7rem"
+                        height="6rem"
                         labelText={t('Click to upload')}
-                        hintText="Image format - jpg, png, jpeg, gif Image Size - maximum size 2 MB Image Ratio - 1:1"
+                        hintText="Image format -jpg, png, jpeg, gif Image Size - maximum size 2 MB Image Ratio - 1:1"
                         file={RestaurantJoinFormik.values.cover_photo ?? ''}
                         onChange={singleFileUploadHandlerForCoverPhoto}
                         imageOnChange={imageOnchangeHandlerForCoverPhoto}
@@ -54,7 +57,7 @@ const ImageSection = ({
                         sx={{ color: (theme) => theme.palette.neutral[1000] }}
                         marginTop="1rem"
                     >
-                        {t('JPG, JPEG, PNG Less Than 1MB (Ratio 2:1)')}
+                        {t('jpg, png, jpeg, gif Image Size - maximum size 2 MB(Ratio 2:1)')}
                     </Typography>
                 </Grid>
                 <Grid
@@ -82,13 +85,18 @@ const ImageSection = ({
                             }}
                         >
                             {t('Logo')}
+                            <span style={{ color: 'red', fontSize: '12px' }}>
+                                *
+                            </span>
                         </InputLabel>
 
                         <ImageUploaderWithPreview
                             type="file"
-                            height="7rem"
+                            height="6rem"
                             labelText={t('Click to upload')}
-                            hintText="Image format - jpg, png, jpeg, gif Image Size - maximum size 2 MB Image Ratio - 1:1"
+                            hintText={
+                                'Image format - jpg, png, jpeg, gif Image Size - maximum size 2 MB Image Ratio - 1:1'
+                            }
                             file={RestaurantJoinFormik?.values?.logo ?? ''}
                             onChange={singleFileUploadHandlerForImage}
                             imageOnChange={imageOnchangeHandlerForImage}
@@ -103,7 +111,7 @@ const ImageSection = ({
                         sx={{ color: (theme) => theme.palette.neutral[1000] }}
                         marginTop="1rem"
                     >
-                        {t('JPG, JPEG, PNG Less Than 1MB (Ratio 1:1)')}
+                        {t('jpg, png, jpeg, gif Image Size Less Than 2MB (Ratio 1:1)')}
                     </Typography>
                 </Grid>
             </Grid>

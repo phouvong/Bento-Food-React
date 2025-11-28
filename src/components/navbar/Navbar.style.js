@@ -29,33 +29,6 @@ export const ButtonContainer = styled(Stack)(({ theme, marginBottom }) => ({
     marginBottom: marginBottom ?? '40px',
 }))
 
-// export const AppBarStyle = styled(AppBar)(({ theme, scrolling, isSmall }) => ({
-//     background: 'transparent !important',
-//     boxShadow: 'none !important',
-//     top: !scrolling ? '0' : isSmall ? '0' : '-50px',
-//     WebkitAnimation:
-//         !isSmall && scrolling ? 'fadeInUp 0.4s' : 'fadeInDown 0.4s',
-//     animation: !isSmall && scrolling ? 'fadeInUp 0.4s' : 'fadeInDown 0.4s',
-//     '@keyframes fadeInUp': {
-//         '0%': {
-//             transform: 'translateY(30px)',
-//         },
-//         '100%': {
-//             transform: 'translateY(0)',
-//         },
-//     },
-//     '@keyframes fadeInDown': {
-//         '0%': {
-//             transform: 'translateY(-30px)',
-//         },
-//         '100%': {
-//             transform: 'translateY(0)',
-//         },
-//     },
-// }))
-
-// shouldForwardProp stops disableGutters, scrolling, and isSmall from reaching the DOM.
-// These props are used internally for styling logic, not for DOM output.
 export const AppBarStyle = styled(AppBar, {
     shouldForwardProp: (prop) => !['scrolling', 'isSmall', 'disableGutters'].includes(prop),
 })(({ theme, scrolling, isSmall }) => ({
@@ -100,12 +73,13 @@ export const NavMenuLink = styled(MenuLink)(({ theme }) => ({
         color: theme.palette.primary.main,
     },
 }))
-export const TopBarButton = styled(Button)(({ theme, formMobileMenu }) => ({
+export const TopBarButton = styled(Button)(({ theme, formMobileMenu,noLocation }) => ({
     padding: formMobileMenu === 'true' ? '7px 5px' : '',
     color: theme.palette.neutral[100],
-    backgroundColor: theme.palette.navbarBg,
+    backgroundColor: noLocation && theme.palette.neutral[200],
     minWidth: '40px',
     maxWidth: '200px',
+    borderRadius:"10px"
 }))
 export const CustomSwitch = styled(Switch)(({ theme, noimage }) => ({
     width: 42,
@@ -208,5 +182,7 @@ export const LefRightBorderBox = styled(Stack)(
         alignItems: 'center',
         justifyContent: 'center',
         paddingInline: '.5rem',
+
+
     })
 )

@@ -32,7 +32,7 @@ const NearByRestaurant = ({ dineIn }) => {
         currentLocation = JSON.parse(localStorage.getItem('currentLatLng'))
     }
     const { refetch, isRefetching } = useQuery(
-        ['all-restaurant', offset, page_limit],
+        ['all-restaurants', offset, page_limit],
         () =>
             RestaurantsApiNearBy.restaurants({
                 offset,
@@ -70,9 +70,8 @@ const NearByRestaurant = ({ dineIn }) => {
 
     const handleRouteToRestaurant = (restaurant) => {
         router.push({
-            pathname: `/restaurant/[id]`,
+            pathname: `/restaurants/${restaurant?.slug || restaurant?.id}`,
             query: {
-                id: `${restaurant?.slug ? restaurant?.slug : restaurant?.id}`,
                 restaurant_zone_id: restaurant?.zone_id,
             },
         })

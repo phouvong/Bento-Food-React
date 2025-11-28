@@ -1,7 +1,6 @@
 import React from 'react'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import CustomImageContainer from '../CustomImageContainer'
-import locationAlertImage from '../../../public/static/locationAlert.svg'
 import { Button, Typography, useTheme } from '@mui/material'
 import { t } from 'i18next'
 import { useDispatch } from 'react-redux'
@@ -22,9 +21,10 @@ const LocationModalAlert = ({ setOpenAddressModalAlert }) => {
             spacing={2}
         >
             <CustomImageContainer
-                src={locationAlertImage.src}
+                src="/static/locationAlert.svg"
                 width="70px"
                 height="70px"
+                alt="Location Alert"
             />
             <Typography variant="h5" color={theme.palette.neutral[1000]}>
                 {t('Insert delivery location')}
@@ -33,6 +33,7 @@ const LocationModalAlert = ({ setOpenAddressModalAlert }) => {
                 variant="subtitle2"
                 color={theme.palette.neutral[400]}
                 textAlign="center"
+                textTransform="none"
             >
                 {t(
                     'Please add you delivery location so that we can review if the restaurant is available to deliver in your area or not  '

@@ -33,9 +33,8 @@ const WishListRestaurantCard = ({ restaurant, deleteWishlistRes }) => {
 
     const routeToRestaurant = () => {
         router.push({
-            pathname: `/restaurant/[id]`,
+            pathname: `/restaurants/${slug || id}`,
             query: {
-                id: `${slug ? slug : id}`,
                 restaurant_zone_id: zone_id,
             },
         })

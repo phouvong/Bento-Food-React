@@ -128,7 +128,7 @@ const DeliverymanForm = ({ data, orderId,onClose,refetchTrackData }) => {
                     </Grid>
                     <Grid item xs={12} md={12} align="center">
                         <Stack alignItems="center" spacing={1}>
-                            <CustomTypographyGray sx={{ fontSize: '14px' }} fontweight="400">
+                            <CustomTypographyGray sx={{ fontSize: '14px' }} fontWeight="400">
                                 {t('Share your valuable feedback')}
                             </CustomTypographyGray>
                             <CustomTextFieldWithFormik

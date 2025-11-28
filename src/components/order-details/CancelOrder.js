@@ -8,7 +8,7 @@ import RadioGroup from '@mui/material/RadioGroup'
 import FormControl from '@mui/material/FormControl'
 import Radio from '@mui/material/Radio'
 import DialogActions from '@mui/material/DialogActions'
-import { Button, Stack } from '@mui/material'
+import { Button, Stack, TextField } from '@mui/material'
 import { RTL } from '../RTL/RTL'
 import CloseIcon from '@mui/icons-material/Close'
 import RefundSvg from '../order-history/RefundSvg'
@@ -21,11 +21,18 @@ const CancelOrder = ({
     cancelReasonsData,
     setModalOpen,
     handleOnSuccess,
+    setNote,
 }) => {
     const theme = useTheme()
+
     const handleChange = (event) => {
         setCancelReason(event.target.value)
     }
+
+    const handleNoteChange = (event) => {
+        setNote(event.target.value)
+    }
+
     const onClose = () => {
         setModalOpen(false)
     }
@@ -40,6 +47,7 @@ const CancelOrder = ({
             <button className="closebtn" onClick={onClose}>
                 <CloseIcon sx={{ fontSize: '16px' }} />
             </button>
+
             <CustomStackFullWidth spacing={1}>
                 <Stack alignItems="center" justifyContent="center">
                     <RefundSvg />
@@ -59,58 +67,55 @@ const CancelOrder = ({
                         {t('Please select a reason to cancel')}
                     </Typography>
                 </Stack>
+
                 <DialogContent sx={{ padding: '15px 14px' }}>
-                    <CustomStackFullWidth justifyContent="center">
+                    <CustomStackFullWidth justifyContent="center" spacing={2}>
                         <FormControl>
                             <RadioGroup
-                                aria-label="gender"
-                                name="gender1"
+                                aria-label="cancel-reason"
+                                name="cancel-reason"
                                 value={cancelReason}
                                 onChange={handleChange}
                                 component="fieldset"
                             >
-                                {cancelReasonsData &&
-                                    cancelReasonsData?.reasons?.length > 0 &&
-                                    cancelReasonsData?.reasons?.map(
-                                        (reason) => {
-                                            return (
-                                                <FormControlLabel
-                                                    sx={{
-                                                        color: (theme) =>
-                                                            theme.palette
-                                                                .neutral[500],
-                                                        border: '1px solid',
-                                                        borderColor: (theme) =>
-                                                            theme.palette
-                                                                .neutral[300],
-                                                        marginBottom: '10px',
-                                                        borderRadius: '10px',
-                                                        width: '100%',
-                                                        marginLeft: '0px',
-                                                    }}
-                                                    key={reason?.id}
-                                                    value={reason.reason}
-                                                    checked={
-                                                        reason.reason ===
-                                                        cancelReason
-                                                            ? cancelReason
-                                                            : false
-                                                    }
-                                                    editable={true}
-                                                    control={<Radio />}
-                                                    label={reason.reason}
-                                                />
-                                            )
-                                        }
-                                    )}
+                                {cancelReasonsData?.reasons?.map((reason) => (
+                                    <FormControlLabel
+                                        key={reason?.id}
+                                        value={reason.reason}
+                                        control={<Radio />}
+                                        label={reason.reason}
+                                        sx={{
+                                            color: (theme) =>
+                                                theme.palette.neutral[500],
+                                            border: '1px solid',
+                                            borderColor: (theme) =>
+                                                theme.palette.neutral[300],
+                                            mb: '10px',
+                                            borderRadius: '10px',
+                                            width: '100%',
+                                            ml: 0,
+                                        }}
+                                    />
+                                ))}
                             </RadioGroup>
                         </FormControl>
+
+                        {/* ✅ Added TextArea for custom note */}
+                        <TextField
+                            label={t('Additional Note')}
+                            placeholder={t('Write your note here...')}
+                            multiline
+                            minRows={3}
+                            fullWidth
+                            variant="outlined"
+                            onChange={handleNoteChange}
+                        />
                     </CustomStackFullWidth>
                 </DialogContent>
 
                 <DialogActions
                     sx={{
-                        padding: '0px 10px 0px 10px',
+                        padding: '0px 10px 10px 10px',
                         marginTop: '0px !important',
                     }}
                 >

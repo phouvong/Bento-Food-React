@@ -19,6 +19,7 @@ import { useRestaurentFoodSearch } from '@/hooks/custom-hooks/useRestaurentFoodS
 import { usePopularFoods } from '@/hooks/react-query/restaurants/usePopularFoods'
 import { useInView } from 'react-intersection-observer'
 import FloatingDiscountTag from '@/components/restaurant-details/FloatingDiscountTag'
+//import { useZoneAndLocation } from '@/utils/custom-hook/useZoneAndLocation'
 
 const getCombinedCategoriesAndProducts = (
     all_categories,
@@ -40,7 +41,7 @@ const getCombinedCategoriesAndProducts = (
     if (allCategories?.length > 0 && allProducts?.length > 0) {
         const data = allCategories?.map((item) => {
             const categoryItems = allProducts?.filter(
-                (product) => product?.category_ids[0]?.id == item?.id
+                (product) => Number(product?.category_ids[0]?.id) === Number(item?.id)
             )
             if (categoryItems.length > 0) {
                 return {
@@ -65,7 +66,7 @@ const getCombinedCategoriesAndProducts = (
     }
 }
 
-const RestaurantDetails = ({ restaurantData, configData }) => {
+const RestaurantDetails = ({ restaurantData }) => {
     const [data, setData] = useState([])
     const [allFoods, setAllFoods] = useState([])
     const [page_limit, setPageLimit] = useState(50)
@@ -162,15 +163,7 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
         setSelectedId(val);
     };
 
-    // useEffect(() => {
-    //     if (refs.current.length > 0) {
-    //         if (selectedId) {
-    //             refs.current[selectedId]?.scrollIntoView({
-    //                 behavior: 'smooth',
-    //             })
-    //         }
-    //     }
-    // }, [selectedId])
+
 
     useEffect(() => {
         if (!selectedId) return;
@@ -248,6 +241,7 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
         restaurantData?.free_delivery
     )
 
+
     return (
         <CustomContainer sx={{ mb: { xs: '7px', md: '0' } }}>
             <CustomStackFullWidth
@@ -283,7 +277,7 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
                                         top: {
                                             xs: '199px',
                                             sm: '270px',
-                                            md: '233px',
+                                            md: '100px',
                                         },
                                     }}
                                 >

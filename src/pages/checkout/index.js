@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import CheckOut from '../../components/checkout-page/CheckOut'
 import Meta from '../../components/Meta'
-import { Container, CssBaseline } from '@mui/material'
+import { Container, CssBaseline, NoSsr } from '@mui/material'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
@@ -29,10 +29,12 @@ const CheckoutLayout = ({ configdata }) => {
                             description=""
                             keywords=""
                         />
-                        {page === 'campaign' && <CheckOut />}
-                        {page !== 'campaign' && cartList?.length > 0 && (
-                            <CheckOut isDineIn={isDineIn} />
-                        )}
+                        <NoSsr>
+                            {page === 'campaign' && <CheckOut />}
+                            {page !== 'campaign' && cartList?.length > 0 && (
+                                <CheckOut isDineIn={isDineIn} />
+                            )}
+                        </NoSsr>
                     </CustomStackFullWidth>
                 </CustomContainer>
             </HomeGuard>

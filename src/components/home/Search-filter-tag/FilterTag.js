@@ -38,28 +38,35 @@ export const CustomChip = styled(Chip)(({ theme, query, value, isSticky }) => ({
     padding: isSticky ? '2px 3px' : '10px 10px',
     alignItems: 'center',
     color: value ? theme.palette.neutral[100] : '#767E8F',
-    fontSize: '14px',
+    fontSize: isSticky ? '13px' : '14px',
     fontWeight: '400',
-    height: isSticky ? '38px' : '40px',
+    height: isSticky ? '35px' : '40px',
     cursor: 'pointer',
     background: value && theme.palette.primary.main,
-    transition: `all ease .3s`,
+
+    // Smooth transitions for all property changes
+    transition: `all cubic-bezier(0.4, 0, 0.2, 1) 0.3s`,
+
     '&:hover': {
         color: `${theme.palette.whiteContainer.main}`,
     },
+
     '& .MuiChip-label': {
-        paddingLeft: isSticky ? '5px 6px' : '8px 8px',
-        paddingRight: isSticky ? '5px 6px' : '8px 8px',
+        padding: isSticky ? '5px 6px !important' : '8px 8px !important',
         maxWidth: '110px',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
+
+        // Smooth transition for label padding
+        transition: 'padding 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     },
+
     [theme.breakpoints.down('md')]: {
         fontSize: '12px',
         padding: '4px 4px',
         height: '31px',
     },
-}))
+}));
 
 export const SearchIconButton = styled(IconButton)(({ theme }) => ({
     backgroundColor: theme.palette.borderBottomBg,
@@ -76,6 +83,7 @@ const FilterTag = ({
     tags,
     page,
     restaurantType,
+    homePage
 }) => {
     const [scrollPosition, setScrollPosition] = useState(0)
     const [open, setOpen] = useState(false)
@@ -222,7 +230,7 @@ const FilterTag = ({
                                             sx={{
                                                 marginInlineEnd:
                                                     languageDirection ===
-                                                        'rtl' &&
+                                                    'rtl' &&
                                                     '10px !important',
                                             }}
                                             onClick={(event) =>
@@ -271,7 +279,7 @@ const FilterTag = ({
                                                 onClick={() =>
                                                     handleClick(item?.value)
                                                 }
-                                                //onDelete={() => handleDelete(item)}
+                                            //onDelete={() => handleDelete(item)}
                                             />
                                         )
                                     }
@@ -284,6 +292,7 @@ const FilterTag = ({
                                         handleClick={handleDropClick}
                                         activeFilters={activeFilters}
                                         forSearch={true}
+                                        homePage
                                     />
                                 )}
                         </Stack>
@@ -572,6 +581,7 @@ const FilterTag = ({
                     forcuisine="true"
                     setCuisineState={setCuisineState}
                     cuisineState={cuisineState}
+
                 />
             </Popover>
         </>

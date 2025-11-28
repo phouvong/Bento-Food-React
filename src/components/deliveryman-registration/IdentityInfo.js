@@ -30,6 +30,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import DialpadIcon from '@mui/icons-material/Dialpad'
+import { IMAGE_SUPPORTED_FORMATS } from '@/components/store-resgistration/StoreRegistrationForm'
+import toast from 'react-hot-toast'
 const acceptedFileInputFormat =
     'application/pdf,image/*,text/plain,.doc, .docx,.txt'
 const supportedFormatMultiImages = [
@@ -44,9 +46,6 @@ const supportedFormatMultiImages = [
 ]
 const IdentityInfo = ({
     deliveryManFormik,
-    identityHandler,
-    identityNumberHandler,
-    handleIdentityImageUpload,
     identityImage,
     setIdentityImage,
     handleFieldChange,
@@ -59,31 +58,21 @@ const IdentityInfo = ({
         setKey((prev) => prev + 1)
     }, [identityImage])
 
-    const singleFileUploadHandlerForImage = (value) => {
-        setIdentityImage(value.currentTarget.files[0])
-    }
-    const imageOnchangeHandlerForImage = (value) => {
-        setIdentityImage(value)
-    }
-    const [dateRange, setDateRange] = useState([])
 
-    const handleDateRange = (value) => {
-        setDateRange(val)
-    }
     const fileImagesHandler = (files) => {
+        // if (files && !IMAGE_SUPPORTED_FORMATS.includes(files.type)) {
+        //     toast.error('Unsupported file format! Please upload JPG, JPEG, GIF, or PNG.')
+        //     files= '' // reset input
+        //     return
+        // }
         setIdentityImage(files)
-    }
-    const [selectedDate, setSelectedDate] = useState(null)
-
-    const handleDateChange = (date) => {
-        setSelectedDate(moment(date?.$d).format('YYYY-MM-DD'))
     }
 
     return (
         <>
             <CustomBoxFullWidth>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} lg={6}>
+                    <Grid item xs={12} lg={4}>
                         <Grid container spacing={3}>
                             <Grid item xs={12}>
                                 <Box
@@ -92,6 +81,7 @@ const IdentityInfo = ({
                                     }}
                                 >
                                     <CustomSelectWithFormik
+                                        required
                                         selectFieldData={IDENTITY_TYPE}
                                         fieldSetGap="10px"
                                         inputLabel={t('Identity Type')}
@@ -141,6 +131,7 @@ const IdentityInfo = ({
                             </Grid>
                             <Grid item xs={12}>
                                 <CustomTextFieldWithFormik
+                                    required
                                     placeholder={t('Identity Number')}
                                     type="number"
                                     label={t('Identity Number')}
@@ -191,7 +182,7 @@ const IdentityInfo = ({
                             </Grid>
                         </Grid>
                     </Grid>
-                    <Grid item xs={12} md={6} lg={6}>
+                    <Grid item xs={12} md={6} lg={8}>
                         <Box key={key}>
                             <Stack
                                 alignItems="start"
@@ -214,7 +205,15 @@ const IdentityInfo = ({
                                                 theme.palette.neutral[500],
                                         }}
                                     >
-                                        {t('Identity Image')}
+                                        {t('Identity Image')}{' '}
+                                        <span
+                                            style={{
+                                                color: 'red',
+                                                fontSize: '12px',
+                                            }}
+                                        >
+                                            *
+                                        </span>
                                     </InputLabel>
                                     <Typography
                                         fontSize="12px"
@@ -224,7 +223,7 @@ const IdentityInfo = ({
                                         }}
                                     >
                                         {t(
-                                            'JPG, JPEG, PNG Less Than 1MB (Ratio 2:1)'
+                                            'JPG, JPEG, PNG ,WEBP, Less Than 1MB (Ratio 2:1)'
                                         )}
                                     </Typography>
                                 </Stack>
@@ -247,7 +246,7 @@ const IdentityInfo = ({
                                     }
                                     delivery={true}
                                     width="8.75rem"
-                                    height="100px"
+                                    height="100%"
                                     gridControl="true"
                                 />
 

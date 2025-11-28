@@ -22,7 +22,7 @@ const IncrementDecrementManager = (props) => {
                 <RemoveIcon
                     size="small"
                     sx={{
-                        color: (theme) => theme.palette.neutral[1000],
+                        color: (theme) => theme.palette.neutral[100],
                         width: '16px',
                     }}
                 />
@@ -37,7 +37,7 @@ const IncrementDecrementManager = (props) => {
                 <AddIcon
                     size="small"
                     sx={{
-                        color: (theme) => theme.palette.neutral[1000],
+                        color: (theme) => theme.palette.neutral[100],
                         width: '16px',
                     }}
                 />

@@ -59,25 +59,14 @@ const Banner = ({ isFetched, data }) => {
         if (banner.type === 'restaurant_wise') {
             router.push(
                 {
-                    pathname: '/restaurant/[id]',
-                    query: {
-                        id: `${
-                            banner?.restaurant?.slug
-                                ? banner?.restaurant?.slug
-                                : banner?.restaurant?.id
-                        }`,
-                    },
+                    pathname: `/restaurants/${banner?.restaurant?.slug || banner?.restaurant?.id}`,
                 },
                 undefined,
                 { shallow: true }
             )
         } else if (banner?.available_date_ends) {
             router.push(
-                {
-                    pathname: `campaigns/${
-                        banner?.slug ? banner?.slug : banner?.id
-                    }`,
-                },
+                {pathname: `campaigns/${banner?.slug || banner?.id}`},
                 undefined,
                 { shallow: true }
             )
@@ -161,8 +150,8 @@ const Banner = ({ isFetched, data }) => {
     }
     const mergeBanner = [
         ...(data?.data?.banners || []),
-        ...(data?.data?.campaigns || [])
-    ];
+        ...(data?.data?.campaigns || []),
+    ]
     const bData = mergeBanner || bannerData;
 
     return (
@@ -170,16 +159,16 @@ const Banner = ({ isFetched, data }) => {
             sx={{
                 paddingTop: {
                     xs: bData?.length > 0 && '15px',
-                    md: bData?.length > 0 && '10px',
+                    md: bData?.length > 0 && '20px',
                 },
-                paddingBottom: { xs: '30px', md: '20px' },
+                paddingBottom: { xs: '30px', md: '35px' },
             }}
         >
             <SliderCustom
                 gap=".8rem"
                 onMouseEnter={() => setHoverOn(true)}
                 onMouseLeave={() => setHoverOn(false)}
-                sx={{minHeight:{xs:"165px",md:"185px"}}}
+                sx={{ minHeight: { xs: '165px', md: '185px' } }}
             >
                 {isFetched ? (
                     <Slider {...bannerSettings}>
@@ -196,12 +185,7 @@ const Banner = ({ isFetched, data }) => {
                 ) : (
                     <Slider {...bannerSettings}>
                         {[...Array(4)].map((i) => {
-                            return (
-                                <BannerCard
-                                    key={i}
-                                    onlyShimmer
-                                />
-                            )
+                            return <BannerCard key={i} onlyShimmer />
                         })}
                     </Slider>
                 )}

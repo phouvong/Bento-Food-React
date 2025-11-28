@@ -42,11 +42,14 @@ const AppLinks = ({ download_app_data, isFooter }) => {
             spacing={2}
             sx={{ mt: 2 }}
             gap={languageDirection === 'rtl' && '10px'}
+            justifyContent={{ xs: 'center', sm: 'left' }}
         >
             {download_app_data?.react_download_apps_play_store
                 ?.react_download_apps_play_store_status === '1' && (
                 <CustomButton
-                   sx={{backgroundColor:theme=>theme.palette.neutral[1000]}}
+                    sx={{
+                        backgroundColor: (theme) => theme.palette.neutral[1000],
+                    }}
                     onClick={() =>
                         goToApp(
                             download_app_data?.react_download_apps_play_store
@@ -83,7 +86,9 @@ const AppLinks = ({ download_app_data, isFooter }) => {
             {download_app_data?.react_download_apps_app_store
                 ?.react_download_apps_link_status === '1' && (
                 <CustomButton
-                    sx={{backgroundColor:theme=>theme.palette.neutral[1000]}}
+                    sx={{
+                        backgroundColor: (theme) => theme.palette.neutral[1000],
+                    }}
                     onClick={() =>
                         goToApp(
                             download_app_data?.react_download_apps_app_store

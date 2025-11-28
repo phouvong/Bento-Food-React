@@ -28,6 +28,7 @@ import OwnerForm from './OwnerForm'
 import AccountInfo from './AccountInfo'
 import ValidationSchemaForRestaurant from './ValidationSchemaForRestaurant'
 import { GoogleApi } from '@/hooks/react-query/config/googleApi'
+
 import useGetZoneList from '@/hooks/react-query/zone-list/zone-list'
 import LangTab from './LanTab'
 import CustomTextFieldWithFormik from '../form-fields/CustomTextFieldWithFormik'
@@ -39,6 +40,12 @@ import { useGetLocation } from '@/utils/custom-hook/useGetLocation'
 import { formatPhoneNumber } from '@/utils/customFunctions'
 import toast from 'react-hot-toast'
 import BusinessTin from '@/components/store-resgistration/BusinessTin'
+export const IMAGE_SUPPORTED_FORMATS = [
+    'image/jpg',
+    'image/jpeg',
+    'image/gif',
+    'image/png',
+]
 
 export const generateInitialValues = (languages, allData, configData) => {
     const initialValues = {
@@ -64,9 +71,9 @@ export const generateInitialValues = (languages, allData, configData) => {
         delivery_time_type: allData?.delivery_time_type || '',
         // additional_documents: allData?.additional_documents || [],
         additional_data: { ...allData?.additional_data } || {},
-        tin: allData?.tin || "",
-        tin_expire_date: allData?.tin_expire_date || "",
-        tin_certificate_image: allData?.tin_certificate_image || "",
+        tin: allData?.tin || '',
+        tin_expire_date: allData?.tin_expire_date || '',
+        tin_certificate_image: allData?.tin_certificate_image || '',
     }
 
     const updatedInitialValues = { ...initialValues }
@@ -114,22 +121,27 @@ const StoreRegistrationForm = ({
     const [selectedLanguage, setSelectedLanguage] = React.useState('en')
     const [selectedZone, setSelectedZone] = React.useState(null)
     const [inZone, setInZone] = React.useState(null)
-    const { allData, activeStep, zoneOptions } = useSelector((state) => state.storeRegData);
-    const { businessLogo } = useSelector((state) => state.globalSettings);
-    const [rerenderMap, setRerenderMap] = useState(false);
-    const landingFormData = router.query.data && JSON.parse(router.query.data);
+    const { allData, activeStep, zoneOptions } = useSelector(
+        (state) => state.storeRegData
+    )
+    const { businessLogo } = useSelector((state) => state.globalSettings)
+    const [rerenderMap, setRerenderMap] = useState(false)
+    const landingFormData = router.query.data && JSON.parse(router.query.data)
     const [additionalDataKey, setAdditionalDataKey] = useState(0)
-    const [selectedDates, setSelectedDates] = useState(null);
-    const [file, setFile] = useState(null);
-    const [preview, setPreview] = useState(null);
-
+    const [selectedDates, setSelectedDates] = useState(null)
+    const [file, setFile] = useState(null)
+    const [preview, setPreview] = useState(null)
+     const { location, formatted_address } = useSelector(
+        (state) => state.addressData
+    )
     const initialValues = generateInitialValues(
         configData?.language,
         allData,
         configData
     )
-const [submitForm,setSubmitForm]=useState(false)
-    const { coords, isGeolocationAvailable, isGeolocationEnabled } = useGeolocated({
+    const [submitForm, setSubmitForm] = useState(false)
+    const { coords, isGeolocationAvailable, isGeolocationEnabled } =
+        useGeolocated({
             positionOptions: {
                 enableHighAccuracy: false,
             },
@@ -168,7 +180,7 @@ const [submitForm,setSubmitForm]=useState(false)
 
             case 'email':
                 let emailValidation = Yup.string().email(
-                    'Invalid email address'
+                    t('Invalid email address')
                 )
 
                 if (isRequired) {
@@ -297,7 +309,6 @@ const [submitForm,setSubmitForm]=useState(false)
         return Yup.object().shape(dynamicSchema)
     }
 
-
     const RestaurantJoinFormik = useFormik({
         initialValues,
         validationSchema: ValidationSchemaForRestaurant(
@@ -308,13 +319,11 @@ const [submitForm,setSubmitForm]=useState(false)
         onSubmit: async (values, helpers) => {
             try {
                 if (inZone) {
-                    formSubmitOnSuccess(values);
+                    formSubmitOnSuccess(values)
                 } else {
-                    toast.error(t("Please select a zone"));
+                    toast.error(t('Please select a zone'))
                 }
-            } catch (err) {
-            }
-
+            } catch (err) {}
         },
     })
 
@@ -341,39 +350,37 @@ const [submitForm,setSubmitForm]=useState(false)
     }, [RestaurantJoinFormik?.values?.zoneId])
 
     const formSubmitOnSuccess = (values) => {
-
         setFormValues(values)
 
         dispatch(setActiveStep(1))
         dispatch(setAllData(values))
     }
 
-    const hydratedRef = useRef(false);
+    const hydratedRef = useRef(false)
 
     useEffect(() => {
-        if (!landingFormData) return;
+        if (!landingFormData) return
 
         // Run only once
-        if (hydratedRef.current) return;
-        hydratedRef.current = true;
+        if (hydratedRef.current) return
+        hydratedRef.current = true
 
         if (landingFormData?.restaurant_name) {
             RestaurantJoinFormik.setFieldValue('restaurant_name', {
                 ...RestaurantJoinFormik.values.restaurant_name,
                 en: landingFormData.restaurant_name,
-            });
+            })
         }
 
-
         if (landingFormData?.zoneId) {
-            setSelectedZone(landingFormData.zoneId);
-            RestaurantJoinFormik.setFieldValue('zoneId', landingFormData.zoneId);
+            setSelectedZone(landingFormData.zoneId)
+            RestaurantJoinFormik.setFieldValue('zoneId', landingFormData.zoneId)
         }
 
         if (businessLogo) {
-            RestaurantJoinFormik.setFieldValue('logo', businessLogo);
+            RestaurantJoinFormik.setFieldValue('logo', businessLogo)
         }
-    }, [landingFormData]);
+    }, [landingFormData])
 
     const fNameHandler = (value) => {
         RestaurantJoinFormik.setFieldValue('f_name', value)
@@ -418,12 +425,24 @@ const [submitForm,setSubmitForm]=useState(false)
         RestaurantJoinFormik.setFieldValue('password', value)
     }
     const singleFileUploadHandlerForImage = (value) => {
+        const file = value.target.files[0]
+        if (value && !IMAGE_SUPPORTED_FORMATS.includes(file.type)) {
+            toast.error('Unsupported file format! Please upload JPG, JPEG, GIF, or PNG.')
+            value.target.value = ''
+            return
+        }
         RestaurantJoinFormik.setFieldValue('logo', value.currentTarget.files[0])
     }
     const imageOnchangeHandlerForImage = (value) => {
         RestaurantJoinFormik.setFieldValue('logo', value)
     }
     const singleFileUploadHandlerForCoverPhoto = (value) => {
+        const file = value.currentTarget.files[0]
+        if (value && !IMAGE_SUPPORTED_FORMATS.includes(file.type)) {
+            toast.error('Unsupported file format! Please upload JPG, JPEG, GIF, or PNG.')
+            value.target.value = ''
+            return
+        }
         RestaurantJoinFormik.setFieldValue(
             'cover_photo',
             value.currentTarget.files[0]
@@ -441,21 +460,20 @@ const [submitForm,setSubmitForm]=useState(false)
     }
     const singleFileUploadHandlerForTinFile = (value) => {
         // const file = e.currentTarget.files[0];
-        RestaurantJoinFormik.setFieldValue("tin_certificate_image", value);
-    };
+        RestaurantJoinFormik.setFieldValue('tin_certificate_image', value)
+    }
     const imageOnchangeHandlerForTinImage = (value) => {
-        RestaurantJoinFormik.setFieldValue("tin_certificate_image", value);
-    };
+        RestaurantJoinFormik.setFieldValue('tin_certificate_image', value)
+    }
     useEffect(() => {
-        if(selectedDates && selectedDates[0]){
-            const tempSelectedDates = new Date(selectedDates[0]);
+        if (selectedDates && selectedDates[0]) {
+            const tempSelectedDates = new Date(selectedDates[0])
             RestaurantJoinFormik.setFieldValue(
-                "tin_expire_date",
+                'tin_expire_date',
                 tempSelectedDates
-            );
+            )
         }
-
-    }, [selectedDates]);
+    }, [selectedDates])
     const cuisinesHandler = (selectedOptions) => {
         const newValues = selectedOptions.map((item) => item.value)
 
@@ -488,21 +506,22 @@ const [submitForm,setSubmitForm]=useState(false)
 
     useEffect(() => {
         if (!zoneOptions || zoneOptions.length === 0) {
-            zoneListRefetch();
+            zoneListRefetch()
         }
-    }, [zoneOptions]);
+    }, [zoneOptions])
 
     const fallbackZoneOptions = useMemo(() => {
-        if (!zoneList || zoneList.length === 0) return [];
-        return zoneList.map(zone => ({
+        if (!zoneList || zoneList.length === 0) return []
+        return zoneList.map((zone) => ({
             label: zone.name,
             value: zone.id,
-        }));
-    }, [zoneList]);
+        }))
+    }, [zoneList])
 
-    const zoneOptionData = zoneOptions && zoneOptions.length > 0
-        ? zoneOptions
-        : fallbackZoneOptions;
+    const zoneOptionData =
+        zoneOptions && zoneOptions.length > 0
+            ? zoneOptions
+            : fallbackZoneOptions
 
     const { data: zoneData, refetch } = useQuery(
         ['zoneId'],
@@ -512,8 +531,6 @@ const [submitForm,setSubmitForm]=useState(false)
             retry: 1,
         }
     )
-
-
 
     let tabs = []
     configData?.language?.forEach((lan) => {
@@ -546,15 +563,25 @@ const [submitForm,setSubmitForm]=useState(false)
 
     useEffect(() => {
         if (landingFormData?.restaurant_address) {
-            setLocations( landingFormData.restaurant_address)
+            handleLocation(landingFormData.restaurant_address)
         } else {
-            setLocations(configData?.default_location)
+            handleLocation(configData?.default_location)
+        }
+
+        // 🧹 Cleanup (clear) function
+        return () => {
+            handleLocation(null) // or reset to default values if needed
         }
     }, [])
+    useEffect(() => {
+       if(RestaurantJoinFormik?.restaurant_address?.values){
+       setLocations(RestaurantJoinFormik?.restaurant_address?.values)
+       }
+    }, [])
     const tinNumberHandler = (value) => {
-        const filtered = value.replace(/[^0-9\-\/]/g, "")
-        RestaurantJoinFormik.setFieldValue("tin", filtered);
-    };
+        const filtered = value.replace(/[^0-9\-\/]/g, '')
+        RestaurantJoinFormik.setFieldValue('tin', filtered)
+    }
 
     return (
         <CustomStackFullWidth
@@ -586,7 +613,7 @@ const [submitForm,setSubmitForm]=useState(false)
                     >
                         {t('Restaurant Info')}
                     </Typography>
-                    
+
                     <CustomStackFullWidth
                         // padding={{ xs: '7px', md: '2rem' }}
                         mt="20px"
@@ -708,7 +735,12 @@ const [submitForm,setSubmitForm]=useState(false)
                                             }
                                             handleLocation={handleLocation}
                                             setInZone={setInZone}
-                                            zoneId={RestaurantJoinFormik?.values?.zoneId}
+                                            zoneId={
+                                                RestaurantJoinFormik?.values
+                                                    ?.zoneId
+                                            }
+                                            locationFrom={landingFormData?.restaurant_address}
+                                            location={location}
                                         />
                                     </Box>
 
@@ -777,7 +809,7 @@ const [submitForm,setSubmitForm]=useState(false)
                         // backgroundColor: (theme) => alpha(theme.palette.neutral[400], 0.1),
 
                         borderRadius: '8px',
-                        padding:"1rem"
+                        padding: '1rem',
                     }}
                 >
                     <BusinessTin
@@ -787,8 +819,12 @@ const [submitForm,setSubmitForm]=useState(false)
                         tinNumberHandler={tinNumberHandler}
                         selectedDates={selectedDates}
                         setSelectedDates={setSelectedDates}
-                        imageOnchangeHandlerForTinImage={imageOnchangeHandlerForTinImage}
-                        singleFileUploadHandlerForTinFile={singleFileUploadHandlerForTinFile}
+                        imageOnchangeHandlerForTinImage={
+                            imageOnchangeHandlerForTinImage
+                        }
+                        singleFileUploadHandlerForTinFile={
+                            singleFileUploadHandlerForTinFile
+                        }
                         preview={preview}
                         setFile={setFile}
                         file={file}

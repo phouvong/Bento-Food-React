@@ -1,4 +1,5 @@
 import React from 'react'
+import { NoSsr } from '@mui/material'
 import { CustomHeader } from '@/api/Headers'
 import HeroSectionWithSearch from '../../components/home/hero-section-with-search'
 import { useRouter } from 'next/router'
@@ -13,11 +14,13 @@ const SearchPage = ({ configData }) => {
     return (
         <>
             <HomeGuard>
-                <ScrollToTop />
-                <HeroSectionWithSearch query={query} />
-                <CustomContainer>
-                    <ProductSearchPage query={query} configData={configData} />
-                </CustomContainer>
+                <NoSsr>
+                    <ScrollToTop />
+                    <HeroSectionWithSearch query={query} />
+                    <CustomContainer>
+                        <ProductSearchPage query={query} configData={configData} />
+                    </CustomContainer>
+                </NoSsr>
             </HomeGuard>
         </>
     )

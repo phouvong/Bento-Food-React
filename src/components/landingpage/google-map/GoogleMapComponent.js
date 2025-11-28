@@ -30,7 +30,7 @@ const GoogleMapComponent = ({
     height,
     isGps,
     polygonPaths,
-                                handleAgreeLocation
+    handleAgreeLocation
 }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
@@ -38,7 +38,7 @@ const GoogleMapComponent = ({
         width: '100%',
         height: height ? height : isSmall ? '350px' : '400px',
         borderRadiusTopLeft: '10px',
-        borderRadiusTopRight:"10px",
+        borderRadiusTopRight: "10px",
         border: `1px solid ${theme.palette.neutral[300]}`,
     }
 
@@ -137,7 +137,7 @@ const GoogleMapComponent = ({
         }
     }, [polygonPaths, map])
 
-    const handleCurrentLocation=()=>{
+    const handleCurrentLocation = () => {
         handleAgreeLocation?.()
     }
 
@@ -151,12 +151,12 @@ const GoogleMapComponent = ({
                 direction="column"
                 spacing={1}
             >
-                <IconWrapper sx={{borderRadius:"5px"}} onClick={handleCurrentLocation}>
+                <IconWrapper sx={{ borderRadius: "5px" }} onClick={handleCurrentLocation}>
                     <GpsFixedIcon />
                 </IconWrapper>
-                <Stack sx={{backgroundColor:theme=>theme.palette.neutral[100]}}>
+                <Stack sx={{ backgroundColor: theme => theme.palette.neutral[100] }}>
                     <IconWrapper
-                        sx={{borderRadius:"5px"}}
+                        sx={{ borderRadius: "5px" }}
                         padding={{ xs: '3px', sm: '5px' }}
                         onClick={handleZoomIn}
                         disabled={zoom > 21}
@@ -164,7 +164,7 @@ const GoogleMapComponent = ({
                         <AddIcon color="primary" />
                     </IconWrapper>
                     <IconWrapper
-                        sx={{borderRadius:"5px"}}
+                        sx={{ borderRadius: "5px" }}
                         padding={{ xs: '3px', sm: '5px' }}
                         onClick={handleZoomOut}
                         disabled={zoom < 1}

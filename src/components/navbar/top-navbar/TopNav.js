@@ -1,6 +1,5 @@
 import { CustomStackForLoaction } from '@/styled-components/CustomStyles.style'
 import { Box, Card, Container, NoSsr, Stack } from '@mui/material'
-import Skeleton from '@mui/material/Skeleton'
 import Toolbar from '@mui/material/Toolbar'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -12,9 +11,12 @@ import DrawerMenu from '../DrawerMenu'
 import LogoSide from '../second-navbar/LogoSide'
 import ThemeSwitches from './ThemeSwitches'
 import AddressReselect from './address-reselect/AddressReselect'
+import CustomImage from '@/components/CustomNextImage'
+import { useRouter } from 'next/router'
 
-const TopNav = ({ cartListRefetch }) => {
+const TopNav = ({ cartListRefetch, isSticky }) => {
     const theme = useTheme()
+    const router = useRouter()
 
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const [userLocation, setUserLocation] = useState(null)
@@ -42,6 +44,10 @@ const TopNav = ({ cartListRefetch }) => {
     if (typeof window !== 'undefined') {
         guestId = localStorage.getItem('guest_id')
     }
+    let currentLocation = undefined
+    if (typeof window !== 'undefined') {
+        currentLocation = JSON.parse(localStorage.getItem('currentLatLng'))
+    }
 
     const {
         data: guestData,
@@ -61,6 +67,15 @@ const TopNav = ({ cartListRefetch }) => {
             guestId = guestData.guest_id
         }
     }, [guestData])
+
+    const handleClick = () => {
+        const shouldRedirectToHome = zoneid && currentLocation?.lat && currentLocation?.lng
+        const newPath = shouldRedirectToHome ? '/home' : '/'
+
+        router.push(newPath, undefined, { shallow: true }).then(() => {
+            window.scrollTo(0, 0)
+        })
+    }
 
     return (
         <Card
@@ -88,14 +103,23 @@ const TopNav = ({ cartListRefetch }) => {
                             <CustomStackForLoaction
                                 direction="row"
                                 spacing={2}
+                                sx={{
+                                    "> img": {
+                                        width: "auto",
+                                        height: "auto",
+                                        maxHeight: "24px",
+                                    }
+                                }}
                             >
-                                <LogoSide
-                                    global={global}
-                                    width="unset"
-                                    businessLogo={businessLogo}
-                                />
+                                {/*<LogoSide*/}
+                                {/*    global={global}*/}
+                                {/*    width="auto"*/}
+                                {/*    businessLogo={businessLogo}*/}
+                                {/*/>*/}
+                                <CustomImage src={businessLogo} width={100} height={24} onClick={handleClick} alt="logo" priority />
 
                                 <AddressReselect
+                                    isSticky={isSticky}
                                     location={userLocation}
                                     userLocationUpdate={userLocationUpdate}
                                 />

@@ -9,8 +9,7 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import StoreRegPaymentCard from './StoreRegPaymentCard'
 import { useSelector } from 'react-redux'
-// import { ResetButton } from 'components/profile/basic-information/BasicInformationForm'
-// import { SaveButton } from 'components/profile/basic-information/Profile.style'
+
 
 const PaymentSelect = ({ submitBusiness, resData, isLoading, configData }) => {
     const [selectType, setSelectType] = useState('pay_now')
@@ -75,7 +74,7 @@ const PaymentSelect = ({ submitBusiness, resData, isLoading, configData }) => {
             </Stack>
             <CustomStackFullWidth
                 direction={{ xs: 'column', md: 'row' }}
-                spacing={2}
+                gap="1rem"
                 mt="1rem"
             >
                 <Stack

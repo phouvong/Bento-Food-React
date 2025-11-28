@@ -90,7 +90,7 @@ const RestaurantCategoryBar = (props) => {
                 buttonLeft -
                 scrollerLeft +
                 (selectedButton.offsetWidth - scrollerRef.current.offsetWidth) /
-                    2
+                2
             scrollerRef.current.scrollLeft = offset
         }
     }, [selectedId])
@@ -156,14 +156,14 @@ const RestaurantCategoryBar = (props) => {
                 container
                 sx={{
                     position: 'sticky',
-                    top: { xs: '168px', sm: '200px', md: '231px' },
+                    top: { xs: "173px", md: "160px" }, // Dynamic height based on TopBanner
                     background: (theme) => theme.palette.neutral[1800],
                     padding: {
                         xs: '5px 5px 7px 10px',
                         sm: '4px 5px 0px 0px',
                         md: '4px 5px 0px 0px',
                     },
-                    zIndex: 999,
+                    zIndex: 998, // Lower z-index than TopBanner
                     boxShadow: `0px 4px 15px 0px ${alpha(
                         theme.palette.primary.main,
                         0.1
@@ -241,8 +241,8 @@ const RestaurantCategoryBar = (props) => {
                             searchBoxOpen
                                 ? 'flex-end'
                                 : isSmall
-                                ? 'space-between'
-                                : 'flex-end'
+                                    ? 'space-between'
+                                    : 'flex-end'
                         }
                         alignItems="center"
                         paddingLeft="15px"

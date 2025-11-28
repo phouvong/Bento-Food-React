@@ -24,14 +24,16 @@ import { handleFilterData } from '../category/helper'
 import CustomEmptyResult from '../empty-view/CustomEmptyResult'
 import RestaurantFilterCard from '../home/restaurant/RestaurantFilterCard'
 import { mockData } from './restaurantpageData'
+import { useRouter } from 'next/router'
 
 const RestaurantList = () => {
     const { t } = useTranslation()
     const theme = useTheme()
+    const router = useRouter();
     const [checkedFilterKey, setCheckedFilterKey] = useState(mockData)
     const [filterByData, setFilterByData] = useState({})
     const [forFilter, setForFilter] = useState(false)
-    const [page_limit, setPageLimit] = useState(16)
+    const [page_limit, setPageLimit] = useState(8)
     const [offset, setOffset] = useState(1)
     const [searchKey, setSearchKey] = useState('')
     const [anchorEl, setAnchorEl] = useState(null)
@@ -48,8 +50,15 @@ const RestaurantList = () => {
         }
     }, [])
 
+    useEffect(() => {
+        if (offset !== undefined) {
+            const url = `/restaurants?page=${offset}`;
+            window.history.replaceState(null, "", url);
+        }
+    }, [offset]);
+
     const { isLoading, data, isError, error, refetch, isRefetching } = useQuery(
-        ['all-restaurant', offset, page_limit, filterByData, priceAndRating],
+        ['all-restaurants', offset, page_limit, filterByData, priceAndRating],
         () =>
             RestaurantsApi.restaurants({
                 offset,

@@ -48,10 +48,12 @@ const VisibleVariations = (props) => {
                         return (
                             <Stack direction="row" alignItems="center">
                                 <OrderFoodSubtitle
+                                    sx={{marginInlineEnd:"4px"}}
                                     orderdetailscolor={orderDetailsColor}
                                 >
                                     {item?.variationName}
                                 </OrderFoodSubtitle>
+
                                 {item?.variationValues?.length > 0 && (
                                     <OrderFoodSubtitle
                                         orderdetailscolor={orderDetailsColor}
@@ -70,7 +72,7 @@ const VisibleVariations = (props) => {
                                         {parentIndex + 1 !==
                                         variationsWithChild?.length
                                             ? ','
-                                            : ''}
+                                            : ' '}
                                     </OrderFoodSubtitle>
                                 )}
                             </Stack>

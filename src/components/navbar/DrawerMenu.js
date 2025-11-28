@@ -77,7 +77,7 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
             } else {
                 router.push('/home')
             }
-        } catch (err) {}
+        } catch (err) { }
     }
 
     const toggleDrawer = (openDrawer) => (event) => {
@@ -140,7 +140,7 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
         res: {
             text: 'Restaurants',
             items: popularRestuarants?.data?.map((i) => i),
-            path: '/restaurant',
+            path: '/restaurants',
         },
         cuisine: {
             text: 'Cuisines',
@@ -195,64 +195,62 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                                     alpha(theme.palette.neutral[300], 0.3),
                             }}
                         >
-                            {location && (
-                                <ListItemText
-                                    primary={
-                                        <Typography sx={{ fontSize: '12px' }}>
-                                            {t('Home')}
-                                        </Typography>
-                                    }
-                                    onClick={() => handleRoute('/home')}
-                                />
-                            )}
+                            <ListItemText
+                                primary={
+                                    <Typography sx={{ fontSize: '12px' }}>
+                                        {t('Home')}
+                                    </Typography>
+                                }
+                                onClick={() => handleRoute('/home')}
+                            />
                         </ListItemButton>
 
-                        {location && (
-                            <>
-                                <CollapsableMenu
-                                    value={collapsableMenu.cat}
-                                    setOpenDrawer={setOpenDrawer}
-                                    toggleDrawers={toggleDrawer}
-                                    pathName="/categories"
+
+                        <>
+                            <CollapsableMenu
+                                value={collapsableMenu.cat}
+                                setOpenDrawer={setOpenDrawer}
+                                toggleDrawers={toggleDrawer}
+                                pathName="/categories"
+                            />
+                            <CollapsableMenu
+                                value={collapsableMenu.res}
+                                setOpenDrawer={setOpenDrawer}
+                                toggleDrawers={toggleDrawer}
+                                pathName="/restaurant"
+                            />
+                            <CollapsableMenu
+                                value={collapsableMenu.cuisine}
+                                setOpenDrawer={setOpenDrawer}
+                                toggleDrawers={toggleDrawer}
+                                pathName="/cuisines"
+                            />
+                            <ListItemButton
+                                sx={{
+                                    borderBottom: '1px solid',
+                                    borderBottomColor: (theme) =>
+                                        alpha(
+                                            theme.palette.neutral[300],
+                                            0.3
+                                        ),
+                                    '&:hover': {
+                                        backgroundColor: 'primary.main',
+                                    },
+                                }}
+                            >
+                                <ListItemText
+                                    primary={
+                                        <Typography
+                                            sx={{ fontSize: '12px' }}
+                                        >
+                                            {t('Profile')}
+                                        </Typography>
+                                    }
+                                    onClick={handleRouteToUserInfo}
                                 />
-                                <CollapsableMenu
-                                    value={collapsableMenu.res}
-                                    setOpenDrawer={setOpenDrawer}
-                                    toggleDrawers={toggleDrawer}
-                                    pathName="/restaurant"
-                                />
-                                <CollapsableMenu
-                                    value={collapsableMenu.cuisine}
-                                    setOpenDrawer={setOpenDrawer}
-                                    toggleDrawers={toggleDrawer}
-                                    pathName="/cuisines"
-                                />
-                                <ListItemButton
-                                    sx={{
-                                        borderBottom: '1px solid',
-                                        borderBottomColor: (theme) =>
-                                            alpha(
-                                                theme.palette.neutral[300],
-                                                0.3
-                                            ),
-                                        '&:hover': {
-                                            backgroundColor: 'primary.main',
-                                        },
-                                    }}
-                                >
-                                    <ListItemText
-                                        primary={
-                                            <Typography
-                                                sx={{ fontSize: '12px' }}
-                                            >
-                                                {t('Profile')}
-                                            </Typography>
-                                        }
-                                        onClick={handleRouteToUserInfo}
-                                    />
-                                </ListItemButton>
-                            </>
-                        )}
+                            </ListItemButton>
+                        </>
+
 
                         <ListItemButton
                             sx={{
@@ -357,41 +355,37 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                                         alpha(theme.palette.neutral[300], 0.3),
                                 }}
                             >
-                                {location && (
-                                    <ListItemText
-                                        primary={
-                                            <Typography
-                                                sx={{ fontSize: '12px' }}
-                                            >
-                                                {t('Home')}
-                                            </Typography>
-                                        }
-                                        onClick={() => handleRoute('/home')}
-                                    />
-                                )}
+                                <ListItemText
+                                    primary={
+                                        <Typography
+                                            sx={{ fontSize: '12px' }}
+                                        >
+                                            {t('Home')}
+                                        </Typography>
+                                    }
+                                    onClick={() => handleRoute('/home')}
+                                />
                             </ListItemButton>
-                            {location && (
-                                <>
-                                    <CollapsableMenu
-                                        value={collapsableMenu.cat}
-                                        setOpenDrawer={setOpenDrawer}
-                                        toggleDrawers={toggleDrawer}
-                                        pathName="/categories"
-                                    />
-                                    <CollapsableMenu
-                                        value={collapsableMenu.res}
-                                        setOpenDrawer={setOpenDrawer}
-                                        toggleDrawers={toggleDrawer}
-                                        pathName="/restaurant"
-                                    />
-                                    <CollapsableMenu
-                                        value={collapsableMenu.cuisine}
-                                        setOpenDrawer={setOpenDrawer}
-                                        toggleDrawers={toggleDrawer}
-                                        pathName="/cuisines"
-                                    />
-                                </>
-                            )}
+                            <>
+                                <CollapsableMenu
+                                    value={collapsableMenu.cat}
+                                    setOpenDrawer={setOpenDrawer}
+                                    toggleDrawers={toggleDrawer}
+                                    pathName="/categories"
+                                />
+                                <CollapsableMenu
+                                    value={collapsableMenu.res}
+                                    setOpenDrawer={setOpenDrawer}
+                                    toggleDrawers={toggleDrawer}
+                                    pathName="/restaurants"
+                                />
+                                <CollapsableMenu
+                                    value={collapsableMenu.cuisine}
+                                    setOpenDrawer={setOpenDrawer}
+                                    toggleDrawers={toggleDrawer}
+                                    pathName="/cuisines"
+                                />
+                            </>
 
                             <ListItemButton
                                 sx={{

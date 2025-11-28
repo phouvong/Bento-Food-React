@@ -4,10 +4,10 @@ import { useQuery } from 'react-query'
 import { OrderApi } from '@/hooks/react-query/config/orderApi'
 import Meta from '../../../components/Meta'
 import { useSelector } from 'react-redux'
-import { Container, CssBaseline } from '@mui/material'
+import { Container, CssBaseline, NoSsr } from '@mui/material'
 import TrackingPage from '../../../components/order-tracking/TrackingPage'
 import { getGuestId } from '@/components/checkout-page/functions/getGuestUserId'
-const index = ( ) => {
+const index = () => {
     const router = useRouter()
     const { id } = router.query
     const { guestUserInfo } = useSelector((state) => state.guestUserInfo)
@@ -22,16 +22,18 @@ const index = ( ) => {
             )
     )
     useEffect(() => {
-            refetch()
+        refetch()
     }, [])
-  
+
     return (
         <div className="div">
             <Meta title={`Orders Tracking `} />
             <CssBaseline />
-            <Container maxWidth="lg" sx={{ mb: { xs: '72px', md: '0' } }}>
-                {!isLoading && <TrackingPage data={data?.data} />}
-            </Container>
+            <NoSsr>
+                <Container maxWidth="lg" sx={{ mb: { xs: '72px', md: '0' } }}>
+                    {!isLoading && <TrackingPage data={data?.data} />}
+                </Container>
+            </NoSsr>
         </div>
     )
 }

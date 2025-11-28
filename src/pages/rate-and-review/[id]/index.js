@@ -1,6 +1,6 @@
 import React from 'react'
 import Meta from '../../../components/Meta'
-import { Container, CssBaseline } from '@mui/material'
+import { Container, CssBaseline, NoSsr } from '@mui/material'
 import RateAndReview from '../../../components/rate-and-review/RateAndReview'
 
 const index = ({ configData }) => {
@@ -8,12 +8,14 @@ const index = ({ configData }) => {
         <>
             <Meta title={`Rate and Review - ${configData?.business_name}`} />
             <CssBaseline />
-            <Container
-                maxWidth="lg"
-                sx={{ minHeight: '80vh', mb: { xs: '72px', md: '0' } }}
-            >
-                <RateAndReview />
-            </Container>
+            <NoSsr>
+                <Container
+                    maxWidth="lg"
+                    sx={{ minHeight: '80vh', mb: { xs: '72px', md: '0' } }}
+                >
+                    <RateAndReview />
+                </Container>
+            </NoSsr>
         </>
     )
 }

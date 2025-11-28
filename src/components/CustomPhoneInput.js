@@ -109,18 +109,14 @@ const CustomPhoneInput = ({
     }, [])
 
     const changeHandler = (e) => {
-
+      
         onHandleChange(e)
     }
-
    const handleBlur = () => {
     if(value?.length < 10 && value?.length > 2){
         toast.error(t('Please enter a valid phone number'))
     }
    }
-    
-
-    
 
     return (
         <CustomStackFullWidth alignItems="flex-start" spacing={0.8}>
@@ -128,7 +124,6 @@ const CustomPhoneInput = ({
                 autoFormat={false}
                 onFocus={() => setFocus(true)}
                 onBlur={handleBlur}
-
                 placeholder={t('Enter phone number')}
                 value={value}
                 enableSearchField
@@ -138,7 +133,14 @@ const CustomPhoneInput = ({
                     required: true,
                     autoFocus: !!autoFocus,
                 }}
-                specialLabel={t('Phone')}
+                specialLabel={
+                    <span>
+                        {t('Phone')}{' '}
+                        <span style={{ color: theme.palette.error.main }}>
+                            *
+                        </span>
+                    </span>
+                }
                 country={defaultCountry}
                 searchStyle={{ margin: '0', width: '95%', height: '36px' }}
                 inputStyle={{

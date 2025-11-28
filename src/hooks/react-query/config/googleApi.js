@@ -20,12 +20,9 @@ export const GoogleApi = {
     },
     distanceApi: (origin, destination) => {
         return MainApi.get(
-            `/api/v1/config/distance-api?origin_lat=${
-                origin.latitude
-            }&origin_lng=${origin.longitude}&destination_lat=${
-                destination.lat ? destination?.lat : destination?.latitude
-            }&destination_lng=${
-                destination.lng ? destination?.lng : destination?.longitude
+            `/api/v1/config/distance-api?origin_lat=${origin.latitude
+            }&origin_lng=${origin.longitude}&destination_lat=${destination.lat ? destination?.lat : destination?.latitude
+            }&destination_lng=${destination.lng ? destination?.lng : destination?.longitude
             }`
         )
     },

@@ -7,14 +7,21 @@ import {
 } from './FilePreviewer.style'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Typography from '@mui/material/Typography'
-import { Grid, Stack } from '@mui/material'
+import { Grid, Stack, Box, useTheme } from '@mui/material'
 import FileInputField from '../form-fields/FileInputField'
 import pdfIcon from '../../assets/images/icons/pdf.png'
 import docIcon from '../../assets/images/icons/docx.png'
 import txtIcon from '../../assets/images/icons/txt-file.png'
 import folderIcon from '../../assets/images/icons/folder.png'
 import CustomImageContainer from '../CustomImageContainer'
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
+import CloseIcon from '@mui/icons-material/Close'
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import IconButton from '@mui/material/IconButton'
+import Slider from 'react-slick'
+import 'slick-carousel/slick/slick.css'
+import 'slick-carousel/slick/slick-theme.css'
+import { HandleNext, HandlePrev } from '../CustomSliderIcon'
 
 const FilePreviewer = (props) => {
     const {
@@ -28,11 +35,12 @@ const FilePreviewer = (props) => {
         acceptedFileInput,
         label,
         titleText,
-        gridControl,
+height,
         fullWidth,
     } = props
 
     const [multipleImages, setMultipleImages] = useState([])
+    const theme=useTheme()
     useEffect(() => {
         if (file?.length > 0) {
             const newImages = []
@@ -53,63 +61,164 @@ const FilePreviewer = (props) => {
         } else {
         }
     }, [file])
+    // Custom arrow components
+    const CustomPrevArrow = ({ onClick }) => (
+        <IconButton
+            onClick={onClick}
+            sx={{
+                position: 'absolute',
+                left: -15,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 2,
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                width: 40,
+                height: 40,
+                '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 1)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                },
+                '&:disabled': {
+                    display: 'none',
+                }
+            }}
+        >
+            <ArrowBackIosIcon sx={{ fontSize: 18, color: '#666' }} />
+        </IconButton>
+    )
+
+    const CustomNextArrow = ({ onClick }) => (
+        <IconButton
+            onClick={onClick}
+            sx={{
+                position: 'absolute',
+                right: -15,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 2,
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                width: 40,
+                height: 40,
+                '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 1)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                },
+                '&:disabled': {
+                    display: 'none',
+                }
+            }}
+        >
+            <ArrowForwardIosIcon sx={{ fontSize: 18, color: '#666' }} />
+        </IconButton>
+    )
+
+    const sliderSettings = {
+        dots: false,
+        infinite: false,
+        speed: 500,
+        slidesToShow: multipleImages.length > 1.5 ? 1.5 : multipleImages.length,
+        slidesToScroll: 1,
+        nextArrow:  <HandleNext />,
+              prevArrow:   <HandlePrev />,
+        responsive: [
+            {
+                breakpoint: 1200,
+                settings: {
+                    slidesToShow: multipleImages.length > 1 ? 1.5 : multipleImages.length,
+                    slidesToScroll: 1,
+                    prevArrow: <CustomPrevArrow />,
+                    nextArrow: <CustomNextArrow />,
+                }
+            },
+            {
+                breakpoint: 900,
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                    prevArrow: <CustomPrevArrow />,
+                    nextArrow: <CustomNextArrow />,
+                }
+            }
+        ]
+    }
+
     const renderFilePreview = () => {
         if (file?.length > 0) {
             return (
-                <Grid
-                    container
-                    spacing={fullWidth ? 0 : 3}
-                    rowGap={fullWidth ? '1.5rem' : '0rem'}
-                    columnGap={fullWidth ? '.8rem' : '0rem'}
-                >
-                    <Grid
-                        item
-                        xs={12}
-                        sm={gridControl === 'true' ? 4 : 3}
-                        md={fullWidth ? 12 : gridControl === 'true' ? 4 : 3}
-                    >
-                        <FileInputField
-                            titleText={titleText}
-                            label={label}
-                            hintText={hintText}
-                            errorStatus={errorStatus}
-                            width
-                            onChange={onChange}
-                            acceptedFileInput={acceptedFileInput}
-                        />
-                    </Grid>
-                    {multipleImages.map((image, index) => {
-                        return (
-                            <Grid
-                                item
-                                xs={12}
-                                sm={gridControl === 'true' ? 4 : 3}
-                                md={
-                                    gridControl === 'true'
-                                        ? fullWidth
-                                            ? 2.5
-                                            : 4
-                                        : 3
-                                }
-                                key={index}
-                            >
-                                <CustomBoxForFilePreviewer
-                                    fullWidth={fullWidth}
-                                    width={width}
-                                >
-                                    {previewBasedOnType(image, index)}
-                                    <IconButtonImagePreviewer
-                                        onClick={() => onDelete(index)}
-                                    >
-                                        <DeleteForeverIcon
-                                            style={{ fontSize: '1rem' }}
-                                        />
-                                    </IconButtonImagePreviewer>
-                                </CustomBoxForFilePreviewer>
+                <Box sx={{ width: '100%' }}>
+                    <Grid container spacing={2} alignItems="center">
+                        <Grid item xs={12} md={multipleImages.length > 0 ? 4 : 12}>
+                            <Box sx={{ maxWidth: fullWidth ? '100%' : '600px' }}>
+                                <FileInputField
+                                    titleText={titleText}
+                                    label={label}
+                                    hintText={hintText}
+                                    errorStatus={errorStatus}
+                                    width
+                                    onChange={onChange}
+                                    acceptedFileInput={acceptedFileInput}
+                                />
+                            </Box>
+                        </Grid>
+
+                        {multipleImages.length > 0 && (
+                            <Grid item xs={12} md={8}>
+                                <Box sx={{
+                                    width: '100%',
+                                    position: 'relative',
+                                    padding:"0 20px",
+                                    '& .slick-slide': {
+                                        padding: '0 8px',
+                                    },
+                                    '& .slick-list': {
+                                        margin: '0 -8px',
+                                    },
+                                    '& .slick-track': {
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        marginTop:"6px",
+                                       
+                                    }
+                                }}>
+                                    <Slider {...sliderSettings}>
+                                        {multipleImages.map((image, index) => (
+                                            <Box key={index} sx={{ outline: 'none' }}>
+                                                <CustomBoxForFilePreviewer
+                                                    fullWidth={fullWidth}
+                                                    width={width}
+                                                    sx={{ margin: '0 4px',
+                                                         border: `1px dashed ${theme.palette.neutral[400]}`,
+                                                         borderRadius:"12px",
+
+                                                     }}
+                                                    height={height}
+                                                >
+                                                    {previewBasedOnType(image)}
+                                                    <IconButtonImagePreviewer
+                                                        onClick={() => onDelete(index)}
+                                                    >
+                                                        <CloseIcon
+                                                            sx={{
+                                                                fontSize: '1rem',
+                                                                color: 'white',
+                                                                cursor: 'pointer',
+                                                                '&:hover': {
+                                                                    color: 'red',
+                                                                },
+                                                            }}
+                                                        />
+                                                    </IconButtonImagePreviewer>
+                                                </CustomBoxForFilePreviewer>
+                                            </Box>
+                                        ))}
+                                    </Slider>
+                                </Box>
                             </Grid>
-                        )
-                    })}
-                </Grid>
+                        )}
+                    </Grid>
+                </Box>
             )
         } else {
             const previewImage = {
@@ -126,7 +235,7 @@ const FilePreviewer = (props) => {
             )
         }
     }
-    const previewBasedOnType = (file, fileIndex) => {
+    const previewBasedOnType = (file) => {
         if (
             file.type === 'jpg' ||
             file.type === 'jpeg' ||
@@ -138,12 +247,13 @@ const FilePreviewer = (props) => {
                     fullWidth={fullWidth}
                     // onClick={() => anchor.current.click()}
                     // width={width}
-                    borderRadius="5px"
+                    borderRadius="10px"
                 >
                     <CustomImageContainer
                         src={file.url}
                         alt="preview"
                         objectFit="cover"
+                        borderRadius="10px"
                     />
                     {/*<img src={file.url} alt="preview" />*/}
                 </FilePreviewerWrapper>
@@ -153,7 +263,7 @@ const FilePreviewer = (props) => {
                 <FilePreviewerWrapper
                     // onClick={() => anchor.current.click()}
                     objectFit
-                    // width={width}
+                // width={width}
                 >
                     <CustomImageContainer src={pdfIcon.src} alt="pdf" />
                 </FilePreviewerWrapper>
@@ -163,7 +273,7 @@ const FilePreviewer = (props) => {
                 <FilePreviewerWrapper
                     // onClick={() => anchor.current.click()}
                     objectFit
-                    // width={width}
+                // width={width}
                 >
                     <CustomImageContainer src={docIcon.src} alt="doc" />
                 </FilePreviewerWrapper>
@@ -173,7 +283,7 @@ const FilePreviewer = (props) => {
                 <FilePreviewerWrapper
                     // onClick={() => anchor.current.click()}
                     objectFit
-                    // width={width}
+                // width={width}
                 >
                     <CustomImageContainer src={txtIcon.src} alt="text" />
                 </FilePreviewerWrapper>
@@ -183,7 +293,7 @@ const FilePreviewer = (props) => {
                 <FilePreviewerWrapper
                     // onClick={() => anchor.current.click()}
                     objectFit
-                    // width={width}
+                // width={width}
                 >
                     <CustomImageContainer src={folderIcon.src} alt="text" />
                 </FilePreviewerWrapper>

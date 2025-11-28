@@ -36,12 +36,13 @@ const AddressReselectPopover = (props) => {
         setAddress,
         ...other
     } = props
-    const { geoCodeLoading } = useGetLocation(coords)
+    //const geoCodeLoading = false
+    const { geoCodeLoading, setLocationEnabled } = useGetLocation(coords)
     const { location, formatted_address, zoneId } = useSelector(
         (state) => state.addressData
     )
     const { userLocationUpdate } = useSelector((state) => state.globalSettings)
-    const languageDirection = localStorage.getItem('direction')
+    const languageDirection = typeof window !== 'undefined' ? localStorage.getItem('direction') : 'ltr'
     const handleSuccess = () => {
         if (getToken()) {
             if (!mapOpen && open) {
@@ -62,6 +63,8 @@ const AddressReselectPopover = (props) => {
         }
     )
 
+    console.log({ zoneId });
+
     const getLocation = () => {
         if (zoneId && formatted_address && location) {
             localStorage.setItem('zoneid', zoneId)
@@ -71,10 +74,12 @@ const AddressReselectPopover = (props) => {
             setAddress(null)
             dispatch(setUserLocationUpdate(!userLocationUpdate))
             onClose()
+            window.location.reload()
         }
     }
     const setUserCurrentLocation = async () => {
         if (coords) {
+            setLocationEnabled(true)
             dispatch(
                 setLocation({
                     lat: coords?.latitude,
@@ -149,7 +154,7 @@ const AddressReselectPopover = (props) => {
                                     hideAddressSelectionField="true"
                                     renderOnNavbar="true"
                                     token={token}
-                                    //handleAddressSetSuccess={handleAddressSetSuccess}
+                                //handleAddressSetSuccess={handleAddressSetSuccess}
                                 />
                                 <Button
                                     startIcon={<AddCircleOutlineIcon />}
@@ -185,6 +190,7 @@ const AddressReselectPopover = (props) => {
                                     padding="0px"
                                     coords={coords}
                                     mapHeight="400px"
+                                    handleAgreeLocation={setUserCurrentLocation}
                                 />
                                 <Stack
                                     width={{ xs: '80%', sm: '85%', md: '90%' }}
@@ -230,7 +236,7 @@ const AddressReselectPopover = (props) => {
                                             {t('Select')}
                                         </Button>
                                     )}
-                                    <IconButton
+                                    {/* <IconButton
                                         sx={{
                                             background: (theme) =>
                                                 theme.palette.neutral[100],
@@ -239,7 +245,7 @@ const AddressReselectPopover = (props) => {
                                         onClick={setUserCurrentLocation}
                                     >
                                         <GpsFixedIcon color="primary" />
-                                    </IconButton>
+                                    </IconButton> */}
                                 </Stack>
                             </CustomStackFullWidth>
                         )}

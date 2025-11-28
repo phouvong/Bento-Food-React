@@ -1,11 +1,14 @@
 import React from 'react'
+import { NoSsr } from '@mui/material'
 import TypeWiseResturant from '../../../components/type-wise-resturant-page/TypeWiseResturant'
 
 const index = () => {
     return (
         <>
             <div className="div">
-                <TypeWiseResturant />
+                <NoSsr>
+                    <TypeWiseResturant />
+                </NoSsr>
             </div>
         </>
     )

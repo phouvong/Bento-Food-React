@@ -34,8 +34,8 @@ const AllCuisines = () => {
                                 <Grid
                                     item
                                     md={matches ? 2 : 1.7}
-                                    sm={3}
-                                    xs={3}
+                                    sm={4}
+                                    xs={4}
                                     mt=".5rem"
                                 >
                                     <CuisinesCard item={item} key={index} />

@@ -225,7 +225,7 @@ export const getProductDiscount = (items, restaurantData) => {
         ).format()
         let currentDateTime = moment().format()
         if (combinedEndDateTime > currentDateTime) {
-            //restaurant wise discount
+            //restaurants wise discount
             let restaurentDiscount = restaurantData?.data?.discount?.discount
             let resDisType = restaurantData?.data?.discount?.discount_type
             let restaurentMinimumPurchase =
@@ -337,7 +337,6 @@ function distanceInKmBetweenEarthCoordinates(lat1, lon1, lat2, lon2) {
 }
 
 export const handleDistance = (distance, origin, destination) => {
-    console.log({distance})
     if ( distance?.distanceMeters) {
         return  distance?.distanceMeters / 1000
     } else if ( distance?.status === 'ZERO_RESULTS') {
@@ -395,7 +394,6 @@ export const getDeliveryFees = (
         origin,
         destination
     )
-    console.log({convertedDistance})
     let deliveryFee
     let totalOrderAmount = cartItemsTotalAmount(cartList)
     const isAdminFreeDeliveryEnabled = global?.admin_free_delivery?.status === true;
@@ -406,7 +404,7 @@ export const getDeliveryFees = (
         freeDeliveryThreshold > 0 &&
         totalOrderAmount >= freeDeliveryThreshold;
     const isFreeDeliveryToAllStores = freeDeliveryType === "free_delivery_to_all_store";
-    //restaurant self delivery system checking
+    //restaurants self delivery system checking
     if (Number.parseInt(restaurantData?.data?.self_delivery_system) === 1) {
         if (
             ((isAdminFreeDeliveryEnabled && (isFreeDeliveryByAmount || isFreeDeliveryToAllStores))) ||

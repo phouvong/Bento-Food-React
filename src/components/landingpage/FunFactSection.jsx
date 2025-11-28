@@ -17,6 +17,7 @@ import 'slick-carousel/slick/slick-theme.css'
 import { landingFeatureSettings } from './landingFeatureSettings'
 import LandingFeatureSvg1 from './link-section/LandingFeatureSvg1'
 import CustomNextImage from '@/components/CustomNextImage'
+import { Box } from '@mui/system'
 
 const FunFactSection = ({ react_feature }) => {
     const theme = useTheme()
@@ -31,7 +32,7 @@ const FunFactSection = ({ react_feature }) => {
 
     const mainComponent = () => {
         return (
-            <CustomStackFullWidth sx={{ marginTop: '50px' }}>
+            <CustomStackFullWidth sx={{ marginTop: '15px' }}>
                 <SliderCustom
                     languageDirection={languageDirection}
                     isCenter={true}
@@ -52,7 +53,12 @@ const FunFactSection = ({ react_feature }) => {
                                         direction="column"
                                         alignItems="center"
                                         spacing={1}
-                                        flexWrap="wrap"
+                                        sx={{
+                                            transition: 'transform 0.2s ease-in-out',
+                                            '&:hover': {
+                                                transform: 'scale(1.01)',
+                                            }
+                                        }}
                                     >
                                         <CustomNextImage
                                             src={item?.image_full_url}
@@ -61,79 +67,93 @@ const FunFactSection = ({ react_feature }) => {
                                             priority={true}
                                             objectFit='contain'
                                         />
-                                        <CustomTypography
+                                        <Box
+                                            bgcolor={theme.palette.neutral[200]}
                                             sx={{
-                                                fontWeight: 600,
-                                                fontSize: {
-                                                    xs: '14px',
-                                                    md: '16px',
-                                                },
+                                                borderRadius: '8px',
+                                                padding: '16px',
+                                                textAlign: 'center',
+                                                maxWidth: "316px",
+                                                // minWidth: "200px",
+                                                marginTop: "20px !important",
+
                                             }}
-                                            component="h2"
                                         >
-                                            {item?.title}
-                                        </CustomTypography>
-                                        {item?.sub_title && (
-                                            <Typography
-                                                fontSize={{
-                                                    xs: '10px',
-                                                    sm: '14px',
-                                                    md: '14px',
+                                            <CustomTypography
+                                                sx={{
+                                                    fontWeight: 600,
+                                                    fontSize: {
+                                                        xs: '14px',
+                                                        md: '16px',
+                                                    },
+                                                    marginBottom: '5px',
                                                 }}
-                                                textAlign="center"
-                                                fontWeight="400"
-                                                color={
-                                                    theme.palette
-                                                        .neutral[600]
-                                                }
-                                                component="p"
+                                                component="h2"
                                             >
-                                                {item?.sub_title}
-                                            </Typography>
-                                        )}
+                                                {item?.title}
+                                            </CustomTypography>
+                                            {item?.sub_title && (
+                                                <Typography
+                                                    fontSize={{
+                                                        xs: '10px',
+                                                        sm: '14px',
+                                                        md: '14px',
+                                                    }}
+                                                    textAlign="center"
+                                                    fontWeight="400"
+                                                    color={
+                                                        theme.palette
+                                                            .neutral[600]
+                                                    }
+                                                    component="p"
+                                                >
+                                                    {item?.sub_title}
+                                                </Typography>
+                                            )}
+                                        </Box>
                                     </Stack>
 
                                     {index % 2 === 0
                                         ? react_feature.length - 1 !==
-                                              index && (
-                                              <Stack
-                                                  position="absolute"
-                                                  left="54%"
-                                                  top={
-                                                      isSmall
-                                                          ? '-14px'
-                                                          : '37px'
-                                                  }
-                                                  maxWidth={{
-                                                      xs: '177px',
-                                                      sm: '344px',
-                                                      md: '344px',
-                                                  }}
-                                                  width="100%"
-                                              >
-                                                  <LandingFeatureSvg width="100%" />
-                                              </Stack>
-                                          )
+                                        index && (
+                                            <Stack
+                                                position="absolute"
+                                                left="54%"
+                                                top={
+                                                    isSmall
+                                                        ? '-14px'
+                                                        : '37px'
+                                                }
+                                                maxWidth={{
+                                                    xs: '177px',
+                                                    sm: '344px',
+                                                    md: '344px',
+                                                }}
+                                                width="100%"
+                                            >
+                                                <LandingFeatureSvg width="100%" />
+                                            </Stack>
+                                        )
                                         : react_feature.length - 1 !==
-                                              index && (
-                                              <Stack
-                                                  position="absolute"
-                                                  left="59%"
-                                                  top={
-                                                      isSmall
-                                                          ? '-11px'
-                                                          : '35px'
-                                                  }
-                                                  maxWidth={{
-                                                      xs: '162px',
-                                                      sm: '309px',
-                                                      md: '309px',
-                                                  }}
-                                                  width="100%"
-                                              >
-                                                  <LandingFeatureSvg1 width="100%" />
-                                              </Stack>
-                                          )}
+                                        index && (
+                                            <Stack
+                                                position="absolute"
+                                                left="59%"
+                                                top={
+                                                    isSmall
+                                                        ? '-11px'
+                                                        : '35px'
+                                                }
+                                                maxWidth={{
+                                                    xs: '162px',
+                                                    sm: '309px',
+                                                    md: '309px',
+                                                }}
+                                                width="100%"
+                                            >
+                                                <LandingFeatureSvg1 width="100%" />
+                                            </Stack>
+                                        )}
                                 </Stack>
                             )
                         })}

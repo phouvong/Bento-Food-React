@@ -50,11 +50,14 @@
         "react-otp-input": "^3.1.1",
         "react-phone-input-2": "^2.15.1",
         "react-player": "^2.16.0",
+        "react-qr-code": "^2.0.18",
         "react-query": "^3.34.19",
         "react-redux": "^7.2.6",
         "react-router": "^6.2.1",
         "react-share": "4",
         "react-slick": "^0.30.3",
+        "react-slot-counter": "^3.3.1",
+        "react-speech-recognition": "^4.0.1",
         "react-ui-scrollspy": "^2.3.0",
         "redux": "^5.0.1",
         "redux-persist": "^6.0.0",
@@ -70,9 +73,11 @@
         "yup": "^0.32.11"
     },
     "scripts": {
-        "dev": "next dev",
+        "dev": "concurrently \"npm run i18n:watch\" \"next dev\"",
         "build": "next build",
-        "start": "next start"
+        "start": "next start",
+        "i18n:extract": "i18next-scanner",
+        "i18n:watch": "node i18n-watch.js"
     },
     "browserslist": {
         "production": [
@@ -87,7 +92,10 @@
         ]
     },
     "devDependencies": {
+        "chokidar": "^4.0.3",
+        "concurrently": "^9.2.1",
         "eslint": "^8.18.0",
+        "i18next-scanner": "^4.6.0",
         "prettier": "2.5.1"
     }
 }

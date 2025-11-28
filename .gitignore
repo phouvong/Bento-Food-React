@@ -9,6 +9,8 @@ changed_files.zip
 *./zip
 # next.js
 /.next/
+/.idea/
+.idea/
 /out/
 /.vscode/
 

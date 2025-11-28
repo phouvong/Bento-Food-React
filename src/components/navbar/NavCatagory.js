@@ -99,7 +99,7 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
             <Popover
                 disableScrollLock={true}
                 id="mouse-over-popover"
-                open={featuredCategories?.length>0 && opendrop}
+                open={featuredCategories?.length > 0 && opendrop}
                 anchorEl={anchorEl}
                 anchorOrigin={{
                     vertical: 'bottom',
@@ -131,12 +131,12 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                     >
                                                         <Link
                                                             href={{
-                                                                pathname: `/category/${category.id}`,
+                                                                pathname: `/category/${category.slug || category?.id}`,
                                                                 query: {
                                                                     name: category?.name,
                                                                 },
                                                             }}
-                                                            style={{textDecoration: 'none'}}
+                                                            style={{ textDecoration: 'none' }}
                                                         >
                                                             <MenuItem
                                                                 key={index}
@@ -184,6 +184,12 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                                             .neutral[1000]
                                                                     }
                                                                     textDecoration="none"
+                                                                    sx={{
+                                                                        maxWidth: '100px',
+                                                                        overflow: 'hidden',
+                                                                        textOverflow: 'ellipsis',
+                                                                        whiteSpace: 'nowrap',
+                                                                    }}
                                                                 >
                                                                     {
                                                                         category.name
@@ -210,12 +216,12 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                     >
                                                         <Link
                                                             href={{
-                                                                pathname: `/category/${category.id}`,
+                                                                pathname: `/category/${category.slug || category?.id}`,
                                                                 query: {
                                                                     name: category?.name,
                                                                 },
                                                             }}
-                                                            style={{textDecoration: 'none'}}
+                                                            style={{ textDecoration: 'none' }}
                                                         >
                                                             <MenuItem
                                                                 key={index}
@@ -255,6 +261,12 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                                     />
                                                                 </ListItemIcon>
                                                                 <Typography
+                                                                    sx={{
+                                                                        maxWidth: '100px',
+                                                                        overflow: 'hidden',
+                                                                        textOverflow: 'ellipsis',
+                                                                        whiteSpace: 'nowrap',
+                                                                    }}
                                                                     variant="h5"
                                                                     fontWeight="400"
                                                                     color={
@@ -294,12 +306,12 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                 <Grid item md={6} key={index}>
                                                     <Link
                                                         href={{
-                                                            pathname: `/category/${category.id}`,
+                                                            pathname: `/category/${category.slug || category?.id}`,
                                                             query: {
                                                                 name: category?.name,
                                                             },
                                                         }}
-                                                        style={{textDecoration: 'none'}}
+                                                        style={{ textDecoration: 'none' }}
                                                     >
                                                         <MenuItem
                                                             onClick={
@@ -365,12 +377,12 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                 <Grid item md={6} key={index}>
                                                     <Link
                                                         href={{
-                                                            pathname: `/category/${category.id}`,
+                                                            pathname: `/category/${category.slug || category?.id}`,
                                                             query: {
                                                                 name: category?.name,
                                                             },
                                                         }}
-                                                        style={{textDecoration: 'none'}}
+                                                        style={{ textDecoration: 'none' }}
                                                     >
                                                         <MenuItem
                                                             key={index}

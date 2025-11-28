@@ -19,6 +19,7 @@ const FilterCard = ({
     setStateData,
     setCuisineState,
     cuisineState,
+    
 }) => {
     const { t } = useTranslation()
     const { foodOrRestaurant } = useSelector((state) => state.searchFilterStore)

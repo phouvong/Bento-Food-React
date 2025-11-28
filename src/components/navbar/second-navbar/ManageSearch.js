@@ -7,7 +7,7 @@ import { useTheme } from "@emotion/react";
 const ManageSearch = ({ zoneid, token, router }) => {
     const [openSearchSuggestions, setOpenSearchSuggestions] = useState(false)
     const [selectedValue, setSelectedValue] = useState('')
-    const theme=useTheme()
+    const theme = useTheme()
     const [onSearchdiv, setOnSearchdiv] = useState(false)
     const handleKeyPress = (value) => {
         // if (e.key === 'Enter') {
@@ -41,6 +41,7 @@ const ManageSearch = ({ zoneid, token, router }) => {
         localStorage.setItem('bg', true)
     }
     const searchRef = useRef(null)
+
     useEffect(() => {
         function handleClickOutside(event) {
             if (
@@ -71,29 +72,33 @@ const ManageSearch = ({ zoneid, token, router }) => {
                     sx={{
                         position: 'relative',
                         width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
                     }}
                     onFocus={() => handleOnFocus()}
                     ref={searchRef}
                 >
                     {zoneid && router.pathname !== '/' && (
                         <>
-                            <CustomSearch
-                                label="Search foods and restaurants..."
-                                handleSearchResult={handleKeyPress}
-                                selectedValue={selectedValue}
-                                borderRadius="8px"
-                                backgroundColor={theme.palette.neutral[200]}
-                                nav
-                            />
-                            {openSearchSuggestions && (
-                                <SearchSuggestionsBottom
-                                    setOnSearchdiv={setOnSearchdiv}
-                                    setOpenSearchSuggestions={
-                                        setOpenSearchSuggestions
-                                    }
-                                    setSelectedValue={setSelectedValue}
+                            <Box sx={{ flex: 1, position: 'relative' }}>
+                                <CustomSearch
+                                    label="Search foods and restaurants..."
+                                    handleSearchResult={handleKeyPress}
+                                    selectedValue={selectedValue}
+                                    borderRadius="8px"
+                                    backgroundColor={theme.palette.neutral[200]}
+                                    nav
                                 />
-                            )}
+                                {openSearchSuggestions && (
+                                    <SearchSuggestionsBottom
+                                        setOnSearchdiv={setOnSearchdiv}
+                                        setOpenSearchSuggestions={
+                                            setOpenSearchSuggestions
+                                        }
+                                        setSelectedValue={setSelectedValue}
+                                    />
+                                )}
+                            </Box>
                         </>
                     )}
                 </Box>

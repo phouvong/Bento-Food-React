@@ -87,8 +87,8 @@ const OrderType = (props) => {
                             <CheckCircleIcon
                                 sx={{
                                     position: 'absolute',
-                                    top: 5,
-                                    right: 5,
+                                    top: 0,
+                                    right: 0,
                                     color: 'primary.main',
                                 }}
                             />

@@ -19,13 +19,14 @@ MainApi.interceptors.request.use(function (config) {
         language = localStorage.getItem('language')
         currentLocation = JSON.parse(localStorage.getItem('currentLatLng'))
     }
-    if (currentLocation) config.headers.latitude = currentLocation.lat
-    if (currentLocation) config.headers.longitude = currentLocation.lng
+    config.headers.latitude = currentLocation?.lat || 0
+    config.headers.longitude = currentLocation?.lng || 0
     if (zoneId) config.headers.zoneId = zoneId
     if (token) config.headers.authorization = `Bearer ${token}`
     if (language) config.headers['X-localization'] = language
     if (hostname) config.headers['origin'] = hostname
     config.headers['X-software-id'] = software_id
+    config.headers["ngrok-skip-browser-warning"] = true;
 
     return config
 })

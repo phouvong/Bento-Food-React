@@ -1,5 +1,5 @@
 import { setWelcomeModal } from '@/redux/slices/utils'
-import { Container, Box } from '@mui/material'
+import { Container, Box, NoSsr } from '@mui/material'
 import { useQuery } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
 import { onSingleErrorResponse } from '@/components/ErrorResponse'
@@ -32,16 +32,18 @@ const Interest = ({ configData }) => {
                 keywords=""
                 ogImage={`${businessLogo}/${global?.logo}`}
             />
-            <HomeGuard>
-                <Container
-                    maxWidth="lg"
-                    sx={{ mb: { xs: '72px', md: '32px' } }}
-                >
-                    <Box mt={{ xs: '90px', md: '150px' }}>
-                        <InterestOptions />
-                    </Box>
-                </Container>
-            </HomeGuard>
+            <NoSsr>
+                <HomeGuard>
+                    <Container
+                        maxWidth="lg"
+                        sx={{ mb: { xs: '72px', md: '32px' } }}
+                    >
+                        <Box mt={{ xs: '90px', md: '150px' }}>
+                            <InterestOptions />
+                        </Box>
+                    </Container>
+                </HomeGuard>
+            </NoSsr>
         </>
     )
 }

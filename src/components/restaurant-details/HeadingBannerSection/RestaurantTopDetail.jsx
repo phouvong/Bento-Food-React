@@ -173,7 +173,7 @@ const RestaurantTopDetail = ({
                     {/*    height="100px"*/}
                     {/*    width="100%"*/}
                     {/*    src={`${restaurantImageUrl}/${logo}`}*/}
-                    {/*    alt="restaurant"*/}
+                    {/*    alt="restaurants"*/}
                     {/*/>*/}
                 </Grid>
                 <Grid item xs={6} sm={8} md={matches ? 8 : 9}>
@@ -239,7 +239,7 @@ const RestaurantTopDetail = ({
                             {/*    <CustomImageContainer*/}
                             {/*        className="location-icon"*/}
                             {/*        src={location.src}*/}
-                            {/*        alt="restaurant"*/}
+                            {/*        alt="restaurants"*/}
 
                             {/*    />*/}
                             {/*</Stack>*/}

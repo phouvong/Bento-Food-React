@@ -152,7 +152,7 @@ const CategoryDetailsPage = ({
                                 setFoodOrRestaurant={setFoodOrRestaurant}
                                 isRestaurant
                             />
-                            {isSmall && (
+                            {isSmall || catetoryMenus?.length === 0 && (
                                 <FilterButton
                                     id="fade-button"
                                     handleClick={handleDropClick}

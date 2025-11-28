@@ -89,6 +89,19 @@ const CustomDrawerCart = () => {
                     <>
                         <OrderSummaryGrid sx={{ width: 370 }} container item>
                             <Box sx={{ overflow: 'auto', width: '100%' }}>
+                                 <Grid item  md={12}>
+                                   <Stack width="100%" gap="5px">
+                                     <CustomImageContainer
+                                                    height="40px"
+                                                    width="40px"
+                                                    src={""}
+                                                />
+                                                <Typography fontSize="14p">
+                                                    Vintage Kitchen
+                                                </Typography>
+
+                                   </Stack>
+                                </Grid>
                                 <Grid
                                     item
                                     md={12}
@@ -108,9 +121,9 @@ const CustomDrawerCart = () => {
                                                 fontWeight: 'bold',
                                             }}
                                         >
-                                            {cartList?.length} items
+                                            {cartList?.length} {t("items")}
                                         </span>{' '}
-                                        in your cart
+                                        {t("in your cart")}
                                     </Typography>
                                     <Typography
                                         sx={{
@@ -134,10 +147,11 @@ const CustomDrawerCart = () => {
                                                 restaurantData?.data
                                                     ?.delivery_time
                                             }
-                                            min
+                                          {t("min")}
                                         </span>
                                     </Typography>
                                 </Grid>
+                               
                                 <Grid
                                     container
                                     md={12}

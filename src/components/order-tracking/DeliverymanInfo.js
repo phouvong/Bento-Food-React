@@ -80,7 +80,7 @@ const DeliverymanInfo = ({ data,resLat }) => {
                 />
                 <CustomTypographyGray
                     sx={{ fontSize: '18px' }}
-                    fontweight="400"
+                    fontWeight="400"
                 >
                     {handleAway().toFixed(2)}km {t(`${away}`)}
                 </CustomTypographyGray>
@@ -113,7 +113,7 @@ const DeliverymanInfo = ({ data,resLat }) => {
                         )}
                     />
                     <Stack alignItems="flex-start">
-                        <Typography fontSize="16px" fontweight="400">
+                        <Typography fontSize="16px" fontWeight="400">
                             {data?.delivery_man?.f_name.concat(
                                 ' ',
                                 data?.delivery_man?.l_name

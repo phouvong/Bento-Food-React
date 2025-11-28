@@ -9,35 +9,48 @@ export const FilePreviewerWrapper = styled(ImageContainer)(
         height: height ? height : '8.75rem',
         maxWidth: width,
         width: '100%',
-        borderRadius: fullWidth ? '5px' : '50%',
         marginRight: 'auto',
         marginLeft: 'auto',
-        border: fullWidth ? '1px dashed' : 'none',
-        borderColor: theme.palette.neutral[300],
+        overflow: 'hidden',
         '& img': {
-            borderRadius: borderRadius ? borderRadius : '12px',
             height: '100%',
+            width: '100%',
             objectFit: objectFit ? 'contained' : 'cover',
         },
     })
 )
 
 export const IconButtonImagePreviewer = styled(IconButton)(({ theme }) => ({
-    backgroundColor: theme.palette.neutral[100],
-    color: theme.palette.error.light,
+    backgroundColor: theme.palette.error.light,
+    color: 'white',
     position: 'absolute',
-    borderRadius: '5px',
-    top: 3,
-    right: 3,
-    padding: '2px',
-    border: '2px solid',
-    borderColor: theme.palette.error.light,
-}))
+    borderRadius: '50%',
+    top: -8,
+    right: -8,
+    padding: '4px',
+    border: '2px solid white',
+    minWidth: '24px',
+    minHeight: '24px',
+    width: '24px',
+    height: '24px',
+    zIndex: 10,
+    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+    transition: 'all 0.2s ease-in-out',
+
+    '&:hover': {
+        backgroundColor: theme.palette.error.main,
+        transform: 'scale(1.1)',
+    },
+}));
 export const CustomBoxForFilePreviewer = styled(Box)(
     ({ theme, width, fullWidth, height }) => ({
         width: width ? width : '100%',
         position: 'relative',
         height: height ? height : '10.25rem',
+        //border: `2px dashed ${theme.palette.neutral[600]}`,
+        padding: '4px',
+        overflow: 'visible', // Ensure delete button is visible
+
     })
 )
 export const CustomDotBox = styled(Box)(

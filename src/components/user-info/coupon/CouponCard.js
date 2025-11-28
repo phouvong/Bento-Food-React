@@ -16,12 +16,12 @@ import LoadingButton from '@mui/lab/LoadingButton'
 import CustomNextImage from '@/components/CustomNextImage'
 
 const CouponCard = ({
-                        coupon,
-                        fromCheckout,
-                        getCouponCodeFromCard,
-                        loading,
-                        disabled
-                    }) => {
+    coupon,
+    fromCheckout,
+    getCouponCodeFromCard,
+    loading,
+    disabled,
+}) => {
     const theme = useTheme()
     const valid_until = t('Valid until')
     const min = t('*min purchase')
@@ -126,13 +126,13 @@ const CouponCard = ({
                         {coupon?.coupon_type === 'free_delivery'
                             ? 'Free Delivery'
                             : coupon?.discount_type === 'percent'
-                                ? `${coupon?.discount} %`
-                                : getAmount(
-                                    coupon.discount,
-                                    currencySymbolDirection,
-                                    currencySymbol,
-                                    digitAfterDecimalPoint
-                                )}{' '}
+                            ? `${coupon?.discount} %`
+                            : getAmount(
+                                  coupon.discount,
+                                  currencySymbolDirection,
+                                  currencySymbol,
+                                  digitAfterDecimalPoint
+                              )}{' '}
                         {coupon?.coupon_type === 'free_delivery'
                             ? ''
                             : t('OFF')}
@@ -145,7 +145,9 @@ const CouponCard = ({
                     justifyContent="center"
                     alignItems="center"
                 >
-                   
+                    {coupon?.restaurant ? (
+                        <Typography fontSize="14px" color={theme.palette.primary.main}>{coupon?.restaurant?.name}</Typography>
+                    ):null}
                     <Typography
                         fontSize="12px"
                         fontWeight="500"

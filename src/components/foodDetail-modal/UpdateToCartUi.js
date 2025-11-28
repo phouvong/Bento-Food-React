@@ -2,10 +2,10 @@ import React from 'react'
 import { CustomTypography } from '../custom-tables/Tables.style'
 import { Button } from '@mui/material'
 
-const UpdateToCartUi = ({ addToCard, t, isUpdateDisabled }) => {
+const UpdateToCartUi = ({ addToCard, t }) => {
     return (
         <Button
-            disabled={isUpdateDisabled()}
+            // disabled={isUpdateDisabled()}
             onClick={() => addToCard()}
             variant="contained"
             fullWidth

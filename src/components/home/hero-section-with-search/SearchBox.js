@@ -16,6 +16,7 @@ const SearchBox = ({ query }) => {
     const onBlur = () => {
         setFocused(false)
     }
+    
     useEffect(() => {
         if (categoryIsSticky) {
             setFocused(false)

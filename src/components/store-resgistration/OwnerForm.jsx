@@ -61,14 +61,14 @@ const OwnerForm = ({
                                         color:
                                             RestaurantJoinFormik.touched
                                                 .restaurant_name &&
-                                            !RestaurantJoinFormik.errors
-                                                .restaurant_name
+                                                !RestaurantJoinFormik.errors
+                                                    .restaurant_name
                                                 ? theme.palette.primary.main
                                                 : alpha(
-                                                      theme.palette
-                                                          .neutral[400],
-                                                      0.7
-                                                  ),
+                                                    theme.palette
+                                                        .neutral[400],
+                                                    0.7
+                                                ),
                                         fontSize: '18px',
                                     }}
                                 />
@@ -98,14 +98,14 @@ const OwnerForm = ({
                                         color:
                                             RestaurantJoinFormik.touched
                                                 .restaurant_name &&
-                                            !RestaurantJoinFormik.errors
-                                                .restaurant_name
+                                                !RestaurantJoinFormik.errors
+                                                    .restaurant_name
                                                 ? theme.palette.primary.main
                                                 : alpha(
-                                                      theme.palette
-                                                          .neutral[400],
-                                                      0.7
-                                                  ),
+                                                    theme.palette
+                                                        .neutral[400],
+                                                    0.7
+                                                ),
                                         fontSize: '18px',
                                     }}
                                 />

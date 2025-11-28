@@ -122,7 +122,7 @@ const AdditionalAddresses = (props) => {
                                     multiline
                                     rows={4}
                                     placeholder={t(
-                                        'ex-lease provide an extra napkin'
+                                        'Ex-please provide an extra napkin'
                                     )}
                                     label={t('Note')}
                                     value={additionalInformationStates.note}

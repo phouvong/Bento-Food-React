@@ -89,7 +89,7 @@ const ProductCardMedia = (props) => {
                                 position="absolute"
                                 bottom="10%"
                                 left="0"
-                                zIndex="999"
+                                zIndex="99"
                             >
                                 {handleBadge(
                                     product,
@@ -162,26 +162,7 @@ const ProductCardMedia = (props) => {
                             objectFit={imageUrl?"cover":"contain"}
 
                         />
-                        {/* {router.pathname !== `/restaurant/[id]` && (
-                            <CustomStackForFoodModal
-                                padding="12px"
-                                direction="row"
-                                width="100%"
-                                right="0"
-                                spacing={1}
-                                justifyContent="flex-end"
-                                alignItems="flex-end"
-                            >
-                                <Typography
-                                    fontSize="12px"
-                                    fontWeight={500}
-                                    color={theme.palette.whiteContainer.main}
-                                >
-                                    {product?.min_delivery_time}-
-                                    {product?.max_delivery_time} {t('min')}
-                                </Typography>
-                            </CustomStackForFoodModal>
-                        )} */}
+                      
                     </CardWrapper>
                 </Stack>
             )}

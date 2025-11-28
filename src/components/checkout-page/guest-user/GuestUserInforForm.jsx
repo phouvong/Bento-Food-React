@@ -11,7 +11,19 @@ import CustomPhoneInput from '@/components/CustomPhoneInput'
 import FormSubmitButton from './FormSubmitButton'
 import { DeliveryTitle } from '@/components/checkout-page/CheckOut.style'
 import { ACTIONS } from '@/components/checkout-page/states/additionalInformationStates'
-
+import * as Yup from 'yup'
+const validationSchema = Yup.object({
+    contact_person_name: Yup.string()
+        .trim()
+        .required('Name is required')
+        .min(2, 'Name must be at least 2 characters'),
+    contact_person_number: Yup.string()
+        .required('Phone number is required')
+        .matches(/^[0-9]{6,15}$/, 'Enter a valid phone number'),
+    contact_person_email: Yup.string()
+        .email('Enter a valid email')
+        .required('Email is required'),
+})
 const GuestUserInforForm = ({
     configData,
     editAddress,
@@ -30,6 +42,7 @@ const GuestUserInforForm = ({
     }
 
     const addAddressFormik = useFormik({
+        validationSchema,
         initialValues: {
             contact_person_name: customerData
                 ? customerData?.data?.f_name

@@ -29,7 +29,7 @@ const FoodModalTopSection = ({
     }
     const theme = useTheme()
     const handleClick = () => {
-        router.push(`/restaurant/${product?.restaurant_id}`)
+        router.push(`/restaurants/${product?.restaurant_slug || product?.restaurant_id}`)
         handleModalClose()
     }
     let currencySymbol
@@ -48,22 +48,23 @@ const FoodModalTopSection = ({
                 sx={{
                     zIndex: '999',
                     position: 'absolute',
-                    top: 0,
-                    right: 0,
+                    top: 4,
+                    right: 4,
                     backgroundColor: 'rgba(255, 255, 255, 0.7)',
                     borderRadius: '50%',
+                    padding:"6px",
                     '&:hover': {
                         backgroundColor: alpha('rgba(255, 255, 255, 0.7)', 0.5),
                     },
                 }}
             >
-                <CloseIcon sx={{ fontSize: '16px', fontWeight: 'bold' }} />
+                <CloseIcon sx={{ fontSize: '14px', fontWeight: 'bold' }} />
             </IconButton>
             <CustomNextImage
                 src={image}
                 width="475"
                 height="167"
-                borderRadius="10px"
+                borderRadius="5px"
                 objectFit={image?"cover":"contain"}
             />
             <CustomStackForFoodModal width="100%" spacing={2}>
@@ -89,7 +90,7 @@ const FoodModalTopSection = ({
                         )}
                     </Stack>
 
-                    {router.pathname !== `/restaurant/[id]` ? (
+                    {router.pathname !== `/restaurants/[id]` ? (
                         <Typography
                             sx={{
                                 cursor: 'pointer',

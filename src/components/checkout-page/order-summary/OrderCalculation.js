@@ -59,8 +59,6 @@ const OrderCalculation = (props) => {
         orderLoading,
         offlinePaymentLoading,
         checked,
-        setCouponDiscount,
-        counponRemove,
         offlineFormRef,
         page,
         paymentMethodDetails,
@@ -74,15 +72,11 @@ const OrderCalculation = (props) => {
     const { couponType, zoneData } = useSelector(
         (state) => state.globalSettings
     )
-    const [couponCode, setCouponCode] = useState(null)
     const { offLineWithPartial } = useSelector((state) => state.offlinePayment)
     const { userData } = useSelector((state) => state.user)
-    const { token } = useSelector((state) => state.userToken)
     const tempExtraCharge = extraCharge ?? 0
     const { t } = useTranslation()
     const [freeDelivery, setFreeDelivery] = useState('false')
-    const [anchorEl, setAnchorEl] = useState(null)
-    const [open,setOpen]=useState(false)
     const theme = useTheme()
 
     let currencySymbol
@@ -127,7 +121,7 @@ const OrderCalculation = (props) => {
         couponType,
         orderType,
         freeDelivery,
-        deliveryTip,
+        deliveryTip || 0,
         zoneData,
         origin,
         destination,

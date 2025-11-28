@@ -35,8 +35,8 @@ const CustomStep = styled(Step)(({ theme, active, complete, isSmallSize }) => ({
         color: complete
             ? theme.palette.primary.main
             : active
-            ? 'white'
-            : theme.palette.grey[600],
+                ? 'white'
+                : theme.palette.grey[600],
         padding: isSmallSize ? '10px 10px' : '15px 37px',
         alignItems: 'center',
         justifyContent: 'center',
@@ -48,8 +48,8 @@ const CustomStep = styled(Step)(({ theme, active, complete, isSmallSize }) => ({
         color: complete
             ? theme.palette.primary.main
             : active
-            ? theme.palette.text.primary
-            : theme.palette.grey[500],
+                ? theme.palette.text.primary
+                : theme.palette.grey[500],
         fontSize: isSmallSize ? '12px' : '16px',
         lineHeight: '16px',
     },
@@ -96,20 +96,18 @@ const CustomStepper = ({ activeStep, flag }) => {
                                     width: '38px',
                                     height: '38px',
                                     content: '""',
-                                    borderLeft: `2px solid ${
-                                        isComplete
+                                    borderLeft: `2px solid ${isComplete
                                             ? theme.palette.primary.main
                                             : activeStep === index
-                                            ? theme.palette.primary.main
-                                            : theme.palette.neutral[400]
-                                    }`,
-                                    borderTop: `2px solid ${
-                                        isComplete
+                                                ? theme.palette.primary.main
+                                                : theme.palette.neutral[400]
+                                        }`,
+                                    borderTop: `2px solid ${isComplete
                                             ? theme.palette.primary.main
                                             : activeStep === index
-                                            ? theme.palette.primary.main
-                                            : theme.palette.neutral[400]
-                                    }`,
+                                                ? theme.palette.primary.main
+                                                : theme.palette.neutral[400]
+                                        }`,
                                     transform:
                                         'translateY(-50%) rotate(135deg)',
                                 }}

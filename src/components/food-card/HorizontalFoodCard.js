@@ -95,8 +95,8 @@ const HorizontalFoodCard = (props) => {
                         <Stack
                             position="relative"
                             sx={{
-                                width:"100%",
-                                maxWidth:"115px",
+                                width: "100%",
+                                maxWidth: "115px",
                                 transition: `${theme.transitions.create(
                                     ['background-color', 'transform'],
                                     {
@@ -117,7 +117,7 @@ const HorizontalFoodCard = (props) => {
                                 width="115"
                                 height="95"
                                 borderRadius="3px"
-                                objectFit={imageUrl? 'cover' : 'contain'}
+                                objectFit={imageUrl ? 'cover' : 'contain'}
                             />
 
 
@@ -164,6 +164,14 @@ const HorizontalFoodCard = (props) => {
                                         sx={{
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
+                                            cursor: 'pointer',
+                                            transition: theme.transitions.create(['color'], {
+                                                duration: theme.transitions.duration.short,
+                                            }),
+                                            '&:hover': {
+                                               color: theme.palette.primary.main,
+                                               transform: 'scale(1.02)',
+                                            },
                                         }}
                                         color={theme.palette.neutral[1200]}
                                         component="h3"
@@ -176,7 +184,7 @@ const HorizontalFoodCard = (props) => {
                                                 Number(product?.veg) === 0
                                                     ? theme.palette.nonVeg
                                                     : theme.palette.success
-                                                          .light
+                                                        .light
                                             }
                                         />
                                     ) : null}
@@ -221,8 +229,8 @@ const HorizontalFoodCard = (props) => {
                                 {(product?.avg_rating !== 0 &&
                                     isRestaurantDetails &&
                                     !isSmall) ||
-                                (!isRestaurantDetails &&
-                                    product?.avg_rating !== 0) ? (
+                                    (!isRestaurantDetails &&
+                                        product?.avg_rating !== 0) ? (
                                     <FoodRating
                                         product_avg_rating={product?.avg_rating}
                                     />
@@ -247,7 +255,16 @@ const HorizontalFoodCard = (props) => {
                                     {!isInList(product.id) ? (
                                         <IconButton
                                             onClick={(e) => addToFavorite(e)}
-                                            sx={{ padding: '3px' }}
+                                            sx={{
+                                                padding: '6px',
+                                                transition: 'all 0.3s ease',
+                                                '&:hover': {
+                                                    backgroundColor: (theme) => theme.palette.primary.main,
+                                                    '& .MuiSvgIcon-root': {
+                                                        color: '#fff',
+                                                    },
+                                                },
+                                            }}
                                         >
                                             <FavoriteBorderIcon color="primary" />
                                         </IconButton>
@@ -256,7 +273,16 @@ const HorizontalFoodCard = (props) => {
                                             {inWishListPage === 'true' ? (
                                                 <IconButton
                                                     onClick={handleClickDelete}
-                                                    sx={{ padding: '3px' }}
+                                                    sx={{
+                                                        padding: '6px',
+                                                        transition: 'all 0.3s ease',
+                                                        '&:hover': {
+                                                            backgroundColor: (theme) => theme.palette.primary.main,
+                                                            '& .MuiSvgIcon-root': {
+                                                                color: '#fff',
+                                                            },
+                                                        },
+                                                    }}
                                                 >
                                                     <DeleteIcon />
                                                 </IconButton>
@@ -268,7 +294,16 @@ const HorizontalFoodCard = (props) => {
                                                             e
                                                         )
                                                     }
-                                                    sx={{ padding: '3px' }}
+                                                    sx={{
+                                                        padding: '6px',
+                                                        transition: 'all 0.3s ease',
+                                                        '&:hover': {
+                                                            backgroundColor: (theme) => theme.palette.primary.main,
+                                                            '& .MuiSvgIcon-root': {
+                                                                color: '#fff',
+                                                            },
+                                                        },
+                                                    }}
                                                 >
                                                     <FavoriteIcon color="primary" />
                                                 </IconButton>
@@ -280,7 +315,16 @@ const HorizontalFoodCard = (props) => {
                             {!isInCart && (
                                 <IconButton
                                     onClick={(e) => addToCart(e)}
-                                    sx={{ padding: '3px' }}
+                                    sx={{
+                                        padding: '6px',
+                                        transition: 'all 0.3s ease',
+                                        '&:hover': {
+                                            backgroundColor: (theme) => theme.palette.primary.main,
+                                            '& .MuiSvgIcon-root': {
+                                                color: '#fff',
+                                            },
+                                        },
+                                    }}
                                 >
                                     {addToCartLoading ? (
                                         <CircularLoader size="20px" />
@@ -290,8 +334,7 @@ const HorizontalFoodCard = (props) => {
                                 </IconButton>
                             )}
                             {isInCart &&
-                                !incrOpen &&
-                                product?.variations?.length === 0 && (
+                                !incrOpen && (
                                     <AfterAddToCart
                                         isInCart={isInCart}
                                         product={product}

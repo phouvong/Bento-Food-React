@@ -1,5 +1,5 @@
 import React from 'react'
-import { Container, Stack } from '@mui/material'
+import { Container, Stack, NoSsr } from '@mui/material'
 
 import Meta from '../../components/Meta'
 import { CustomHeader } from '@/api/Headers'
@@ -8,14 +8,16 @@ import HomeGuard from '../../components/home-guard/HomeGuard'
 const index = ({ configData }) => {
     return (
         <div className="div">
-            <HomeGuard>
-                <Meta title={`Order Tracking - ${configData?.business_name}`} />
-                <Container maxWidth="lg" sx={{ mb: { xs: '72px', md: '0' } }}>
-                    <Stack mt={{ xs: '20px', md: '80px' }} minHeight="500px">
-                        <TrackOrderInput configData={configData} />
-                    </Stack>
-                </Container>
-            </HomeGuard>
+            <Meta title={`Order Tracking - ${configData?.business_name}`} />
+            <NoSsr>
+                <HomeGuard>
+                    <Container maxWidth="lg" sx={{ mb: { xs: '72px', md: '0' } }}>
+                        <Stack mt={{ xs: '20px', md: '80px' }} minHeight="500px">
+                            <TrackOrderInput configData={configData} />
+                        </Stack>
+                    </Container>
+                </HomeGuard>
+            </NoSsr>
         </div>
     )
 }

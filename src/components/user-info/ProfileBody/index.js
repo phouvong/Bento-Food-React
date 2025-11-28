@@ -20,9 +20,13 @@ const ProfileBody = ({ page, orderId }) => {
         if (page === 'profile') {
             return <ProfilePage />
         }
-        if ((page === "order" || page === "order?flag=success" || page === "order?flag=cancel") && orderId) {
-
-            return (<OrderDetail orderId={orderId} />)
+        if (
+            (page === 'order' ||
+                page === 'order?flag=success' ||
+                page === 'order?flag=cancel') &&
+            orderId
+        ) {
+            return <OrderDetail orderId={orderId} />
         }
         if (
             page === 'wallets' ||

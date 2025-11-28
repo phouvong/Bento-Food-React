@@ -40,7 +40,7 @@ export const CustomBoxForTips = styled(Box)(({ theme, active }) => ({
 const DeliveryManTips = ({ deliveryTip, setDeliveryTip, tripsData }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
-    const [fieldValue, setFieldValue] = useState(deliveryTip)
+    const [fieldValue, setFieldValue] = useState(deliveryTip|| 0)
     const deliveryTips = [0, 10, 15, 20, 40]
     const { t } = useTranslation()
     const debounced = useDebouncedCallback(

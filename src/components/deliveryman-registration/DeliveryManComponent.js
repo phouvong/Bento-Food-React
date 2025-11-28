@@ -17,13 +17,16 @@ import {
     TitleTopSection,
 } from './CustomStylesDeliveryman'
 import { CustomButton } from '@/styled-components/CustomStyles.style'
-import { Typography } from '@mui/material'
+import { Typography, useMediaQuery } from '@mui/material'
 import AdditionalInformation from './AdditionalInformation'
 import { usePostDeliveryManRegisterInfo } from '@/hooks/react-query/deliveryman-registration/useRegisterDeliveryMan'
 import { onErrorResponse } from '../ErrorResponse'
 import * as Yup from 'yup'
+import { useTheme } from '@mui/styles'
 
 const DeliveryManComponent = ({ configData }) => {
+    const theme=useTheme()
+    const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const router = useRouter()
     const { t } = useTranslation()
     const [image, setImage] = useState('')
@@ -429,13 +432,11 @@ const DeliveryManComponent = ({ configData }) => {
                             onClick={handleReset}
                             disabled={isLoading}
                             sx={{
-                                backgroundColor: (theme) =>
-                                    alpha(theme.palette.neutral[200], 0.3),
-                                color: (theme) =>
-                                    `${theme.palette.primary.dark} !important`,
+                                backgroundColor: (theme) => alpha(theme.palette.neutral[200], 0.3),
+                                color: (theme) => `${theme.palette.primary.dark} !important`,
                                 px: '30px',
-
                                 borderRadius: '5px',
+                                border: (theme) => `1px solid ${theme.palette.primary.main}`, // ✅ added border
                             }}
                         >
                             {t('Reset')}
@@ -455,11 +456,12 @@ const DeliveryManComponent = ({ configData }) => {
                                 fontSize: '14px',
                             }}
                         >
-                            {t(
+                            {!isSmall ? (t(
                                 isLoading
                                     ? 'Submitting...'
                                     : 'Submit Information'
-                            )}
+                            )):t("Submit")}
+
                         </CustomButton>
                     </ActonButtonsSection>
                 </RegistrationCardWrapper>

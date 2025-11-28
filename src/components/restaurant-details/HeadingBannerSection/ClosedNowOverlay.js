@@ -2,12 +2,12 @@ import React from 'react'
 import { Stack, Typography } from '@mui/material'
 
 const ClosedNowOverlay = (props) => {
-    const { t, theme, scrollPosition, isSmall } = props
+    const { t, theme, scrollPosition, isSmall, threshold } = props
     return (
         <Stack
             sx={{
                 position: 'absolute',
-                bottom: isSmall && scrollPosition === 0 && 35,
+                bottom: isSmall && scrollPosition <= threshold && 35,
                 left: 0,
                 width: '100%',
                 background: (theme) => theme.palette.primary.overLay,

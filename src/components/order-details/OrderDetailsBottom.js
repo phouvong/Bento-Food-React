@@ -25,6 +25,7 @@ const OrderDetailsBottom = ({
     const [openModal, setOpenModal] = useState(false)
     const [openModalForPayment, setModalOpenForPayment] = useState()
     const [cancelReason, setCancelReason] = useState(null)
+    const [note, setNote] = useState('')
     const { t } = useTranslation()
     const theme = useTheme()
     const { data: cancelReasonsData, refetch } = useGetOrderCancelReason()
@@ -46,26 +47,23 @@ const OrderDetailsBottom = ({
     }
 
     const handleOnSuccess = () => {
-        if (!cancelReason) {
-            toast.error('Please select a cancellation reason')
-        } else {
-            const handleSuccess = (response) => {
-                //toast.success(response.data.message)
-                refetchOrderDetails()
-                refetchTrackData()
-                setOpenModal(false)
-            }
-            const formData = {
-                guest_id: getGuestId(),
-                order_id: id,
-                reason: cancelReason,
-                _method: 'put',
-            }
-            orderCancelMutation(formData, {
-                onSuccess: handleSuccess,
-                onError: onErrorResponse,
-            })
+        const handleSuccess = (response) => {
+            //toast.success(response.data.message)
+            refetchOrderDetails()
+            refetchTrackData()
+            setOpenModal(false)
         }
+        const formData = {
+            guest_id: getGuestId(),
+            order_id: id,
+            reason: cancelReason,
+            note: note,
+            _method: 'put',
+        }
+        orderCancelMutation(formData, {
+            onSuccess: handleSuccess,
+            onError: onErrorResponse,
+        })
     }
 
     return (
@@ -81,11 +79,11 @@ const OrderDetailsBottom = ({
                 }}
             >
                 {trackData &&
-                getToken() &&
-                trackData?.data?.order_status === 'confirmed' &&
-                !isTrackOrder &&
-                trackData?.data?.order_type !== 'dine_in' &&
-                trackData?.data?.order_type !== 'take_away' ? (
+                    getToken() &&
+                    trackData?.data?.order_status === 'confirmed' &&
+                    !isTrackOrder &&
+                    trackData?.data?.order_type !== 'dine_in' &&
+                    trackData?.data?.order_type !== 'take_away' ? (
                     <CustomButton
                         variant="contained"
                         onClick={handleTrackOrderClick}
@@ -110,9 +108,9 @@ const OrderDetailsBottom = ({
                     </>
                 )}
                 {trackData &&
-                trackData?.data?.order_status === 'pending' &&
-                trackData?.data?.payment_method === 'digital_payment' &&
-                trackData?.data?.payment_status === 'unpaid' ? (
+                    trackData?.data?.order_status === 'pending' &&
+                    trackData?.data?.payment_method === 'digital_payment' &&
+                    trackData?.data?.payment_status === 'unpaid' ? (
                     <CustomButton
                         variant="outlined"
                         onClick={() => setModalOpenForPayment(true)}
@@ -150,7 +148,7 @@ const OrderDetailsBottom = ({
                 setModalOpen={setOpenModal}
                 maxWidth="350px"
 
-                // onSuccess={handleOnSuccess}
+            // onSuccess={handleOnSuccess}
             >
                 <CancelOrder
                     cancelReason={cancelReason}
@@ -159,6 +157,7 @@ const OrderDetailsBottom = ({
                     setModalOpen={setOpenModal}
                     handleOnSuccess={handleOnSuccess}
                     orderLoading={orderLoading}
+                    setNote={setNote}
                 />
             </CustomModal>
             <CustomModal

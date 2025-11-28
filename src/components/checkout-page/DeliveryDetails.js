@@ -36,7 +36,6 @@ const DeliveryDetails = (props) => {
         token,
     } = props
     const { t } = useTranslation()
-
     const handleChange = (e) => {
         if (e.target.value === 'take_away') {
             setDeliveryTip(0)
@@ -88,8 +87,8 @@ const DeliveryDetails = (props) => {
                             name="row-radio-buttons-group"
                             onChange={(e) => handleChange(e)}
                         >
-                            {restaurantData?.data?.delivery &&
-                                global?.home_delivery && (
+                            {
+                                global?.home_delivery && restaurantData?.data?.delivery && (
                                     <FormControlLabel
                                         value="delivery"
                                         control={<Radio />}
@@ -97,7 +96,7 @@ const DeliveryDetails = (props) => {
                                     />
                                 )}
                             {restaurantData?.data?.take_away &&
-                                global?.take_away && (
+                                global?.take_away && subscriptionStates?.order !== '1' && (
                                     <FormControlLabel
                                         value="take_away"
                                         control={<Radio />}
@@ -105,7 +104,7 @@ const DeliveryDetails = (props) => {
                                     />
                                 )}
                             {restaurantData?.data?.is_dine_in_active &&
-                            global?.dine_in_order_option ? (
+                            global?.dine_in_order_option && subscriptionStates?.order !== '1' ? (
                                 <FormControlLabel
                                     value="dine_in"
                                     control={<Radio />}

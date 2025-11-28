@@ -1,0 +1,173 @@
+/* StackedCardSlider Custom Styles */
+
+.stacked-card-slider {
+  position: relative;
+  overflow: visible;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.stacked-card-slider .slick-slider {
+  position: relative;
+  overflow: visible;
+}
+
+.stacked-card-slider .slick-list {
+  overflow: visible !important;
+  padding: 0;
+  transform-style: preserve-3d;
+  height: 100%;
+}
+
+.stacked-card-slider .slick-track {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+  height: 100%;
+  position: relative;
+}
+
+.stacked-card-slider .slick-slide {
+  padding: 0;
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform-style: preserve-3d;
+  outline: none;
+  position: relative;
+  width: 100% !important;
+  height: 100%;
+}
+
+.stacked-card-slider .slick-slide > div {
+  transform-style: preserve-3d;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Card 3D Circular Effects */
+.stacked-card {
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform-style: preserve-3d;
+  will-change: transform, opacity, filter;
+  backface-visibility: hidden;
+}
+
+.stacked-card:hover {
+  transition: all 0.3s ease;
+}
+
+/* Circular layout enhancement */
+.stacked-card.circular {
+  position: absolute;
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
+
+.stacked-card.circular:hover {
+  transition: all 0.3s ease;
+}
+
+/* Custom dots styling */
+.stacked-card-slider .slick-dots {
+  bottom: -80px;
+  text-align: center;
+}
+
+.stacked-card-slider .slick-dots li {
+  margin: 0 8px;
+}
+
+.stacked-card-slider .slick-dots li button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.3);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.stacked-card-slider .slick-dots li button:before {
+  display: none;
+}
+
+.stacked-card-slider .slick-dots li.slick-active button {
+  background: #2196f3;
+  transform: scale(1.3);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+}
+
+/* Custom arrow styling */
+.stacked-card-slider .slick-arrow {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  border: 2px solid rgba(0,0,0,0.1);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  z-index: 20;
+}
+
+.stacked-card-slider .slick-arrow:hover {
+  background: #2196f3;
+  border-color: #2196f3;
+  transform: scale(1.1);
+  box-shadow: 0 12px 35px rgba(33, 150, 243, 0.3);
+}
+
+.stacked-card-slider .slick-arrow:before {
+  font-size: 20px;
+  color: #333;
+}
+
+.stacked-card-slider .slick-arrow:hover:before {
+  color: white;
+}
+
+.stacked-card-slider .slick-prev {
+  left: 20px;
+}
+
+.stacked-card-slider .slick-next {
+  right: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stacked-card-slider .slick-list {
+    padding: 0 40px;
+  }
+  
+  .stacked-card-slider .slick-slide {
+    padding: 0 10px;
+  }
+  
+  .stacked-card.center {
+    transform: translate3d(0, -20px, 80px) scale(1.1) !important;
+  }
+  
+  .stacked-card.adjacent-left,
+  .stacked-card.adjacent-right {
+    transform: translate3d(0, 20px, 40px) scale(0.8) !important;
+  }
+  
+  .stacked-card-slider .slick-arrow {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .stacked-card-slider .slick-prev {
+    left: 10px;
+  }
+  
+  .stacked-card-slider .slick-next {
+    right: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stacked-card-slider .slick-list {
+    padding: 0 20px;
+  }
+}

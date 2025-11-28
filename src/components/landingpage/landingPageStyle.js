@@ -31,23 +31,3 @@ export const DiscountBannerBox = styled(Box)(({ theme }) => ({
         top: '1px',
     },
 }))
-
-export const LandingHeroBox = styled(Box)(
-    ({ theme, isXSmall }) => ({
-        display: 'flex',
-        marginInline: isXSmall && '15px',
-        borderRadius: isXSmall && '5px',
-        position: 'relative',
-        zIndex: 1,
-        '> img': {
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            borderRadius: isXSmall && '5px',
-            position: 'absolute',
-            zIndex: -1,
-            bottom: 0,
-            left: 0,
-        },
-    })
-)

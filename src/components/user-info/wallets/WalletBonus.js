@@ -61,6 +61,14 @@ const WalletFundBonus = ({ walleBonus, isLoading }) => {
                                     fontSize={{ xs: '14px', md: '16px' }}
                                     fontWeight="600"
                                     color={theme.palette.primary.main}
+                                    sx={{
+                                        display: '-webkit-box !important',
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: 'vertical',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                    }}
+
                                 >
                                     {item?.title}
                                 </Typography>

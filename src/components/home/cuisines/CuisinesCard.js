@@ -7,7 +7,13 @@ import CustomNextImage from '@/components/CustomNextImage'
 const CuisinesCard = ({ item }) => {
     return (
         <>
-            <Link href={`cuisines/${item?.id}?name=${item?.name}`} style={{textDecoration: 'none'}}>
+            <Link
+                href={{
+                    pathname: `/cuisines/${item?.slug || item?.id}`,
+                    query: { name: item?.name },
+                }}
+                style={{ textDecoration: 'none' }}
+            >
                 <Stack sx={{ overflow: 'hidden' }} spacing={1}>
                     <Stack
                         alignItems="center"
@@ -17,7 +23,7 @@ const CuisinesCard = ({ item }) => {
                         sx={{
                             transition: 'transform 0.5s ease-in-out',
                             '&:hover': {
-                                transform: 'scale(1.1)',
+                                transform: 'scale(1.03)',
                             },
                         }}
                     >
@@ -44,7 +50,12 @@ const CuisinesCard = ({ item }) => {
                             display: '-webkit-box',
                             WebkitLineClamp: '1',
                             WebkitBoxOrient: 'vertical',
-                            textDecoration: 'none'
+                            textDecoration: 'none',
+                            transition: 'transform 0.5s ease-in-out',
+                            '&:hover': {
+                                color: (theme) => theme.palette.primary.main,
+                                transform: 'scale(1.03)',
+                            },
                         }}
                         component="h3"
                     >

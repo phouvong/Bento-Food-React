@@ -30,6 +30,7 @@ const TrackingPage = ({ data, guestOrderTracking,refetch ,refetchTrackData}) => 
         lat:"",
         lng:""
     })
+
     const steps = [
         {
             label: 'Order placed',

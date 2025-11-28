@@ -42,6 +42,8 @@ const MapComponent = ({
     order_details,
     tempDistance,
 }) => {
+
+    
     const theme = useTheme();
     const [map, setMap] = useState(null);
     const [zoom, setZoom] = useState(15);
@@ -102,7 +104,8 @@ const MapComponent = ({
     }, [userLat, userLong, latitude, longitude]);
 
     if (!isLoaded) return <CircularProgress />;
-
+  
+  
     return (
         <CustomStackFullWidth position="relative" className="map">
             {/* Zoom Buttons */}
@@ -134,7 +137,7 @@ const MapComponent = ({
                         slug={data[0]?.slug}
                         zone_id={data[0]?.zone_id}
                         distance={tempDistance}
-                        foods_count={data[0]?.foods}
+                        foods_count={data[0]?.foods?.length}
                         order_details={order_details}
                     />
                 </Stack>
@@ -142,7 +145,7 @@ const MapComponent = ({
 
             <GoogleMap
                 mapContainerStyle={customMapStyle || containerStyle}
-                //center={center} // Only initial center
+                center={order_details?center:null} // Only initial center
                 zoom={zoom}
                 onLoad={onLoad}
                 onUnmount={onUnmount}

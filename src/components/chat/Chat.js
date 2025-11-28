@@ -275,6 +275,7 @@ const Chat = ({ page }) => {
         receiver?.receiver_type === 'customer'
             ? receiver?.sender?.image_full_url
             : receiverImage
+
              
     return (
         <PushNotificationLayout refetch={refetch} pathName="info">

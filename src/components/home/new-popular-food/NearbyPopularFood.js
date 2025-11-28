@@ -186,7 +186,7 @@ const NearbyPopularFood = ({ isLoading }) => {
             <Grid
                 container
                 paddingTop={
-                    popularFood.length > 0 && { xs: '0.5rem', sm: '1.4rem' }
+                    popularFood.length > 0 && { xs: '0.5rem', sm: '0rem' }
                 }
                 gap={{ xs: '.3rem', sm: '1.4rem' }}
                 onMouseEnter={() => setHoverOn(true)}

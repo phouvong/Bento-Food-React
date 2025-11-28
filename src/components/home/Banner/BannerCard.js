@@ -7,7 +7,7 @@ import CustomNextImage from '@/components/CustomNextImage'
 
 const BannerCard = ({ banner, handleBannerClick, onlyShimmer }) => {
     const bannerImage = banner?.image_full_url
-   const isSmall = window.innerWidth < 600
+    const isSmall = window.innerWidth < 600
     return (
         <>
             {onlyShimmer ? (
@@ -16,19 +16,33 @@ const BannerCard = ({ banner, handleBannerClick, onlyShimmer }) => {
                         width="100%"
                         height="auto"
                         variant="rounded"
-                        sx={{aspectRatio: '2 / 1.06'}}
+                        sx={{ aspectRatio: '2 / 1.06' }}
                     />
                 </CustomStackFullWidth>
             ) : (
-                <CustomStackFullWidth sx={{borderRadius:"16px"}} onClick={() => handleBannerClick(banner)}>
+                <CustomStackFullWidth
+                    sx={{
+                        borderRadius: '16px',
+                        cursor: 'pointer',
+                        overflow: 'hidden',
+                        transition: 'transform 0.3s ease',
+                        '&:hover': {
+                            transform: 'scale(1.03)', // slight zoom/lift
+                        },
+                    }}
+                    onClick={() => handleBannerClick(banner)}
+                >
                     <CustomNextImage
-                     src={bannerImage}
-                     width={370}
-                     height={isSmall?142:185}
-                     alt="banner"
-                     priority={true}
-                     borderRadius="16px"
-                     objectFit="contain"
+                        src={bannerImage}
+                        width={370}
+                        height={isSmall ? 142 : 185}
+                        alt="banner"
+                        priority
+                        borderRadius="16px"
+                        objectFit="contain"
+                        style={{
+                            transition: 'transform 0.4s ease',
+                        }}
                     />
                 </CustomStackFullWidth>
             )}

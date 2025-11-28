@@ -24,7 +24,27 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import TodayIcon from '@mui/icons-material/Today'
 import moment from 'moment/moment'
 import InfoIcon from '@mui/icons-material/Info'
+import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 
+dayjs.extend(customParseFormat)
+export const formatTimeRange = (timeRange, global) => {
+    if (!timeRange) return ''
+
+    // Split start and end times safely
+    const [start, end] = (timeRange || '').split(' - ').map(t => t.trim())
+
+    if (!start || !end) return timeRange // fallback if format invalid
+
+    // Choose time display format
+    const format = global?.timeformat === '12' ? 'hh:mm A' : 'HH:mm'
+
+    // Format both sides
+    const formattedStart = dayjs(start, ['HH:mm', 'hh:mm A']).format(format)
+    const formattedEnd = dayjs(end, ['HH:mm', 'hh:mm A']).format(format)
+
+    return `${formattedStart} - ${formattedEnd}`
+}
 const RestaurantScheduleTime = (props) => {
     const {
         restaurantData,
@@ -60,6 +80,7 @@ const RestaurantScheduleTime = (props) => {
             ).slice(1)
         )
     }, [])
+
     useEffect(() => {
         if (day === 'Today') {
             if (time === 'Now') {
@@ -150,6 +171,7 @@ const RestaurantScheduleTime = (props) => {
                                         handleTime(event, newValue)
                                     }}
                                     defaultValue={getDayNumber(today)}
+                                    variant="outlined"
                                 >
                                     <MenuItem
                                         value={getDayNumber(today)}
@@ -210,18 +232,23 @@ const RestaurantScheduleTime = (props) => {
                                                     }}
                                                     defaultValue={time}
                                                     // value={time}
+                                                    variant="outlined"
                                                 >
-                                                    <MenuItem
-                                                        value={'Now'}
-                                                        sx={{
-                                                            '&:hover': {
-                                                                backgroundColor:
-                                                                    'primary.main',
-                                                            },
-                                                        }}
-                                                    >
-                                                        {t('Now')}
-                                                    </MenuItem>
+                                                    {restaurantData?.data
+                                                        ?.instant_order && (
+                                                        <MenuItem
+                                                            value={'Now'}
+                                                            sx={{
+                                                                '&:hover': {
+                                                                    backgroundColor:
+                                                                        'primary.main',
+                                                                },
+                                                            }}
+                                                        >
+                                                            {t('Now')}
+                                                        </MenuItem>
+                                                    )}
+
                                                     <MenuItem
                                                         value={'Later'}
                                                         sx={{
@@ -305,7 +332,7 @@ const RestaurantScheduleTime = (props) => {
                                                 value={item?.value}
                                                 onClick={() => handleSlot(item)}
                                             >
-                                                {item?.label}
+                                                {formatTimeRange(item?.label,global)}
                                             </TimeSlot>
                                         </Grid>
                                     )

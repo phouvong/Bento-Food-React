@@ -17,7 +17,7 @@ const postData = async (storeData, configData) => {
     const translations = JSON.stringify(translationsR)
 
     // Final data structure for the store data
-    const finalData = {
+    let finalData = {
         translations,
         vat: storeData.vat,
         min_delivery_time: storeData?.min_delivery_time,
@@ -38,11 +38,18 @@ const postData = async (storeData, configData) => {
         cuisine_ids: JSON.stringify(storeData?.cuisine_ids),
         tags: JSON.stringify(storeData?.tags),
         additional_data: JSON.stringify(storeData?.additional_data),
-        tin: storeData?.tin || "",
-        tin_expire_date: storeData?.tin_expire_date || "",
-        tin_certificate_image: storeData?.tin_certificate_image || "",
-    }
+    };
 
+// ✅ Conditionally add TIN-related fields only if they exist
+    if (storeData?.tin) {
+        finalData.tin = storeData.tin;
+    }
+    if (storeData?.tin_expire_date) {
+        finalData.tin_expire_date = storeData.tin_expire_date;
+    }
+    if (storeData?.tin_certificate_image) {
+        finalData.tin_certificate_image = storeData.tin_certificate_image;
+    }
     const formData = new FormData()
 
     // Function to recursively append data to FormData

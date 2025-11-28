@@ -60,9 +60,13 @@ export const getSelectedVariations = (variations) => {
 }
 
 export const CustomNavBox = styled(Box)(({ theme, isSticky }) => ({
-    display: isSticky ? 'visible' : 'hidden',
     background: theme.palette.navbarBg,
     boxShadow: '0px 5px 15px 0px rgba(0, 0, 0, 0.05)',
+    transition: 'opacity 0.3s ease, transform 0.3s ease',
+    opacity: isSticky ? 0 : 1,
+    display: isSticky ? 'none' : 'block',
+    transform: isSticky ? 'translateY(-20px)' : 'translateY(0)',
+    pointerEvents: isSticky ? 'none' : 'auto', // optional to prevent clicks
 }))
 const SecondNavbar = ({ isSticky, cartListRefetch }) => {
     const [modalFor, setModalFor] = useState('sign-in')
@@ -156,11 +160,13 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
                                     sx={{
                                         color: (theme) =>
                                             theme.palette.whiteContainer.main,
+                                        borderRadius: '10px',
+                                        fontSize: '14px',
+                                        fontWeight: '500',
                                     }}
                                 >
                                     {t('Sign In')}
                                 </CustomTypography>
-                                <LockIcon fontSize="small" />
                             </CustomStackFullWidth>
                         </SignInButton>
                         <AuthModal
@@ -273,80 +279,85 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
     }
 
     return (
-            <CustomNavBox isSticky={isSticky}>
-                <CustomContainer>
-                    <Toolbar disableGutters={true}>
-                        <CustomStackFullWidth
-                            ref={searchBoxRef}
+        <CustomNavBox isSticky={isSticky}>
+            <CustomContainer>
+                <Toolbar disableGutters={true}>
+                    <CustomStackFullWidth
+                        ref={searchBoxRef}
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                    >
+                        <Stack
                             direction="row"
-                            justifyContent="space-between"
+                            alignItems="center"
+                            justifyContent="center"
+                            gap="1rem"
                         >
-                            <Stack
-                                direction="row"
-                                alignItems="center"
-                                justifyContent="center"
-                                gap="1rem"
-                            >
-                                {!location && (
-                                    <LogoSide
-                                        global={global}
-                                        width="unset"
-                                        businessLogo={businessLogo}
-                                    />
-                                )}
-                                {!location && (
-                                    <AddressReselect
-                                        location={location}
-                                        userLocationUpdate={userLocationUpdate}
-                                    />
-                                )}
-                                {!isSmall && location && (
-                                    <NavLinks
-                                        languageDirection={languageDirection}
-                                        t={t}
-                                        zoneid={zoneid}
-                                    />
-                                )}
-                            </Stack>
-                            <Stack direction="row" alignItems="center">
-                                {handleShowSearch()}
-                                {!isSmall && !location && (
-                                    <Stack flexDirection="row" mr="45px">
-                                        <Stack
-                                            direction="row"
-                                            spacing={2}
-                                            justifyContent="end"
-                                            mr="45px"
-                                        >
-                                            <ThemeSwitches />
-                                        </Stack>
-                                        <CustomLanguage
-                                            countryCode={countryCode}
-                                            language={language}
-                                        />
+                            {!location && router.pathname === '/' && (
+                                <LogoSide
+                                    global={global}
+                                    width="unset"
+                                    businessLogo={businessLogo}
+                                />
+                            )}
+                            {/* {!location && (
+                                <AddressReselect
+                                    location={location}
+                                    userLocationUpdate={userLocationUpdate}
+                                />
+                            )} */}
+                            {!isSmall && (router.pathname !== '/' || location) && (
+                                <NavLinks
+                                    languageDirection={languageDirection}
+                                    t={t}
+                                    zoneid={zoneid}
+                                />
+                            )}
+                        </Stack>
+                        <Stack direction="row" alignItems="center">
+                            {handleShowSearch()}
+                            {!isSmall && !location && router.pathname === '/' && (
+                                <Stack flexDirection="row" alignItems="center">
+                                    <Stack
+                                        direction="row"
+                                        spacing={2}
+                                        justifyContent="end"
+                                        mr="15px"
+                                    >
+                                        <ThemeSwitches />
                                     </Stack>
-                                )}
-                                <Box
-                                    sx={{
-                                        display: { xs: 'none', md: 'flex' },
-                                        flexGrow: 0,
-                                        height: '40px',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    {handleAuthBasedOnRoute()}
-                                </Box>
-                                {!isSmall && location && (
-                                    <CustomLanguage
-                                        countryCode={countryCode}
-                                        language={language}
-                                    />
-                                )}
-                            </Stack>
-                        </CustomStackFullWidth>
-                    </Toolbar>
-                </CustomContainer>
-            </CustomNavBox>
+
+                                </Stack>
+                            )}
+                            <Box>
+                                <CustomLanguage
+                                    countryCode={countryCode}
+                                    language={language}
+                                    noLocation
+                                />
+                            </Box>
+                            <Box
+                                sx={{
+                                    display: { xs: 'none', md: 'flex' },
+                                    flexGrow: 0,
+                                    height: '40px',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                {handleAuthBasedOnRoute()}
+                            </Box>
+                            {/* {!isSmall && location && (
+                                <CustomLanguage
+                                    countryCode={countryCode}
+                                    language={language}
+                                />
+                            )} */}
+                        </Stack>
+                    </CustomStackFullWidth>
+                </Toolbar>
+            </CustomContainer>
+        </CustomNavBox>
     )
 }
 export default SecondNavbar

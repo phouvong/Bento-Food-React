@@ -85,6 +85,11 @@ const BusinessPlan = ({ formSubmit, isLoading, configData }) => {
 
         formSubmit(tempValues)
     }
+    const text1 = t('Store will pay')
+    const text2 = t('commission to')
+    const text3 = t(
+        'from each order. You will get access of all the features and options in store panel, app and interaction with user.'
+    )
 
     return (
         <CustomStackFullWidth
@@ -110,12 +115,11 @@ const BusinessPlan = ({ formSubmit, isLoading, configData }) => {
                     textAlign="center"
                     sx={{ color: theme.palette.neutral[1000] }}
                 >
-                    {t('Choose Your Business Plan')}
+                    {t('Choose Your Business Plan for')}
                 </Typography>
 
                 <CustomStackFullWidth
                     direction={{ xs: 'column', md: 'row' }}
-
                     mt="1rem"
                     gap="20px"
                 >
@@ -176,7 +180,7 @@ const BusinessPlan = ({ formSubmit, isLoading, configData }) => {
                                 color={theme.palette.neutral[400]}
                             >
                                 {t(
-                                    `Store will pay ${configData?.admin_commission}% commission to ${configData?.business_name} from each order. You will get access of all the features and options  in store panel , app and interaction with user.`
+                                    `${text1} ${configData?.admin_commission}% ${text2} ${configData?.business_name} ${text3}`
                                 )}
                             </Typography>
                         </Stack>
@@ -242,7 +246,7 @@ const BusinessPlan = ({ formSubmit, isLoading, configData }) => {
                                     color={theme.palette.neutral[400]}
                                 >
                                     {t(
-                                        'Run restaurant by puchasing subsciption  packages. You will have access the features of in restaurant panel , app and interaction with user according to the subscription packages.'
+                                        'Run restaurant by purchasing subscription packages. You will have access to the features in restaurant panel, app and interaction with user according to the subscription packages.'
                                     )}
                                 </Typography>
                             </Stack>

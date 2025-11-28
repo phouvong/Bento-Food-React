@@ -105,6 +105,7 @@ const Restaurant = () => {
   }, [])
 
   useEffect(() => {
+
     if (inView) {
       fetchNextPage()
       setOffSet((prevState) => prevState + 1)
@@ -151,9 +152,9 @@ const Restaurant = () => {
               sx={{
                 borderBottom: `1px solid ${theme.palette.borderBottomBg}`,
                 position: 'sticky',
-                top: { xs: '93px', md: '100px' },
+                top: { xs: '93px', md: '60px' },
                 padding: '15px 10px 0px 0px',
-                zIndex: 5,
+                zIndex: 1300,
                 background: theme.palette.neutral[1800],
               }}
           >

@@ -1,4 +1,5 @@
 import React from 'react'
+import { NoSsr } from '@mui/material'
 import WishList from '../../components/wishlist-page/WishList'
 import Meta from '../../components/Meta'
 import PushNotificationLayout from '../../components/PushNotificationLayout'
@@ -8,10 +9,11 @@ const index = ({ configData }) => {
     return (
         <div className="div">
             <Meta title={`My Wish list - ${configData?.business_name}`} />
-
-            <PushNotificationLayout>
-                <WishList />
-            </PushNotificationLayout>
+            <NoSsr>
+                <PushNotificationLayout>
+                    <WishList />
+                </PushNotificationLayout>
+            </NoSsr>
         </div>
     )
 }

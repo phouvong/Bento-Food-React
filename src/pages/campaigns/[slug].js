@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { NoSsr } from '@mui/material'
 import BasicCampaign from '../../components/campaigns/BasicCampaign'
 import Meta from '../../components/Meta'
 import { useRouter } from 'next/router'
@@ -9,33 +10,34 @@ import HomeGuard from '../../components/home-guard/HomeGuard'
 
 const Index = ({ configData }) => {
     const router = useRouter()
-    const id = router.query.id
+    const id = router.query.slug
 
-    const { data, refetch, isLoading, isRefetching } =
-        useGetBasicCampaignsDetails({ id })
+    const { data, refetch, isLoading, isRefetching } = useGetBasicCampaignsDetails({ id })
     useEffect(() => {
         refetch()
     }, [id])
 
     return (
         <div>
-            <HomeGuard>
-                <Meta title={`${data?.title} - ${configData?.business_name}`} />
-                <CustomContainer>
-                    <BasicCampaign
-                        campaignsDetails={data}
-                        configData={configData}
-                        isLoading={isLoading}
-                        isRefetching={isRefetching}
-                    />
-                </CustomContainer>
-            </HomeGuard>
+            <Meta title={`${data?.title} - ${configData?.business_name}`} />
+            <NoSsr>
+                <HomeGuard>
+                    <CustomContainer>
+                        <BasicCampaign
+                            campaignsDetails={data}
+                            configData={configData}
+                            isLoading={isLoading}
+                            isRefetching={isRefetching}
+                        />
+                    </CustomContainer>
+                </HomeGuard>
+            </NoSsr>
         </div>
     )
 }
 
 export default Index
-export const getServerSideProps = async ({ params: { id }, resolvedUrl }) => {
+export const getServerSideProps = async ({ params: { slug }, resolvedUrl }) => {
     const configRes = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/config`,
         {

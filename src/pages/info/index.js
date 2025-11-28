@@ -5,10 +5,9 @@ import UserInfo from '../../components/user-info'
 import AuthGuard from '../../components/authentication/AuthGuard'
 import jwt from 'base-64'
 import { useSearchParams } from 'next/navigation'
-import { usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation'
 const Index = () => {
-
-    const pathname = usePathname()  
+    const pathname = usePathname()
     const searchParams = useSearchParams()
     const page = searchParams.get('page')
     const orderId = searchParams.get('orderId')
@@ -31,7 +30,10 @@ const Index = () => {
                         }
                     }
                 } else {
-                    console.error('Decoded token is not a string:', decodedToken)
+                    console.error(
+                        'Decoded token is not a string:',
+                        decodedToken
+                    )
                 }
             } catch (error) {
                 console.error('Error decoding token:', error)
@@ -43,7 +45,7 @@ const Index = () => {
         <div>
             <CssBaseline />
             <CustomContainer>
-                    <AuthGuard from={pathname ? pathname.replace('/', '') : ''}>
+                <AuthGuard from={pathname ? pathname.replace('/', '') : ''}>
                     {page && (
                         <UserInfo
                             page={page}

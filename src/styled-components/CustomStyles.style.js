@@ -81,12 +81,12 @@ export const ImageContainer = styled(Box)(({ theme }) => ({
     },
 }))
 export const CustomColouredTypography = styled(Typography)(
-    ({ theme, color, fontsize, smallFont }) => ({
+    ({ theme, color, fontSize, smallFont }) => ({
         color: color ? color : theme.palette.primary.main,
-        fontSize: fontsize,
+        fontSize: fontSize,
         [theme.breakpoints.down('md')]: {
             // styles
-            fontSize: smallFont ? smallFont : fontsize,
+            fontSize: smallFont ? smallFont : fontSize,
         },
     })
 )
@@ -149,6 +149,9 @@ export const Logo = styled('div')(({ theme, height, width }) => ({
     maxWidth: '100px',
     position: 'relative',
     cursor: 'pointer',
+    [theme.breakpoints.down('sm')]: {
+        maxWidth: '80px',
+    },
     '& img': {
         height: '100%',
         objectFit: 'contain',
@@ -267,7 +270,7 @@ export const CustomImageContainerStyled = styled(Box, {
         width: width || '100%',
         height: height || '100%',
         minWidth: minwidth,
-        maxWidth: maxWidth,
+        maxWidth: maxWidth || undefined,
         marginBottom: marginBottom,
         position: 'relative',
         boxShadow: boxShadow,

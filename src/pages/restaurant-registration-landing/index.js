@@ -1,16 +1,31 @@
 import CssBaseline from '@mui/material/CssBaseline'
+import { NoSsr } from '@mui/material'
 import Meta from '@/components/Meta'
-import RestaurantRegistrationLanding from '@/components/restaurant-resgistration-landing'
-import { CustomHeader } from '@/api/Headers'
-import { checkMaintenanceMode } from '@/utils/customFunctions'
 
-const Index = ({ configData ,registrationLandingPageData}) => {
-    // useScrollToTop()
+import { checkMaintenanceMode } from '@/utils/customFunctions'
+import { fetchPageMetadata, processMetadata } from '@/utils/fetchPageMetadata'
+import RestaurantRegistrationLanding from '@/components/restaurant-resgistration-landing/Index'
+
+const Index = ({ configData, registrationLandingPageData, metaData, pathName }) => {
+    const metadata = processMetadata(metaData, {
+        title: `Store registration Landing - ${configData?.business_name}`,
+        description: '',
+        image: configData?.logo_full_url
+    })
+
     return (
         <>
             <CssBaseline />
-            <Meta title={`Store registration Landing - ${configData?.business_name}`} />
-            <RestaurantRegistrationLanding configData={configData} data={registrationLandingPageData} />
+            <Meta
+                title={metadata.title}
+                description={metadata.description}
+                ogImage={metadata.image}
+                pathName={pathName}
+                robotsMeta={metadata.robotsMeta}
+            />
+            <NoSsr>
+                <RestaurantRegistrationLanding configData={configData} data={registrationLandingPageData} />
+            </NoSsr>
         </>
     )
 }
@@ -18,11 +33,14 @@ const Index = ({ configData ,registrationLandingPageData}) => {
 export default Index;
 
 export const getServerSideProps = async (context) => {
-    const { req } = context
+    const { req, resolvedUrl } = context
     const language = req.cookies?.languageSetting || 'en'
+    const domain = req.headers.host
+    const pathName = 'https://' + domain + resolvedUrl
 
     let configData = null
     let registrationLandingPageData = null
+    let metaData = null
 
     try {
         const configRes = await fetch(
@@ -67,6 +85,9 @@ export const getServerSideProps = async (context) => {
         console.error('Landing page fetch error:', error)
     }
 
+    // Fetch dynamic metadata for restaurant join page
+    metaData = await fetchPageMetadata('restaurant_join_page', null, language)
+
     // Redirect to 404 if data is missing
     if (
         !configData ||
@@ -94,6 +115,8 @@ export const getServerSideProps = async (context) => {
         props: {
             configData,
             registrationLandingPageData,
+            metaData,
+            pathName,
         },
     }
 }

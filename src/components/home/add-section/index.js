@@ -199,10 +199,11 @@ const AddsSection = ({ data, isLoading }) => {
                                 sx={{
                                     backgroundImage:
                                         "url('/static/paidAdds.png')",
-                                    marginTop: '10px',
+                                    //marginTop: '10px',
                                     backgroundRepeat: 'no-repeat',
                                     backgroundSize: 'cover',
                                     borderRadius: '10px',
+                                    marginTop:"30px"
                                 }}
                                 onMouseEnter={() => setHoverOn(true)}
                                 onMouseLeave={() => setHoverOn(false)}
@@ -213,7 +214,7 @@ const AddsSection = ({ data, isLoading }) => {
                                         padding:
                                             languageDirection === 'rtl'
                                                 ? '25px 25px 25px 25px'
-                                                : '25px 0px 25px 25px',
+                                                : '20px 0px 25px 25px',
                                         borderRadius: 'inherit',
                                         [theme.breakpoints.down('sm')]: {
                                             padding:

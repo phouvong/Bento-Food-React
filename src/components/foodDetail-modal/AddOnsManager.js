@@ -17,6 +17,7 @@ const AddOnsManager = (props) => {
         setCheckAddOn,
         checkAddOne,
         itemIsLoading,
+        variationInCart
     } = props
     return (
         <Box paddingLeft={{ xs: '0px', md: '0px' }}>

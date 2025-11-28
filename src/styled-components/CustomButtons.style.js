@@ -82,4 +82,5 @@ export const SignInButton = styled(Button)(({ theme }) => ({
     color: '#fff',
     backgroundColor: theme.palette.primary.main,
     padding: '7px 20px',
+    borderRadius: '10px',
 }))

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import placeholder from '../../public/static/notimage.png'
+import placeholder from "../../public/static/notimage.png";
 
 const shimmer = (w, h) => `
 <svg width="${w}" height="${h}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -24,34 +24,36 @@ const toBase64 = (str) =>
         : window.btoa(str);
 
 const CustomImage = ({
-     src,
-     altSrc = placeholder,
-     alt = "Image",
-     width,
-     height,
-    objectFit,
-    borderRadius,
-    aspectRatio,
-     ...props
- }) => {
+                         src,
+                         altSrc = placeholder,
+                         alt = "Image",
+                         width,
+                         height,
+                         objectFit = "cover",
+                         borderRadius,
+                         aspectRatio,
+                         ...props
+                     }) => {
     const [currentSrc, setCurrentSrc] = useState(src || altSrc);
+    const [isError, setIsError] = useState(false);
 
     useEffect(() => {
         setCurrentSrc(src || altSrc);
+        setIsError(false);
     }, [src, altSrc]);
 
     const handleError = () => {
         if (altSrc && currentSrc !== altSrc) {
             setCurrentSrc(altSrc);
+            setIsError(true);
         }
     };
 
-    // Conditionally create style object
     const style = {
-        objectFit,
+        objectFit: isError ? "contain" : objectFit,
         borderRadius,
         aspectRatio,
-        ...props.style, // allow passing additional styles
+        ...props.style,
     };
 
     return (

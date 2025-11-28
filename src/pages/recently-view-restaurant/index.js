@@ -1,4 +1,5 @@
 import React from 'react'
+import { NoSsr } from '@mui/material'
 import { CustomHeader } from '@/api/Headers'
 import { landingPageApi } from '@/components/landingpage/Api'
 
@@ -11,13 +12,14 @@ const Index = ({ configData, landingPageData, pathName }) => {
     return (
         <>
             <Meta
-                title={`${t('Recently View Restaurant')} on ${
-                    configData?.business_name
-                }`}
+                title={`${t('Recently View Restaurant')} on ${configData?.business_name
+                    }`}
                 ogImage={`${configData?.base_urls?.react_landing_page_images}/${landingPageData?.banner_section_full?.banner_section_img_full}`}
                 pathName={pathName}
             />
-            <RecentlyViewRestaurantsPage />
+            <NoSsr>
+                <RecentlyViewRestaurantsPage />
+            </NoSsr>
         </>
     )
 }

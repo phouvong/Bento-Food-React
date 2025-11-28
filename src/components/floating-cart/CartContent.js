@@ -1,5 +1,13 @@
-import React from 'react'
-import { Grid, IconButton, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material'
+import React, { useState } from 'react'
+import {
+    Grid,
+    IconButton,
+    Stack,
+    Tooltip,
+    Typography,
+    useMediaQuery,
+    TextField,
+} from '@mui/material'
 import CustomImageContainer from '../CustomImageContainer'
 import {
     OrderFoodAmount,
@@ -44,6 +52,8 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const { global } = useSelector((state) => state.globalSettings)
+    const [editingQuantity, setEditingQuantity] = useState(false)
+    const [tempQuantity, setTempQuantity] = useState(item?.quantity || 1)
     const { mutate: itemRemove, isLoading: removeIsLoading } =
         useDeleteCartItem()
     const { mutate: updateMutate, isLoading: updatedLoading } =
@@ -104,7 +114,7 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
         )
         if (item?.maximum_cart_quantity) {
             if (item?.maximum_cart_quantity <= item?.quantity) {
-                toast.error(t('Out Of Limits'))
+                toast.error(t(`Max Limits ${item?.maximum_cart_quantity}`))
             } else {
                 // dispatch(incrementProductQty(product))
                 updateMutate(itemObject, {
@@ -117,7 +127,6 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
                 onSuccess: (res) => cartUpdateHandleSuccess(res, item),
                 onError: onErrorResponse,
             })
-            //dispatch(incrementProductQty(item))
         }
     }
     const cartUpdateHandleSuccessDecrement = (res, cartItem) => {
@@ -190,6 +199,84 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
             onError: onErrorResponse,
         })
     }
+
+    const handleQuantityEdit = () => {
+        setEditingQuantity(true)
+        setTempQuantity(item?.quantity || 1)
+    }
+
+    const handleQuantityChange = (e) => {
+        // Only update temporary state, don't submit yet
+        const value = parseInt(e.target.value) || ''
+        // Prevent negative values
+        if (value >= 0) {
+            setTempQuantity(value)
+        }
+    }
+
+    const handleQuantitySubmit = () => {
+        // Only submit when user finishes editing (blur or Enter key)
+        const newQuantity = Math.max(1, tempQuantity || 1)
+        if (newQuantity !== item?.quantity) {
+            updateQuantityDirectly(newQuantity)
+        }
+        setEditingQuantity(false)
+    }
+
+    const handleQuantityKeyPress = (e) => {
+        // Prevent minus sign, plus sign, 'e', and decimal point
+        if (['-', '+', 'e', 'E', '.'].includes(e.key)) {
+            e.preventDefault()
+            return
+        }
+
+        if (e.key === 'Enter') {
+            handleQuantitySubmit()
+        } else if (e.key === 'Escape') {
+            setEditingQuantity(false)
+            setTempQuantity(item?.quantity || 1)
+        }
+    }
+
+    const updateQuantityDirectly = (newQuantity) => {
+        const totalPrice =
+            item?.price + getTotalVariationsPrice(item?.variations)
+        const getPriceAfterDiscount = getConvertDiscount(
+            item?.discount,
+            item?.discount_type,
+            totalPrice,
+            item?.restaurant_discount
+        )
+        const productPrice = getPriceAfterDiscount * newQuantity
+        const itemObject = getItemDataForAddToCart(
+            item,
+            newQuantity,
+            productPrice,
+            guestId
+        )
+
+        if (
+            item?.maximum_cart_quantity &&
+            newQuantity > item?.maximum_cart_quantity
+        ) {
+            toast.error(t('Out Of Limits'))
+            setTempQuantity(item?.quantity || 1)
+            return
+        }
+
+        updateMutate(itemObject, {
+            onSuccess: (res) => cartUpdateHandleSuccess(res, item),
+            onError: (error) => {
+                error?.response?.data?.errors?.forEach((items) => {
+                    CustomToaster('error', items?.message)
+                    if (items?.code === 'stock_out') {
+                       // handleProductUpdateModal(item)
+                    }
+                })
+                setTempQuantity(item?.quantity || 1)
+            },
+        })
+    }
     return (
         <Grid
             item
@@ -208,13 +295,12 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
                 sx={{ cursor: 'pointer', paddingInlineEnd: '0' }}
             >
                 <CustomNextImage
-                    height={isSmall?"70":"90"}
-                    width={isSmall?"70":"90"}
+                    height={isSmall ? '70' : '90'}
+                    width={isSmall ? '70' : '90'}
                     src={item.image_full_url}
-                    objectFit={item.image_full_url?"cover":"contain"}
+                    objectFit={item.image_full_url ? 'cover' : 'contain'}
                     borderRadius="1rem"
                 />
-
             </Grid>
             <Grid item md={9} xs={9} sx={{ paddingInlineStart: '.7rem' }}>
                 <Grid container md={12} sm={12} xs={12} spacing={{ xs: 1 }}>
@@ -227,8 +313,13 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
                             <OrderFoodName
                                 sx={{
                                     cursor: 'pointer',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
                                 }}
-                                onClick={() => handleProductUpdateModal(item)}
+                                //onClick={() => handleProductUpdateModal(item)}
                             >
                                 {item.name}
                             </OrderFoodName>
@@ -314,15 +405,89 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
                                             padding: '3px',
                                         }}
                                         onClick={() => handleDecrement(item)}
-                                        //onClick={decrementPrice}
+                                    //onClick={decrementPrice}
                                     />
                                 </IconButton>
                             )}
 
                             {updatedLoading ? (
                                 <CircularLoader size="14px" />
+                            ) : editingQuantity ? (
+                                <TextField
+                                    size="small"
+                                    type="number"
+                                    value={tempQuantity}
+                                    onChange={handleQuantityChange}
+                                    onBlur={handleQuantitySubmit}
+                                    onKeyDown={handleQuantityKeyPress}
+                                    onInput={(e) => {
+                                        // Prevent negative values from being typed
+                                        if (e.target.value < 0) {
+                                            e.target.value = 0
+                                        }
+                                    }}
+                                    autoFocus
+                                    inputProps={{
+                                        min: 1,
+                                        style: {
+                                            textAlign: 'center',
+                                            padding: '7px 7px',
+                                            width: '50px',
+                                        },
+                                    }}
+                                    sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                            height: '24px',
+                                            minWidth: '20px',
+                                            '& fieldset': {
+                                                borderRadius: '4px',
+                                                border: '1px solid ',
+                                                borderColor: (theme) =>
+                                                    theme.palette.neutral[400],
+                                            },
+                                            '&:hover fieldset': {
+                                                borderRadius: '4px',
+                                                border: '1px solid',
+                                                borderColor: (theme) =>
+                                                    theme.palette.neutral[400],
+                                            },
+                                            '&.Mui-focused fieldset': {
+                                                borderRadius: '4px',
+                                                border: '1px solid',
+                                                borderColor: (theme) =>
+                                                    theme.palette.neutral[400],
+                                            },
+                                        },
+                                        // Hide number input arrows
+                                        '& input[type=number]': {
+                                            '-moz-appearance': 'textfield',
+                                        },
+                                        '& input[type=number]::-webkit-outer-spin-button':
+                                        {
+                                            '-webkit-appearance': 'none',
+                                            margin: 0,
+                                        },
+                                        '& input[type=number]::-webkit-inner-spin-button':
+                                        {
+                                            '-webkit-appearance': 'none',
+                                            margin: 0,
+                                        },
+                                    }}
+                                />
                             ) : (
-                                <Typography width="14px">
+                                <Typography
+                                    width="14px"
+                                    onClick={handleQuantityEdit}
+                                    sx={{
+                                        cursor: 'pointer',
+                                        userSelect: 'none',
+                                        '&:hover': {
+                                            backgroundColor:
+                                                'rgba(0, 0, 0, 0.04)',
+                                            borderRadius: '4px',
+                                        },
+                                    }}
+                                >
                                     {item?.quantity}
                                 </Typography>
                             )}

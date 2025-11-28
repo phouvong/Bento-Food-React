@@ -108,7 +108,7 @@ const Cuisines = () => {
                     {!cuisines ? (
                         <CustomStackFullWidth
                             spacing={1}
-                            paddingTop={{ xs: '1rem', sm: '1.9rem' }}
+                            paddingTop={{ xs: '1rem', sm: '1.5rem' }}
                         >
                             <Skeleton
                                 width={120}
@@ -126,7 +126,7 @@ const Cuisines = () => {
                             <Grid
                                 container
                                 sx={{
-                                    paddingTop: { xs: '1rem', sm: '1.9rem' },
+                                    paddingTop: { xs: '1rem', sm: '1.5rem' },
                                 }}
                                 gap="1.2rem"
                             >

@@ -42,10 +42,11 @@ const ProductSearchPage = ({
     const [searchOrPage, setSearchOrPage] = useState({})
     const [totalData, setTotalData] = useState(null)
     const activeFilters = searchTagData.filter((item) => item.isActive === true)
+
     const apiKey =
         foodOrRestaurant === 'products'
             ? 'products-search'
-            : 'restaurant-search'
+            : 'restaurants-search'
     const handleAPiCallOnSuccess = (res) => {
         if (restaurantType && !tags) {
             dispatch(setFoodOrRestaurant('restaurants'))
@@ -107,6 +108,7 @@ const ProductSearchPage = ({
             onError: onErrorResponse,
         }
     )
+
     
     //POPULAR AND BEST REVIEW FOOD API
     const {

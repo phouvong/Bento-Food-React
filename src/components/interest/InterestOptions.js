@@ -66,7 +66,7 @@ const InterestOptions = (props) => {
             {
                 onSuccess: (response) => {
                     toast.success(response?.message)
-                    Router.push('/home')
+                    Router.back()
                 },
                 onError: (error) => {
                     toast.error(error?.response?.data?.message)

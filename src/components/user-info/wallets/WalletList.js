@@ -397,7 +397,11 @@ const Wallet = ({ page }) => {
                                 </CustomPopover>
                             </CustomStackFullWidth>
                             <CustomModal
-                                openModal={open}
+                                openModal={
+                                    open &&
+                                    global?.active_payment_method_list?.length >
+                                        0
+                                }
                                 setModalOpen={setOpen}
                                 bgColor={theme.palette.customColor.ten}
                             >
@@ -624,10 +628,12 @@ const Wallet = ({ page }) => {
                         </Grid>
                     ) : (
                         <Grid item sm={12} xs={12} md={7.5}>
-                            <WalletFundBonus
-                                walleBonus={walleBonus}
-                                isLoading={walletBonusIsLoading}
-                            />
+                            {global?.add_fund_status ?  (
+                                <WalletFundBonus
+                                    walleBonus={walleBonus}
+                                    isLoading={walletBonusIsLoading}
+                                />
+                            ):null}
                         </Grid>
                     )}
                     <Grid item md={12} xs={12}>

@@ -39,6 +39,7 @@ const SearchFilterTag = ({
     const router = useRouter()
     const theme = useTheme()
     const scrolling = useScrollTrigger()
+
     useEffect(() => {
         dispatch(setSearchTagData(storeData))
     }, [searchMockData])
@@ -51,8 +52,8 @@ const SearchFilterTag = ({
                     item.value === value
                         ? { ...item, isActive: !item.isActive }
                         : item.value === 'veg' || item.value === 'nonVeg'
-                        ? { ...item, isActive: false }
-                        : item
+                            ? { ...item, isActive: false }
+                            : item
                 )
             } else {
                 // For other options, toggle the isActive state
@@ -131,17 +132,15 @@ const SearchFilterTag = ({
                 position: 'sticky',
                 top: {
                     xs: '45px',
-                    md: router.pathname !== '/home' ? '0px' : '50px',
+                    md: router.pathname !== '/home' ? '0px' : '5px',
                 },
                 zIndex: { xs: 1100, md: isSticky ? 1200 : 99 },
             }}
         >
             <Card
                 sx={{
-                    boxShadow: isSticky
-                        ? categoryIsSticky
-                            ? 'none'
-                            : '0px 1px 1px rgba(100, 116, 139, 0.06), 0px 1px 2px rgba(100, 116, 139, 0.1)'
+                    boxShadow: isSticky ?
+                        '0px 1px 1px rgba(100, 116, 139, 0.06), 0px 1px 2px rgba(100, 116, 139, 0.1)'
                         : 'none', // Change this value based on your non-sticky shadow style
                     paddingBottom: '1rem',
                     paddingTop: '.5rem',
@@ -163,6 +162,7 @@ const SearchFilterTag = ({
                         activeFilters={activeFilters}
                         page={page}
                         restaurantType={restaurantType}
+                        homePage
                     />
                 </CustomContainer>
             </Card>

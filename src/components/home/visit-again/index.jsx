@@ -30,7 +30,7 @@ import RestaurantBoxCard from '../../restaurant-details/RestaurantBoxCard'
 import { MapSetionWrapper, VisitAgainWrapper } from '../HomeStyle'
 import NearByRestaurant from './NearByRestaurant'
 
-const CustomSlider = styled(Stack)(
+export const CustomSlider = styled(Stack)(
     ({ theme, languageDirection, gap, paddingBottom, isCenter, itemLength }) =>
         isCenter
             ? {
@@ -80,6 +80,7 @@ const CustomSlider = styled(Stack)(
                       gap: '30px !important ',
                       '@media screen and (max-width: 450px)': {
                           marginLeft: '85px !important',
+                          gap: '20px !important ',
                       },
                   },
               }
@@ -320,7 +321,8 @@ const VisitAgain = () => {
                                     color: theme.palette.primary.main,
                                     '&:hover': {
                                         backgroundColor:
-                                            theme.palette.neutral[200],
+                                            theme.palette.primary.main,
+                                        color:theme.palette.neutral[100]
                                     },
                                 }}
                                 component="button"

@@ -9,12 +9,12 @@ import { CustomTypography } from '@/components/custom-tables/Tables.style'
 
 const useStyles = makeStyles((theme) => ({
     borderClass: ({
-        theme,
-        focus,
-        languageDirection,
-        rtlChange,
-        borderradius,
-    }) => ({
+                      theme,
+                      focus,
+                      languageDirection,
+                      rtlChange,
+                      borderradius,
+                  }) => ({
         '&.react-tel-input .special-label': {
             fontSize: '12px',
             fontWeight: 400,
@@ -57,15 +57,16 @@ const useStyles = makeStyles((theme) => ({
             border: focus
                 ? `1px solid ${theme.palette.primary.main}`
                 : `1px solid ${theme.palette.divider}`,
-            borderRight: 'none',
+            borderRight: '1px solid ' + theme.palette.divider,
+
             padding:
-                languageDirection === 'rtl' ? '0 25px 0 11px' : ' 0 0px 0 11px',
-            borderRadius: `${borderradius ?? '3px'} 0px 0px ${
+                languageDirection === 'rtl' ? '0 15px 0 11px' : ' 0 0px 0 11px',
+            borderRadius: `${borderradius ?? '3px'} 6px 6px ${
                 borderradius ?? '3px'
             }`,
         },
         '&.react-tel-input .selected-flag .arrow': {
-            left: languageDirection === 'rtl' ? '13px' : '29px',
+            left: languageDirection === 'rtl' ? '5px' : '5px',
         },
         '&.react-tel-input .flag-dropdown.open .selected-flag': {
             backgroundColor: 'unset',
@@ -90,14 +91,14 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const CustomLoginPhoneNInput = ({
-    value,
-    onHandleChange,
-    initCountry,
-    touched,
-    errors,
-    rtlChange,
-    borderradius,
-}) => {
+                                    value,
+                                    onHandleChange,
+                                    initCountry,
+                                    touched,
+                                    errors,
+                                    rtlChange,
+                                    borderradius,
+                                }) => {
     const { t } = useTranslation()
     const theme = useTheme()
     const [languageDirection, setLanguageDirection] = useState('ltr')
@@ -165,16 +166,19 @@ const CustomLoginPhoneNInput = ({
                     backgroundColor: 'transparent',
                     position: 'absolute',
                     border: `1px solid ${theme.palette.divider}`,
-                    borderLeft: 'none',
+                    borderLeft: languageDirection==="rtl" ? `1px solid ${theme.palette.divider}`:'none',
                     borderTopRightRadius: '10px',
                     borderBottomRightRadius: '10px',
+                    borderBottomLeftRadius: languageDirection==="rtl" ? '10px':'0px',
+                    borderTopLeftRadius: languageDirection==="rtl" ? '10px':'0px',
                     outline: 'none',
-                    width: 'calc(100% - 52px)',
+                    width: languageDirection==="rtl"?"100%":'calc(100% - 52px)',
                     right: 0,
                     top: 0,
                     height: '45px',
                     margin: 0,
                     color: theme.palette.neutral[1000],
+                    paddingInlineStart:languageDirection==="rtl"? "62px":"0px"
                 }}
                 value={value}
                 onChange={(e) => changeHandler(e.target.value)}

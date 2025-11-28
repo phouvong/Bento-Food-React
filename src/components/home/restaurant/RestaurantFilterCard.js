@@ -29,6 +29,7 @@ const RestaurantFilterCard = (props) => {
                 ? checkboxData?.slice(2)
                 : checkboxData
             : checkboxData
+
     const hasActive = checkboxData.some(item => item.isActive);
     return (
         <WrapperForSideDrawerFilter>
@@ -42,7 +43,7 @@ const RestaurantFilterCard = (props) => {
                         <Typography fontSize="14px" fontWeight="500">
                             {t('Filter By')}
                         </Typography>
-                        {hasActive && ( <Button
+                        {( <Button
                             onClick={handleReset}
                             fontSize="14px"
                             fontWeight="500"

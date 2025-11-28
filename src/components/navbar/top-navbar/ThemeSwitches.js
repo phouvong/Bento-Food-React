@@ -1,36 +1,29 @@
-import { Stack, Typography } from '@mui/material'
+import { alpha, Stack } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSettings } from '@/contexts/use-settings'
-import { CustomSwitch } from './TopNav.style'
-const getValues = (settings) => ({
-    direction: settings.direction,
-    responsiveFontSizes: settings.responsiveFontSizes,
-    theme: settings.theme,
-})
+import LightModeIcon from '@mui/icons-material/LightMode'
+import DarkModeIcon from '@mui/icons-material/DarkMode'
+import { useRouter } from 'next/router'
 
-const ThemeSwitches = ({ noText }) => {
-    const { settings, saveSettings } = useSettings()
-    const [values, setValues] = useState(getValues(settings))
+const ThemeSwitches = () => {
+    const theme = useTheme();
+    const router = useRouter();
+    const { settings, saveSettings } = useSettings();
 
-    const { t } = useTranslation()
-    const theme = useTheme()
-    const handleChange = (event) => {
-        if (event.target.checked) {
-            localStorage.setItem('mode', 'light')
-            saveSettings({
-                ...values,
-                theme: 'light',
-            })
-        } else {
-            localStorage.setItem('mode', 'dark')
-            saveSettings({
-                ...values,
-                theme: 'dark',
-            })
-        }
-        setValues({ ...values, theme: event.target.checked ? 'light' : 'dark' })
+    //check the context is browser
+    let location = undefined;
+    if (typeof window !== 'undefined') {
+        location = localStorage.getItem('location')
+    }
+
+    const handleChange = () => {
+        const newTheme = theme.palette.mode === 'light' ? 'dark' : 'light'
+        localStorage.setItem('mode', newTheme)
+        saveSettings({
+            ...settings,
+            theme: newTheme,
+        })
     }
 
     return (
@@ -39,18 +32,35 @@ const ThemeSwitches = ({ noText }) => {
             alignItems="center"
             justifyContent="center"
             spacing={0.8}
+            onClick={handleChange}
+            backgroundColor={alpha(theme.palette.primary.light, 0.2)}
+            height={location ? '24px' : '38px'}
+            width={location ? '24px' : '38px'}
+            borderRadius="50%"
+            padding="6px"
+            sx={{
+                cursor: 'pointer',
+                svg: {
+                    height: location ? '1rem' : '1em',
+                    width: location ? '1rem' : '1em',
+                }
+            }}
         >
-            <CustomSwitch
-                checked={settings.theme === 'light'}
-                onChange={handleChange}
-            />
-            {!noText ? (
-                <Typography fontSize="14px" color={theme.palette.neutral[1000]}>
-                    {settings.theme === 'light'
-                        ? t('Light Mode')
-                        : t('Dark Mode')}
-                </Typography>
-            ) : null}
+            {theme.palette.mode === 'light' ? (
+                <LightModeIcon
+                    sx={{
+                        color: theme.palette.primary.main,
+                        fontSize: '25px',
+                    }}
+                />
+            ) : (
+                <DarkModeIcon
+                    sx={{
+                        color: theme.palette.neutral[500],
+                        fontSize: '25px',
+                    }}
+                />
+            )}
         </Stack>
     )
 }

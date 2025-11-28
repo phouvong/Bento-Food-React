@@ -21,13 +21,13 @@ const MapWithSearch = ({
     polygonPaths,
     handleLocation,
     restaurantAddressHandler,
-                           setInZone,
-                           zoneId,
-                           handleAgreeLocation
+    setInZone,
+    zoneId,
+    handleAgreeLocation,
+    locationFrom,
 }) => {
     const theme = useTheme()
-    const dispatch = useDispatch()
-    const { global } = useSelector((state) => state.globalSettings)
+
     const { location, formatted_address } = useSelector(
         (state) => state.addressData
     )
@@ -55,27 +55,27 @@ const MapWithSearch = ({
         currentLocation = JSON.parse(localStorage.getItem('currentLatLng'))
         //hostname = window.location.hostnam
     }
+
     useEffect(() => {
         if (polygonPaths?.length > 0) {
             restaurantAddressHandler(currentLocationValue?.description)
-        } else {
         }
 
-        handleLocation?.(location)
+        handleLocation?.(locationFrom || location)
     }, [currentLocationValue])
 
     const successHandler = (res) => {
-        setInZone(res);
+        setInZone(res)
         if (!res) {
-            toast.error("Out Of The Zone");
+            toast.error('Out Of The Zone')
         }
-    };
+    }
     const { data: checkedData } = useGetCheckZone(
         location,
         zoneId,
         successHandler
-    );
-    
+    )
+
     return (
         <CustomStackFullWidth spacing={1} gap="12px">
             {!searchBoxInside && (
@@ -135,7 +135,7 @@ const MapWithSearch = ({
                     <GoogleMapComponent
                         key={rerenderMap}
                         setLocation={setLocations}
-                        location={location}
+                        location={locationFrom ||location}
                         setPlaceDetailsEnabled={setPlaceDetailsEnabled}
                         placeDetailsEnabled={placeDetailsEnabled}
                         locationEnabled={locationEnabled}

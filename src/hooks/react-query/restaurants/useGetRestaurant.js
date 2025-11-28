@@ -5,6 +5,7 @@ import { onErrorResponse } from '@/components/ErrorResponse'
 
 const getData = async (params, pageParam) => {
     const { filterByData, offset, page_limit, filterType, searchKey } = params
+    console.log({offset})
     const { data } = await MainApi.get(
         `/api/v1/restaurants/get-restaurants/all?offset=${offset}&limit=${page_limit}&filter_data=${filterType}&name=${searchKey}&veg=${
             filterByData?.veg ? 1 : 0

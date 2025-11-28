@@ -3,7 +3,7 @@ import { alpha, Stack, Typography } from '@mui/material'
 import { t } from 'i18next'
 import { useTheme } from '@mui/styles'
 
-const Line = () => {
+const Line = ({languageDirection}) => {
     const theme = useTheme()
     return (
         <Stack
@@ -28,12 +28,13 @@ const Line = () => {
                     },
                 }}
             >
-                <Typography
+                {languageDirection==="rtl" ? null:(<Typography
                     fontSize="14px"
                     color={(theme) => theme.palette.neutral[400]}
                 >
                     {t('Or Login with')}
-                </Typography>
+                </Typography>)}
+
             </Stack>
         </Stack>
     )

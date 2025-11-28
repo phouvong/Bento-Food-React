@@ -25,7 +25,7 @@ const AfterAddToCart = ({
                     horizontal={horizontal}
                 />
             )}
-            {isInCart && !incrOpen && product?.variations?.length === 0 && (
+            {isInCart && !incrOpen  &&  (
                 <IconButton
                     onClick={(e) => handleClickQuantityButton(e)}
                     sx={{

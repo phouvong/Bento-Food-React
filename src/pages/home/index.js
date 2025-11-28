@@ -1,45 +1,38 @@
+import { NoSsr } from '@mui/material'
 import Homes from '../../components/home/Homes'
 import Meta from '../../components/Meta'
 import HomeGuard from '../../components/home-guard/HomeGuard'
-import { getServerSideProps } from '../index'
-import { useQuery } from 'react-query'
-import { ConfigApi } from '@/hooks/react-query/config/useConfig'
-import { onSingleErrorResponse } from '@/components/ErrorResponse'
-import { useEffect } from 'react'
-import { setGlobalSettings } from '@/redux/slices/global'
-import { useDispatch, useSelector } from 'react-redux'
+import { getCommonServerSideProps } from '@/helpers/serverSidePropsHelper'
+import { processMetadata } from '@/utils/fetchPageMetadata'
 
-const HomePage = ({  pathName }) => {
-    const dispatch = useDispatch()
-    const { global } = useSelector((state) => state.globalSettings)
-    const handleConfigData = (res) => {
-        if (res?.data) {
-            dispatch(setGlobalSettings(res?.data))
-        }
-    }
-    const { data:configData, refetch } = useQuery(['config'], ConfigApi.config, {
-        enabled: false,
-        onError: onSingleErrorResponse,
-        onSuccess: handleConfigData,
-        staleTime: 1000 * 60 * 8,
-        cacheTime: 8 * 60 * 1000,
+const HomePage = ({ pathName, metaData, landingPageData, configData }) => {
+
+    const metadata = processMetadata(metaData, {
+        title: configData?.business_name || 'Home',
+        description: '',
+        image: configData?.logo_full_url ||
+            `${configData?.base_urls?.react_landing_page_images}/${landingPageData?.banner_section_full?.banner_section_img_full}`
     })
-    useEffect(() => {
-        if (!global) {
-            refetch()
-        }
-    }, [configData])
+
     return (
         <>
             <Meta
-                title={configData?.business_name}
-                ogImage={`${configData?.logo_full_url}`}
+                title={metadata.title}
+                description={metadata.description}
+                ogImage={metadata.image}
                 pathName={pathName}
+                robotsMeta={metadata.robotsMeta}
             />
-            <Homes configData={configData} />
+            <NoSsr>
+                <Homes configData={configData} />
+            </NoSsr>
         </>
     )
 }
 HomePage.getLayout = (page) => <HomeGuard>{page}</HomeGuard>
 
 export default HomePage
+
+export const getServerSideProps = async (context) => {
+    return await getCommonServerSideProps(context, 'home_page')
+}

@@ -111,6 +111,7 @@ const SignInPage = ({
     const [mainToken, setMainToken] = useState(null)
     const [loginValue, setLoginValue] = useState(null)
     const [state, loginDispatch] = useReducer(loginReducer, loginInitialState)
+    const languageDirection = localStorage.getItem('direction')
     let userDatafor = undefined
     if (typeof window !== 'undefined') {
         userDatafor = JSON.parse(localStorage.getItem('userDatafor'))
@@ -480,7 +481,7 @@ const SignInPage = ({
                         <Stack sx={{ flexGrow: { md: 1 }, width: { xs: '100%', md: 0 } }}>
                             <ManualLogin {...sharedManualProps} />
                         </Stack>
-                        <Line />
+                        <Line languageDirection={languageDirection}  />
                         <Stack flexGrow={{ md: 1 }} width={{ xs: '100%', md: '0' }} gap="20px">
                             <SocialLogin {...sharedSocialProps} all={state.status === 'all'} />
                             {state.status === 'all' && OtpSignInButton}
@@ -525,7 +526,7 @@ const SignInPage = ({
 // Where this is used:
 // {validStatuses.has(state.status) ? loginView() : <Skeleton height={300} />}  // Example of usage
 
-    const languageDirection = localStorage.getItem('direction')
+
     return (
         <Stack minHeight="450px">
             <RTL direction={languageDirection}>

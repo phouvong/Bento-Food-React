@@ -2,30 +2,46 @@ import React, { useEffect, useRef, useState } from 'react'
 import FoodCampaign from './food-campaign/FoodCampaign'
 import BestReviewedFood from './food-campaign/best-reviewed-foods/BestReviewedFood'
 import NearbyPopularFood from './new-popular-food/NearbyPopularFood'
-import { styled, Tab, Tabs, Stack } from '@mui/material'
+import { styled, Stack } from '@mui/material'
 import { t } from 'i18next'
 import { foodTabData } from './foodTabData'
 import ScrollSpy from 'react-ui-scrollspy'
+import { useSelector } from 'react-redux'
 
-export const CustomHomeTab = styled(Tabs)(({ theme }) => ({
-    color: 'none',
+const CustomTabContainer = styled('div')(({ theme }) => ({
+    display: 'flex',
+    overflowX: 'auto',
+    overflowY: 'hidden',
     borderBottom: `1px solid ${theme.palette.borderBottomBg}`,
-    zIndex: 9,
-    '& .MuiButtonBase-root': {
-        paddingInlineEnd: '10px',
-        paddingInlineStart: '10px',
-        '& .MuiTabScrollButton-root': {
-            width: 20,
-        },
-    },
-    '& .MuiTabs-flexContainer': {
-        gap: '10px',
-    },
-    '& .MuiTabScrollButton-root': {
-        width: 20,
-    },
-    '& .MuiTabs-indicator': {
+    gap: '10px',
+    padding: '0 16px',
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': {
         display: 'none',
+    },
+    '&::-webkit-scrollbar-track': {
+        display: 'none',
+    },
+}))
+
+const CustomTab = styled('button')(({ theme, active }) => ({
+    background: 'none',
+    border: 'none',
+    padding: '16px 16px',
+    minWidth: '120px',
+    whiteSpace: 'nowrap',
+    textTransform: 'none',
+    fontWeight: '400',
+    fontSize: '14px',
+    cursor: 'pointer',
+    flexShrink: 0,
+    borderBottom: '2px solid',
+    borderBottomColor: active ? theme.palette.primary.main : 'transparent',
+    color: active
+        ? theme.palette.primary.main
+        : theme.palette.customColor?.six || theme.palette.text.secondary,
+    '&:hover': {
+        opacity: 0.8,
     },
 }))
 
@@ -34,31 +50,55 @@ const DifferentFoodCompontent = ({
     isLoading,
     isLoadingNearByPopularRestaurantData,
 }) => {
+    const { isSticky } = useSelector((state) => state.scrollPosition)
     const [activeSection, setActiveSection] = useState(null)
     const parentScrollContainerRef = useRef(null)
+    const tabContainerRef = useRef(null)
     const [filterType, setFilterType] = useState(null)
     const [shouldUpdateActiveSection, setShouldUpdateActiveSection] =
         useState(true)
-    const updateActiveSection = () => {
-        const section1 = document.getElementById(foodTabData[0]?.value)
-        const section2 = document.getElementById(foodTabData[1]?.value)
-        const section3 = document.getElementById(foodTabData[2]?.value)
 
-        if (shouldUpdateActiveSection) {
-            if (section3 && window.scrollY + 200 >= section3.offsetTop) {
-                setActiveSection(foodTabData[2]?.value)
-            } else if (section2 && window.scrollY + 300 >= section2.offsetTop) {
-                setActiveSection(foodTabData[1]?.value)
-            } else if (section1 && window.scrollY + 300 >= section1.offsetTop) {
-                setActiveSection(foodTabData[0]?.value)
-            } else {
-                setActiveSection(null)
+    const scrollTabIntoView = (activeValue) => {
+        if (tabContainerRef.current && activeValue) {
+            const activeTabIndex = foodTabData.findIndex(item => item.value === activeValue)
+            if (activeTabIndex !== -1) {
+                const tabContainer = tabContainerRef.current
+                const tabWidth = 120 + 10 // minWidth + gap
+                const scrollPosition = activeTabIndex * tabWidth
+                tabContainer.scrollTo({
+                    left: scrollPosition,
+                    behavior: 'smooth'
+                })
             }
         }
     }
-    const handleChange = (event, newValue) => {
-        setFilterType(newValue)
-        setShouldUpdateActiveSection(false)
+
+    const updateActiveSection = () => {
+        if (!shouldUpdateActiveSection) return
+
+        const sections = foodTabData.map(item => ({
+            id: item.value,
+            element: document.getElementById(item.value)
+        })).filter(section => section.element)
+
+        const scrollPosition = window.scrollY + 250
+
+        // Find the current section based on scroll position
+        let currentSection = null
+
+        for (let i = sections.length - 1; i >= 0; i--) {
+            const section = sections[i]
+            if (scrollPosition >= section.element.offsetTop) {
+                currentSection = section.id
+                break
+            }
+        }
+
+        if (currentSection !== activeSection) {
+            setActiveSection(currentSection)
+            setFilterType(currentSection)
+            scrollTabIntoView(currentSection)
+        }
     }
     const handleScroll = () => {
         updateActiveSection()
@@ -67,16 +107,15 @@ const DifferentFoodCompontent = ({
     const scrollToSection = (sectionId) => {
         const target = document.getElementById(sectionId)
         if (target) {
-            const headerOffset = 150
+            const headerOffset = 200
             const elementPosition =
                 target.getBoundingClientRect().top + window.scrollY
             const offsetPosition = elementPosition - headerOffset
 
-            window.scroll({
+            window.scrollTo({
                 top: offsetPosition,
                 behavior: 'smooth',
             })
-            setShouldUpdateActiveSection(true)
         }
     }
     useEffect(() => {
@@ -88,65 +127,37 @@ const DifferentFoodCompontent = ({
 
     const activeTab = activeSection || filterType
     return (
-        <Stack marginTop="30px">
+        <Stack marginTop="10px">
             <Stack
                 sx={{
                     position: 'sticky',
-                    top: { xs: '90px', md: '108px' },
-                    zIndex: 9,
+                    top: { xs: '90px', md: '65px' },
+                    zIndex: { xs: "94", md:"99", },
                     background: (theme) => theme.palette.neutral[1800],
                 }}
             >
-                <CustomHomeTab
-                    value={filterType}
-                    onChange={handleChange}
-                    variant="scrollable"
-                    allowScrollButtonsMobile
-                >
+                <CustomTabContainer ref={tabContainerRef}>
                     {foodTabData?.map((item) => {
                         return (
-                            <Tab
+                            <CustomTab
                                 key={item?.id}
-                                value={item.value}
-                                sx={{
-                                    fontWeight:
-                                        activeTab === item?.value
-                                            ? '700'
-                                            : '400',
-                                    transition: 'all 0.2s',
-                                    borderBottom:
-                                        activeTab === item?.value
-                                            ? '2px solid'
-                                            : 'none',
-                                    borderColor:
-                                        activeTab === item?.value
-                                            ? (theme) =>
-                                                  theme.palette.primary.main
-                                            : 'none',
-                                    color:
-                                        activeTab === item?.value
-                                            ? (theme) =>
-                                                  theme.palette.primary.main
-                                            : (theme) =>
-                                                  theme.palette.customColor
-                                                      ?.six,
-                                    '&.Mui-selected': {
-                                        color:
-                                            activeTab === item?.value
-                                                ? (theme) =>
-                                                      theme.palette.primary.main
-                                                : (theme) =>
-                                                      theme.palette.customColor
-                                                          ?.six,
-                                    },
+                                active={activeTab === item?.value}
+                                onClick={() => {
+                                    setFilterType(item.value)
+                                    setActiveSection(item.value)
+                                    setShouldUpdateActiveSection(false)
+                                    scrollToSection(item?.value)
+                                    // Re-enable scroll detection after a delay
+                                    setTimeout(() => {
+                                        setShouldUpdateActiveSection(true)
+                                    }, 1000)
                                 }}
-                                label={t(item?.category_name)}
-                                onClick={() => scrollToSection(item?.value)}
-                                component="p"
-                            />
+                            >
+                                {t(item?.category_name)}
+                            </CustomTab>
                         )
                     })}
-                </CustomHomeTab>
+                </CustomTabContainer>
             </Stack>
             <div ref={parentScrollContainerRef}>
                 <ScrollSpy>

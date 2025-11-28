@@ -182,7 +182,7 @@ const NewRestaurant = () => {
             position="relative"
             container
             paddingTop={
-                newRestuarants?.data?.length > 0 && { xs: '0', sm: '0rem' }
+                newRestuarants?.data?.length > 0 && { xs: '0', sm: '10px' }
             }
             gap="1.4rem"
             ref={newOffsetElementRef}
@@ -190,7 +190,7 @@ const NewRestaurant = () => {
             <CustomGridWithBgColor
                 newSection={true}
                 foodsize={newRestuarants?.data?.length}
-                padding="23px 0 0 23px"
+                padding="15px 0 0 18px"
                 item
                 xs={12}
                 md={12}
@@ -204,7 +204,7 @@ const NewRestaurant = () => {
                         direction="row"
                         alignItems="center"
                         justifyContent="space-between"
-                        paddingBottom={{ xs: '10px', md: '20px' }}
+                        paddingBottom={{ xs: '10px', md: '15px' }}
                     >
                         <Stack direction="row" spacing={1}>
                             <Typography
@@ -248,7 +248,7 @@ const NewRestaurant = () => {
                         <SliderCustom
                             languageDirection={languageDirection}
                             gap="12px"
-                            paddingBottom={isSmall ? '10px' : '20px'}
+                            paddingBottom={isSmall ? '10px' : '15px'}
                         >
                             <Slider {...settings}>
                                 {newRestuarants?.data?.map((restaurantData) => {

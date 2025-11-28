@@ -122,9 +122,8 @@ const PaidAddsCard = ({
 
     const handleClick = () => {
         router.push({
-            pathname: `/restaurant/[id]`,
+            pathname: `/restaurants/${item?.restaurant?.slug || item?.restaurant?.id}`,
             query: {
-                id: `${item?.slug ? item?.slug : item?.restaurant?.id}`,
                 restaurant_zone_id: item?.restaurant?.zone_id,
             },
         })
@@ -315,7 +314,9 @@ const PaidAddsCard = ({
                             zIndex: '-1',
                             backgroundColor: (theme) =>
                                 theme.palette.neutral[100],
+
                         },
+
                     }}
                 >
                     {item?.add_type === 'restaurant_promotion' ? (
@@ -355,6 +356,12 @@ const PaidAddsCard = ({
 
                                             whiteSpace: 'wrap',
                                             wordWrap: 'break-word',
+                                            transition: "all 0.2s ease", // 👈 smooth transition
+                                            "&:hover": {
+                                                color: (theme) => theme.palette.primary.main,
+                                                fontWeight: "600",
+                                                transform: 'scale(1.06)',
+                                            },
                                          
                                         }}
                                         color={theme.palette.neutral[1000]}
@@ -374,6 +381,12 @@ const PaidAddsCard = ({
                                             sx={{
                                                 cursor: 'pointer',
                                                 flexShrink: 0,
+                                                transition: "all 0.2s ease", // 👈 smooth transition
+                                                "&:hover": {
+                                                    color: (theme) => theme.palette.primary.main,
+
+                                                    transform: 'scale(1.1)',
+                                                },
                                             }}
                                             color="primary"
                                         />
@@ -389,6 +402,13 @@ const PaidAddsCard = ({
                                                     sm: '18px',
                                                     md: '20px',
                                                 },
+                                                transition: "all 0.2s ease", // 👈 smooth transition
+                                                "&:hover": {
+                                                    color: (theme) => theme.palette.primary.main,
+
+                                                    transform: 'scale(1.1)',
+                                                },
+
                                             }}
                                         />
                                     )}
@@ -426,6 +446,12 @@ const PaidAddsCard = ({
                                     WebkitBoxOrient: 'vertical',
                                     color: (theme) =>
                                         theme.palette.neutral[1000],
+                                    transition: "all 0.2s ease", // 👈 smooth transition
+                                    "&:hover": {
+                                        color: (theme) => theme.palette.primary.main,
+                                        fontWeight: "600",
+                                        transform: 'scale(1.06)',
+                                    },
                                 }}
                                 fontSize={{
                                     xs: '16px',
@@ -466,9 +492,18 @@ const PaidAddsCard = ({
                                     sx={{
                                         borderRadius: '10px',
                                         border: `1.5px solid ${theme.palette.primary.main}`,
+                                        transition: "all 0.2s ease", // 👈 smooth transition
+                                        "&:hover": {
+                                            color: (theme) => theme.palette.neutral[100],
+                                            transform: 'scale(1..6)',
+                                            backgroundColor:(theme) => theme.palette.primary.main
+                                        },
                                     }}
                                 >
-                                    <ArrowForwardSharpIcon color="primary" />
+                                    <ArrowForwardSharpIcon color="primary" sx={{
+                                        "&:hover": {
+                                            color: (theme) => theme.palette.neutral[100],}
+                                    }} />
                                 </IconButton>
                             </Stack>
                         </>

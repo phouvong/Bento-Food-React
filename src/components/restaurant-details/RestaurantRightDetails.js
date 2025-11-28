@@ -10,8 +10,9 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { NoSsr, Stack } from '@mui/material'
 import { RestaurantCouponStack } from './restaurant-details.style'
 import { settings } from './CouponSettings'
+import CustomImage from '@/components/CustomNextImage'
 
-const RestaurantRightDetails = ({ details, data, scrollPosition }) => {
+const RestaurantRightDetails = ({ details, data, scrollPosition, threshold }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
 
@@ -23,11 +24,18 @@ const RestaurantRightDetails = ({ details, data, scrollPosition }) => {
                     background: (theme) => theme.palette.neutral[100],
                 }}
             >
-                <CustomImageContainer
-                    src={details.cover_photo_full_url}
-                    height={scrollPosition === 0 ? '250px' : '180px'}
+                {/*<CustomImageContainer*/}
+                {/*    src={details.cover_photo_full_url}*/}
+                {/*    height={scrollPosition === 0 ? '250px' : '180px'}*/}
+                {/*    smHeight="120px"*/}
+                {/*    width="100%"*/}
+                {/*    objectFit="cover !important"*/}
+                {/*/>*/}
+                <CustomImage
+                    src={details?.cover_photo_full_url}
+                    height={scrollPosition <= threshold ? 250 : 180}
                     smHeight="120px"
-                    width="100%"
+                    width={700}
                     objectFit="cover !important"
                 />
 

@@ -63,15 +63,24 @@ import DineIn from '@/components/home/dine-in'
 import NearByRestaurant from '@/components/home/visit-again/NearByRestaurant'
 import CloseIcon from '@mui/icons-material/Close'
 import CustomImageContainer from '@/components/CustomImageContainer'
+import { setGlobalSettings } from '@/redux/slices/global'
 
 const Homes = ({ configData }) => {
     const theme = useTheme()
+    const dispatch = useDispatch()
+    const { global } = useSelector((state) => state.globalSettings)
     const [fetchedData, setFetcheedData] = useState({})
     const { userData } = useSelector((state) => state.user)
     const [sort_by, setSort_by] = useState('')
     const [openDineInRes, setOpenDineInRes] = useState(false)
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const [openDrawer, setOpenDrawer] = useState(false)
+
+    useEffect(() => {
+        if (!global) {
+            dispatch(setGlobalSettings(configData))
+        }
+    }, [configData])
 
     const drawerBleeding = 0
     const { searchTagData, cuisineData } = useSelector(
@@ -88,7 +97,6 @@ const Homes = ({ configData }) => {
     } = useSelector((state) => state.storedData)
 
     const { welcomeModal, isNeedLoad } = useSelector((state) => state.utilsData)
-    const dispatch = useDispatch()
     const onSuccessHandler = (response) => {
         setFetcheedData(response)
         dispatch(setWishList(fetchedData))
@@ -107,7 +115,7 @@ const Homes = ({ configData }) => {
     const {
         data,
         refetch: refetchBannerData,
-        isFetched
+        isFetched,
     } = useQuery(['banner-image'], BannerApi.bannerList, {
         enabled: false,
         staleTime: 1000 * 60 * 8,
@@ -147,27 +155,27 @@ const Homes = ({ configData }) => {
     })
 
     const apiRefetch = async () => {
-            if (
-                (banners?.banners?.length === 0 &&
-                    banners?.campaigns?.length === 0) ||
-                isNeedLoad
-            ) {
-                await refetchBannerData()
-            }
-            if (addStores?.length === 0 || isNeedLoad) {
-                await addRefetch()
-            }
-
-            if (campaignFoods?.length === 0 || isNeedLoad) {
-                await refetchCampaignData()
-            }
-            if (bestReviewedFoods?.length === 0 || isNeedLoad) {
-                await refetchMostReviewed()
-            }
-            if (popularFood?.length === 0 || isNeedLoad) {
-                await refetchNearByPopularRestaurantData()
-            }
+        if (
+            (banners?.banners?.length === 0 &&
+                banners?.campaigns?.length === 0) ||
+            isNeedLoad
+        ) {
+            await refetchBannerData()
         }
+        if (addStores?.length === 0 || isNeedLoad) {
+            await addRefetch()
+        }
+
+        if (campaignFoods?.length === 0 || isNeedLoad) {
+            await refetchCampaignData()
+        }
+        if (bestReviewedFoods?.length === 0 || isNeedLoad) {
+            await refetchMostReviewed()
+        }
+        if (popularFood?.length === 0 || isNeedLoad) {
+            await refetchNearByPopularRestaurantData()
+        }
+    }
     useEffect(() => {
         apiRefetch()
     }, [])
@@ -238,14 +246,13 @@ const Homes = ({ configData }) => {
         setOpenDrawer(!openDrawer)
     }
 
-    
     return (
         <PushNotificationLayout>
             <CustomContainer>
                 <CustomStackFullWidth
                     sx={{
-                        marginTop: { xs: '60px', md: '130px' },
-                        marginBottom: '10px',
+                        marginTop: { xs: '60px', md: '135px' },
+                        marginBottom: '16px',
                         direction: 'row',
                     }}
                 >
@@ -413,10 +420,10 @@ const Homes = ({ configData }) => {
                         >
                             {userData?.is_valid_for_discount
                                 ? t(
-                                      `Get ready for a special welcome gift, enjoy a special discount on your first order within `
-                                  ) +
-                                  userData?.validity +
-                                  '.'
+                                    `Get ready for a special welcome gift, enjoy a special discount on your first order within `
+                                ) +
+                                userData?.validity +
+                                '.'
                                 : ''}
                             {'  '}
                             {t(
@@ -427,7 +434,7 @@ const Homes = ({ configData }) => {
                 </Box>
             </CustomModal>
             {getToken && <CashBackPopup />}
-            {open && (
+            {openDineInRes && (
                 <CustomModal
                     openModal={openDineInRes}
                     setModalOpen={setOpenDineInRes}

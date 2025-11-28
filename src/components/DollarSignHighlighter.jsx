@@ -10,7 +10,7 @@ const DollarSignHighlighter = ({ text }) => {
     let lastIndex = 0
 
     // Use regex to match all dollar sign sections
-    text.replace(regex, (match, content, offset) => {
+    text?.replace(regex, (match, content, offset) => {
         // Push the text before the $...$
         parts.push({ text: text.slice(lastIndex, offset), highlight: false })
         // Push the text inside the $...$

@@ -103,6 +103,14 @@ const FoodVerticalCard = (props) => {
                                 sx={{
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
+                                   transition: theme.transitions.create(['color'], {
+                                                duration: theme.transitions.duration.short,
+                                            }),
+                                    cursor: 'pointer',
+                                    '&:hover': {
+                                        color: theme.palette.primary.main,
+                                        transform: 'scale(1.02)',
+                                    },
                                 }}
                                 color={theme.palette.neutral[1200]}
                                 component="h3"
@@ -151,7 +159,7 @@ const FoodVerticalCard = (props) => {
                         {(product?.avg_rating !== 0 &&
                             isRestaurantDetails &&
                             !isSmall) ||
-                        (!isRestaurantDetails && product?.avg_rating !== 0) ? (
+                            (!isRestaurantDetails && product?.avg_rating !== 0) ? (
                             <FoodRating
                                 product_avg_rating={product?.avg_rating}
                             />

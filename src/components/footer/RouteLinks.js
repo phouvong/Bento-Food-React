@@ -40,75 +40,29 @@ const RouteLinks = (props) => {
                 // handleOpen()
             }
         } else if (value === 'popular' || value === 'latest') {
-            if (zoneId) {
-                Router.push({
-                    pathname: '/home',
+            Router.push({
+                pathname: '/home',
 
-                    query: {
-                        restaurantType: value,
-                    },
-                })
-            } else {
-                CustomToaster(
-                    'error',
-                    'You must pick a zone to access this page.'
-                )
-                setUrl({
-                    pathname: '/home',
-                    query: value,
-                })
-                setOpen(true)
-            }
+                query: {
+                    restaurantType: value,
+                },
+            })
         } else if (value === 'most-reviewed') {
-            if (zoneId) {
-                Router.push({
-                    pathname: '/home',
+            Router.push({
+                pathname: '/home',
 
-                    query: {
-                        page: value,
-                    },
-                })
-            } else {
-                CustomToaster(
-                    'error',
-                    'You must pick a zone to access this page.'
-                )
-                setUrl({
-                    pathname: '/home',
-                    query: value,
-                })
-                setOpen(true)
-            }
+                query: {
+                    page: value,
+                },
+            })
         } else if (value === 'cuisines') {
-            if (zoneId) {
-                Router.push(href)
-            } else {
-                CustomToaster(
-                    'error',
-                    'You must pick a zone to access this page.'
-                )
-                setUrl({ pathname: '/cuisines' })
-                setOpen(true)
-            }
+            Router.push(href)
         } else if (value === 'restaurant_owner') {
             window.open(href)
         } else if (value === 'delivery_man') {
             window.open(href)
         } else if (value === 'track_order') {
-            if (zoneId) {
-                Router.push(href)
-            } else {
-                CustomToaster(
-                    'error',
-                    'You must pick a zone to access this page.'
-                )
-                //toast.error(t('You must pick a zone to access this page.'))
-                setUrl({
-                    pathname: '/home',
-                    query: value,
-                })
-                setOpen(true)
-            }
+            Router.push(href)
         } else {
             Router.push(href, undefined, { shallow: true })
         }
@@ -134,7 +88,7 @@ const RouteLinks = (props) => {
                 return (
                     <CustomColouredTypography
                         key={index}
-                        fontsize={isXSmall ? '14px' : '14px'}
+                        fontSize={isXSmall ? '14px' : '14px'}
                         color="whiteContainer.main"
                         onClick={() => handleClick(item.link, item.value)}
                         sx={{
@@ -155,7 +109,7 @@ const RouteLinks = (props) => {
             })}
             {title === 'Other' && global?.refund_policy_status !== 0 && (
                 <CustomColouredTypography
-                    fontsize={isXSmall ? '13px' : '14px'}
+                    fontSize={isXSmall ? '13px' : '14px'}
                     color="whiteContainer.main"
                     onClick={() => handleClickToRoute('/refund-policy')}
                     sx={{
@@ -172,7 +126,7 @@ const RouteLinks = (props) => {
             )}
             {title === 'Other' && global?.cancellation_policy_status !== 0 && (
                 <CustomColouredTypography
-                    fontsize={isXSmall ? '13px' : '14px'}
+                    fontSize={isXSmall ? '13px' : '14px'}
                     color="whiteContainer.main"
                     onClick={() => handleClickToRoute('/cancellation-policy')}
                     sx={{

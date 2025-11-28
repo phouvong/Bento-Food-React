@@ -29,10 +29,10 @@ const FeatureCatagories = () => {
     const settings = {
         dots: false,
         infinite: categoryIsSticky
-            ? featuredCategories?.length > 12
-            : featuredCategories?.length > 7,
+            ? featuredCategories?.length > 13
+            : featuredCategories?.length > 9,
         speed: 700,
-        slidesToShow: categoryIsSticky ? 12 : 7,
+        slidesToShow: categoryIsSticky ? 12 : 9,
         slidesToScroll: 3,
         autoplay: true,
         nextArrow: hoverOn && <HandleNext />,
@@ -100,8 +100,8 @@ const FeatureCatagories = () => {
                 cursor:"pointer",
                 paddingTop: categoryIsSticky && '.5rem',
                 position: 'sticky',
-                top: { xs: '91px', md: '108px' },
-                zIndex: 1100,
+                top: { xs: '91px', md: '60px' },
+                zIndex: 99,
                 background: (theme) => theme.palette.neutral[1800],
                 boxShadow: categoryIsSticky
                     ? '0px 1px 1px rgba(100, 116, 139, 0.06), 0px 1px 2px rgba(100, 116, 139, 0.1)'
@@ -113,7 +113,7 @@ const FeatureCatagories = () => {
                 <Grid
                     container
                     ref={catOffsetElementRef}
-                    gap={{ xs: '.3rem', md: '.5rem' }}
+                    gap={{ xs: '.3rem', md: '1rem' }}
                 >
                     {!categoryIsSticky && featuredCategories?.length > 0 && (
                         <Grid item xs={12} md={12}>
@@ -160,6 +160,7 @@ const FeatureCatagories = () => {
                                     <FeaturedCategoryCard
                                         key={categoryItem?.id}
                                         id={categoryItem?.id}
+                                        slug={categoryItem?.slug}
                                         categoryImage={
                                             categoryItem?.image_full_url
                                         }

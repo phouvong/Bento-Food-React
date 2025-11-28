@@ -138,7 +138,7 @@ const RestaurantTab = (props) => {
                     horizontal: 'left',
                 }}
                 sx={{
-                    zIndex: 999,
+                    zIndex: 1400,
                     top: '5px',
                 }}
             >

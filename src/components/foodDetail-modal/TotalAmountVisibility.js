@@ -24,7 +24,7 @@ const TotalAmountVisibility = (props) => {
     } = props
 
     return (
-        <Stack direction="row" alignItems="center" spacing={0.5}>
+        <Stack direction="row" alignItems="center" spacing={0.5} justifyContent="space-between" >
             <FoodTitleTypography
                 gutterBottom
                 variant="h6"
@@ -33,18 +33,24 @@ const TotalAmountVisibility = (props) => {
                     margin: '0',
                     alignItems: 'end',
                     justifyContent: 'flex-start',
-                    padding: '0',
+                    padding: {
+                        xs:"12px",
+                        sm:0
+                    },
                     textAlign: 'left',
                 }}
             >
-                {t('Total')} :
-                <Typography
+                {t('Total Amount')} :
+               
+            </FoodTitleTypography>
+             <Typography
                     fontSize="14px"
                     component="span"
                     fontWeight="600"
                     sx={{
                         color: (theme) => theme.palette.primary.main,
                     }}
+                   
                 >
                     {modalData.length > 0 &&
                         getAmount(
@@ -62,15 +68,13 @@ const TotalAmountVisibility = (props) => {
                             currencySymbol,
                             digitAfterDecimalPoint
                         )}
-                </Typography>
-            </FoodTitleTypography>
-
-            {modalData.length > 0 &&
+                         {modalData.length > 0 &&
             (productDiscount || productRestaurantDiscount === 1) ? (
                 <CustomTypographyGray
                     nodefaultfont="true"
                     textdecoration="line-through"
-                    sx={{ fontSize: '14px' }}
+                    sx={{ fontSize: '14px',marginInlineStart:"10px" }}
+                    component="span"
                 >
                     (
                     {getAmount(
@@ -82,6 +86,9 @@ const TotalAmountVisibility = (props) => {
                     )
                 </CustomTypographyGray>
             ) : null}
+                </Typography>
+
+           
         </Stack>
     )
 }

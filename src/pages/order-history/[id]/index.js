@@ -3,7 +3,7 @@ import OrderDetail from '../../../components/order-details/OrderDetail'
 import { useSelector } from 'react-redux'
 import Meta from '../../../components/Meta'
 import CustomContainer from '../../../components/container'
-import { Stack } from '@mui/material'
+import { Stack, NoSsr } from '@mui/material'
 import { useRouter } from "next/router";
 
 const index = ({ configData }) => {
@@ -12,11 +12,13 @@ const index = ({ configData }) => {
     return (
         <div className="div">
             <Meta title={`Order details - ${configData?.business_name}`} />
-            <CustomContainer>
-                <Stack pt="60px">
-                    <OrderDetail orderId={orderId} />
-                </Stack>
-            </CustomContainer>
+            <NoSsr>
+                <CustomContainer>
+                    <Stack pt="60px">
+                        <OrderDetail orderId={orderId} />
+                    </Stack>
+                </CustomContainer>
+            </NoSsr>
         </div>
     )
 }

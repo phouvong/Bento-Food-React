@@ -22,7 +22,7 @@ import {
 import PartialPayment from '../PartialPayment'
 import CustomNextImage from '@/components/CustomNextImage'
 
-const  PaymentOptions = (props) => {
+const PaymentOptions = (props) => {
     const theme = useTheme()
     const {
         global,
@@ -42,8 +42,8 @@ const  PaymentOptions = (props) => {
         totalAmount,
         switchToWallet,
         setChangeAmount,
-        changeAmount
-
+        changeAmount,
+        orderType
     } = props
     const { t } = useTranslation()
     const dispatch = useDispatch()
@@ -116,7 +116,7 @@ const  PaymentOptions = (props) => {
                     </CustomStackFullWidth>
                 </Grid>
                 <CustomDivider />
-              
+
                 <CustomStackFullWidth
                     direction="row"
                     padding="16px"
@@ -133,7 +133,7 @@ const  PaymentOptions = (props) => {
                             paymentMethodDetails?.name ===
                                 'cash_on_delivery' ? (
                                 <CustomNextImage
-                                  width="20"
+                                    width="20"
                                     height="32"
                                     objectFit="contain"
                                     src={paymentMethodDetails?.image.src}
@@ -222,6 +222,7 @@ const  PaymentOptions = (props) => {
                             setChangeAmount={setChangeAmount}
                             changeAmount={changeAmount}
                             openModal={openModal}
+                            orderType={orderType}
                         />
                     </CustomModal>
                 )}

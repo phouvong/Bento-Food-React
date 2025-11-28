@@ -73,6 +73,12 @@ const UserInfo = ({
     })
 
     const singleFileUploadHandlerForImage = (value) => {
+        const file = value.target.files[0]
+        if (file && !IMAGE_SUPPORTED_FORMATS.includes(file.type)) {
+            toast.error('Unsupported file format! Please upload JPG, JPEG, GIF, or PNG.')
+            value.target.value = '' // reset input
+            return
+        }
         setImage(value.currentTarget.files[0])
     }
     const imageOnchangeHandlerForImage = (value) => {
@@ -88,6 +94,7 @@ const UserInfo = ({
                             <Grid item xs={12} sm={6}>
                                 <CustomTextFieldWithFormik
                                     placeholder={t('First Name')}
+                                    required
                                     type="text"
                                     borderRadius="10px"
                                     label={t('First Name')}
@@ -126,6 +133,7 @@ const UserInfo = ({
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <CustomTextFieldWithFormik
+                                    required
                                     placeholder={t('Last Name')}
                                     type="text"
                                     label={t('Last Name')}
@@ -165,6 +173,7 @@ const UserInfo = ({
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <CustomTextFieldWithFormik
+                                    required
                                     placeholder={t('Email')}
                                     type="email"
                                     label={t('Email')}
@@ -209,6 +218,7 @@ const UserInfo = ({
                                     }}
                                 >
                                     <CustomSelectWithFormik
+                                        required
                                         selectFieldData={DELIVERY_MAN_TYPE}
                                         inputLabel={t('Deliveryman Type')}
                                         fieldSetGap="10px"
@@ -256,6 +266,7 @@ const UserInfo = ({
                                     }}
                                 >
                                     <CustomSelectWithFormik
+                                        required
                                         selectFieldData={zoneListOptions}
                                         inputLabel={t('Select Zones')}
                                         fieldSetGap="10px"
@@ -307,6 +318,7 @@ const UserInfo = ({
                                     }}
                                 >
                                     <CustomSelectWithFormik
+                                        required
                                         selectFieldData={vehicleListOptions}
                                         inputLabel={t('Select Vehicle Type')}
                                         fieldSetGap="10px"
@@ -372,7 +384,12 @@ const UserInfo = ({
                                         theme.palette.neutral[500],
                                 }}
                             >
-                                {t('Profile Image')}
+                                {t('Profile Image')}{' '}
+                                <span
+                                    style={{ color: 'red', fontSize: '12px' }}
+                                >
+                                    *
+                                </span>
                             </InputLabel>
                             <Typography
                                 fontSize="12px"

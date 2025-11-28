@@ -46,7 +46,7 @@ const PaymentMethodCard = (props) => {
     }
     return (
         <Stack>
-            <FormControl sx={{ paddingInline: '27px' }}>
+            <FormControl sx={{ paddingInline: '19px' }}>
                 <RadioGroup
                     aria-labelledby="demo-radio-buttons-group-label"
                     name="radio-buttons-group"

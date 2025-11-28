@@ -18,11 +18,12 @@ import { LefRightBorderBox, TopBarButton } from './navbar/Navbar.style'
 import { languageLists } from './navbar/second-navbar/custom-language/languageLists'
 import { StyledMenu } from './navbar/top-navbar/TopNav.style'
 
-const CustomLanguage = ({ formMobileMenu, language, isMobile }) => {
+const CustomLanguage = ({ formMobileMenu, language, isMobile, noLocation }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
 
     const [anchorEl, setAnchorEl] = useState(null)
+    const [mounted, setMounted] = useState(false)
     const { countryFlag } = useSelector((state) => state.languageChange)
     let location = undefined
     if (typeof window !== 'undefined') {
@@ -30,6 +31,7 @@ const CustomLanguage = ({ formMobileMenu, language, isMobile }) => {
     }
 
     useEffect(() => {
+        setMounted(true)
         if (typeof window !== 'undefined') {
             dispatch(
                 setLanguage(localStorage.getItem('language') || i18n.language)
@@ -95,19 +97,20 @@ const CustomLanguage = ({ formMobileMenu, language, isMobile }) => {
                     disableElevation
                     onClick={handleClick}
                     endIcon={
-                        <KeyboardArrowDownIcon style={{ color: arrowColor }} />
+                        <KeyboardArrowDownIcon style={{ color: arrowColor, marginInlineStart: "10px" }} />
                     }
+                    noLocation={noLocation}
                 >
-                    <Stack flexDirection="row" gap="5px">
+                    <Stack flexDirection="row" gap="15px">
                         {(!location || isMobile) && (
                             <img width="20" alt="" src={countryFlag} />
                         )}
                         <CustomColouredTypography
                             color={theme.palette.neutral[600]}
-                            sx={{ textTransform: 'capitalize',width:"10px" }}
+                            sx={{ textTransform: 'capitalize', width: "10px" }}
                             fontSize={{ xs: '14px', sm: '16px' }}
                         >
-                            {languageValue(language)?.languageCode}
+                            {mounted ? languageValue(language)?.languageCode : ''}
                         </CustomColouredTypography>
                     </Stack>
                 </TopBarButton>

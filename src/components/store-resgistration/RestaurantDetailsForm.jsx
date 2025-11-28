@@ -30,8 +30,9 @@ const RestaurantDetailsForm = ({
     handleTimeTypeChangeHandler,
     selectedLanguage,
     handleDeleteCuisine,
-    cuisinesHandler,submitForm
-                                   ,setInZone
+    cuisinesHandler,
+    submitForm,
+    setInZone,
 }) => {
     const { data: cuisines, refetch, isRefetching } = useGetCuisines()
     useEffect(() => {
@@ -137,6 +138,7 @@ const RestaurantDetailsForm = ({
                 </Grid>
                 <Grid item xs={12} sm={12} md={12}>
                     <CustomSelectWithFormik
+                        required
                         selectFieldData={zoneOption}
                         inputLabel={
                             <Box
@@ -244,7 +246,16 @@ const RestaurantDetailsForm = ({
                 </Grid>
 
                 <Grid item container xs={12} sm={12} md={12} spacing={2}>
-                    <Grid item md={4} xs={12}  marginBottom={RestaurantJoinFormik.errors.min_delivery_time?"10px":"0px"}>
+                    <Grid
+                        item
+                        md={4}
+                        xs={12}
+                        marginBottom={
+                            RestaurantJoinFormik.errors.min_delivery_time
+                                ? '10px'
+                                : '0px'
+                        }
+                    >
                         <CustomTextFieldWithFormik
                             placeholder={t('Min Delivery Time')}
                             required
@@ -287,7 +298,16 @@ const RestaurantDetailsForm = ({
                             }
                         />
                     </Grid>
-                    <Grid item md={4} xs={12} marginBottom={RestaurantJoinFormik.errors.max_delivery_time?"10px":"0px"}>
+                    <Grid
+                        item
+                        md={4}
+                        xs={12}
+                        marginBottom={
+                            RestaurantJoinFormik.errors.max_delivery_time
+                                ? '10px'
+                                : '0px'
+                        }
+                    >
                         <CustomTextFieldWithFormik
                             placeholder={t('Max Delivery Time')}
                             required="true"
@@ -332,6 +352,7 @@ const RestaurantDetailsForm = ({
                     </Grid>
                     <Grid item xs={12} sm={12} md={4}>
                         <CustomSelectWithFormik
+                            required
                             selectFieldData={timeType}
                             inputLabel={t('Duration Type')}
                             value={

@@ -103,6 +103,9 @@ export const CustomFoodCardNew = styled(Card, {
             ? `8px 10px 10px rgba(154 154 154 / 10%)`
             : `8px 10px 10px rgba(0, 0, 0, 0.10)`,
         height: height || '100%',
+         '&:hover': {
+                        boxShadow: `0px 0px 2px rgba(145, 158, 171, 0.2), 0px 5px 20px ${theme.palette.paperBoxShadow}`,
+                    },
         [theme.breakpoints.down('sm')]: {
             height: smheight || '100%',
             padding: '5px',

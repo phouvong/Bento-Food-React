@@ -104,7 +104,10 @@ export const AccountPopover = (props) => {
                 if (router.pathname === '/') {
                     router.push('/')
                 } else {
-                    router.push('/home')
+                    if (router.pathname === '/info') {
+                        router.push('/home')
+                    }
+
                 }
             }, 500)
         } catch (err) {
@@ -165,10 +168,9 @@ export const AccountPopover = (props) => {
                                         onClick={() => handleClick(menu)}
                                         key={menu.id}
                                         sx={{
-                                            justifyContent: `${
-                                                languageDirection === 'rtl' &&
+                                            justifyContent: `${languageDirection === 'rtl' &&
                                                 'flex-end'
-                                            }`,
+                                                }`,
                                             '&:hover': {
                                                 backgroundColor: (theme) =>
                                                     alpha(
@@ -197,11 +199,10 @@ export const AccountPopover = (props) => {
                     <MenuItem
                         onClick={() => setOpenModal(true)}
                         sx={{
-                            justifyContent: `${
-                                languageDirection === 'rtl'
-                                    ? 'flex-end'
-                                    : 'flex-start'
-                            }`,
+                            justifyContent: `${languageDirection === 'rtl'
+                                ? 'flex-end'
+                                : 'flex-start'
+                                }`,
                             '&:hover': {
                                 backgroundColor: (theme) =>
                                     alpha(theme.palette.primary.main, 0.3),

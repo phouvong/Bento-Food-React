@@ -1,91 +1,88 @@
-
 import {
     Grid,
     InputAdornment,
-    Stack, TextField,
+    Stack,
+    TextField,
     Tooltip,
     Typography,
-} from "@mui/material";
-import { t } from "i18next";
-import React, { useEffect, useState } from "react";
-import { alpha, Box, display } from "@mui/system";
-import { useTheme } from "@emotion/react";
-import InputLabel from "@mui/material/InputLabel";
+} from '@mui/material'
+import { t } from 'i18next'
+import React, { useEffect, useState } from 'react'
+import { alpha, Box, display } from '@mui/system'
+import { useTheme } from '@emotion/react'
+import InputLabel from '@mui/material/InputLabel'
 import dayjs from 'dayjs'
-import {DateCalendar} from "@mui/x-date-pickers/DateCalendar";
-import {LocalizationProvider} from "@mui/x-date-pickers/LocalizationProvider";
-import {AdapterDayjs} from "@mui/x-date-pickers/AdapterDayjs";
-import { PickersDay } from '@mui/x-date-pickers/PickersDay';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { PickersDay } from '@mui/x-date-pickers/PickersDay'
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import { CustomBoxFullWidth } from '@/components/chat/Chat.style'
 import CustomDivider from '@/components/CustomDivider'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import CustomModal from '@/components/custom-modal/CustomModal'
 
 const acceptedFileInputFormat =
-    "application/pdf,image/*,text/plain,.doc, .docx,.txt";
+    'application/pdf,image/*,text/plain,.doc, .docx,.txt'
 const supportedFormatMultiImages = [
-    "jpg",
-    "jpeg",
-    "gif",
-    "png",
-    "pdf",
-    "doc",
-    "docx",
-    "deb",
-];
+    'jpg',
+    'jpeg',
+    'gif',
+    'png',
+    'pdf',
+    'doc',
+    'docx',
+    'deb',
+]
 const BusinessTin = ({
-                         RestaurantJoinFormik,
-                         selectedDates,
-                         setSelectedDates,
-                         imageOnchangeHandlerForTinImage,
-                         singleFileUploadHandlerForTinFile,
-                         tinNumberHandler,
-                         file,
-                         setFile,
-                         preview,
-                         setPreview,
-                     }) => {
-    const theme = useTheme();
-    const [open, setOpen] = useState(false);
+    RestaurantJoinFormik,
+    selectedDates,
+    setSelectedDates,
+    imageOnchangeHandlerForTinImage,
+    singleFileUploadHandlerForTinFile,
+    file,
+    setFile,
+    preview,
+    setPreview,
+}) => {
+    const theme = useTheme()
+    const [open, setOpen] = useState(false)
     const handleFileChange = (e) => {
-        const selected = e.target.files[0];
+        const selected = e.target.files[0]
 
         if (selected && selected.size < 1024 * 1024) {
             // Set state for UI feedback
-            setFile(selected);
+            setFile(selected)
 
             // Call preview/image handler
-            imageOnchangeHandlerForTinImage(selected);
+            imageOnchangeHandlerForTinImage(selected)
 
             // Call upload handler
-            singleFileUploadHandlerForTinFile(selected);
+            singleFileUploadHandlerForTinFile(selected)
 
             // Show preview only if image
             if (selected.type.startsWith('image/')) {
-                const imageUrl = URL.createObjectURL(selected);
-                setPreview(imageUrl);
+                const imageUrl = URL.createObjectURL(selected)
+                setPreview(imageUrl)
             } else {
-                setPreview(null);
+                setPreview(null)
             }
         } else {
-            alert(t('File must be less than 2MB'));
+            alert(t('File must be less than 2MB'))
         }
-    };
-
-
+    }
 
     const handleDateChange = (date) => {
-        const dateString = date.format('YYYY-MM-DD');
-        setSelectedDates([dateString]); // ✅ Set as a single-element array
-    };
+        const dateString = date.format('YYYY-MM-DD')
+        setSelectedDates([dateString]) // ✅ Set as a single-element array
+    }
 
-    const handleOpen=()=>{
-        setOpen(!open);
+    const handleOpen = () => {
+        setOpen(!open)
     }
 
     const renderDay = (date, selectedDate, pickersDayProps) => {
-        const isSelected = selectedDate === date.format('YYYY-MM-DD');
+        const isSelected = selectedDate === date.format('YYYY-MM-DD')
 
         return (
             <PickersDay
@@ -95,30 +92,37 @@ const BusinessTin = ({
                     backgroundColor: isSelected ? '#1976d2' : 'transparent',
                     color: isSelected ? 'white' : 'inherit',
                     '&:hover': {
-                        backgroundColor: isSelected ? '#1565c0' : 'rgba(25, 118, 210, 0.08)'
-                    }
+                        backgroundColor: isSelected
+                            ? '#1565c0'
+                            : 'rgba(25, 118, 210, 0.08)',
+                    },
                 }}
             />
-        );
-    };
+        )
+    }
 
     return (
         <>
             <CustomStackFullWidth>
                 <Grid container spacing={2}>
                     <Grid item xs={12} md={12} align="left">
-                        <Typography fontSize="18px" color={theme.palette.neutral[1000]} fontWeight="500" marginBottom='10px'>
-                            {t("Business TIN")}
+                        <Typography
+                            fontSize="18px"
+                            color={theme.palette.neutral[1000]}
+                            fontWeight="500"
+                            marginBottom="10px"
+                        >
+                            {t('Business TIN')}
                         </Typography>
-
                     </Grid>
                     <Grid item xs={12} lg={6} mt="10px">
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
                                 <TextField
-
-                                    label={t("Tax payer Identification Number(TIN)")}
-                                    placeholder={t("Type your tin number")}
+                                    label={t(
+                                        'Tax payer Identification Number(TIN)'
+                                    )}
+                                    placeholder={t('Type your tin number')}
                                     type="text"
                                     inputMode="numeric"
                                     fullWidth
@@ -127,26 +131,39 @@ const BusinessTin = ({
                                     onChange={RestaurantJoinFormik.handleChange}
                                     onBlur={RestaurantJoinFormik.handleBlur}
                                     inputProps={{
-                                        pattern: "[0-9\\W]*",
+                                        pattern: '[0-9\\W]*',
                                         onInput: (e) => {
-                                            e.target.value = e.target.value.replace(/[a-zA-Z]/g, '');
-                                        }
+                                            e.target.value =
+                                                e.target.value.replace(
+                                                    /[a-zA-Z]/g,
+                                                    ''
+                                                )
+                                        },
                                     }}
-                                    error={RestaurantJoinFormik.touched.tin && Boolean(RestaurantJoinFormik.errors.tin)}
-                                    helperText={RestaurantJoinFormik.touched.tin && RestaurantJoinFormik.errors.tin}
+                                    error={
+                                        RestaurantJoinFormik.touched.tin &&
+                                        Boolean(RestaurantJoinFormik.errors.tin)
+                                    }
+                                    helperText={
+                                        RestaurantJoinFormik.touched.tin &&
+                                        RestaurantJoinFormik.errors.tin
+                                    }
                                     sx={{
                                         '& .MuiInputBase-root': {
                                             height: '45px',
-                                            color:theme=>theme.palette.neutral[1000]
+                                            color: (theme) =>
+                                                theme.palette.neutral[1000],
                                         },
                                         '& .MuiInputBase-input': {
-                                            color:theme=>theme.palette.neutral[1000],
+                                            color: (theme) =>
+                                                theme.palette.neutral[1000],
                                             fontSize: '12px',
                                             padding: '0 14px', // Adjust padding to center the text vertically
                                         },
                                         '& .MuiInputLabel-root': {
-                                            color:theme=>theme.palette.neutral[1000],
-                                             fontSize: '12px',
+                                            color: (theme) =>
+                                                theme.palette.neutral[1000],
+                                            fontSize: '12px',
                                         },
                                         '& .MuiInputLabel-shrink': {
                                             fontSize: '16px', // 👈 font size when label is shrunk
@@ -157,15 +174,29 @@ const BusinessTin = ({
                             <Grid item xs={12} mt="10px">
                                 <TextField
                                     size="medium"
-                                    label="Expire Date"
+                                    label={t("Expire Date")}
                                     // placeholder="Choose your preferable day"
 
                                     fullWidth
-                                    value={selectedDates?selectedDates[0] : ''}
+                                    value={
+                                        selectedDates ? selectedDates[0] : ''
+                                    }
                                     onClick={handleOpen}
                                     readOnly
-                                    error={RestaurantJoinFormik.touched.tin_expire_date && Boolean(RestaurantJoinFormik.errors.tin_expire_date)}
-                                    helperText={RestaurantJoinFormik.touched.tin_expire_date && RestaurantJoinFormik.errors.tin_expire_date}
+                                    error={
+                                        RestaurantJoinFormik.touched
+                                            .tin_expire_date &&
+                                        Boolean(
+                                            RestaurantJoinFormik.errors
+                                                .tin_expire_date
+                                        )
+                                    }
+                                    helperText={
+                                        RestaurantJoinFormik.touched
+                                            .tin_expire_date &&
+                                        RestaurantJoinFormik.errors
+                                            .tin_expire_date
+                                    }
                                     InputLabelProps={{
                                         shrink: true, // ✅ this fixes the label overlapping
                                     }}
@@ -179,27 +210,55 @@ const BusinessTin = ({
                                             padding: '0 14px', // Adjust padding to center the text vertically
                                         },
                                         '& .MuiInputLabel-root': {
-                                            color:theme=>theme.palette.neutral[1000]
+                                            color: (theme) =>
+                                                theme.palette.neutral[1000],
                                             //  fontSize: '12px',
-                                        }
+                                        },
                                     }}
                                     InputProps={{
                                         endAdornment: (
                                             <InputAdornment position="end">
-                                                <CalendarTodayIcon sx={{ color: theme=>alpha(theme.palette.neutral[500],.4) }} />
+                                                <CalendarTodayIcon
+                                                    sx={{
+                                                        color: (theme) =>
+                                                            alpha(
+                                                                theme.palette
+                                                                    .neutral[500],
+                                                                0.4
+                                                            ),
+                                                    }}
+                                                />
                                             </InputAdornment>
-                                        )
+                                        ),
                                     }}
                                 />
                                 {open && (
-                                    <CustomModal openModal={open} handleClose={()=>setOpen(false)} setModalOpen={setOpen} >
-                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <CustomModal
+                                        openModal={open}
+                                        handleClose={() => setOpen(false)}
+                                        setModalOpen={setOpen}
+                                    >
+                                        <LocalizationProvider
+                                            dateAdapter={AdapterDayjs}
+                                        >
                                             <DateCalendar
-                                                value={selectedDates ? dayjs(selectedDates) : null}
+                                                value={
+                                                    selectedDates
+                                                        ? dayjs(selectedDates)
+                                                        : null
+                                                }
                                                 onChange={handleDateChange}
                                                 minDate={dayjs()}
-                                                renderDay={(date, _value, pickersDayProps) =>
-                                                    renderDay(date, selectedDates, pickersDayProps)
+                                                renderDay={(
+                                                    date,
+                                                    _value,
+                                                    pickersDayProps
+                                                ) =>
+                                                    renderDay(
+                                                        date,
+                                                        selectedDates,
+                                                        pickersDayProps
+                                                    )
                                                 }
                                             />
                                         </LocalizationProvider>
@@ -211,13 +270,17 @@ const BusinessTin = ({
                     <Grid item xs={12} lg={6}>
                         <Stack spacing={2}>
                             {/* Label and Info */}
-                            <Stack direction="row" spacing={1} alignItems="center">
+                            <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
+                            >
                                 <InputLabel
-
                                     sx={{
                                         fontWeight: 600,
                                         fontSize: '14px',
-                                        color: (theme) => theme.palette.neutral[500],
+                                        color: (theme) =>
+                                            theme.palette.neutral[1000],
                                     }}
                                 >
                                     {t('TIN Certificate')}
@@ -225,10 +288,11 @@ const BusinessTin = ({
                                 <Typography
                                     fontSize="12px"
                                     sx={{
-                                        color: (theme) => theme.palette.neutral[400],
+                                        color: (theme) =>
+                                            theme.palette.neutral[400],
                                     }}
                                 >
-                                    {t('pdf, doc, jpg. File size : max 2 MB')}
+                                    {t('pdf, doc, image. File size : max 2 MB')}
                                 </Typography>
                             </Stack>
 
@@ -236,13 +300,14 @@ const BusinessTin = ({
                                 component="label"
                                 htmlFor="file-input"
                                 sx={{
-                                    maxWidth:"200px",
+                                    maxWidth: '200px',
                                     width: '100%',
                                     border: '1px dashed #aaa',
                                     padding: '20px',
                                     borderRadius: '8px',
                                     textAlign: 'center',
-                                    backgroundColor: theme=>theme.palette.neutral[100],
+                                    backgroundColor: (theme) =>
+                                        theme.palette.neutral[100],
                                     cursor: 'pointer',
                                     '&:hover': {
                                         backgroundColor: '#f0f0f0',
@@ -253,7 +318,11 @@ const BusinessTin = ({
                                     <img
                                         src={preview}
                                         alt="Uploaded preview"
-                                        style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '6px' }}
+                                        style={{
+                                            maxWidth: '100%',
+                                            maxHeight: '200px',
+                                            borderRadius: '6px',
+                                        }}
                                     />
                                 ) : (
                                     <Typography
@@ -267,7 +336,11 @@ const BusinessTin = ({
                                             textOverflow: 'ellipsis',
                                         }}
                                     >
-                                        {file ? file.name : t('Click to select an image or document')}
+                                        {file
+                                            ? file.name
+                                            : t(
+                                                  'Click to select an image'
+                                              )}
                                     </Typography>
                                 )}
                                 <input
@@ -283,7 +356,7 @@ const BusinessTin = ({
                 </Grid>
             </CustomStackFullWidth>
         </>
-    );
-};
+    )
+}
 
-export default BusinessTin;
+export default BusinessTin

@@ -1,7 +1,6 @@
 import { Grid, Modal, Tooltip, Typography, Stack } from '@mui/material'
-import React, { useEffect, useState,useRef } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-
 import { ProductsApi } from '@/hooks/react-query/config/productsApi'
 import { useWishListDelete } from '@/hooks/react-query/config/wish-list/useWishListDelete'
 import { cart, setCampCart, setCart, setClearCart } from '@/redux/slices/cart'
@@ -23,7 +22,6 @@ import AuthModal from '../auth'
 import { FoodDetailModalStyle } from '../home/HomeStyle'
 import CartClearModal from './CartClearModal'
 import StartPriceView from './StartPriceView'
-
 import AddOnsManager from './AddOnsManager'
 import AddOrderToCart from './AddOrderToCart'
 import AddUpdateOrderToCart from './AddUpdateOrderToCart'
@@ -31,7 +29,6 @@ import { handleProductVariationRequirementsToaster } from './SomeHelperFuctions'
 import TotalAmountVisibility from './TotalAmountVisibility'
 import UpdateToCartUi from './UpdateToCartUi'
 import VariationsManager from './VariationsManager'
-
 import { CustomToaster } from '@/components/custom-toaster/CustomToaster'
 import HalalSvg from '@/components/food-card/HalalSvg'
 import { useGetFoodDetails } from '@/hooks/react-query/food/useGetFoodDetails'
@@ -68,6 +65,7 @@ const FoodDetailModal = ({
     handleBadge,
     campaign,
 }) => {
+    console.log({ product })
     const router = useRouter()
     const { t } = useTranslation()
     const dispatch = useDispatch()
@@ -77,6 +75,7 @@ const FoodDetailModal = ({
     const [isLocation, setIsLocation] = useState(false)
     const [totalPrice, setTotalPrice] = useState(null)
     const [modalFor, setModalFor] = useState('sign-in')
+    const [variationInCart, setVariationInCart] = useState(false)
     const [add_on, setAddOns] = useState([])
     const { cartList } = useSelector((state) => state.cart)
     const [quantity, setQuantity] = useState(1)
@@ -89,34 +88,98 @@ const FoodDetailModal = ({
         useAddCartItem()
     const { mutate: updateMutate } = useCartItemUpdate()
     const { mutate: deleteCartItemMutate } = useDeleteAllCartItem()
-    const itemSuccess = (res) => {
-
-    }
+    const itemSuccess = (res) => { }
     const {
         data: foodDetails,
         refetch,
         isLoading: itemIsLoading,
         isRefetching,
-    } = useGetFoodDetails({ id: product?.id, campaign }, itemSuccess,productUpdate)
+    } = useGetFoodDetails(
+        { id: product?.id, campaign },
+        itemSuccess,
+        productUpdate
+    )
+    console.log({ foodDetails })
+    useEffect(() => {
+        if (foodDetails) {
+            {
+                handleInitialTotalPriceVarPriceQuantitySet(
+                    foodDetails,
+                    setModalData,
+                    productUpdate,
+                    setTotalPrice,
+                    setQuantity,
+                    setSelectedOptions
+                )
+                setAddOns([])
+                setSelectedOptions([])
+            }
+        }
+    }, [foodDetails])
+    const isInCartWithVari = useCallback(() => {
+        if (!cartList?.length || !foodDetails?.id) {
+            setVariationInCart(false);
+            setQuantity(1);
+            setTotalPrice(foodDetails?.price || 0);
+            return;
+        }
+
+        const matchedItems = cartList.filter(item => item.id === foodDetails.id);
+        if (!matchedItems.length) {
+            setVariationInCart(false);
+            setQuantity(1);
+            setTotalPrice(foodDetails?.price || 0);
+            return;
+        }
+
+        let matchedItem = null;
+        if (foodDetails?.variations?.length > 0 && selectedOptions?.length > 0) {
+            matchedItem = matchedItems.find(item => {
+                const itemOptions = item.selectedOptions || [];
+                if (itemOptions.length !== selectedOptions.length) return false;
+                return selectedOptions.every(sel =>
+                    itemOptions.some(
+                        opt =>
+                            opt.option_id === sel.option_id &&
+                            opt.label === sel.label
+                    )
+                );
+            });
+        }
+
+        else if (!foodDetails?.variations?.length) {
+            matchedItem = matchedItems[0];
+        }
+
+        if (matchedItem) {
+            setModalData([{ ...matchedItem, add_ons: matchedItem?.addons }]);
+            setVariationInCart(true);
+            setTotalPrice(matchedItem.totalPrice);
+            setQuantity(matchedItem.quantity);
+        } else {
+            setVariationInCart(false);
+            setQuantity(1);
+            setTotalPrice(foodDetails?.price || 0);
+        }
+    }, [cartList, foodDetails, selectedOptions]);
 
 
-    useEffect(()=>{
-       if(foodDetails){
-           {
-               handleInitialTotalPriceVarPriceQuantitySet(
-                   foodDetails,
-                   setModalData,
-                   productUpdate,
-                   setTotalPrice,
-                   setQuantity,
-                   setSelectedOptions
-               )
-               setAddOns([])
-               setSelectedOptions([])
-           }
-       }
-    },[foodDetails])
+    useEffect(() => {
+        if (productUpdate) return
 
+        if (foodDetails?.variations?.length > 0) {
+
+            isInCartWithVari();
+        } else {
+            if (isInCart(foodDetails?.id)) {
+                isInCartWithVari();
+            } else {
+                setVariationInCart(false);
+                setQuantity(1);
+                setTotalPrice(foodDetails?.price || 0);
+            }
+        }
+    }, [selectedOptions, cartList, productUpdate]);
     useEffect(() => {
         if (productUpdate) {
             handleInitialTotalPriceVarPriceQuantitySet(
@@ -236,26 +299,30 @@ const FoodDetailModal = ({
         }
     }
 
+
     const handleAddUpdate = () => {
-        if (productUpdate) {
+        if (productUpdate || variationInCart) {
+            console.log({ product })
+            const product = cartList.find((item) => item.id === modalData[0]?.id)
+
             //for updating
             let totalQty = 0
             const itemObject = {
-                cart_id: product?.cart_id,
+                cart_id: product?.cartItemId,
                 guest_id: getGuestId(),
                 model: product?.available_date_starts ? 'ItemCampaign' : 'Food',
                 add_on_ids:
                     add_on?.length > 0
                         ? add_on?.map((add) => {
-                              return add.id
-                          })
+                            return add.id
+                        })
                         : [],
                 add_on_qtys:
                     add_on?.length > 0
                         ? add_on?.map((add) => {
-                              totalQty = add.quantity
-                              return totalQty
-                          })
+                            totalQty = add.quantity
+                            return totalQty
+                        })
                         : [],
                 item_id: product?.id,
                 price: getConvertDiscount(
@@ -272,15 +339,15 @@ const FoodDetailModal = ({
                 variations:
                     getNewVariationForDispatch()?.length > 0
                         ? getNewVariationForDispatch()?.map((variation) => {
-                              return {
-                                  name: variation.name,
-                                  values: {
-                                      label: handleValuesFromCartItems(
-                                          variation.values
-                                      ),
-                                  },
-                              }
-                          })
+                            return {
+                                name: variation.name,
+                                values: {
+                                    label: handleValuesFromCartItems(
+                                        variation.values
+                                    ),
+                                },
+                            }
+                        })
                         : [],
             }
 
@@ -305,15 +372,15 @@ const FoodDetailModal = ({
                 add_on_ids:
                     add_on?.length > 0
                         ? add_on?.map((add) => {
-                              return add.id
-                          })
+                            return add.id
+                        })
                         : [],
                 add_on_qtys:
                     add_on?.length > 0
                         ? add_on?.map((add) => {
-                              totalQty = add.quantity
-                              return totalQty
-                          })
+                            totalQty = add.quantity
+                            return totalQty
+                        })
                         : [],
                 item_id: modalData[0]?.id,
                 price: getConvertDiscount(
@@ -327,15 +394,15 @@ const FoodDetailModal = ({
                 variations:
                     getNewVariationForDispatch()?.length > 0
                         ? getNewVariationForDispatch()?.map((variation) => {
-                              return {
-                                  name: variation.name,
-                                  values: {
-                                      label: handleValuesFromCartItems(
-                                          variation.values
-                                      ),
-                                  },
-                              }
-                          })
+                            return {
+                                name: variation.name,
+                                values: {
+                                    label: handleValuesFromCartItems(
+                                        variation.values
+                                    ),
+                                },
+                            }
+                        })
                         : [],
                 variation_options: selectedOptions?.map(
                     (item) => item.option_id
@@ -357,7 +424,7 @@ const FoodDetailModal = ({
 
     const addOrUpdateToCartByDispatch = () => {
         if (cartList?.length > 0) {
-            //checking same restaurant items already exist or not
+            //checking same restaurants items already exist or not
             const isRestaurantExist = cartList?.find(
                 (item) => item.restaurant_id === modalData[0].restaurant_id
             )
@@ -449,7 +516,7 @@ const FoodDetailModal = ({
 
                             if (
                                 count >=
-                                    Number.parseInt(optionalItemIndex.min) &&
+                                Number.parseInt(optionalItemIndex.min) &&
                                 count <= Number.parseInt(optionalItemIndex.max)
                             ) {
                                 isTrue = true
@@ -487,6 +554,7 @@ const FoodDetailModal = ({
     }
 
     const handleAddToCartOnDispatch = (checkingFor) => {
+
         let requiredItemsList = []
         modalData?.[0]?.variations?.forEach((item, index) => {
             if (item.required === 'on') {
@@ -502,6 +570,7 @@ const FoodDetailModal = ({
         })
 
         if (requiredItemsList.length > 0) {
+
             if (selectedOptions.length === 0) {
                 handleRequiredItemsToaster(requiredItemsList, selectedOptions)
             } else {
@@ -529,7 +598,7 @@ const FoodDetailModal = ({
                             })
                             if (
                                 selectedOptionCount >=
-                                    Number.parseInt(item.min) &&
+                                Number.parseInt(item.min) &&
                                 selectedOptionCount <= Number.parseInt(item.max)
                             ) {
                                 //call add/update to cart functionalities
@@ -571,6 +640,7 @@ const FoodDetailModal = ({
         }
     }
     const addToCard = () => {
+
         if (location) {
             let checkingFor = 'cart'
             if (
@@ -666,9 +736,9 @@ const FoodDetailModal = ({
                                     Number.parseInt(
                                         isItemExistFromSameVariation.optionPrice
                                     ) *
-                                        quantity +
+                                    quantity +
                                     Number.parseInt(option.optionPrice) *
-                                        quantity
+                                    quantity
                             )
                         } else {
                             const newObj = {
@@ -686,7 +756,7 @@ const FoodDetailModal = ({
                                 (prevState) =>
                                     prevState +
                                     Number.parseInt(option.optionPrice) *
-                                        quantity
+                                    quantity
                             )
                         }
                     }
@@ -813,7 +883,11 @@ const FoodDetailModal = ({
             if (quantity >= stockLimit && isLimitedOrDaily) {
                 CustomToaster('error', t('Out Of Stock'), 'stock')
             } else if (maxCartQuantity && quantity >= maxCartQuantity) {
-                CustomToaster('error', 'Out Of Limits', 'Quantity')
+                CustomToaster(
+                    'error',
+                    `Max Quantity limits ${maxCartQuantity}`,
+                    'Quantity'
+                )
             } else {
                 setQuantity((prevQty) => prevQty + 1)
             }
@@ -884,11 +958,11 @@ const FoodDetailModal = ({
         })
     }
     const isInCart = (id) => {
-        if (productUpdate) {
-            const isInCart = cartList.filter((item) => item.id === id)
-            return isInCart.length > 0
-        }
+        console.log("vvvvvv", id, cartList)
+        const isInCart = cartList.filter((item) => item.id === id)
+        return isInCart.length > 0
     }
+
 
     const isInList = (id) => {
         return !!wishLists?.food?.find((wishFood) => wishFood.id === id)
@@ -965,7 +1039,7 @@ const FoodDetailModal = ({
                 aria-describedby="modal-modal-description"
                 disableAutoFocus={true}
             >
-                <FoodDetailModalStyle sx={{ bgcolor: 'background.paper' }} >
+                <FoodDetailModalStyle sx={{ bgcolor: 'background.paper' }}>
                     {!itemIsLoading && modalData[0] ? (
                         <>
                             {isLocation ? (
@@ -1014,12 +1088,12 @@ const FoodDetailModal = ({
                                                                         ?.veg
                                                                 ) === 0
                                                                     ? theme
-                                                                          .palette
-                                                                          .nonVeg
+                                                                        .palette
+                                                                        .nonVeg
                                                                     : theme
-                                                                          .palette
-                                                                          .success
-                                                                          .light
+                                                                        .palette
+                                                                        .success
+                                                                        .light
                                                             }
                                                         />
                                                     ) : null}
@@ -1028,7 +1102,7 @@ const FoodDetailModal = ({
                                                         1 &&
                                                         modalData[0]
                                                             ?.is_halal ===
-                                                            1 && (
+                                                        1 && (
                                                             <Tooltip
                                                                 arrow
                                                                 title={t(
@@ -1050,13 +1124,13 @@ const FoodDetailModal = ({
                                                             ?.item_stock &&
                                                         modalData[0]
                                                             ?.stock_type !==
-                                                            'unlimited' && (
+                                                        'unlimited' && (
                                                             <Typography
                                                                 fontSize="12px"
                                                                 color={
                                                                     quantity >=
-                                                                        modalData[0]
-                                                                            ?.item_stock &&
+                                                                    modalData[0]
+                                                                        ?.item_stock &&
                                                                     theme
                                                                         .palette
                                                                         .info
@@ -1085,110 +1159,102 @@ const FoodDetailModal = ({
                                                 </ReadMore>
                                                 {modalData[0]?.nutritions_name
                                                     ?.length > 0 && (
-                                                    <>
-                                                        <Typography
-                                                            fontSize="14px"
-                                                            fontWeight="500"
-                                                            mt="5px"
-                                                        >
-                                                            {t(
-                                                                'Nutrition Details'
-                                                            )}
-                                                        </Typography>
+                                                        <>
+                                                            <Typography
+                                                                fontSize="14px"
+                                                                fontWeight="500"
+                                                                mt="5px"
+                                                            >
+                                                                {t(
+                                                                    'Nutrition Details'
+                                                                )}
+                                                            </Typography>
 
-                                                        <Stack
-                                                            direction="row"
-                                                            spacing={0.5}
-                                                        >
-                                                            {modalData[0]?.nutritions_name?.map(
-                                                                (
-                                                                    item,
-                                                                    index
-                                                                ) => (
-                                                                    <Typography
-                                                                        fontSize="12px"
-                                                                        key={
-                                                                            index
-                                                                        }
-                                                                        color={
-                                                                            theme
-                                                                                .palette
-                                                                                .neutral[400]
-                                                                        }
-                                                                    >
-                                                                        {item}
-                                                                        {index !==
-                                                                        modalData[0]
-                                                                            ?.nutritions_name
-                                                                            .length -
-                                                                            1
-                                                                            ? ','
-                                                                            : '.'}
-                                                                    </Typography>
-                                                                )
-                                                            )}
-                                                        </Stack>
-                                                    </>
-                                                )}
+                                                            <Stack
+                                                                direction="row"
+                                                                spacing={0.5}
+                                                            >
+                                                                {modalData[0]?.nutritions_name?.map(
+                                                                    (
+                                                                        item,
+                                                                        index
+                                                                    ) => (
+                                                                        <Typography
+                                                                            fontSize="12px"
+                                                                            key={
+                                                                                index
+                                                                            }
+                                                                            color={
+                                                                                theme
+                                                                                    .palette
+                                                                                    .neutral[400]
+                                                                            }
+                                                                        >
+                                                                            {item}
+                                                                            {index !==
+                                                                                modalData[0]
+                                                                                    ?.nutritions_name
+                                                                                    .length -
+                                                                                1
+                                                                                ? ','
+                                                                                : '.'}
+                                                                        </Typography>
+                                                                    )
+                                                                )}
+                                                            </Stack>
+                                                        </>
+                                                    )}
                                                 {modalData[0]?.allergies_name
                                                     ?.length > 0 && (
-                                                    <>
-                                                        <Typography
-                                                            fontSize="14px"
-                                                            fontWeight="500"
-                                                            mt="5px"
-                                                        >
-                                                            {t(
-                                                                'Allergic Ingredients'
-                                                            )}
-                                                        </Typography>
+                                                        <>
+                                                            <Typography
+                                                                fontSize="14px"
+                                                                fontWeight="500"
+                                                                mt="5px"
+                                                            >
+                                                                {t(
+                                                                    'Allergic Ingredients'
+                                                                )}
+                                                            </Typography>
 
-                                                        <Stack
-                                                            direction="row"
-                                                            spacing={0.5}
-                                                        >
-                                                            {modalData[0]?.allergies_name?.map(
-                                                                (
-                                                                    item,
-                                                                    index
-                                                                ) => (
-                                                                    <Typography
-                                                                        fontSize="12px"
-                                                                        key={
-                                                                            index
-                                                                        }
-                                                                        color={
-                                                                            theme
-                                                                                .palette
-                                                                                .neutral[400]
-                                                                        }
-                                                                    >
-                                                                        {item}
-                                                                        {index !==
-                                                                        modalData[0]
-                                                                            ?.allergies_name
-                                                                            .length -
-                                                                            1
-                                                                            ? ','
-                                                                            : '.'}
-                                                                    </Typography>
-                                                                )
-                                                            )}
-                                                        </Stack>
-                                                    </>
-                                                )}
+                                                            <Stack
+                                                                direction="row"
+                                                                spacing={0.5}
+                                                            >
+                                                                {modalData[0]?.allergies_name?.map(
+                                                                    (
+                                                                        item,
+                                                                        index
+                                                                    ) => (
+                                                                        <Typography
+                                                                            fontSize="12px"
+                                                                            key={
+                                                                                index
+                                                                            }
+                                                                            color={
+                                                                                theme
+                                                                                    .palette
+                                                                                    .neutral[400]
+                                                                            }
+                                                                        >
+                                                                            {item}
+                                                                            {index !==
+                                                                                modalData[0]
+                                                                                    ?.allergies_name
+                                                                                    .length -
+                                                                                1
+                                                                                ? ','
+                                                                                : '.'}
+                                                                        </Typography>
+                                                                    )
+                                                                )}
+                                                            </Stack>
+                                                        </>
+                                                    )}
                                                 <Stack
                                                     spacing={1}
-                                                    direction={{
-                                                        xs: 'row',
-                                                        sm: 'row',
-                                                        md: 'row',
-                                                    }}
-                                                    justifyContent={{
-                                                        xs: 'space-between',
-                                                        sm: 'space-between',
-                                                        md: 'space-between',
-                                                    }}
+                                                    direction="row"
+                                                    justifyContent="space-between"
                                                     alignItems="center"
                                                 >
                                                     <StartPriceView
@@ -1208,17 +1274,6 @@ const FoodDetailModal = ({
                                                         }
                                                         selectedOptions={
                                                             selectedOptions
-                                                        }
-                                                    />
-
-                                                    <IncrementDecrementManager
-                                                        decrementPrice={
-                                                            decrementPrice
-                                                        }
-                                                        totalPrice={totalPrice}
-                                                        quantity={quantity}
-                                                        incrementPrice={
-                                                            incrementPrice
                                                         }
                                                     />
                                                 </Stack>
@@ -1258,7 +1313,7 @@ const FoodDetailModal = ({
                                                 )}
                                             {modalData?.length > 0 &&
                                                 modalData[0]?.add_ons?.length >
-                                                    0 && (
+                                                0 && (
                                                     <AddOnsManager
                                                         t={t}
                                                         modalData={modalData}
@@ -1276,16 +1331,18 @@ const FoodDetailModal = ({
                                                         itemIsLoading={
                                                             isRefetching
                                                         }
+                                                        variationInCart={
+                                                            variationInCart
+                                                        }
                                                     />
                                                 )}
                                         </SimpleBar>
                                         <Grid container direction="row">
                                             <Grid
                                                 item
-                                                md={7}
-                                                sm={12}
                                                 xs={12}
                                                 alignSelf="center"
+                                                marginBottom="10px"
                                             >
                                                 <TotalAmountVisibility
                                                     modalData={modalData}
@@ -1317,6 +1374,26 @@ const FoodDetailModal = ({
                                             </Grid>
                                             <Grid
                                                 item
+                                                md={7}
+                                                sm={12}
+                                                xs={12}
+                                                alignSelf="center"
+                                                marginBottom={{ xs: "15px", md: "0px" }}
+                                            >
+                                                <IncrementDecrementManager
+                                                    decrementPrice={
+                                                        decrementPrice
+                                                    }
+                                                    totalPrice={totalPrice}
+                                                    quantity={quantity}
+                                                    incrementPrice={
+                                                        incrementPrice
+                                                    }
+                                                    setQuantity={setQuantity}
+                                                />
+                                            </Grid>
+                                            <Grid
+                                                item
                                                 md={
                                                     !isAvailable(
                                                         modalData[0]
@@ -1330,48 +1407,43 @@ const FoodDetailModal = ({
                                                 sm={12}
                                                 xs={12}
                                             >
+                                                {console.log("vvv", isInCart(foodDetails?.id))}
                                                 {modalData?.length > 0 &&
-                                                isAvailable(
-                                                    modalData[0]
-                                                        ?.available_time_starts,
-                                                    modalData[0]
-                                                        ?.available_time_ends
-                                                ) ? (
+                                                    isAvailable(
+                                                        modalData[0]
+                                                            ?.available_time_starts,
+                                                        modalData[0]
+                                                            ?.available_time_ends
+                                                    ) ? (
                                                     <>
-                                                        {isInCart(
-                                                            modalData[0].id
-                                                        ) && (
-                                                            <UpdateToCartUi
-                                                                addToCard={
-                                                                    addToCard
-                                                                }
-                                                                t={t}
-                                                                isUpdateDisabled={
-                                                                    isUpdateDisabled
-                                                                }
-                                                            />
-                                                        )}
-                                                        {!isInCart(
-                                                            product.id
-                                                        ) && (
-                                                            <AddOrderToCart
-                                                                addToCartLoading={
-                                                                    addToCartLoading
-                                                                }
-                                                                product={
-                                                                    modalData[0]
-                                                                }
-                                                                t={t}
-                                                                addToCard={
-                                                                    addToCard
-                                                                }
-                                                                orderNow={
-                                                                    orderNow
-                                                                }
-                                                                getFullFillRequirements={
-                                                                    getFullFillRequirements
-                                                                }
-                                                            />
+                                                        {(foodDetails?.variations?.length > 0 || product?.variations?.length > 0) ? (
+                                                            // 🟦 Case 1: Food has variations
+                                                            (variationInCart || productUpdate) ? (
+                                                                <UpdateToCartUi addToCard={addToCard} t={t} />
+                                                            ) : (
+                                                                <AddOrderToCart
+                                                                    addToCartLoading={addToCartLoading}
+                                                                    product={modalData?.[0]}
+                                                                    t={t}
+                                                                    addToCard={addToCard}
+                                                                    orderNow={orderNow}
+                                                                    getFullFillRequirements={getFullFillRequirements}
+                                                                />
+                                                            )
+                                                        ) : (
+                                                            // 🟩 Case 2: Food has NO variations
+                                                            (isInCart(modalData[0]?.id)) ? (
+                                                                <UpdateToCartUi addToCard={addToCard} t={t} />
+                                                            ) : (
+                                                                <AddOrderToCart
+                                                                    addToCartLoading={addToCartLoading}
+                                                                    product={modalData?.[0]}
+                                                                    t={t}
+                                                                    addToCard={addToCard}
+                                                                    orderNow={orderNow}
+                                                                    getFullFillRequirements={getFullFillRequirements}
+                                                                />
+                                                            )
                                                         )}
                                                     </>
                                                 ) : (

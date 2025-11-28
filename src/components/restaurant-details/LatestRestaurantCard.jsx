@@ -166,13 +166,13 @@ const LatestRestaurantCard = (props) => {
     }
     const handleClick = () => {
         router.push({
-            pathname: `/restaurant/[id]`,
+            pathname: `/restaurants/${slug || id}`,
             query: {
-                id: `${slug ? slug : id}`,
                 restaurant_zone_id: zone_id,
             },
         })
     }
+
     return (
         <>
             <Stack
@@ -180,6 +180,7 @@ const LatestRestaurantCard = (props) => {
                 height={{ xs: '195px', md: '210px' }}
                 onClick={handleClick}
                 id={`restaurent-${id}`}
+                
             >
                 <CustomPaperBigCard
                     nopadding="true"
@@ -275,7 +276,18 @@ const LatestRestaurantCard = (props) => {
                                     justifyContent="space-between"
                                     sx={{ position: 'relative' }}
                                 >
-                                    <HomeTextTypography component="h3">
+                                    <HomeTextTypography component="h3"
+                                      sx={{
+                                      transition: theme.transitions.create(['color'], {
+                                                duration: theme.transitions.duration.short,
+                                            }),
+                                    cursor: 'pointer',
+                                    '&:hover': {
+                                        color: theme.palette.primary.main,
+                                        transform: 'scale(1.02)',
+                                    },
+                                      }}
+                                    >
                                         {name.length > 30
                                             ? `${name.slice(0, 30)}... `
                                             : name}

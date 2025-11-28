@@ -42,7 +42,7 @@ const NavResturant = ({ zoneid }) => {
     const openresdrop = Boolean(resdropdown)
 
     const { data: popularRestaurant, refetch: restaurantApiRefetch } = useQuery(
-        ['restaurants/popular'],
+        ['restaurants/populars'],
         () => RestaurantsApi?.popularRestaurants(),
         {
             enabled: false,
@@ -52,12 +52,10 @@ const NavResturant = ({ zoneid }) => {
         }
     )
     useEffect(() => {
-        if (zoneid) {
-            if (popularRestaurants?.length === 0) {
-                restaurantApiRefetch()
-            }
+        if (popularRestaurants?.length === 0) {
+            restaurantApiRefetch()
         }
-    }, [zoneid])
+    }, [])
     useEffect(() => {
         if (popularRestaurant) {
             dispatch(setPopularRestaurants(popularRestaurant?.data))
@@ -73,14 +71,14 @@ const NavResturant = ({ zoneid }) => {
     const viewAll = () => {
         Router.push(
             {
-                pathname: '/restaurant',
+                pathname: '/restaurants',
             },
             undefined,
             { shallow: true }
         )
     }
-    const languageDirection = localStorage.getItem('direction')
-
+    const languageDirection = typeof window !== 'undefined' ? localStorage.getItem('direction') : 'ltr'
+    console.log({popularRestaurant})
     return (
         <div
             onMouseEnter={(e) => handleresdropClick(e)}
@@ -141,16 +139,14 @@ const NavResturant = ({ zoneid }) => {
                                                     >
                                                         <Link
                                                             href={{
-                                                                pathname:
-                                                                    '/restaurant/[id]',
+                                                                pathname: `/restaurants/${restaurant?.slug || restaurant?.id}`,
                                                                 query: {
-                                                                    id: `${restaurantIdOrSlug}`,
-                                                                    restaurant_zone_id:
-                                                                        restaurant?.zone_id,
+                                                                    restaurant_zone_id: restaurant?.zone_id,
                                                                 },
                                                             }}
                                                             passHref
-                                                            style={{textDecoration: 'none'}}
+                                                            prefetch={false}
+                                                            style={{ textDecoration: 'none' }}
                                                         >
                                                             <MenuItem
                                                                 onClick={
@@ -219,9 +215,10 @@ const NavResturant = ({ zoneid }) => {
                                                         key={restaurant.id}
                                                     >
                                                         <Link
-                                                            href={`/restaurant/${restaurantIdOrSlug}`}
+                                                            href={`/restaurants/${restaurant?.slug || restaurant?.id}`}
                                                             passHref
-                                                            style={{textDecoration: 'none'}}
+                                                            prefetch={false}
+                                                            style={{ textDecoration: 'none' }}
                                                         >
                                                             <MenuItem
                                                                 onClick={

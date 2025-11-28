@@ -134,7 +134,7 @@ const RestaurantBoxCard = (props) => {
                                             align={
                                                 hasDiscount
                                                     ? languageDirection ===
-                                                      'rtl'
+                                                        'rtl'
                                                         ? 'right'
                                                         : 'left'
                                                     : 'center'
@@ -190,9 +190,9 @@ const RestaurantBoxCard = (props) => {
                             {opening_time === 'closed'
                                 ? t('Closed Now')
                                 : ` Open at ${moment(
-                                      opening_time,
-                                      'HH:mm:ss'
-                                  ).format('hh:mm A')}`}
+                                    opening_time,
+                                    'HH:mm:ss'
+                                ).format('hh:mm A')}`}
                         </Typography>
                     </Stack>
                 )
@@ -229,9 +229,8 @@ const RestaurantBoxCard = (props) => {
     }
     const handleClick = () => {
         router.push({
-            pathname: `/restaurant/[id]`,
+            pathname: `/restaurants/${slug || id}`,
             query: {
-                id: `${slug ? slug : id}`,
                 restaurant_zone_id: zone_id,
                 isDineIn: dine_in ?? dine_in,
             },
@@ -248,6 +247,7 @@ const RestaurantBoxCard = (props) => {
                 nopadding="true"
                 noboxshadow="true"
                 sx={{
+
                     boxShadow:
                         theme.palette.mode === 'dark'
                             ? '0px 8.092px 24.275px 0px rgba(0, 0, 0, 0.20)'
@@ -259,6 +259,8 @@ const RestaurantBoxCard = (props) => {
                     '&:hover': {
                         boxShadow: `0px 0px 2px rgba(145, 158, 171, 0.2), 0px 5px 20px ${theme.palette.paperBoxShadow}`,
                     },
+
+
                 }}
             >
                 <CustomStackFullWidth spacing={1}>
@@ -268,8 +270,8 @@ const RestaurantBoxCard = (props) => {
 
                         <Box
                             sx={{
-                                display:"flex",
-                                justifyContent:"center",
+                                display: "flex",
+                                justifyContent: "center",
                                 width: '100%',
                                 height: '130px',
                                 transition: `${theme.transitions.create(
@@ -288,8 +290,8 @@ const RestaurantBoxCard = (props) => {
                                 src={image}
                                 alt={name}
                                 width={image ? '300' : '180'}
-                                height={image?"130":'120'}
-                                objectFit={image?'cover':"contain"}
+                                height={image ? "130" : '120'}
+                                objectFit={image ? 'cover' : "contain"}
                                 priority={true}
                                 borderRadius="8px"
                             />
@@ -302,11 +304,20 @@ const RestaurantBoxCard = (props) => {
                             justifyContent="space-between"
                             sx={{ position: 'relative' }}
                         >
-                            <HomeTextTypography component="h3">
+                            <HomeTextTypography component="h3" sx={{
+                                transition: theme.transitions.create(['color'], {
+                                    duration: theme.transitions.duration.short,
+                                }),
+                                '&:hover': {
+                                    color: theme.palette.primary.main,
+                                    transform: 'scale(1.02)',
+                                },
+
+                            }}>
                                 {name}
                             </HomeTextTypography>
                             <Stack flexDirection="row" gap="5px">
-                                {rating_count>0 && (<Typography
+                                {rating_count > 0 && (<Typography
                                     fontSize="14px"
                                     fontWeight={400}
                                     color={theme.palette.text.secondary}
@@ -340,7 +351,7 @@ const RestaurantBoxCard = (props) => {
                                         <>
                                             {item}{' '}
                                             {characteristics.length - 1 ===
-                                            index
+                                                index
                                                 ? ''
                                                 : ','}
                                         </>

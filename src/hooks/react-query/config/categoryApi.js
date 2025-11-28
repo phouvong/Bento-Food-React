@@ -11,20 +11,20 @@ export const CategoryApi = {
     },
     // childCategories: (id) => MainApi.get(`categories/childes/${id}`)
 
-    categoriesDetails: (id, type, offset, page_limit,filterByData,priceAndRating) => {
-        const tempPrice=JSON.stringify(priceAndRating?.price)
+    categoriesDetails: (category_id, type, offset, page_limit, filterByData, priceAndRating) => {
+        const tempPrice = JSON.stringify(priceAndRating?.price)
         return MainApi.get(
-            `/api/v1/categories/products/${id}?limit=${page_limit}&offset=${offset}&type=${type}&top_rated=${filterByData?.top_rated?1:0}&veg=${filterByData?.veg?1:0}&non_veg=${filterByData?.non_veg?1:0}
-            &avg_rating=${priceAndRating?.rating===null? 0:priceAndRating?.rating}&price=${tempPrice}
+            `/api/v1/categories/products/${category_id}?limit=${page_limit}&offset=${offset}&type=${type}&top_rated=${filterByData?.top_rated ? 1 : 0}&veg=${filterByData?.veg ? 1 : 0}&non_veg=${filterByData?.non_veg ? 1 : 0}
+            &avg_rating=${priceAndRating?.rating === null ? 0 : priceAndRating?.rating}&price=${tempPrice}
             `
         )
     },
     categoriesChildes: (id) => {
         return MainApi.get(`/api/v1/categories/childes/${id}`)
     },
-    categoriesDetailsForRes: (id, type, offset, page_limit,filterByData,priceAndRating) => {
+    categoriesDetailsForRes: (id, type, offset, page_limit, filterByData, priceAndRating) => {
         return MainApi.get(
-            `/api/v1/categories/restaurants/${id}?limit=${page_limit}&offset=${offset}&type=${type}&top_rated=${filterByData?.top_rated?1:0}&veg=${filterByData?.veg?1:0}&non_veg=${filterByData?.non_veg?1:0}&avg_rating=${priceAndRating?.rating===null?0:priceAndRating?.rating}`
+            `/api/v1/categories/restaurants/${id}?limit=${page_limit}&offset=${offset}&type=${type}&top_rated=${filterByData?.top_rated ? 1 : 0}&veg=${filterByData?.veg ? 1 : 0}&non_veg=${filterByData?.non_veg ? 1 : 0}&avg_rating=${priceAndRating?.rating === null ? 0 : priceAndRating?.rating}`
         )
     },
 }

@@ -24,7 +24,6 @@ const FooterMiddle = ({ landingPageData, isLoading }) => {
     }
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
-    const isXSmall = useMediaQuery(theme.breakpoints.down('md'))
     const businessLogo = global?.logo_full_url
     return (
         <CustomStackFullWidth
@@ -42,7 +41,7 @@ const FooterMiddle = ({ landingPageData, isLoading }) => {
                         xs={12}
                         sm={12}
                         md={4}
-                        align={isSmall && 'center'}
+                        align={isSmall || 'center'}
                     >
                         <CustomStackFullWidth
                             spacing={{ xs: 1, sm: 2, md: 4 }}

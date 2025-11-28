@@ -16,67 +16,103 @@ const BgBox = styled(Box)(({ theme }) => ({
 const normalStyle = {
     textAlign: 'center',
 }
+
 const RestaurantAnnouncementMessege = ({ storeAnnouncement }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
-    let duration = (storeAnnouncement?.length * 24) / 100
-    const translateX = isSmall
-        ? storeAnnouncement?.length * 3.5
-        : storeAnnouncement?.length * 1.3
-    const wordCount = isSmall
+
+    const duration = Math.max(8, storeAnnouncement?.length * 0.15)
+
+    const shouldScroll = isSmall
         ? storeAnnouncement?.length > 35
         : storeAnnouncement?.length > 150
 
-    const animatedStyle = {
-        width: '90%',
-        paddingInline: '10px',
+    const containerSx = {
+        height: '60px',
+        position: 'relative',
+        overflow: 'hidden',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    }
+
+    const marqueeBase = {
+        display: 'flex',
+        alignItems: 'center',
         whiteSpace: 'nowrap',
-        animation: `scrollRightToLeft ${duration}s linear infinite`,
+        gap: isSmall ? '8px' : '12px',
         position: 'absolute',
-        left: '95%',
-        transformOrigin: 'top left',
-        '@keyframes scrollRightToLeft': {
-            '0%': {
-                transform: 'translateX(0%)',
-            },
-            '100%': {
-                transform: `translateX(-${translateX}%)`,
-            },
-        },
+        top: 0,
+        height: '100%',
     }
 
     return (
         <BgBox>
-            <Stack
-                height="60px"
-                position="relative"
-                padding="0px"
-                justifyContent="center"
-                alignItems="center"
-                overflow="hidden"
-                width="100%"
-            >
-                <Stack
-                    position="absolute"
-                    direction="row"
-                    spacing={{ xs: 1, md: 2 }}
-                    sx={wordCount ? animatedStyle : normalStyle}
-                >
-                    <CampaignIcon
-                        size="40px"
-                        sx={{ color: theme.palette.whiteContainer.main }}
-                    />
-                    <Typography
-                        fontSize="16px"
-                        fontWeight="500"
-                        textTransform="capitalize"
-                        sx={{
-                            color: theme.palette.whiteContainer.main,
-                        }}
-                    >
-                        {storeAnnouncement}
-                    </Typography>
-                </Stack>
+            <Stack sx={containerSx}>
+                {shouldScroll ? (
+                    <>
+                        {/* First scrolling copy */}
+                        <Box
+                            sx={{
+                                ...marqueeBase,
+                                animation: `scroll ${duration}s linear infinite`,
+                                '@keyframes scroll': {
+                                    '0%': { transform: 'translateX(100%)' },
+                                    '100%': { transform: 'translateX(-100%)' },
+                                },
+
+                            }}
+                        >
+                            <CampaignIcon sx={{ color: theme.palette.whiteContainer.main }} />
+                            <Typography
+                                fontSize="16px"
+                                fontWeight="500"
+                                textTransform="capitalize"
+                                sx={{ color: theme.palette.whiteContainer.main }}
+                            >
+                                {storeAnnouncement}
+                            </Typography>
+                        </Box>
+
+                        {/* Second copy: hidden until halfway through */}
+                        <Box
+                            sx={{
+                                ...marqueeBase,
+                                opacity: 0, // hidden initially
+                                animation: `scroll2 ${duration}s linear infinite`,
+                                animationDelay: `${duration / 2}s`,
+                                '@keyframes scroll2': {
+                                    '0%': { transform: 'translateX(100%)', opacity: 0 },
+                                    '5%': { opacity: 1 }, // fade in when starts scrolling
+                                    '100%': { transform: 'translateX(-100%)', opacity: 1 },
+                                },
+                            }}
+                        >
+                            <CampaignIcon sx={{ color: theme.palette.whiteContainer.main }} />
+                            <Typography
+                                fontSize="16px"
+                                fontWeight="500"
+                                textTransform="capitalize"
+                                sx={{ color: theme.palette.whiteContainer.main }}
+                            >
+                                {storeAnnouncement}
+                            </Typography>
+                        </Box>
+                    </>
+                ) : (
+                    <Stack direction="row" spacing={1} sx={normalStyle}>
+                        <CampaignIcon sx={{ color: theme.palette.whiteContainer.main }} />
+                        <Typography
+                            fontSize="16px"
+                            fontWeight="500"
+                            textTransform="capitalize"
+                            sx={{ color: theme.palette.whiteContainer.main }}
+                        >
+                            {storeAnnouncement}
+                        </Typography>
+                    </Stack>
+                )}
             </Stack>
         </BgBox>
     )

@@ -41,18 +41,19 @@ const ReferWrapper = styled(Stack)(({ theme, src }) => ({
 }))
 
 export const ReferButton = styled(Button)(({ theme }) => ({
-    background: theme.palette.primary.main,
+    backgroundColor: theme.palette.whiteContainer.main,
+    color: theme.palette.primary.main,
     borderRadius: '5px',
     fontWeight: '500',
-    backgroundColor: `${theme.palette.whiteContainer.main}`,
-    color: `${theme.palette.primary.main}`,
     gap: '5px',
     boxShadow:
         '0px 0px 1.81508px rgba(145, 158, 171, 0.2), 0px 9.07541px 18.1508px -2.72262px rgba(145, 158, 171, 0.05)',
+    transition: 'all 0.3s ease',
     '&:hover': {
-        backgroundColor: theme.palette.whiteContainer.main,
+        backgroundColor: theme.palette.primary.main,
+        color: theme.palette.common.white,
     },
-}))
+}));
 const BestReviewedFood = ({ isLoading }) => {
     const { t } = useTranslation()
     const { bestReviewedFoods } = useSelector((state) => state.storedData)

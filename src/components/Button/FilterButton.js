@@ -5,7 +5,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { t } from 'i18next'
 import FilterAltIcon from '@mui/icons-material/FilterAlt'
 
-const FilterButton = ({ handleClick, activeFilters, forSearch }) => {
+const FilterButton = ({ handleClick, activeFilters, forSearch, homePage }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     return (
@@ -17,11 +17,23 @@ const FilterButton = ({ handleClick, activeFilters, forSearch }) => {
                     sm: '4px 8px',
                     md: '5px 8px',
                 },
-                borderRadius: '6px',
+                borderRadius: homePage ? '15px' : "6px",
                 color: (theme) => theme.palette.primary.main,
                 borderColor: (theme) => theme.palette.primary.main,
                 marginBottom: '5px',
                 minWidth: '33px',
+                '&:hover': {
+                    backgroundColor: (theme) => theme.palette.primary.main,
+                    color: (theme) => theme.palette.neutral[100],
+                    borderColor: (theme) => theme.palette.primary.main,
+                    '& .MuiSvgIcon-root': {
+                        color: (theme) => theme.palette.neutral[100],
+                    },
+                    '& .MuiTypography-root': {
+                        color: (theme) => theme.palette.neutral[100],
+                    },
+                },
+
             }}
             onClick={handleClick}
         >

@@ -1,4 +1,5 @@
 import React from 'react'
+import { NoSsr } from '@mui/material'
 import TypeWiseResturant from '../../../components/type-wise-resturant-page/TypeWiseResturant'
 import { landingPageApi } from '@/components/landingpage/Api'
 import Meta from '../../../components/Meta'
@@ -11,21 +12,20 @@ const index = ({ configData, landingPageData, pathName }) => {
         <>
             <div className="div">
                 <Meta
-                    title={`${t('New')} ${t('on')} ${
-                        configData?.business_name
-                    } `}
+                    title={`${t('New')} ${t('on')} ${configData?.business_name
+                        } `}
                     ogImage={`${configData?.base_urls?.react_landing_page_images}/${landingPageData?.banner_section_full?.banner_section_img_full}`}
                     pathName={pathName}
                 />
-                <TypeWiseResturant
-                    restaurantType="latest"
-                    title={`${t('New')} ${t('on')} ${
-                        configData?.business_name
-                    } `}
-                    description={`${t('New')} ${t('on')} ${
-                        configData?.business_name
-                    } `}
-                />
+                <NoSsr>
+                    <TypeWiseResturant
+                        restaurantType="latest"
+                        title={`${t('New')} ${t('on')} ${configData?.business_name
+                            } `}
+                        description={`${t('New')} ${t('on')} ${configData?.business_name
+                            } `}
+                    />
+                </NoSsr>
             </div>
         </>
     )

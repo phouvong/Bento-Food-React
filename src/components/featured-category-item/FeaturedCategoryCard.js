@@ -13,16 +13,18 @@ const FeaturedCategoryCard = ({
     name,
     id,
     categoryIsSticky,
+    slug,
 }) => {
     const theme = useTheme()
     const router = useRouter()
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const image = categoryImage
+    
     const handleClick = () => {
         Router.push(
             {
-                pathname: `/category/${id}`,
+                pathname: `/category/${slug || id}`,
                 query: { name: name },
             },
             undefined,
@@ -61,32 +63,16 @@ const FeaturedCategoryCard = ({
                         },
                         border: '1px solid',
                         borderColor: (theme) => theme.palette.neutral[200],
-                        borderRadius: '32px',
+                        borderRadius: '50%',
                         transition: `all ease 0.5s`,
                         '&:hover': {
-                            transform: 'scale(1.1)',
+                            transform: 'scale(1.03)',
                         },
                         animation: 'fadeInRight 2s  1',
                         alignItems: 'center',
                         justifyContent: 'center',
                     }}
                 >
-                    {/*<CustomImageContainer*/}
-                    {/*    src={image}*/}
-                    {/*    alt={name}*/}
-                    {/*    height={image ? '100%' : '70px'}*/}
-                    {/*    width="100%"*/}
-                    {/*    objectFit="cover"*/}
-                    {/*    smMb="5px"*/}
-                    {/*    smHeight="100%"*/}
-                    {/*    smMaxWidth="55px"*/}
-                    {/*    cursor="pointer"*/}
-                    {/*    borderRadius={*/}
-                    {/*        router.pathname === '/categories' && isXSmall*/}
-                    {/*            ? '16px'*/}
-                    {/*            : '32px'*/}
-                    {/*    }*/}
-                    {/*/>*/}
                     <CustomNextImage
                         src={image}
                         alt={name}
@@ -95,7 +81,7 @@ const FeaturedCategoryCard = ({
                         borderRadius={
                             router.pathname === '/categories' && isXSmall
                                 ? '16px'
-                                : '32px'
+                                : '50%'
                         }
                         objectFit={image ? 'cover':"contain"}
                     />
@@ -108,6 +94,12 @@ const FeaturedCategoryCard = ({
                         display: '-webkit-box',
                         WebkitLineClamp: '1',
                         WebkitBoxOrient: 'vertical',
+                        transition: "all 0.2s ease", // 👈 smooth transition
+                        "&:hover": {
+                            color: (theme) => theme.palette.primary.main,
+                            //fontWeight: "600",
+                            transform: 'scale(1.06)',
+                        },
                     }}
                     fontSize={{ xs: '13px', sm: '14px', md: '14px' }}
                     fontWeight="400"

@@ -13,15 +13,14 @@ const DownloadComponent = ({ download_app_data }) => {
     return (
         <>
             <CustomStackFullWidth
-                alignItems="center"
-                justifyContent="center"
                 gap="15px"
             >
-                <Stack alignItems="center" justifyContent="center" gap="5px">
+                <Stack  justifyContent={{xs:"center",sm:"flex-start"}} gap="5px">
                     <LandingPageTypography
-                        fontSize={{ xs: '20', sm: '25', md: '29px' }}
+                        fontSize={{ xs: '1.5rem', md: '30px' }}
                         fontWeight="700"
                         component="h2"
+                        textAlign={{xs:"center",sm:"left"}}
                     >
                         {download_app_data?.react_download_apps_title}
                     </LandingPageTypography>
@@ -31,6 +30,7 @@ const DownloadComponent = ({ download_app_data }) => {
                             fontWeight="500"
                             color={theme.palette.primary.main}
                             component="p"
+                            textAlign={{xs:"center",sm:"left"}}
                         >
                             {download_app_data?.react_download_apps_sub_title}
                         </Typography>
@@ -39,6 +39,7 @@ const DownloadComponent = ({ download_app_data }) => {
                             fontSize={{ xs: '14px', sm: '16px' }}
                             color={theme.palette.neutral[400]}
                             component="p"
+                            textAlign={{xs:"center",sm:"left"}}
                         >
                             {download_app_data?.react_download_apps_tag}
                         </Typography>

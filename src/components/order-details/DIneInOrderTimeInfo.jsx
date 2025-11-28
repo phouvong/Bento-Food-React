@@ -231,7 +231,7 @@ const DIneInOrderTimeInfo = ({ trackData }) => {
                     >
                         {t('Your food is ready to serve.')}
                         {/*<Typography fontSize="25px" fontWeight="700">*/}
-                        {/*    {`You are ${handleTime()} mins  away from restaurant. Hurry up !`}*/}
+                        {/*    {`You are ${handleTime()} mins  away from restaurants. Hurry up !`}*/}
                         {/*</Typography>*/}
                     </Typography>
                 )

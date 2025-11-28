@@ -1,6 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import { useSelector } from 'react-redux'
-// import { CustomBoxFullWidth } from "components/chat/Chat.style";
 import {
     alpha,
     Grid,
@@ -13,9 +11,7 @@ import LockIcon from '@mui/icons-material/Lock'
 
 import React from 'react'
 import EmailIcon from '@mui/icons-material/Email'
-// import CustomDivider from 'components/CustomDivider'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
-import CustomDivider from '../CustomDivider'
 import CustomTextFieldWithFormik from '../form-fields/CustomTextFieldWithFormik'
 
 const AccountInfo = ({

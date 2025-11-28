@@ -151,7 +151,7 @@ const FoodCampaign = ({ isLoading }) => {
             <Grid
                 container
                 paddingTop={
-                    campaignFoods?.length > 0 && { xs: '0.5rem', sm: '1.9rem' }
+                    campaignFoods?.length > 0 && { xs: '0.5rem', sm: '0rem' }
                 }
             >
                 <CustomGridWithBgColor

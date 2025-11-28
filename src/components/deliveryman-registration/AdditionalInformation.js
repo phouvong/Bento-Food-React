@@ -65,17 +65,11 @@ const AdditionalInformation = ({
     }
 
     const imageOnchangeHandlerForImage = (value) => {
+
         setAdditionalImage(value)
     }
     const [dateRange, setDateRange] = useState([])
 
-    const handleDateRange = (value) => {
-        setDateRange(val)
-    }
-    const fileImagesHandler = (files, key) => {
-        setAdditionalImage(files)
-        deliveryManFormik.setFieldValue('additional_documents', files)
-    }
     useEffect(() => {
         if (additionalImage && Object.keys(additionalImage).length > 0) {
             // Iterate through configData and update Formik values
@@ -674,7 +668,7 @@ const AdditionalInformation = ({
                                                         }}
                                                     >
                                                         {t(
-                                                            'pdf, doc Less Than 1MB'
+                                                            'pdf, doc.image Less Than 1MB'
                                                         )}
                                                     </Typography>
                                                 </Stack>

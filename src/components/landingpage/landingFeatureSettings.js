@@ -90,18 +90,9 @@ export const landingFeatureSettings = {
             },
         },
         {
-            breakpoint: 800,
-            settings: {
-                slidesToShow: 3,
-                slidesToScroll: 1,
-                // initialSlide: 2
-                infinite: false,
-            },
-        },
-        {
             breakpoint: 670,
             settings: {
-                slidesToShow: 3,
+                slidesToShow: 2.5,
                 slidesToScroll: 1,
                 initialSlide: 0,
                 infinite: false,
@@ -110,7 +101,7 @@ export const landingFeatureSettings = {
         {
             breakpoint: 540,
             settings: {
-                slidesToShow: 2.5,
+                slidesToShow: 2,
                 slidesToScroll: 1,
                 infinite: false,
             },
@@ -118,7 +109,7 @@ export const landingFeatureSettings = {
         {
             breakpoint: 450,
             settings: {
-                slidesToShow: 2,
+                slidesToShow: 1.5,
                 slidesToScroll: 1,
                 speed: 1000,
                 // dots: false

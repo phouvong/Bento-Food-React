@@ -181,7 +181,7 @@ const DineIn = () => {
         <Grid
             container
             spacing={3}
-            paddingTop={newRestuarants?.data?.restaurants?.length > 0 && '30px'}
+            paddingTop={newRestuarants?.data?.restaurants?.length > 0 && '40px'}
         >
             {newRestuarants?.data?.restaurants?.length > 0 && (
                 <Grid item xs={12} md={3}>
@@ -214,6 +214,11 @@ const DineIn = () => {
                             sx={{
                                 padding:"4px 10px",
                                 fontWeight:"500",
+                                '&:hover': {
+                                    backgroundColor: theme=>theme.palette.neutral[100],
+                                    color:theme=>theme.palette.primary.main
+
+                                },
                             }}
                         >
                             {t('View Restaurants')}

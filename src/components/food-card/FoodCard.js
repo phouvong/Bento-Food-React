@@ -219,8 +219,16 @@ const FoodCard = ({
         }
     }
     const getQuantity = (id) => {
-        const product = cartList.find((cartItem) => cartItem.id === id)
-        return product && product.quantity ? product.quantity : 1
+        const product = cartList.filter((cartItem) => cartItem.id === id)
+
+        if (product?.length > 1) {
+            return product && product?.reduce((acc, curr) => acc + curr.quantity, 0)
+        } else {
+            return product && product[0].quantity ? product[0].quantity : 1
+        }
+
+
+
     }
     useEffect(() => {
         const timeoutId = setTimeout(() => {
@@ -234,7 +242,13 @@ const FoodCard = ({
 
     const handleClickQuantityButton = (e) => {
         e.stopPropagation()
-        setIncrOpen(true)
+        if (product?.variations?.length === 0) {
+            setIncrOpen(true)
+        } else {
+            setOpenModal(true)
+        }
+
+
     }
     const clearCartAlert = () => {
         const itemObject = {

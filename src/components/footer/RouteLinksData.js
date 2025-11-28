@@ -2,7 +2,7 @@ export const RouteLinksData = [
     {
         name: 'Open Restaurant',
         value: 'restaurant_owner',
-        // link: `${process.env.NEXT_PUBLIC_BASE_URL}/restaurant/apply`,
+        // link: `${process.env.NEXT_PUBLIC_BASE_URL}/restaurants/apply`,
         link: '/restaurant-registration-landing',
     },
     {
