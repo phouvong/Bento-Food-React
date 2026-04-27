@@ -167,13 +167,7 @@ const NewRestaurant = () => {
         ],
     }
     const handleClick = () => {
-        Router.push({
-            pathname: '/home',
-
-            query: {
-                restaurantType: 'latest',
-            },
-        })
+        Router.push('/restaurants/latest')
     }
     const new_on = t('New on')
 

@@ -1,9 +1,6 @@
 import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
-import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
-import { Box, Grid, styled } from '@mui/material'
-import Button from '@mui/material/Button'
-import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Box, Grid } from '@mui/material'
+import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 import { useSelector } from 'react-redux'
 import CustomShimmerRestaurant from '../CustomShimmer/CustomShimmerRestaurant'
@@ -11,40 +8,13 @@ import RestaurantBoxCard from '../restaurant-details/RestaurantBoxCard'
 import GroupButtons from '../restaurant-details/foodSection/GroupButtons'
 
 const ResturantList = ({ restaurantType }) => {
-    const { t } = useTranslation()
     const { global } = useSelector((state) => state.globalSettings)
-    const restaurantCoverUrl = global?.base_urls?.restaurant_cover_photo_url
     const [type, setType] = useState('all')
-    const orangeColor = '#EF7822'
-    const orangeColor2 = '#ff903f'
-    const PrimaryButton = styled(Button)(({ theme }) => ({
-        color: '#fff',
-        backgroundColor: orangeColor,
-        '&:hover': {
-            backgroundColor: orangeColor2,
-        },
-    }))
-    const [open, setOpen] = React.useState(false)
-    const handleOpen = () => setOpen(true)
-    const handleClose = () => setOpen(false)
-    const [alignment, setAlignment] = React.useState('web')
 
-    const handleChange = (event, newAlignment) => {
-        setAlignment(newAlignment)
-    }
-
-    const { isLoading, data, isError, error, refetch } = useQuery(
-        [`restaurant-list`, restaurantType],
+    const { data } = useQuery(
+        [`restaurant-list`, restaurantType, type],
         () => RestaurantsApi.typeWiseRestaurantList({ restaurantType, type })
     )
-
-    useEffect(() => {
-        const apiRefetch = async () => {
-            await refetch()
-        }
-
-        apiRefetch()
-    }, [type])
 
     return (
         <Box>
@@ -57,13 +27,8 @@ const ResturantList = ({ restaurantType }) => {
                 spacing={{ xs: 2, md: 3 }}
                 sx={{ padding: '20px 0px' }}
             >
-                <Grid item xs={12} sm={12} md={12} align="center">
-                    <CustomStackFullWidth
-                        alignItems="center"
-                        justifyContent="center"
-                    >
-                        <GroupButtons setType={setType} type={type} />
-                    </CustomStackFullWidth>
+                <Grid item xs={12}>
+                    <GroupButtons setType={setType} type={type} />
                 </Grid>
             </Grid>
 
@@ -72,25 +37,33 @@ const ResturantList = ({ restaurantType }) => {
                     <>
                         {data?.data?.map((resturant) => {
                             return (
-                                <Grid item xs={4} sm={3} md={3}>
+                                <Grid item xs={4} sm={3} md={3} key={resturant?.id}>
                                     <RestaurantBoxCard
-                                        image={resturant?.logo}
+                                        slug={resturant?.slug}
+                                        image={resturant?.cover_photo_full_url}
                                         name={resturant?.name}
                                         rating={resturant?.avg_rating}
                                         restaurantImageUrl={
                                             global?.base_urls
-                                                ?.restaurant_image_url
+                                                ?.restaurant_cover_photo_url
                                         }
                                         id={resturant?.id}
                                         active={resturant?.active}
                                         open={resturant?.open}
-                                        restaurantDiscount={resturant?.discount}
+                                        restaurantDiscount={
+                                            resturant?.discount &&
+                                            resturant?.discount
+                                        }
                                         freeDelivery={resturant?.free_delivery}
-                                        rating_count={restaurant?.rating_count}
-                                        coupons={restaurant?.coupons}
-                                        cuisines={restaurant?.cuisine}
+                                        delivery_time={resturant?.delivery_time}
+                                        cuisines={resturant?.cuisine}
+                                        rating_count={resturant?.rating_count}
+                                        coupons={resturant?.coupons}
                                         opening_time={
-                                            restaurant?.current_opening_time
+                                            resturant?.current_opening_time
+                                        }
+                                        characteristics={
+                                            resturant?.characteristics
                                         }
                                     />
                                 </Grid>

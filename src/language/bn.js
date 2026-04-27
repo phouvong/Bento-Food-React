@@ -25,7 +25,7 @@ export const bengali = {
     'Please add manually or collect promo from':
         'ম্যানুয়ালি এড করুন অথবা থেকে প্রচার সংগ্রহ করুন',
     'Payment Verification Failed !': 'পেমেন্ট ভেরিফিকেশন ফেইল্ড হয়েছে!',
-    'Chef has started cooking ': 'শেফ কুকিং স্টার্ট করেছে ',
+    'Your food will be delivered within': 'শেফ কুকিং স্টার্ট করেছে ',
     'Tell us what’s wrong with the order ?': 'অর্ডারে কি প্রব্লেম হয়েছে?',
     'You payment is declined by admin. Please contact with admin for further query':
         'পেমেন্ট অ্যাডমিন ডিক্লাইন করেছে, কোন প্রশ্ন থাকলে অ্যাডমিনের সাথে কন্ট্যাক্ট করুন',

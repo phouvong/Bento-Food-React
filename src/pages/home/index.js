@@ -24,7 +24,9 @@ const HomePage = ({ pathName, metaData, landingPageData, configData }) => {
                 robotsMeta={metadata.robotsMeta}
             />
             <NoSsr>
-                <Homes configData={configData} />
+                <Homes configData={configData}
+                landingPageData={landingPageData}
+                />
             </NoSsr>
         </>
     )

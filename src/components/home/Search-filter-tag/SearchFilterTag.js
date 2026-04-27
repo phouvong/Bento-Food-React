@@ -1,11 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import FilterTag from './FilterTag'
 import { useRouter } from 'next/router'
 import { useTheme } from '@emotion/react'
 import { useDispatch, useSelector } from 'react-redux'
-import useScrollSticky from './useScrollSticky'
 import Card from '@mui/material/Card'
 import CustomContainer from '../../container'
 import { searchMockData } from '../../products-page/SearchMockData'
@@ -17,7 +16,6 @@ import {
     setSortbyByDispatch,
 } from '@/redux/slices/searchFilter'
 import { setSearchTagData } from '@/redux/slices/searchTagSlice'
-import { useScrollTrigger } from '@mui/material'
 
 const SearchFilterTag = ({
     tags,
@@ -29,20 +27,46 @@ const SearchFilterTag = ({
 }) => {
     const dispatch = useDispatch()
 
-    const { offsetElementRef } = useScrollSticky()
-    const { isSticky } = useSelector((state) => state.scrollPosition)
     const { searchTagData } = useSelector((state) => state.searchTags)
-    const { categoryIsSticky } = useSelector((state) => state.scrollPosition)
-    const { filterData } = useSelector((state) => state.searchFilterStore)
     const [storeData, setStoreData] = useState(searchMockData)
     const [isMount, setIsMount] = useState(false)
     const router = useRouter()
     const theme = useTheme()
-    const scrolling = useScrollTrigger()
 
     useEffect(() => {
         dispatch(setSearchTagData(storeData))
     }, [searchMockData])
+
+    // Hydrate filter tags and sort_by from URL query params on load/back-forward
+    useEffect(() => {
+        if (!router.isReady) return
+
+        const filtersParam = router.query.filters
+        const sortByParam = router.query.sort_by
+
+        const activeValues = filtersParam
+            ? String(filtersParam).split(',').filter(Boolean)
+            : []
+
+        const hydrated = searchMockData.map((item) => ({
+            ...item,
+            isActive:
+                activeValues.includes(item.value) ||
+                (Boolean(sortByParam) && item.value === 'sort_by'),
+        }))
+
+        setStoreData(hydrated)
+
+        const activeFromUrl = hydrated.filter((item) => item.isActive)
+        dispatch(setFilterbyByDispatch(activeFromUrl))
+        dispatch(
+            setSortbyByDispatch(sortByParam ? String(sortByParam) : '')
+        )
+        if (sortByParam && setSort_by) {
+            setSort_by(String(sortByParam))
+        }
+    }, [router.isReady, router.query.filters, router.query.sort_by])
+
     const handleClick = (value) => {
         if (value !== 'sort_by') {
             let newArr
@@ -85,11 +109,19 @@ const SearchFilterTag = ({
         dispatch(setFilterbyByDispatch(activeFilters))
         dispatch(setSortbyByDispatch(sort_by))
 
+        const activeFilterValues = activeFilters
+            ?.filter((item) => item.value !== 'sort_by')
+            .map((item) => item.value)
+
         // Prepare query parameters
         const queryParams = {
             tags: 'search_tag',
             query: query || '',
             ...(restaurantType === 'dine-in' && { restaurantType: 'dine-in' }), // Conditionally add restaurantType
+            ...(activeFilterValues?.length > 0 && {
+                filters: activeFilterValues.join(','),
+            }),
+            ...(sort_by && { sort_by }),
         }
 
         // Perform routing
@@ -104,6 +136,16 @@ const SearchFilterTag = ({
                 },
                 undefined,
                 { shallow: router.pathname === '/home' }
+            )
+        } else {
+            // Already on /search — update URL params in place
+            router.replace(
+                {
+                    pathname: router.pathname,
+                    query: queryParams,
+                },
+                undefined,
+                { shallow: true }
             )
         }
     }
@@ -125,25 +167,12 @@ const SearchFilterTag = ({
     }, [query])
 
     return (
-        <CustomStackFullWidth
-            ref={offsetElementRef}
-            spacing={2}
-            sx={{
-                position: 'sticky',
-                top: {
-                    xs: '45px',
-                    md: router.pathname !== '/home' ? '0px' : '5px',
-                },
-                zIndex: { xs: 1100, md: isSticky ? 1200 : 99 },
-            }}
-        >
+        <CustomStackFullWidth spacing={2}>
             <Card
                 sx={{
-                    boxShadow: isSticky ?
-                        '0px 1px 1px rgba(100, 116, 139, 0.06), 0px 1px 2px rgba(100, 116, 139, 0.1)'
-                        : 'none', // Change this value based on your non-sticky shadow style
+                   boxShadow: 'none',
                     paddingBottom: '1rem',
-                    paddingTop: '.5rem',
+                    paddingTop: '12px',
                     background: (theme) => theme.palette.neutral[1800],
                     [theme.breakpoints.down('md')]: {
                         paddingTop: '.5rem',

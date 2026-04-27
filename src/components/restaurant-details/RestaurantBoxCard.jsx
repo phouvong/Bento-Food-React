@@ -3,7 +3,7 @@ import {
     CustomStackFullWidth,
 } from '@/styled-components/CustomStyles.style'
 import { CustomTypographyEllipsis } from '@/styled-components/CustomTypographies.style'
-import { getReviewCount, restaurantDiscountTag } from '@/utils/customFunctions'
+import { getReviewCount, handleRestaurantRedirect, restaurantDiscountTag } from '@/utils/customFunctions'
 import { Stack, Typography, alpha, styled, Box } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import moment from 'moment/moment'
@@ -228,13 +228,7 @@ const RestaurantBoxCard = (props) => {
         }
     }
     const handleClick = () => {
-        router.push({
-            pathname: `/restaurants/${slug || id}`,
-            query: {
-                restaurant_zone_id: zone_id,
-                isDineIn: dine_in ?? dine_in,
-            },
-        })
+        handleRestaurantRedirect(router, slug, id)
     }
     return (
         <Stack
@@ -248,30 +242,24 @@ const RestaurantBoxCard = (props) => {
                 noboxshadow="true"
                 sx={{
 
-                    boxShadow:
-                        theme.palette.mode === 'dark'
-                            ? '0px 8.092px 24.275px 0px rgba(0, 0, 0, 0.20)'
-                            : '0px 10px 30px 0px rgba(0, 0, 0, 0.10)',
                     padding: '10px 10px 25px 10px',
                     cursor: 'pointer',
                     width: visitAgain ? '110%' : '100%',
                     height: '100%',
+                    border: `1px solid rgba(0, 0, 0, 0.05)`,
                     '&:hover': {
-                        boxShadow: `0px 0px 2px rgba(145, 158, 171, 0.2), 0px 5px 20px ${theme.palette.paperBoxShadow}`,
+                        boxShadow: `0px 10px 30px rgba(0, 0, 0, 0.16)`,
                     },
-
-
                 }}
             >
                 <CustomStackFullWidth spacing={1}>
                     <Stack sx={{ overflow: 'hidden', position: 'relative' }}>
                         {restaurantCloseHandler()}
-                        {/*{!visitAgain && restaurantCouponAndDiscount()}*/}
 
                         <Box
                             sx={{
-                                display: "flex",
-                                justifyContent: "center",
+                                display: 'flex',
+                                justifyContent: 'center',
                                 width: '100%',
                                 height: '130px',
                                 transition: `${theme.transitions.create(
@@ -289,13 +277,13 @@ const RestaurantBoxCard = (props) => {
                             <CustomNextImage
                                 src={image}
                                 alt={name}
-                                width={image ? '300' : '180'}
-                                height={image ? "130" : '120'}
-                                objectFit={image ? 'cover' : "contain"}
+                                width={image ? '400' : '180'}
+                                height={image ? '130' : '120'}
+                                objectFit={image ? 'cover' : 'contain'}
                                 priority={true}
                                 borderRadius="8px"
+                                
                             />
-
                         </Box>
                     </Stack>
                     <CustomStackFullWidth paddingX="5px" spacing={0.4}>
@@ -304,26 +292,35 @@ const RestaurantBoxCard = (props) => {
                             justifyContent="space-between"
                             sx={{ position: 'relative' }}
                         >
-                            <HomeTextTypography component="h3" sx={{
-                                transition: theme.transitions.create(['color'], {
-                                    duration: theme.transitions.duration.short,
-                                }),
-                                '&:hover': {
-                                    color: theme.palette.primary.main,
-                                    transform: 'scale(1.02)',
-                                },
-
-                            }}>
+                            <HomeTextTypography
+                                component="h3"
+                                sx={{
+                                    transition: theme.transitions.create(
+                                        ['color'],
+                                        {
+                                            duration:
+                                                theme.transitions.duration
+                                                    .short,
+                                        }
+                                    ),
+                                    '&:hover': {
+                                        color: theme.palette.primary.main,
+                                        transform: 'scale(1.02)',
+                                    },
+                                }}
+                            >
                                 {name}
                             </HomeTextTypography>
                             <Stack flexDirection="row" gap="5px">
-                                {rating_count > 0 && (<Typography
-                                    fontSize="14px"
-                                    fontWeight={400}
-                                    color={theme.palette.text.secondary}
-                                >
-                                    {getReviewCount(rating_count)}
-                                </Typography>)}
+                                {rating_count > 0 && (
+                                    <Typography
+                                        fontSize="14px"
+                                        fontWeight={400}
+                                        color={theme.palette.text.secondary}
+                                    >
+                                        {getReviewCount(rating_count )}
+                                    </Typography>
+                                )}
                                 {rating !== 0 && (
                                     <FoodRating product_avg_rating={rating} />
                                 )}
@@ -404,9 +401,12 @@ const RestaurantBoxCard = (props) => {
                                         fontSize="12px"
                                         color={theme.palette.neutral[600]}
                                         marginLeft="5px"
-                                        sx={{ display: 'flex', alignItems: 'center' }}
+                                        sx={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                        }}
                                     >
-                                        &#8226;&nbsp;{t('Free Delivery')}
+                                        {t('Free Delivery')}
                                     </Typography>
                                 )}
                             </Typography>

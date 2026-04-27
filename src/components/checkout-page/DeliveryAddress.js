@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, InputBase, Box, Stack, Typography } from '@mui/material'
+import { Button, Stack, Typography, Modal } from '@mui/material'
 
 import { DeliveryCaption, SaveAddressBox, InputField } from './CheckOut.style'
 import { useQuery } from 'react-query'
@@ -16,6 +16,10 @@ import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import AddNewAddress from '@/components/user-info/address/AddNewAddress'
 import { PrimaryButton } from '@/components/products-page/FoodOrRestaurant'
 import { ACTIONS } from '@/components/checkout-page/states/additionalInformationStates'
+import MapWithSearchBox from '@/components/google-map/MapWithSearchBox'
+import { useDispatch, useSelector } from 'react-redux'
+import { useGeolocated } from 'react-geolocated'
+import { setLocation } from '@/redux/slices/addressData'
 
 const getZoneWiseAddresses = (addresses, restaurantId) => {
     const newArray = []
@@ -23,6 +27,18 @@ const getZoneWiseAddresses = (addresses, restaurantId) => {
         (item) => item.zone_ids.includes(restaurantId) && newArray.push(item)
     )
     return newArray
+}
+const mapModalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: { xs: '92%', sm: '75%', md: '65%' },
+    maxWidth: '900px',
+    bgcolor: 'background.paper',
+    borderRadius: '10px',
+    boxShadow: 24,
+    p: { xs: '12px', md: '20px' },
 }
 const DeliveryAddress = ({
     setAddress,
@@ -34,6 +50,7 @@ const DeliveryAddress = ({
     restaurantId,
     token,
     handleAddressSetSuccess,
+    maxHeight
 }) => {
     const theme = useTheme()
     const { t } = useTranslation()
@@ -41,6 +58,19 @@ const DeliveryAddress = ({
     const [selectedAddress, setSelectedAddress] = useState({})
     const [data, setData] = useState(null)
     const [anchorEl, setAnchorEl] = useState(null)
+    const [mapModalOpen, setMapModalOpen] = useState(false)
+    const [rerenderMap, setRerenderMap] = useState(false)
+    const dispatch = useDispatch()
+    const { location, formatted_address } = useSelector(
+        (state) => state.addressData
+    )
+    const { coords } = useGeolocated({
+        positionOptions: {
+            enableHighAccuracy: false,
+        },
+        userDecisionTimeout: 5000,
+        isGeolocationEnabled: true,
+    })
 
     const mainAddress = {
         ...address,
@@ -82,23 +112,12 @@ const DeliveryAddress = ({
     }, [data])
 
     const handleLatLng = (values) => {
+        const normalizedAddress = normalizeAddressValues(values)
         if (renderOnNavbar === 'true') {
-            setAddress({
-                ...values,
-                lat: values.latitude,
-                lng: values.longitude,
-            })
-            localStorage.setItem(
-                'currentLatLng',
-                JSON.stringify({ lat: values.latitude, lng: values.longitude })
-            )
+            setAddress(normalizedAddress)
+            setLocalLocation(normalizedAddress)
         } else {
-            // setAddress({ ...values, lat: values.latitude, lng: values.longitude })
-            setSelectedAddress({
-                ...values,
-                lat: values.latitude,
-                lng: values.longitude,
-            })
+            setSelectedAddress(normalizedAddress)
         }
     }
 
@@ -108,26 +127,112 @@ const DeliveryAddress = ({
     const handleClose = () => {
         setAnchorEl(null)
     }
-    const handleSelectedAddress = () => {
-        setAddress(selectedAddress)
+
+    const normalizeAddressValues = (values = {}) => {
+        const latitude = values?.latitude ?? values?.lat
+        const longitude = values?.longitude ?? values?.lng
+        return {
+            ...values,
+            latitude,
+            longitude,
+            lat: latitude,
+            lng: longitude,
+            address_type: values?.address_type || 'Selected Address',
+        }
+    }
+
+    const setAdditionalInformation = (values = {}) => {
         if (additionalInformationDispatch) {
             additionalInformationDispatch({
                 type: ACTIONS.setStreetNumber,
-                payload: selectedAddress?.road || '',
+                payload: values?.road || '',
             })
             additionalInformationDispatch({
                 type: ACTIONS.setHouseNumber,
-                payload: selectedAddress?.house || '',
+                payload: values?.house || '',
             })
             additionalInformationDispatch({
                 type: ACTIONS.setFloor,
-                payload: selectedAddress?.floor || '',
+                payload: values?.floor || '',
             })
             additionalInformationDispatch({
                 type: ACTIONS.setAddressType,
-                payload: selectedAddress?.address_type || '',
+                payload: values?.address_type || '',
             })
         }
+    }
+
+    const setLocalLocation = (values = {}) => {
+        if (typeof window === 'undefined') return
+        if (values?.latitude && values?.longitude) {
+            localStorage.setItem(
+                'currentLatLng',
+                JSON.stringify({
+                    lat: values.latitude,
+                    lng: values.longitude,
+                })
+            )
+        }
+        if (values?.address) {
+            localStorage.setItem('location', values.address)
+        }
+    }
+
+    const handleQuickAddressSelection = (values = {}) => {
+        const normalizedAddress = normalizeAddressValues(values)
+        setSelectedAddress(normalizedAddress)
+        setAddress(normalizedAddress)
+        setAdditionalInformation(normalizedAddress)
+        setLocalLocation(normalizedAddress)
+        setMapModalOpen(false)
+        handleClose()
+    }
+
+    const handleUseCurrentLocation = () => {
+        if (!coords) return
+        const lat = coords?.latitude
+        const lng = coords?.longitude
+        dispatch(setLocation({ lat, lng }))
+        setRerenderMap((prevState) => !prevState)
+        handleQuickAddressSelection({
+            address: formatted_address || t('Selected Address'),
+            latitude: lat,
+            longitude: lng,
+            address_type: 'Selected Address',
+        })
+    }
+
+    const handleMapCurrentLocation = () => {
+        if (!coords) return
+        dispatch(
+            setLocation({
+                lat: coords?.latitude,
+                lng: coords?.longitude,
+            })
+        )
+        setRerenderMap((prevState) => !prevState)
+    }
+
+    const handleSetFromMap = () => {
+        handleClose()
+        setMapModalOpen(true)
+    }
+
+    const handlePickLocationFromMap = () => {
+        if (!location?.lat || !location?.lng) return
+        handleQuickAddressSelection({
+            address: formatted_address || t('Selected Address'),
+            latitude: location?.lat,
+            longitude: location?.lng,
+            address_type: 'Selected Address',
+        })
+    }
+
+    const handleSelectedAddress = () => {
+        const normalizedAddress = normalizeAddressValues(selectedAddress)
+        setAddress(normalizedAddress)
+        setAdditionalInformation(normalizedAddress)
+        setLocalLocation(normalizedAddress)
         handleClose()
     }
     return (
@@ -166,6 +271,8 @@ const DeliveryAddress = ({
                     handleLatLng={handleLatLng}
                     t={t}
                     address={address}
+                    maxHeight={maxHeight}
+                    renderOnNavbar={renderOnNavbar}
                 />
             ) : (
                 <SimpleBar style={{ maxHeight: 200 }}>
@@ -184,16 +291,25 @@ const DeliveryAddress = ({
                 anchorEl={anchorEl}
                 setAnchorEl={setAnchorEl}
                 handleClose={handleClose}
-                padding="30px 30px 30px"
+                padding="20px 20px 20px"
             >
                 <CustomStackFullWidth>
-                    <DeliveryCaption
-                        no_margin_bottom="true"
-                        no_margin_top="true"
-                        textAlign="left"
+                    <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        width="100%"
+                        spacing={1}
                     >
-                        {t('Saved Address')}
-                    </DeliveryCaption>
+                        <DeliveryCaption
+                            no_margin_bottom="true"
+                            no_margin_top="true"
+                            textAlign="left"
+                        >
+                            {t('Saved Address')}
+                        </DeliveryCaption>
+                        <AddNewAddress refetch={refetch} buttonbg="true" />
+                    </Stack>
                     <AddressSelectionList
                         data={data}
                         allAddress={data?.addresses}
@@ -206,16 +322,9 @@ const DeliveryAddress = ({
                         }
                         selectedAddress={selectedAddress}
                         renderOnNavbar={renderOnNavbar}
+                        onUseCurrentLocation={handleUseCurrentLocation}
+                        onSetFromMap={handleSetFromMap}
                     />
-                    <Stack
-                        justifyContent="center"
-                        width="100%"
-                        alignItems={
-                            data?.addresses?.length > 0 ? 'star' : 'center'
-                        }
-                    >
-                        <AddNewAddress refetch={refetch} buttonbg="true" />
-                    </Stack>
                     {data?.addresses?.length > 0 && (
                         <Stack
                             direction="row"
@@ -251,6 +360,47 @@ const DeliveryAddress = ({
                     )}
                 </CustomStackFullWidth>
             </CustomPopover>
+            <Modal
+                open={mapModalOpen}
+                onClose={() => setMapModalOpen(false)}
+                aria-labelledby="pick-location-on-map"
+            >
+                <Stack sx={mapModalStyle} spacing={2}>
+                    <Typography fontWeight={600} fontSize="16px">
+                        {t('Set from map')}
+                    </Typography>
+                    <MapWithSearchBox
+                        rerenderMap={rerenderMap}
+                        coords={coords}
+                        isGps
+                        mapHeight="320px"
+                        orderType="delivery"
+                        handleAgreeLocation={handleMapCurrentLocation}
+                    />
+                    <Stack direction="row" justifyContent="flex-end" gap="10px">
+                        <Button
+                            variant="outlined"
+                            onClick={() => setMapModalOpen(false)}
+                            sx={{
+                                color: (theme) => theme.palette.neutral[400],
+                                borderColor: (theme) => theme.palette.neutral[300],
+                                '&:hover': {
+                                    borderColor: (theme) => theme.palette.neutral[400],
+                                },
+                            }}
+                        >
+                            {t('Cancel')}
+                        </Button>
+                        <PrimaryButton
+                            variant="contained"
+                            onClick={handlePickLocationFromMap}
+                            disabled={!location?.lat || !location?.lng}
+                        >
+                            {t('Pick location')}
+                        </PrimaryButton>
+                    </Stack>
+                </Stack>
+            </Modal>
         </>
     )
 }

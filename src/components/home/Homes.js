@@ -1,3 +1,4 @@
+import MainApi from '@/api/MainApi'
 import { BannerApi } from '@/hooks/react-query/config/bannerApi'
 import { CampaignApi } from '@/hooks/react-query/config/campaignApi'
 import {
@@ -64,8 +65,9 @@ import NearByRestaurant from '@/components/home/visit-again/NearByRestaurant'
 import CloseIcon from '@mui/icons-material/Close'
 import CustomImageContainer from '@/components/CustomImageContainer'
 import { setGlobalSettings } from '@/redux/slices/global'
+import AppDownloadBanner from '@/components/home/AppDownloadBanner'
 
-const Homes = ({ configData }) => {
+const Homes = ({ configData, landingPageData: landingPageDataProp }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
     const { global } = useSelector((state) => state.globalSettings)
@@ -75,6 +77,19 @@ const Homes = ({ configData }) => {
     const [openDineInRes, setOpenDineInRes] = useState(false)
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const [openDrawer, setOpenDrawer] = useState(false)
+
+    const { data: landingPageApiData } = useQuery(
+        ['landing-page-data'],
+        () => MainApi.get('/api/v1/react-landing-page').then((res) => res.data),
+        { staleTime: 1000 * 60 * 10 }
+    )
+    const landingPageData = landingPageApiData || landingPageDataProp
+
+    const playStoreLink =
+        landingPageData?.download_app_section?.react_download_apps_play_store_link || 'https://play.google.com/store/apps'
+    const appStoreLink =  landingPageData?.download_app_section?.react_download_apps_link || 'https://apps.apple.com'
+    const downloadAppData =
+        landingPageData?.download_app_section || landingPageData
 
     useEffect(() => {
         if (!global) {
@@ -245,6 +260,7 @@ const Homes = ({ configData }) => {
     const toggleDrawer = () => () => {
         setOpenDrawer(!openDrawer)
     }
+console.log({landingPageData});
 
     return (
         <PushNotificationLayout>
@@ -353,6 +369,11 @@ const Homes = ({ configData }) => {
                             <AddsSection
                                 data={addStores}
                                 isLoading={addIsLoading}
+                            />
+                            <AppDownloadBanner
+                                downloadAppData={downloadAppData}
+                                playStoreLink={playStoreLink}
+                                appStoreLink={appStoreLink}
                             />
                             {configData?.data?.dine_in_order_option === 1 ? (
                                 <DineIn />

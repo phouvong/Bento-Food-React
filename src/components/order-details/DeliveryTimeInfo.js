@@ -65,7 +65,7 @@ const DeliveryTimeInfo = ({ trackData }) => {
                     sx={{ fontSize: { xs: '14px', md: '16px' } }}
                     color={theme.palette.neutral[1000]}
                 >
-                    {t('Chef has started cooking')}
+                    {t('Your food will be delivered within')}
                 </Typography>
             </Stack>
             {trackData && (

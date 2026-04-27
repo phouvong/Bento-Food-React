@@ -9,7 +9,14 @@ export const RestaurantsApi = {
         searchKey,
         filterByData,
         priceAndRating,
+        filterBy,
     }) => {
+        const filterByItems = Array.isArray(filterBy) ? filterBy : []
+        const filterByQuery = filterByItems
+            .map((item) => `filter_by[]=${encodeURIComponent(item)}`)
+            .join('&')
+        const ratingValue = filterByData?.rating ?? priceAndRating?.rating ?? 0
+        const ratingQuery = `&rating_1_plus=${ratingValue === 1 ? 1 : 0}&rating_2_plus=${ratingValue === 2 ? 1 : 0}&rating_3_plus=${ratingValue === 3 ? 1 : 0}&rating_4_plus=${ratingValue === 4 ? 1 : 0}&rating_5=${ratingValue === 5 ? 1 : 0}`
         return MainApi.get(
             `/api/v1/restaurants/get-restaurants/all?filter_data=${
                 filterByData?.dine_in ? 'dine_in' : ''
@@ -17,9 +24,11 @@ export const RestaurantsApi = {
                 filterByData?.veg ? 1 : 0
             }&non_veg=${filterByData?.non_veg ? 1 : 0}&delivery=${
                 filterByData?.delivery ? 1 : 0
-            }&takeaway=${filterByData?.take_away ? 1 : 0}&avg_rating=${
-                priceAndRating?.rating === null ? 0 : priceAndRating?.rating
-            }`
+            }&takeaway=${filterByData?.take_away ? 1 : 0}${ratingQuery}&sort_by=${filterByData?.sort_by || ''}&cuisine=${
+                filterByData?.cuisine?.length
+                    ? JSON.stringify(filterByData.cuisine)
+                    : 'all'
+            }${filterByQuery ? `&${filterByQuery}` : ''}`
         )
     },
     popularRestaurants: () => {

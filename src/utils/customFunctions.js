@@ -74,7 +74,7 @@ const handleVariationValuesSum = (productVariations) => {
         productVariations?.forEach((pVal) => {
             pVal?.values?.forEach((cVal) => {
                 if (cVal?.isSelected) {
-                    sum += Number.parseInt(cVal.optionPrice)
+                    sum += Number(cVal.optionPrice) || 0
                 }
             })
         })
@@ -90,7 +90,7 @@ export const getSubTotalPrice = (cartList) => {
             (product.variations.length > 0
                 ? getItemTotalWithoutDiscount(product)
                 : product.price) *
-                product.quantity +
+            product.quantity +
             selectedAddonsTotal(product.selectedAddons) +
             total,
         0
@@ -159,7 +159,7 @@ export const getTaxableTotalPrice = (
                 (product?.variations?.length > 0
                     ? handleProductValueWithOutDiscount(product)
                     : product.price) *
-                    product.quantity +
+                product.quantity +
                 selectedAddonsTotal(product.selectedAddons) +
                 total,
             0
@@ -205,7 +205,7 @@ export const handleProductValueWithOutDiscount = (product) => {
         return productPrice
     }
 }
-export const onlyProductDiscount=(dis,disType,price,quantity)=>{
+export const onlyProductDiscount = (dis, disType, price, quantity) => {
     let q = quantity ? quantity : 1
     if (disType === 'amount') {
         price = price - dis * q
@@ -257,8 +257,8 @@ export const getProductDiscount = (items, restaurantData) => {
             let purchasedAmount = items.reduce(
                 (total, product) =>
                     ((product?.variations?.length > 0
-                            ? handleProductValueWithOutDiscount(product)
-                            : product.price) +
+                        ? handleProductValueWithOutDiscount(product)
+                        : product.price) +
                         (product?.selectedAddons?.length > 0
                             ? product?.selectedAddons?.reduce(
                                 (total, addOn) =>
@@ -329,17 +329,17 @@ function distanceInKmBetweenEarthCoordinates(lat1, lon1, lat2, lon2) {
     const a =
         Math.pow(Math.sin(dLat / 2), 2) +
         Math.pow(Math.sin(dLon / 2), 2) *
-            Math.cos(toRadians(startLatitude)) *
-            Math.cos(toRadians(endLatitude))
+        Math.cos(toRadians(startLatitude)) *
+        Math.cos(toRadians(endLatitude))
     const c = 2 * Math.asin(Math.sqrt(a))
 
     return earthRadius * c
 }
 
 export const handleDistance = (distance, origin, destination) => {
-    if ( distance?.distanceMeters) {
-        return  distance?.distanceMeters / 1000
-    } else if ( distance?.status === 'ZERO_RESULTS') {
+    if (distance?.data?.distanceMeters) {
+        return distance?.data?.distanceMeters / 1000
+    } else if (distance?.status === 'ZERO_RESULTS') {
         return (
             distanceInKmBetweenEarthCoordinates(
                 origin?.latitude || origin?.lat,
@@ -363,18 +363,18 @@ export let bad_weather_fees = 0
 const getDeliveryFeeByBadWeather = (
     charge,
     increasedDeliveryFee,
-    increasedDeliveryFeeStatus
+    increasedDeliveryFeeStatus,
+    extraCharge
 ) => {
     const totalCharge = charge
     if (Number.parseInt(increasedDeliveryFeeStatus) === 1) {
-        const tempValue = totalCharge * (increasedDeliveryFee / 100)
+        const tempValue = (totalCharge + extraCharge) * (increasedDeliveryFee / 100)
         bad_weather_fees = tempValue
         return totalCharge + tempValue
     } else {
         return totalCharge
     }
 }
-
 export const getDeliveryFees = (
     restaurantData,
     global,
@@ -388,6 +388,7 @@ export const getDeliveryFees = (
     destination,
     extraCharge
 ) => {
+
     //convert m to km
     let convertedDistance = handleDistance(
         distance,
@@ -404,7 +405,9 @@ export const getDeliveryFees = (
         freeDeliveryThreshold > 0 &&
         totalOrderAmount >= freeDeliveryThreshold;
     const isFreeDeliveryToAllStores = freeDeliveryType === "free_delivery_to_all_store";
-    //restaurants self delivery system checking
+    const withDeliveryOptionCharge = (fee) => Math.max(Number(fee) || 0, 0)
+    console.log({freeDeliveryThreshold});
+    
     if (Number.parseInt(restaurantData?.data?.self_delivery_system) === 1) {
         if (
             ((isAdminFreeDeliveryEnabled && (isFreeDeliveryByAmount || isFreeDeliveryToAllStores))) ||
@@ -413,31 +416,35 @@ export const getDeliveryFees = (
             orderType === 'dine_in' ||
             (restaurantData?.data?.free_delivery_distance_status &&
                 convertedDistance <
-                    restaurantData?.data?.free_delivery_distance_value)
+                restaurantData?.data?.free_delivery_distance_value)
         ) {
-            return 0
+            return withDeliveryOptionCharge(0)
         } else {
             deliveryFee =
                 convertedDistance *
-                    restaurantData?.data?.per_km_shipping_charge || 0
+                restaurantData?.data?.per_km_shipping_charge || 0
 
             if (
                 deliveryFee > restaurantData?.data?.minimum_shipping_charge &&
                 deliveryFee < restaurantData?.data?.maximum_shipping_charge
             ) {
-                return deliveryFee
+                return withDeliveryOptionCharge(deliveryFee)
             } else {
                 if (
                     deliveryFee < restaurantData?.data?.minimum_shipping_charge
                 ) {
-                    return restaurantData?.data?.minimum_shipping_charge
+                    return withDeliveryOptionCharge(
+                        restaurantData?.data?.minimum_shipping_charge
+                    )
                 } else if (
                     restaurantData?.data?.maximum_shipping_charge !== null &&
                     deliveryFee > restaurantData?.data?.maximum_shipping_charge
                 ) {
-                    return restaurantData?.data?.maximum_shipping_charge
+                    return withDeliveryOptionCharge(
+                        restaurantData?.data?.maximum_shipping_charge
+                    )
                 } else {
-                    return deliveryFee
+                    return withDeliveryOptionCharge(deliveryFee)
                 }
             }
         }
@@ -448,73 +455,90 @@ export const getDeliveryFees = (
                     Number.parseInt(item.id) ===
                     Number.parseInt(restaurantData?.data?.zone_id)
             )
+            console.log({"convertedDistance": global?.admin_free_delivery?.free_delivery_distance,convertedDistance});
+            
+
             ///SELF DELIVERY OFF
             if (
                 restaurantChargeInfo &&
                 Number.parseInt(restaurantData?.data?.self_delivery_system) !==
-                    1
+                1
             ) {
                 if (
-                    (isAdminFreeDeliveryEnabled && (isFreeDeliveryByAmount || isFreeDeliveryToAllStores)) ||
+                    (isAdminFreeDeliveryEnabled && ( isFreeDeliveryToAllStores)) ||
                     orderType === 'take_away' ||
                     orderType === 'dine_in' ||
-                    convertedDistance < global?.admin_free_delivery?.free_delivery_distance
+                  (
+                        (global?.admin_free_delivery?.free_delivery_distance > 0 || freeDeliveryThreshold > 0) &&
+                        (!global?.admin_free_delivery?.free_delivery_distance || convertedDistance < global?.admin_free_delivery?.free_delivery_distance) &&
+                        (!freeDeliveryThreshold || totalOrderAmount > freeDeliveryThreshold)
+                    )
                 ) {
-                    return 0
+                    return withDeliveryOptionCharge(0)
+                    console.log({restaurantChargeInfo});
+                    
                 } else {
                     deliveryFee =
                         convertedDistance *
                         (restaurantChargeInfo?.per_km_shipping_charge || 0)
                     if (
                         deliveryFee >=
-                            restaurantChargeInfo?.minimum_shipping_charge &&
+                        restaurantChargeInfo?.minimum_shipping_charge &&
                         deliveryFee + extraCharge <=
-                            restaurantChargeInfo?.maximum_shipping_charge
+                        restaurantChargeInfo?.maximum_shipping_charge
                     ) {
-                        return (
+                        return withDeliveryOptionCharge(
                             getDeliveryFeeByBadWeather(
                                 deliveryFee,
                                 restaurantChargeInfo?.increased_delivery_fee,
-                                restaurantChargeInfo?.increased_delivery_fee_status
+                                restaurantChargeInfo?.increased_delivery_fee_status,
+                                extraCharge
                             ) + extraCharge
                         )
                     } else if (
                         deliveryFee <
                         restaurantChargeInfo?.minimum_shipping_charge
                     ) {
-                        return (
+                        return withDeliveryOptionCharge(
                             getDeliveryFeeByBadWeather(
                                 restaurantChargeInfo?.minimum_shipping_charge,
                                 restaurantChargeInfo?.increased_delivery_fee,
-                                restaurantChargeInfo?.increased_delivery_fee_status
+                                restaurantChargeInfo?.increased_delivery_fee_status,
+                                extraCharge
                             ) + extraCharge
                         )
                     } else if (
                         deliveryFee + extraCharge >=
-                            restaurantChargeInfo?.maximum_shipping_charge &&
+                        restaurantChargeInfo?.maximum_shipping_charge &&
                         restaurantChargeInfo?.maximum_shipping_charge !== null
                     ) {
-                        return getDeliveryFeeByBadWeather(
-                            restaurantChargeInfo?.maximum_shipping_charge,
-                            restaurantChargeInfo?.increased_delivery_fee,
-                            restaurantChargeInfo?.increased_delivery_fee_status
+                        return withDeliveryOptionCharge(
+                            getDeliveryFeeByBadWeather(
+                                restaurantChargeInfo?.maximum_shipping_charge,
+                                restaurantChargeInfo?.increased_delivery_fee,
+                                restaurantChargeInfo?.increased_delivery_fee_status,
+                                extraCharge
+                            )
                         )
                     } else {
                         if (
                             (global?.free_delivery_over !== null &&
                                 global?.free_delivery_over > 0 &&
                                 totalOrderAmount >
-                                    global?.free_delivery_over) ||
+                                global?.free_delivery_over) ||
                             orderType === 'take_away' ||
                             orderType === 'dine_in' ||
                             convertedDistance < global?.free_delivery_distance
                         ) {
-                            return 0
+                            return withDeliveryOptionCharge(0)
                         } else {
-                            return getDeliveryFeeByBadWeather(
-                                deliveryFee,
-                                restaurantChargeInfo?.increased_delivery_fee,
-                                restaurantChargeInfo?.increased_delivery_fee_status
+                            return withDeliveryOptionCharge(
+                                getDeliveryFeeByBadWeather(
+                                    deliveryFee,
+                                    restaurantChargeInfo?.increased_delivery_fee,
+                                    restaurantChargeInfo?.increased_delivery_fee_status,
+                                    extraCharge
+                                )
                             )
                         }
                     }
@@ -537,7 +561,7 @@ export const getTotalVariationsPrice = (variations) => {
             if (item?.values?.length > 0) {
                 item?.values?.forEach((itemVal) => {
                     if (itemVal?.isSelected) {
-                        value += Number.parseInt(itemVal?.optionPrice)
+                        value += Number(itemVal?.optionPrice) || 0
                     }
                 })
             }
@@ -571,7 +595,7 @@ export const getCouponDiscount = (couponDiscount, restaurantData, cartList) => {
                 (product.variations.length > 0
                     ? handleProductValueWithOutDiscount(product)
                     : product.price) *
-                    product.quantity +
+                product.quantity +
                 selectedAddonsTotal(product.selectedAddons) +
                 total,
             0
@@ -713,119 +737,61 @@ export const getCalculatedTotal = (
     referDiscount,
     taxAmount
 ) => {
-    if (couponDiscount) {
-        if (couponDiscount?.coupon_type === 'free_delivery') {
-            return (
-                truncate(
-                    getSubTotalPrice(cartList).toString(),
-                    global?.digit_after_decimal_point
-                ) -
-                truncate(
-                    getProductDiscount(cartList, restaurantData).toString(),
-                    global?.digit_after_decimal_point
-                ) +
-                //here we check tex is included or exclude
-                taxAmount -
-                (couponDiscount
-                    ? truncate(
-                          getCouponDiscount(
-                              couponDiscount,
-                              restaurantData,
-                              cartList
-                          )?.toString(),
-                          global?.digit_after_decimal_point
-                      )
-                    : 0) +
-                truncate(
-                    deliveryTip?.toString(),
-                    global?.digit_after_decimal_point
-                ) +
-                additionalCharge +
-                extraPackagingCharge
-            )
-        } else {
-            return (
-                truncate(
-                    getSubTotalPrice(cartList).toString(),
-                    global?.digit_after_decimal_point
-                ) -
-                truncate(
-                    getProductDiscount(cartList, restaurantData).toString(),
-                    global?.digit_after_decimal_point
-                ) +
-                //here we check tex is included or exclude
-                taxAmount -
-                (couponDiscount
-                    ? truncate(
-                          getCouponDiscount(
-                              couponDiscount,
-                              restaurantData,
-                              cartList
-                          )?.toString(),
-                          global?.digit_after_decimal_point
-                      )
-                    : 0) +
-                truncate(
-                    getDeliveryFees(
-                        restaurantData,
-                        global,
-                        cartList,
-                        distanceData?.data,
-                        couponDiscount,
-                        couponType,
-                        orderType,
-                        zoneData,
-                        origin,
-                        destination,
-                        extraCharge && extraCharge
-                    )?.toString(),
-                    global?.digit_after_decimal_point
-                ) +
-                truncate(
-                    deliveryTip?.toString(),
-                    global?.digit_after_decimal_point
-                ) +
-                additionalCharge +
-                extraPackagingCharge
-            )
-        }
-    } else {
-        return (
-            truncate(
-                getSubTotalPrice(cartList).toString(),
-                global?.digit_after_decimal_point
-            ) -
-            truncate(
-                getProductDiscount(cartList, restaurantData).toString(),
-                global?.digit_after_decimal_point
-            ) +
-            ///here we check tex is included or exclude
-            taxAmount -
-            0 +
-            truncate(
-                getDeliveryFees(
-                    restaurantData,
-                    global,
-                    cartList,
-                    distanceData?.data,
-                    couponDiscount,
-                    couponType,
-                    orderType,
-                    zoneData,
-                    origin,
-                    destination,
-                    extraCharge
-                )?.toString(),
-                global?.digit_after_decimal_point
-            ) +
-            truncate(
-                deliveryTip?.toString(),
-                global?.digit_after_decimal_point
-            ) +
-            additionalCharge +
-            extraPackagingCharge
-        )
+    const parsedDecimalPoint = Number.parseInt(
+        global?.digit_after_decimal_point,
+        10
+    )
+    const decimalPoint = Number.isInteger(parsedDecimalPoint)
+        ? parsedDecimalPoint
+        : 2
+    const toNumber = (value) => {
+        const parsedValue = Number(value)
+        return Number.isFinite(parsedValue) ? parsedValue : 0
     }
+    const subTotal = truncate(getSubTotalPrice(cartList).toString(), decimalPoint)
+    const productDiscount = truncate(
+        getProductDiscount(cartList, restaurantData).toString(),
+        decimalPoint
+    )
+    const couponAmount = couponDiscount
+        ? truncate(
+              getCouponDiscount(couponDiscount, restaurantData, cartList)?.toString(),
+              decimalPoint
+          )
+        : 0
+    const isFreeDeliveryCoupon = couponDiscount?.coupon_type === 'free_delivery'
+    const deliveryFee = isFreeDeliveryCoupon
+        ? 0
+        : truncate(
+              getDeliveryFees(
+                  restaurantData,
+                  global,
+                  cartList,
+                  distanceData,
+                  couponDiscount,
+                  couponType,
+                  orderType,
+                  zoneData,
+                  origin,
+                  destination,
+                  toNumber(extraCharge)
+              )?.toString(),
+              decimalPoint
+          )
+    const deliveryTipAmount = truncate(toNumber(deliveryTip).toString(), decimalPoint)
+
+    const total =
+        toNumber(subTotal) -
+        toNumber(productDiscount) +
+        //here we check tex is included or exclude
+        toNumber(taxAmount) -
+        toNumber(couponAmount) +
+        toNumber(deliveryFee) +
+        toNumber(deliveryTipAmount) +
+        toNumber(additionalCharge) +
+        toNumber(extraPackagingCharge)
+
+    return truncate(total.toString(), decimalPoint)
 }
 
 export const getDiscountForTag = (restaurantDiscount) => {
@@ -948,7 +914,7 @@ export const calculateItemBasePrice = (item, selectedOptions) => {
     if (selectedOptions?.length > 0) {
         selectedOptions?.forEach((option) => {
             if (option?.isSelected === true) {
-                basePrice += Number.parseInt(option?.optionPrice)
+                basePrice += Number(option?.optionPrice) || 0
             }
         })
     }
@@ -1194,12 +1160,21 @@ export function checkInput(input) {
 }
 
 export function formatPhoneNumber(number) {
-    if (number) {
-        const str = number?.toString()
-        if (str.startsWith('+')) {
-            return str
-        } else {
-            return `+${str}`
-        }
+    if (!number) return ''
+    const str = number?.toString()
+    if (str.startsWith('+')) {
+        return str
     }
+    return `+${str}`
+}
+
+export const handleRestaurantRedirect = (router, slug, id, dine_in) => {
+    router.push({
+        pathname: `/restaurants/${slug || id}`,
+        ...(dine_in && {
+            query: {
+                isDineIn: dine_in,
+            },
+        }),
+    })
 }

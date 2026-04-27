@@ -53,6 +53,9 @@ export const searchFilterSlice = createSlice({
                     action.payload.find(
                         (item) => item.value === 'discounted'
                     ) !== undefined,
+                halal:
+                    action.payload.find((item) => item.value === 'halal') !==
+                    undefined,
                 sort_by:
                     action.payload.find((item) => item.value === 'sort_by') !==
                     undefined,

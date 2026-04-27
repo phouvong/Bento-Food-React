@@ -80,6 +80,7 @@ const RestaurantTab = (props) => {
                         },
                         '& .MuiTabScrollButton-root': {
                             width: 20, // Change the width value to your desired size
+                            color: iconColor,
                         },
                     }}
                 >

@@ -49,24 +49,7 @@ const NearbyPopularFood = ({ isLoading }) => {
         languageDirection = localStorage.getItem('direction')
     }
     const handleClick = () => {
-        window.scroll({
-            top: 0,
-            left: 0,
-            behavior: 'smooth',
-        })
-        router.push(
-            {
-                pathname:
-                    router.pathname === '/home'
-                        ? window.location.pathname
-                        : 'search',
-                query: {
-                    page: 'popular',
-                },
-            },
-            undefined,
-            { shallow: router.pathname === '/home' }
-        )
+        router.push('/popular-foods')
     }
     const settings = {
         infinite: false,

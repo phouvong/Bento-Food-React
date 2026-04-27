@@ -146,6 +146,22 @@ const HorizontalFoodCard = (props) => {
                                     )}
                                 </Stack>
                             )}
+                            {product?.halal_tag_status === 1 &&
+                                product?.is_halal === 1 && (
+                                    <Box
+                                        component="img"
+                                        src="/static/halal.svg"
+                                        alt="Halal"
+                                        sx={{
+                                            position: 'absolute',
+                                            bottom: '4px',
+                                            right: '4px',
+                                            width: '22px',
+                                            height: '22px',
+                                            zIndex: 2,
+                                        }}
+                                    />
+                                )}
                         </Stack>
                         <Stack gap="7px" width="100%">
                             <Stack>
@@ -219,13 +235,6 @@ const HorizontalFoodCard = (props) => {
                                 )}
                             </Stack>
                             <Stack flexDirection="row" gap="5px">
-                                <Typography
-                                    fontSize={{ xs: '12px', md: '14px' }}
-                                    fontWeight={400}
-                                    color={theme.palette.text.secondary}
-                                >
-                                    {getReviewCount(product?.rating_count)}
-                                </Typography>
                                 {(product?.avg_rating !== 0 &&
                                     isRestaurantDetails &&
                                     !isSmall) ||
@@ -237,6 +246,13 @@ const HorizontalFoodCard = (props) => {
                                 ) : (
                                     ''
                                 )}
+                                <Typography
+                                    fontSize={{ xs: '12px', md: '14px' }}
+                                    fontWeight={400}
+                                    color={theme.palette.text.secondary}
+                                >
+                                    {getReviewCount(product?.rating_count)}
+                                </Typography>
                             </Stack>
 
                             <StartPriceView

@@ -66,7 +66,8 @@ const OrderCalculation = (props) => {
         extraPackagingCharge,
         distanceLoading,
         taxData,
-        handleCouponDiscount
+        handleCouponDiscount,
+        selectedDeliveryOption,
     } = props
     const dispatch = useDispatch()
     const { couponType, zoneData } = useSelector(
@@ -112,7 +113,12 @@ const OrderCalculation = (props) => {
         userData?.discount_amount_type
     )
 
-    const totalPrice = getCalculatedTotal(
+    const deliveryOptionSurcharge =
+        orderType === 'delivery'
+            ? Number(selectedDeliveryOption?.surcharge) || 0
+            : 0
+
+    const baseTotalPrice = getCalculatedTotal(
         cartList,
         couponDiscount,
         restaurantData,
@@ -132,6 +138,7 @@ const OrderCalculation = (props) => {
         taxData?.tax_status === 'excluded' ? taxData?.tax_amount : 0
 
     )
+    const totalPrice = baseTotalPrice + (couponDiscount?.coupon_type === 'free_delivery' ? 0 : deliveryOptionSurcharge)
     const handleDeliveryFee = () => {
         let price = getDeliveryFees(
             restaurantData,
@@ -146,6 +153,8 @@ const OrderCalculation = (props) => {
             destination,
             tempExtraCharge
         )
+        console.log({price});
+        
         if (price === 0) {
             return <Typography variant="h4">{t('Free')}</Typography>
         } else {
@@ -180,6 +189,7 @@ const OrderCalculation = (props) => {
         } else {
             totalAmount = totalPrice
         }
+console.log({totalAmount});
 
         dispatch(setTotalAmount(totalAmount))
         return getAmount(
@@ -304,7 +314,9 @@ const OrderCalculation = (props) => {
                         </Grid>
                         <Grid item md={4} xs={4} align="right">
                             {couponDiscount.coupon_type === 'free_delivery' ? (
-                                <p>{t('Free Delivery')}</p>
+                                <Typography variant="h4" fontWeight="600">
+                                    {t('Free Delivery')}
+                                </Typography>
                             ) : (
                                 <Stack
                                     direction="row"
@@ -504,6 +516,48 @@ const OrderCalculation = (props) => {
                     </>
                 )}
 
+                {selectedDeliveryOption &&
+                    selectedDeliveryOption.deliveryType !== 'standard' &&
+                    orderType === 'delivery' &&
+                    couponDiscount?.coupon_type !== 'free_delivery' &&
+                    deliveryOptionSurcharge !== 0 && (
+                        <>
+                            <Grid item md={8} xs={8}>
+                                <Typography
+                                    component="span"
+                                    color={theme.palette.neutral[1000]}
+                                    fontSize="15px"
+                                >
+                                    {selectedDeliveryOption.deliveryType === 'express'
+                                        ? t('Express Delivery')
+                                        : t('Slightly Delay Delivery')}{' '}
+                                </Typography>
+                            </Grid>
+                            <Grid item md={4} xs={4} align="right">
+                                <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    justifyContent="flex-end"
+                                    spacing={0.5}
+                                >
+                                    <Typography variant="h4">
+                                        {selectedDeliveryOption.deliveryType === 'express'
+                                            ? '(+)'
+                                            : '(-)'}
+                                    </Typography>
+                                    <Typography variant="h4">
+                                        {getAmount(
+                                            Math.abs(deliveryOptionSurcharge),
+                                            currencySymbolDirection,
+                                            currencySymbol,
+                                            digitAfterDecimalPoint
+                                        )}
+                                    </Typography>
+                                </Stack>
+                            </Grid>
+                        </>
+                    )}
+
                 <CustomDivider />
                 {subscriptionOrderCount > 0 && (
                     <>
@@ -672,7 +726,7 @@ const OrderCalculation = (props) => {
                 ) : (
                     ''
                 )}
-                <Grid md={12}>
+                <Grid xs={12} md={12}>
                     <PlaceOrder
                         usePartialPayment={usePartialPayment}
                         placeOrder={placeOrder}

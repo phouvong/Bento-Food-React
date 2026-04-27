@@ -6,24 +6,34 @@ import { useTranslation } from 'react-i18next'
 import { Stack } from '@mui/material'
 import { useTheme } from '@mui/styles'
 
-const PageSearchWithTitle = ({ title, handleSearchResult, label }) => {
+const PageSearchWithTitle = ({ title, handleSearchResult, label, action }) => {
     const { t } = useTranslation()
     const theme = useTheme()
 
     return (
         <CustomStackFullWidth
-            justifyContent="center"
+            justifyContent="space-between"
             alignItems="center"
             spacing={2.5}
+            direction={{ xs: 'column', sm: 'row' }}
         >
             <CustomPageTitle title={title} textAlign="center" />
-            <Stack maxWidth="450px" width="100%">
-                <CustomSearch
-                    handleSearchResult={handleSearchResult}
-                    label={t(label)}
-                    backgroundColor={theme.palette.neutral[200]}
-                    borderRadius=".5rem"
-                />
+            <Stack
+                direction="row"
+                alignItems="stretch"
+                spacing={1}
+                width="100%"
+                maxWidth="520px"
+            >
+                <Stack flex="1 1 auto">
+                    <CustomSearch
+                        handleSearchResult={handleSearchResult}
+                        label={t(label)}
+                        backgroundColor={theme.palette.neutral[200]}
+                        borderRadius=".5rem"
+                    />
+                </Stack>
+                {action}
             </Stack>
         </CustomStackFullWidth>
     )

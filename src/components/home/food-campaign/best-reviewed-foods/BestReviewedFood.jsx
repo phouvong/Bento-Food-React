@@ -45,6 +45,7 @@ export const ReferButton = styled(Button)(({ theme }) => ({
     color: theme.palette.primary.main,
     borderRadius: '5px',
     fontWeight: '500',
+    padding: '5px 16px',
     gap: '5px',
     boxShadow:
         '0px 0px 1.81508px rgba(145, 158, 171, 0.2), 0px 9.07541px 18.1508px -2.72262px rgba(145, 158, 171, 0.05)',
@@ -53,7 +54,7 @@ export const ReferButton = styled(Button)(({ theme }) => ({
         backgroundColor: theme.palette.primary.main,
         color: theme.palette.common.white,
     },
-}));
+}))
 const BestReviewedFood = ({ isLoading }) => {
     const { t } = useTranslation()
     const { bestReviewedFoods } = useSelector((state) => state.storedData)
@@ -153,24 +154,7 @@ const BestReviewedFood = ({ isLoading }) => {
     }
 
     const handleClick = () => {
-        window.scroll({
-            top: 0,
-            left: 0,
-            behavior: 'smooth',
-        })
-        router.push(
-            {
-                pathname:
-                    router.pathname === '/home'
-                        ? window.location.pathname
-                        : 'search',
-                query: {
-                    page: 'most-reviewed',
-                },
-            },
-            undefined,
-            { shallow: router.pathname === '/home' }
-        )
+        router.push('/most-reviewed-foods')
     }
     const handleClickRefer = () => {
         const token = getToken()
@@ -306,33 +290,42 @@ const BestReviewedFood = ({ isLoading }) => {
                                     paddingBottom={isXSmall ? '14px' : '20px'}
                                     languageDirection={languageDirection}
                                 >
-                                    {bestReviewedFoods?.length > 0 && ( <Slider
-                                        ref={foodCampaignSliderRef}
-                                        {...settings}
-                                    >
-                                        {bestReviewedFoods.map((product) => {
-                                            if (
-                                                product?.variations === null ||
-                                                product?.variations[0]
-                                                    ?.values ||
-                                                product?.variations?.length ===
-                                                    0
-                                            ) {
-                                                return (
-                                                    <FoodCard
-                                                        key={product?.id}
-                                                        hasBackGroundSection="false"
-                                                        product={product}
-                                                        global={global}
-                                                        productImageUrl={
-                                                            global?.base_urls
-                                                                ?.product_image_url
-                                                        }
-                                                    />
-                                                )
-                                            }
-                                        })}
-                                    </Slider>
+                                    {bestReviewedFoods?.length > 0 && (
+                                        <Slider
+                                            ref={foodCampaignSliderRef}
+                                            {...settings}
+                                        >
+                                            {bestReviewedFoods.map(
+                                                (product) => {
+                                                    if (
+                                                        product?.variations ===
+                                                            null ||
+                                                        product?.variations[0]
+                                                            ?.values ||
+                                                        product?.variations
+                                                            ?.length === 0
+                                                    ) {
+                                                        return (
+                                                            <FoodCard
+                                                                key={
+                                                                    product?.id
+                                                                }
+                                                                hasBackGroundSection="false"
+                                                                product={
+                                                                    product
+                                                                }
+                                                                global={global}
+                                                                productImageUrl={
+                                                                    global
+                                                                        ?.base_urls
+                                                                        ?.product_image_url
+                                                                }
+                                                            />
+                                                        )
+                                                    }
+                                                }
+                                            )}
+                                        </Slider>
                                     )}
                                 </SliderCustom>
                             </CustomStackFullWidth>

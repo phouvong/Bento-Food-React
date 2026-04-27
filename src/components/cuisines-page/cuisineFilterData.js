@@ -1,32 +1,32 @@
 export const mockData = [
     {
         id: 0,
-        name: 'Veg',
-        value: 'veg',
-        isActive: false,
-    },
-    {
-        id: 1,
-        name: 'Non Veg',
-        value: 'non_veg',
-        isActive: false,
-    },
-    {
-        id: 2,
         name: 'Delivery',
         value: 'delivery',
         isActive: false,
     },
     {
-        id: 3,
+        id: 1,
         name: 'Take away',
         value: 'take_away',
         isActive: false,
     },
     {
-        id: 4,
+        id: 2,
         name: 'Dine In',
         value: 'dine_in',
+        isActive: false,
+    },
+    {
+        id: 3,
+        name: 'Latest',
+        value: 'latest',
+        isActive: false,
+    },
+    {
+        id: 4,
+        name: 'Popular',
+        value: 'popular',
         isActive: false,
     },
     {

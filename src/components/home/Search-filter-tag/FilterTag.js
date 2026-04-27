@@ -33,6 +33,8 @@ import FilterButton from '../../Button/FilterButton'
 import FilterCard from '../../products-page/FilterCard'
 import SearchBox from '../hero-section-with-search/SearchBox'
 import { WrapperForSideDrawerFilter } from '@/styled-components/CustomStyles.style'
+import CustomImage from '@/components/CustomNextImage'
+import { useRouter } from 'next/router'
 
 export const CustomChip = styled(Chip)(({ theme, query, value, isSticky }) => ({
     padding: isSticky ? '2px 3px' : '10px 10px',
@@ -66,7 +68,7 @@ export const CustomChip = styled(Chip)(({ theme, query, value, isSticky }) => ({
         padding: '4px 4px',
         height: '31px',
     },
-}));
+}))
 
 export const SearchIconButton = styled(IconButton)(({ theme }) => ({
     backgroundColor: theme.palette.borderBottomBg,
@@ -83,8 +85,9 @@ const FilterTag = ({
     tags,
     page,
     restaurantType,
-    homePage
+    homePage,
 }) => {
+    const router = useRouter()
     const [scrollPosition, setScrollPosition] = useState(0)
     const [open, setOpen] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
@@ -94,6 +97,8 @@ const FilterTag = ({
         (state) => state.searchFilterStore
     )
     const { global } = useSelector((state) => state.globalSettings)
+    const businessLogo = global?.fav_icon_full_url
+
     const { searchTagData, selectedValue, selectedName, cuisineData } =
         useSelector((state) => state.searchTags)
     const { isSticky } = useSelector((state) => state.scrollPosition)
@@ -103,6 +108,7 @@ const FilterTag = ({
     const theme = useTheme()
     const iconColor = theme.palette.neutral[1000]
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
+    const isMobileMenuEnabled = useMediaQuery(theme.breakpoints.down('md'))
     const handleCuisineData = () => {
         dispatch(
             setCuisineData(
@@ -197,6 +203,26 @@ const FilterTag = ({
             setCuisineState(cuisines)
         }
     }, [cuisines])
+
+    let zoneid = undefined
+    if (typeof window !== 'undefined') {
+        zoneid = JSON.parse(localStorage.getItem('zoneid'))
+    }
+    let currentLocation = undefined
+    if (typeof window !== 'undefined') {
+        currentLocation = JSON.parse(localStorage.getItem('currentLatLng'))
+    }
+
+    const handleLogoClick = () => {
+        const shouldRedirectToHome =
+            zoneid && currentLocation?.lat && currentLocation?.lng
+        const newPath = shouldRedirectToHome ? '/home' : '/'
+
+        router.push(newPath, undefined, { shallow: true }).then(() => {
+            window.scrollTo(0, 0)
+        })
+    }
+
     return (
         <>
             <Stack
@@ -222,7 +248,26 @@ const FilterTag = ({
                         <Stack
                             direction="row"
                             spacing={isSmall ? 1 : isSticky ? 1 : 2}
+                            alignItems="center"
+                            sx={{
+                                '> img': {
+                                    width: 'auto',
+                                    height: 'auto',
+                                    maxHeight: '40px',
+                                },
+                                cursor: 'pointer',
+                            }}
                         >
+                            {isSticky && !isMobileMenuEnabled && (
+                                <CustomImage
+                                    src={businessLogo}
+                                    width={100}
+                                    height={40}
+                                    onClick={handleLogoClick}
+                                    alt="logo"
+                                    priority
+                                />
+                            )}
                             {searchTagData?.map((item) => {
                                 if (item?.id === 1) {
                                     return (
@@ -293,6 +338,7 @@ const FilterTag = ({
                                         activeFilters={activeFilters}
                                         forSearch={true}
                                         homePage
+                                        padding="10px 10px"
                                     />
                                 )}
                         </Stack>
@@ -581,7 +627,6 @@ const FilterTag = ({
                     forcuisine="true"
                     setCuisineState={setCuisineState}
                     cuisineState={cuisineState}
-
                 />
             </Popover>
         </>

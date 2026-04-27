@@ -4,7 +4,6 @@ import FoodCard from '../food-card/FoodCard'
 import { useSelector } from 'react-redux'
 import CustomePagination from '../pagination/Pagination'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { useRouter } from 'next/router'
 export default function ProductList({
     product_list,
     page_limit = 10,
@@ -12,18 +11,20 @@ export default function ProductList({
     setOffset,
     productType,
 }) {
-    const router = useRouter();
     const { global } = useSelector((state) => state.globalSettings)
     const matchesToMd = useMediaQuery('(max-width:1200px)')
-    
+
     useEffect(() => {
-        if (offset !== undefined) {
-            const url = `${router.asPath}&page=${offset}`;
-            window.history.replaceState(null, "", url);
-        }
-    }, [offset]);
-    
-    
+        if (offset === undefined || typeof window === 'undefined') return
+        const url = new URL(window.location.href)
+        url.searchParams.set('page', String(offset))
+        window.history.replaceState(
+            null,
+            '',
+            `${url.pathname}?${url.searchParams.toString()}`
+        )
+    }, [offset])
+
     return (
         <>
             {productType === 'campaigns' ? (

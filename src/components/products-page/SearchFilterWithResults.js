@@ -11,21 +11,23 @@ import { AnimationDots } from './AnimationDots';
 import { noFoodFoundImage, noRestaurantsImage } from '@/utils/LocalImages';
 
 const SearchFilterWithResults = ({
-                                     searchValue,
-                                     count,
-                                     foodOrRestaurant,
-                                     setFoodOrRestaurant,
-                                     data,
-                                     isLoading,
-                                     offset,
-                                     page_limit,
-                                     setOffset,
-                                     global,
-                                     isNetworkCalling,
-                                     page,
-                                     restaurantType,
-                                     filterData,
-                                 }) => {
+    searchValue,
+    count,
+    foodOrRestaurant,
+    setFoodOrRestaurant,
+    data,
+    isLoading,
+    offset,
+    page_limit,
+    setOffset,
+    global,
+    isNetworkCalling,
+    page,
+    restaurantType,
+    filterData,
+}) => {
+   // console.log({isLoading});
+    
     return (
         <CustomStackFullWidth
             spacing={2}
@@ -57,7 +59,7 @@ const SearchFilterWithResults = ({
                     {/* Products Section */}
                     {(foodOrRestaurant === 'products' || page) && (
                         <>
-                            {isLoading || isNetworkCalling ? (
+                            {isLoading || isNetworkCalling? (
                                 <Stack width="100%" minHeight="500px">
                                     <AnimationDots align="center" />
                                 </Stack>
@@ -83,9 +85,9 @@ const SearchFilterWithResults = ({
                     )}
 
                     {/* Restaurants Section */}
-                    {foodOrRestaurant === 'restaurants' && (
+                    {foodOrRestaurant === 'restaurants' && !page && (
                         <>
-                            {isLoading || isNetworkCalling ? (
+                            {isLoading || isNetworkCalling  ? (
                                 <Stack width="100%" minHeight="500px">
                                     <AnimationDots align="center" />
                                 </Stack>

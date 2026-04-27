@@ -10,7 +10,7 @@ const Searchresturant = ({ restaurantType, title, description }) => {
         <>
             <CssBaseline />
             <CustomContainer>
-                <CustomPaperBigCard sx={{ marginTop: '5rem' }}>
+                <CustomPaperBigCard sx={{ marginTop: '10rem' }}>
                     <CustomPageTitle title={title} />
                     <ResturantList restaurantType={restaurantType} />
                 </CustomPaperBigCard>

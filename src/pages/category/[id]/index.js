@@ -12,6 +12,7 @@ import CustomContainer from '../../../components/container'
 import HomeGuard from "../../../components/home-guard/HomeGuard"
 import { getCommonServerSideProps } from '@/helpers/serverSidePropsHelper'
 import { processMetadata } from '@/utils/fetchPageMetadata'
+import { useSelector } from 'react-redux'
 
 const index = ({ metaData, pathName, configData, landingPageData }) => {
     const [type, setType] = useState('all')
@@ -26,20 +27,44 @@ const index = ({ metaData, pathName, configData, landingPageData }) => {
     const router = useRouter()
     const { id, name } = router.query
     const [category_id, setCategoryId] = useState(id)
-    const { isLoading, data, isError, error, refetch } = useQuery(
+    const { foodOrRestaurant } = useSelector((state) => state.searchFilterStore)
+    const { isLoading: isProductsLoading, data } = useQuery(
         [`category-details`, category_id, offset, page_limit, type, filterByData, priceAndRating],
-        () => CategoryApi.categoriesDetails(category_id, type, offset, page_limit, filterByData, priceAndRating)
+        () =>
+            CategoryApi.categoriesDetails(
+                category_id,
+                type,
+                offset,
+                page_limit,
+                filterByData,
+                priceAndRating,
+                name
+            ),
+        {
+            enabled: Boolean(category_id) && foodOrRestaurant === 'products',
+        }
     )
-    const { data: resData } = useQuery(
+    const { isLoading: isRestaurantsLoading, data: resData } = useQuery(
         [`category-detailsRes`, category_id, offset, page_limit, type, filterByData, priceAndRating],
         () =>
             CategoryApi.categoriesDetailsForRes(
                 category_id,
                 type,
                 offset,
-                page_limit, filterByData, priceAndRating
-            )
+                page_limit,
+                filterByData,
+                priceAndRating,
+                name
+            ),
+        {
+            enabled: Boolean(category_id) && foodOrRestaurant === 'restaurants',
+        }
     )
+    const isLoading =
+        foodOrRestaurant === 'products'
+            ? isProductsLoading
+            : isRestaurantsLoading
+
     useEffect(() => {
         type && setOffset(1)
     }, [type])
@@ -53,11 +78,6 @@ const index = ({ metaData, pathName, configData, landingPageData }) => {
         description: '',
         image: `${landingPageData?.banner_section_full?.banner_section_img_full}`
     })
-
-
-    console.log({ metaData });
-
-
     return (
         <>
             <Meta
@@ -71,7 +91,7 @@ const index = ({ metaData, pathName, configData, landingPageData }) => {
                 <HomeGuard>
                     <CustomContainer>
                         <CustomStackFullWidth
-                            sx={{ paddingBottom: '1rem', paddingTop: { xs: "2rem", md: "4.5rem" } }}
+                            sx={{ paddingBottom: '1rem', paddingTop: { xs: "0rem", md: "4.5rem" } }}
                         >
                             <CategoryDetailsPage
                                 id={id}

@@ -29,7 +29,7 @@ import { useRouter } from 'next/router'
 const RestaurantList = () => {
     const { t } = useTranslation()
     const theme = useTheme()
-    const router = useRouter();
+    const router = useRouter()
     const [checkedFilterKey, setCheckedFilterKey] = useState(mockData)
     const [filterByData, setFilterByData] = useState({})
     const [forFilter, setForFilter] = useState(false)
@@ -37,6 +37,7 @@ const RestaurantList = () => {
     const [offset, setOffset] = useState(1)
     const [searchKey, setSearchKey] = useState('')
     const [anchorEl, setAnchorEl] = useState(null)
+    const [filterBy, setFilterBy] = useState([])
     const open = Boolean(anchorEl)
     const { global } = useSelector((state) => state.globalSettings)
     const [priceAndRating, setPriceAndRating] = useState({
@@ -52,13 +53,20 @@ const RestaurantList = () => {
 
     useEffect(() => {
         if (offset !== undefined) {
-            const url = `/restaurants?page=${offset}`;
-            window.history.replaceState(null, "", url);
+            const url = `/restaurants?page=${offset}`
+            window.history.replaceState(null, '', url)
         }
-    }, [offset]);
+    }, [offset])
 
     const { isLoading, data, isError, error, refetch, isRefetching } = useQuery(
-        ['all-restaurants', offset, page_limit, filterByData, priceAndRating],
+        [
+            'all-restaurants',
+            offset,
+            page_limit,
+            filterByData,
+            priceAndRating,
+            filterBy,
+        ],
         () =>
             RestaurantsApi.restaurants({
                 offset,
@@ -66,6 +74,7 @@ const RestaurantList = () => {
                 searchKey,
                 filterByData,
                 priceAndRating,
+                filterBy,
             }),
         {
             onError: onErrorResponse,
@@ -113,6 +122,9 @@ const RestaurantList = () => {
                 : items
         )
         setCheckedFilterKey(tempData)
+        setFilterBy((prev) =>
+            prev?.filter((value) => value !== chipItem?.value)
+        )
     }
 
     const handleChangeRatings = (value) => {
@@ -128,17 +140,22 @@ const RestaurantList = () => {
             isActive: false,
         }))
         setCheckedFilterKey(data)
+        setFilterBy([])
         setPriceAndRating({
             price: [],
             rating: 0,
         })
         //handleDropClose()
     }
+    const handleFilterBy = (value) => {
+        setFilterBy(value)
+    }
+    console.log({ priceAndRating, filterBy })
 
     return (
         <>
             {languageDirection && (
-                <Box mt={{ xs: '4rem', md: '8.5rem' }} mb="1rem">
+                <Box mt={{ xs: '4rem', md: '9.5rem' }} mb="1rem">
                     <Grid
                         container
                         spacing={{ xs: 1, sm: 2, md: 2 }}
@@ -153,57 +170,61 @@ const RestaurantList = () => {
                                 )}
                                 handleSearchResult={handleSearchResult}
                                 label="Search restaurants..."
+                                action={
+                                    <FilterButton
+                                        id="fade-button"
+                                        handleClick={handleDropClick}
+                                        activeFilters={getSelectedFilter}
+                                        height="40px"
+                                    />
+                                }
                             />
                         </Grid>
-                        <Grid item md={12} align="right" sm={12} xs={12}>
-                            <CustomStackFullWidth
-                                direction="row"
-                                justifyContent="flex-end"
-                                alignItems="center"
-                                spacing={1}
-                            >
-                                <SimpleBar style={{ width: '100%' }}>
-                                    <Stack
-                                        direction="row"
-                                        spacing={1}
-                                        justifyContent={{
-                                            xs: 'flex-start',
-                                            sm: 'flex-start',
-                                            md: 'flex-end',
-                                        }}
-                                        alignItems="center"
-                                    >
-                                        {getSelectedFilter?.map((item) => (
-                                            <Chip
-                                                sx={{
-                                                    fontWeight: '400',
-                                                    color: theme.palette
-                                                        .neutral[500],
-                                                    fontSize: '12px',
-                                                    padding: '0px 5px',
-                                                    height: '30px',
-                                                    '.MuiChip-deleteIcon': {
-                                                        color: `${theme.palette.neutral[400]} !important`,
-                                                    },
-                                                }}
-                                                label={item?.name}
-                                                variant="outlined"
-                                                onDelete={() =>
-                                                    handleDelete(item)
-                                                }
-                                            />
-                                        ))}
-                                    </Stack>
-                                </SimpleBar>
-                                <FilterButton
-                                    id="fade-button"
-                                    handleClick={handleDropClick}
-                                />
-                            </CustomStackFullWidth>
-                        </Grid>
-                        <Grid item md={12}>
-                            <CustomDivider marginTop="0rem" />
-                        </Grid>
+                        {/* {getSelectedFilter?.length > 0 && (
+                            <Grid item md={12} align="right" sm={12} xs={12}>
+                                <CustomStackFullWidth
+                                    direction="row"
+                                    justifyContent="flex-end"
+                                    alignItems="center"
+                                    spacing={1}
+                                >
+                                    <SimpleBar style={{ width: '100%' }}>
+                                        <Stack
+                                            direction="row"
+                                            spacing={1}
+                                            justifyContent={{
+                                                xs: 'flex-start',
+                                                sm: 'flex-start',
+                                                md: 'flex-end',
+                                            }}
+                                            alignItems="center"
+                                        >
+                                            {getSelectedFilter?.map((item) => (
+                                                <Chip
+                                                    sx={{
+                                                        fontWeight: '400',
+                                                        color: theme.palette
+                                                            .neutral[500],
+                                                        fontSize: '12px',
+                                                        padding: '0px 5px',
+                                                        height: '30px',
+                                                        '.MuiChip-deleteIcon': {
+                                                            color: `${theme.palette.neutral[400]} !important`,
+                                                        },
+                                                    }}
+                                                    label={item?.name}
+                                                    variant="outlined"
+                                                    onDelete={() =>
+                                                        handleDelete(item)
+                                                    }
+                                                />
+                                            ))}
+                                        </Stack>
+                                    </SimpleBar>
+                                </CustomStackFullWidth>
+                            </Grid>
+                        )} */}
+
                         <Grid
                             item
                             xs={12}
@@ -305,6 +326,7 @@ const RestaurantList = () => {
                         <RestaurantFilterCard
                             mockData={mockData}
                             rowWise
+                            foodOrRestaurant="restaurants"
                             checkboxData={checkedFilterKey}
                             handleDropClose={handleDropClose}
                             anchorEl={anchorEl}
@@ -314,6 +336,7 @@ const RestaurantList = () => {
                             handleChangeRatings={handleChangeRatings}
                             priceAndRating={priceAndRating}
                             handleReset={handleReset}
+                            handleFilterBy={handleFilterBy}
                         />
                     </Popover>
                 </Box>

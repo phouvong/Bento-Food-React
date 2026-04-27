@@ -92,7 +92,7 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
     const searchKey = ''
 
     const { data: categoryData, refetch: categoryApiRefetch } = useQuery(
-        ['category'],
+        ['category', searchKey],
         () => CategoryApi.categories(searchKey),
         {
             enabled: false,
@@ -217,7 +217,7 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                                 value={collapsableMenu.res}
                                 setOpenDrawer={setOpenDrawer}
                                 toggleDrawers={toggleDrawer}
-                                pathName="/restaurant"
+                                pathName="/restaurants"
                             />
                             <CollapsableMenu
                                 value={collapsableMenu.cuisine}

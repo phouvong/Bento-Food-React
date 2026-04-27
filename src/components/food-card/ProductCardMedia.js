@@ -64,6 +64,7 @@ const ProductCardMedia = (props) => {
         rating_count,
         horizontal,
     } = props
+console.log({product});
 
     const { global } = useSelector((state) => state.globalSettings)
     const theme = useTheme()
@@ -84,21 +85,20 @@ const ProductCardMedia = (props) => {
             {!image && (
                 <Stack sx={{ overflow: 'hidden' }}>
                     <CardWrapper>
-
-                            <Stack
-                                position="absolute"
-                                bottom="10%"
-                                left="0"
-                                zIndex="99"
-                            >
-                                {handleBadge(
-                                    product,
-                                    currencySymbol,
-                                    currencySymbolDirection,
-                                    digitAfterDecimalPoint,
-                                    available_date_ends
-                                )}
-                            </Stack>
+                        <Stack
+                            position="absolute"
+                            bottom="10%"
+                            left="0"
+                            zIndex="99"
+                        >
+                            {handleBadge(
+                                product,
+                                currencySymbol,
+                                currencySymbolDirection,
+                                digitAfterDecimalPoint,
+                                available_date_ends
+                            )}
+                        </Stack>
 
                         {isRestaurantDetails &&
                             isSmall &&
@@ -114,7 +114,7 @@ const ProductCardMedia = (props) => {
                                     zIndex="1"
                                 >
                                     <FoodRating
-                                        product_avg_rating={rating_count}
+                                        product_avg_rating={product?.avg_rating}
                                     />
                                 </Stack>
                             )}
@@ -156,13 +156,27 @@ const ProductCardMedia = (props) => {
                         <CustomNextImage
                             src={imageUrl}
                             alt={alt}
-                            width='250'
-                            height={isSmall?"130":"160"}
+                            width="250"
+                            height={isSmall ? '130' : '160'}
                             borderRadius="8px"
-                            objectFit={imageUrl?"cover":"contain"}
-
+                            objectFit={imageUrl ? 'cover' : 'contain'}
                         />
-                      
+                        {
+                            product?.is_halal === 1 && (
+                                <Box
+                                    component="img"
+                                    src="/static/halal.svg"
+                                    alt="Halal"
+                                    sx={{
+                                        position: 'absolute',
+                                        bottom: '6px',
+                                        right: '6px',
+                                        width: { xs: '24px', sm: '28px' },
+                                        height: { xs: '24px', sm: '28px' },
+                                        zIndex: 200,
+                                    }}
+                                />
+                            )}
                     </CardWrapper>
                 </Stack>
             )}

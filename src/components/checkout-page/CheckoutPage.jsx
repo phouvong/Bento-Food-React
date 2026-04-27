@@ -7,6 +7,7 @@ import {
     formatPhoneNumber,
     getAmount,
     getCouponDiscount,
+    getDeliveryFees,
     getFinalTotalPrice,
     getProductDiscount,
     getSubTotalPrice,
@@ -120,7 +121,9 @@ const CheckoutPage = ({ isDineIn }) => {
     const theme = useTheme()
     const offlineFormRef = useRef(null)
     const { t } = useTranslation()
-    const { global, couponInfo } = useSelector((state) => state.globalSettings)
+    const { global, couponInfo, couponType } = useSelector(
+        (state) => state.globalSettings
+    )
 
     const {
         cartList,
@@ -150,6 +153,7 @@ const CheckoutPage = ({ isDineIn }) => {
     const [openModal, setOpenModal] = useState(false)
     const [openPartialModel, setOpenPartialModel] = useState(false)
     const [deliveryTip, setDeliveryTip] = useState(0)
+    const [selectedDeliveryOption, setSelectedDeliveryOption] = useState(null)
     const [selected, setSelected] = useState({})
     const [paymentMethodDetails, setPaymentMethodDetails] = useState({
         name: 'cash_on_delivery',
@@ -179,8 +183,15 @@ const CheckoutPage = ({ isDineIn }) => {
             dispatch(setIsNeedLoad(data?.reload_home))
         }
     }, [data])
+    console.log({selectedDeliveryOption});
+    
     const { data: offlinePaymentOptions, refetch: OfflinePaymentRefetch } =
         useGetOfflinePaymentOptions({})
+
+    useEffect(() => {
+        // Debug selected delivery option changes during checkout.
+        console.log('selectedDeliveryOption:', selectedDeliveryOption)
+    }, [selectedDeliveryOption])
 
     useEffect(() => {
         OfflinePaymentRefetch()
@@ -201,6 +212,7 @@ const CheckoutPage = ({ isDineIn }) => {
     const text1 = t('You can not Order more then')
     const text2 = t('on COD order')
     const { page } = router.query
+    const checkoutCartList = page === 'campaign' ? campFoodList : cartList
     let currencySymbol
     let currencySymbolDirection
     let digitAfterDecimalPoint
@@ -210,7 +222,6 @@ const CheckoutPage = ({ isDineIn }) => {
         currencySymbolDirection = global.currency_symbol_direction
         digitAfterDecimalPoint = global.digit_after_decimal_point
     }
-
     currentLatLng = JSON.parse(window.localStorage.getItem('currentLatLng'))
     const { data: zoneData } = useQuery(
         ['zoneId', location],
@@ -257,6 +268,19 @@ const CheckoutPage = ({ isDineIn }) => {
     useEffect(() => {
         extraChargeRefetch()
     }, [distanceData])
+    const deliveryFeeForOptions = getDeliveryFees(
+        restaurantData,
+        global,
+        checkoutCartList,
+        distanceData,
+        couponDiscount,
+        couponType,
+        orderType,
+        zoneData?.data?.zone_data,
+        restaurantData?.data,
+        address,
+        Number(extraCharge) || 0
+    )
     const handleChange = (event) => {
         setDayNumber(event.target.value)
     }
@@ -416,7 +440,12 @@ const CheckoutPage = ({ isDineIn }) => {
         return {
             cart: carts,
             ...address,
-            schedule_at: scheduleAt === 'now' ? null : scheduleAt,
+            schedule_at:
+                scheduleAt === 'now'
+                    ? null
+                    : moment(scheduleAt)
+                        .subtract(1, 'minutes')
+                        .format('YYYY-MM-DD HH:mm'),
             //additional address
             address_type: !getToken()
                 ? guestUserInfo?.address_type
@@ -440,12 +469,16 @@ const CheckoutPage = ({ isDineIn }) => {
             coupon_discount_title: couponDiscount?.title,
             discount_amount: getProductDiscount(productList),
             distance: handleDistance(
-                distanceData?.data,
+                distanceData,
                 restaurantData?.data,
                 address
             ),
             order_amount: totalAmount,
             dm_tips: deliveryTip,
+            ...(couponDiscount?.coupon_type !== 'free_delivery' && {
+                delivery_id: selectedDeliveryOption?.id,
+                delivery_type: selectedDeliveryOption?.deliveryType,
+            }),
             subscription_order: subscriptionStates.order,
             subscription_type: subscriptionStates.type,
             subscription_days: JSON.stringify(subscriptionStates.days),
@@ -489,6 +522,7 @@ const CheckoutPage = ({ isDineIn }) => {
         couponDiscount?.discount,
         cartList,
         extraPackagingCharge,
+        selectedDeliveryOption?.id,
     ])
     const orderPlaceMutation = (
         carts,
@@ -511,7 +545,8 @@ const CheckoutPage = ({ isDineIn }) => {
 
     const handlePlaceOrder = () => {
         let productList = page === 'campaign' ? campFoodList : cartList
-
+        if(!restaurantData?.data?.active)
+            return toast.error(t('Restaurant is currently closed'))
         let isAvailable =
             page === 'campaign'
                 ? true
@@ -1156,6 +1191,7 @@ const CheckoutPage = ({ isDineIn }) => {
             onError: onSingleErrorResponse,
         }
     )
+console.log({selectedDeliveryOption});
 
     return (
         <Grid
@@ -1172,6 +1208,7 @@ const CheckoutPage = ({ isDineIn }) => {
                             token={token}
                             global={global}
                             restaurantData={restaurantData}
+                            deliveryFee={deliveryFeeForOptions}
                             setOrderType={setOrderType}
                             orderType={orderType}
                             setAddress={setAddress}
@@ -1190,6 +1227,11 @@ const CheckoutPage = ({ isDineIn }) => {
                             setPaymentMethodDetails={setPaymentMethodDetails}
                             setUsePartialPayment={setUsePartialPayment}
                             setSwitchToWallet={setSwitchToWallet}
+                            zoneData={zoneData?.data?.zone_data}
+                            setSelectedDeliveryOption={
+                                setSelectedDeliveryOption
+                            }
+                            couponDiscount={couponDiscount}
                         />
                         {orderType === 'dine_in' && (
                             <CustomPaperBigCard padding=".5rem">
@@ -1484,6 +1526,7 @@ const CheckoutPage = ({ isDineIn }) => {
                             distanceLoading={distanceLoading}
                             taxData={taxData}
                             handleCouponDiscount={handleCouponDiscount}
+                            selectedDeliveryOption={selectedDeliveryOption}
                         />
                     </Stack>
                 </CustomPaperBigCard>

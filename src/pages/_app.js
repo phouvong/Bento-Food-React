@@ -97,7 +97,7 @@ const App = ({ Component, pageProps, emotionCache = clientSideEmotionCache }) =>
                     </NoSsr>
                     <Box
                       sx={{
-                        minHeight: '100vh',
+                        minHeight: '60vh',
                         mt: {
                           xs: router.pathname === '/home' ? '2.5rem' : '3.5rem',
                           md: router.pathname === '/'
