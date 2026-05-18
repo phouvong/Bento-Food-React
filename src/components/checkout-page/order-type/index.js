@@ -21,6 +21,7 @@ const OrderType = (props) => {
         setUsePartialPayment,
         setSwitchToWallet,
         setOrderType,
+        order_subscription_active
     } = props
 
     const handleClick = (item) => {
@@ -49,52 +50,61 @@ const OrderType = (props) => {
                 flexWrap="wrap"
                 gap="15px"
             >
-                {orderTypes?.map((item) => (
-                    <Box
-                        onClick={() => handleClick(item)}
-                        key={item.value}
-                        sx={{
-                            border: '1px solid',
-                            borderColor: (theme) =>
-                                subscriptionStates.order === item?.value
-                                    ? theme.palette.primary.main
-                                    : theme.palette.neutral[400],
-                            borderRadius: '4px',
-                            padding: '10px 15px',
-                            boxShadow: (theme) =>
-                                `0px 0px 2px rgba(145, 158, 171, 0.2), 0px 5px 20px ${theme.palette.paperBoxShadow}`,
-                            cursor: 'pointer',
-                            position: 'relative',
-                            width: '220px',
-                        }}
-                    >
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                            <CustomImageContainer
-                                src={item?.img.src}
-                                alt={item?.name}
-                                width="30px"
-                                height="30px"
-                                objectFit="contained"
-                            />
-                            <Stack>
-                                <Typography>{t(item?.name)}</Typography>
-                                <Typography variant="subtitle2">
-                                    {t('Place an order and enjoy')}
-                                </Typography>
+                {orderTypes
+                    ?.filter((item) => {
+                        // যদি item.name "Subscription Order" হয়, order_subscription_active true হতে হবে
+                        if (item?.name === 'Subscription Order') {
+                            return order_subscription_active
+                        }
+                        return true // অন্য সব item দেখাবে
+                    })
+                    .map((item) => (
+                        <Box
+                            onClick={() => handleClick(item)}
+                            key={item.value}
+                            sx={{
+                                border: '1px solid',
+                                borderColor: (theme) =>
+                                    subscriptionStates.order === item?.value
+                                        ? theme.palette.primary.main
+                                        : theme.palette.neutral[400],
+                                borderRadius: '4px',
+                                padding: '10px 15px',
+                                boxShadow: (theme) =>
+                                    `0px 0px 2px rgba(145, 158, 171, 0.2), 0px 5px 20px ${theme.palette.paperBoxShadow}`,
+                                cursor: 'pointer',
+                                position: 'relative',
+                                width: '220px',
+                            }}
+                        >
+                            <Stack direction="row" alignItems="center" spacing={1}>
+                                <CustomImageContainer
+                                    src={item?.img.src}
+                                    alt={item?.name}
+                                    width="30px"
+                                    height="30px"
+                                    objectFit="contained"
+                                />
+                                <Stack>
+                                    <Typography>{t(item?.name)}</Typography>
+                                    <Typography variant="subtitle2">
+                                        {t('Place an order and enjoy')}
+                                    </Typography>
+                                </Stack>
                             </Stack>
-                        </Stack>
-                        {subscriptionStates.order === item?.value && (
-                            <CheckCircleIcon
-                                sx={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    right: 0,
-                                    color: 'primary.main',
-                                }}
-                            />
-                        )}
-                    </Box>
-                ))}
+                            {subscriptionStates.order === item?.value && (
+                                <CheckCircleIcon
+                                    sx={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        right: 0,
+                                        color: 'primary.main',
+                                    }}
+                                />
+                            )}
+                        </Box>
+                    ))}
+
             </CustomStackFullWidth>
             <CustomStackFullWidth mt="1.5rem">
                 {subscriptionStates.order === orderTypes[1]?.value && (

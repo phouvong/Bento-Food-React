@@ -3,7 +3,7 @@ import { Logo } from '@/styled-components/CustomStyles.style'
 import { useRouter } from 'next/router'
 import CustomImageContainer from '@/components/CustomImageContainer'
 
-const CustomLogo = ({ logoImg, atlText, height, width }) => {
+const CustomLogo = ({ logoImg, atlText, height, width ,objectFit}) => {
     const router = useRouter()
     let zoneid = undefined
     if (typeof window !== 'undefined') {
@@ -34,6 +34,7 @@ const CustomLogo = ({ logoImg, atlText, height, width }) => {
                 loading="eager"
                 fetchpriority="high"
                 minwidth="40px"
+                objectFit={objectFit}
             />
         </Logo>
     )

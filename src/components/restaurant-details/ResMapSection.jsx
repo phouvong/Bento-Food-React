@@ -19,6 +19,8 @@ const ResMapSection = ({ userLocation, details, setUserLocation, coords }) => {
         width: '100%',
         height: isSmall ? '250px' : '300px',
     }
+    console.log({userLocation});
+    
     return (
         <div>
             <Stack position="relative">
@@ -38,7 +40,7 @@ const ResMapSection = ({ userLocation, details, setUserLocation, coords }) => {
                         position: 'absolute',
 
                         right: '10px',
-                        bottom: '20px',
+                        bottom: '0px',
                     }}
                     onClick={handleCurrentLocation}
                 >

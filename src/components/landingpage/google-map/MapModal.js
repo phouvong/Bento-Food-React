@@ -41,7 +41,7 @@ const CustomBoxWrapper = styled(Box)(({ theme }) => ({
     transform: 'translate(-50%, -50%)',
     bgColor: 'background.paper',
     boxShadow: 24,
-    paddingTop:"25px",
+    paddingTop: "25px",
     maxWidth: '800px',
     minWidth: '100px',
     width: '100%',
@@ -72,8 +72,8 @@ const CssTextField = styled(TextField)(({ theme }) => ({
         fontSize: '13px',
         padding: '4px',
         border: '1px solid',
-        borderColor:  alpha(theme.palette.neutral[400],.5),
-        borderRadius:"4px",
+        borderColor: alpha(theme.palette.neutral[400], .5),
+        borderRadius: "4px",
         '& fieldset': {
             borderColor: theme.palette.primary.main,
         },
@@ -86,7 +86,7 @@ const CssTextField = styled(TextField)(({ theme }) => ({
     },
 }))
 
-const MapModal = ({ open, handleClose, redirectUrl }) => {
+const MapModal = ({ open, handleClose, redirectUrl, }) => {
     const router = useRouter()
     const theme = useTheme()
     const { global, userLocationUpdate } = useSelector(
@@ -100,7 +100,13 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
     const [locationEnabled, setLocationEnabled] = useState(false)
     const [placeId, setPlaceId] = useState('')
     const [placeDescription, setPlaceDescription] = useState(undefined)
-    const [location, setLocation] = useState(global?.default_location)
+    const [location, setLocation] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('currentLatLng')
+            if (saved) return JSON.parse(saved)
+        }
+        return global?.default_location
+    })
     const [zoneId, setZoneId] = useState(undefined)
     const [isLoadingCurrentLocation, setLoadingCurrentLocation] =
         useState(false)
@@ -128,7 +134,7 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
         setPredictions([])
         setEnabled(false)
     }
-    
+
 
     const { data: placeDetails } = useQuery(
         ['placeDetails', placeId],
@@ -166,13 +172,20 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
     })
 
     useEffect(() => {
-        if (coords) {
-            setCurrentLocation({
-                lat: coords.latitude,
-                lng: coords.longitude,
-            })
+         const savedLocation = localStorage.getItem('currentLatLng')
+        if (savedLocation) {
+           
+            if (!savedLocation) {
+                const systemLocation = {
+                    lat: savedLocation.latitude,
+                    lng: savedLocation.longitude,
+                }
+                setCurrentLocation(systemLocation)
+                setLocation(systemLocation)
+                setLocationEnabled(true)
+            }
         }
-    }, [])
+    }, [coords])
 
     if (isErrorLocation) {
     }
@@ -204,7 +217,7 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
             setZoneId(undefined)
         }
     }, [zoneData])
-    
+
     useEffect(() => {
         if (placeDetails) {
             setLocation({
@@ -216,8 +229,8 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
     }, [placeDetails])
     useEffect(() => {
         if (places) {
-           const tempData= places?.data?.suggestions?.map((item) => ({
-            place_id: item.placePrediction.placeId,
+            const tempData = places?.data?.suggestions?.map((item) => ({
+                place_id: item.placePrediction.placeId,
                 description: `${item?.placePrediction?.structuredFormat?.mainText?.text}, ${item?.placePrediction?.structuredFormat?.secondaryText?.text || ""}`
             }))
             setPredictions(tempData)
@@ -284,7 +297,7 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
             aria-describedby="modal-modal-description"
         >
             <CustomBoxWrapper>
-                <Grid container spacing={1} sx={{ paddingX: '25px',}}>
+                <Grid container spacing={1} sx={{ paddingX: '25px', }}>
                     <Grid item md={12}>
                         <Typography
                             fontWeight="600"
@@ -326,14 +339,14 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                                                 typeof value === 'string'
                                             ) {
                                                 setLoadingAuto(true)
-                                                const value =predictions[0]
+                                                const value = predictions[0]
                                                 handleLocationSelection(value)
                                             } else {
                                                 handleLocationSelection(value)
                                             }
                                             setPlaceDetailsEnabled(true)
                                         }
-                                        
+
                                     }}
                                     clearOnBlur={false}
                                     value={currentLocationValue}
@@ -451,12 +464,13 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                     <>
                         {!!location && (
                             <Stack width="100%" justifyContent="flex-end" alignItems="flex-end"
-                            sx={{borderRadius: "5px",
-                                background: theme=>theme.palette.neutral[100],
-                                boxShadow: "0px -1px 25px 0px rgba(0, 0, 0, 0.08)",
-                                paddingX:"25px",
-                                paddingY:"10px"
-                            }}
+                                sx={{
+                                    borderRadius: "5px",
+                                    background: theme => theme.palette.neutral[100],
+                                    boxShadow: "0px -1px 25px 0px rgba(0, 0, 0, 0.08)",
+                                    paddingX: "25px",
+                                    paddingY: "10px"
+                                }}
 
                             >
                                 <PrimaryButton
@@ -464,10 +478,10 @@ const MapModal = ({ open, handleClose, redirectUrl }) => {
                                     aria-label="picklocation"
                                     sx={{
                                         flex: '1 0',
-                                        maxWidth:"194px",
+                                        maxWidth: "194px",
                                         width: '100%',
 
-                                        borderRadius:"5px"
+                                        borderRadius: "5px"
                                     }}
                                     disabled={locationLoading}
                                     variant="contained"

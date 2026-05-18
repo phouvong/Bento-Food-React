@@ -9,6 +9,14 @@ import { useTheme } from '@emotion/react'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import SearchIcon from '@mui/icons-material/Search'
+import TuneRoundedIcon from '@mui/icons-material/TuneRounded'
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord'
+import StarRoundedIcon from '@mui/icons-material/StarRounded'
+import AutoAwesomeRoundedIcon from '@mui/icons-material/AutoAwesomeRounded'
+import LocalOfferRoundedIcon from '@mui/icons-material/LocalOfferRounded'
+import WhatshotRoundedIcon from '@mui/icons-material/WhatshotRounded'
+import AccessTimeRoundedIcon from '@mui/icons-material/AccessTimeRounded'
+import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded'
 import {
     Box,
     Chip,
@@ -35,32 +43,57 @@ import SearchBox from '../hero-section-with-search/SearchBox'
 import { WrapperForSideDrawerFilter } from '@/styled-components/CustomStyles.style'
 import CustomImage from '@/components/CustomNextImage'
 import { useRouter } from 'next/router'
+import { RTL } from '../../RTL/RTL'
 
-export const CustomChip = styled(Chip)(({ theme, query, value, isSticky }) => ({
-    padding: isSticky ? '2px 3px' : '10px 10px',
-    alignItems: 'center',
-    color: value ? theme.palette.neutral[100] : '#767E8F',
-    fontSize: isSticky ? '13px' : '14px',
-    fontWeight: '400',
-    height: isSticky ? '35px' : '40px',
-    cursor: 'pointer',
-    background: value && theme.palette.primary.main,
+export const CustomChip = styled(Chip)(({ theme, query, value, isSticky }) => {
+    const isDark = theme.palette.mode === 'dark'
+    const activeBg = isDark
+        ? alpha(theme.palette.primary.main, 0.18)
+        : '#FFF4EC'
+    const idleBg = isDark ? theme.palette.background.paper : '#FFFFFF'
+    const idleBorder = isDark ? 'rgba(255,255,255,0.14)' : '#E2E8F0'
+    const idleColor = isDark ? theme.palette.neutral[300] : '#334155'
+    return {
+        padding: isSticky ? '2px 3px' : '8px 4px',
+        alignItems: 'center',
+        color: value ? theme.palette.primary.main : idleColor,
+        fontSize: isSticky ? '13px' : '13px',
+        fontWeight: 600,
+        height: isSticky ? '32px' : '36px',
+        cursor: 'pointer',
+        borderRadius: '999px',
+        backgroundColor: value ? activeBg : idleBg,
+        border: value
+            ? `1px solid ${theme.palette.primary.main}`
+            : `1px solid ${idleBorder}`,
+        boxShadow: value ? 'none' : '0 1px 2px rgba(15,23,42,0.04)',
 
-    // Smooth transitions for all property changes
-    transition: `all cubic-bezier(0.4, 0, 0.2, 1) 0.3s`,
+        transition: 'color 0.15s ease, border-color 0.15s ease',
 
-    '&:hover': {
-        color: `${theme.palette.whiteContainer.main}`,
-    },
+        '&:hover, &.MuiChip-clickable:hover': {
+            backgroundColor: value ? activeBg : idleBg,
+            borderColor: theme.palette.primary.main,
+            color: theme.palette.primary.main,
+            boxShadow: value ? 'none' : '0 1px 2px rgba(15,23,42,0.04)',
+        },
+        '&.MuiChip-clickable:focus, &.MuiChip-clickable:focus-visible': {
+            backgroundColor: value ? activeBg : idleBg,
+            borderColor: value ? theme.palette.primary.main : idleBorder,
+            color: value ? theme.palette.primary.main : idleColor,
+            boxShadow: value ? 'none' : '0 1px 2px rgba(15,23,42,0.04)',
+        },
 
     '& .MuiChip-label': {
-        padding: isSticky ? '5px 6px !important' : '8px 8px !important',
-        maxWidth: '110px',
+        padding: isSticky ? '5px 6px !important' : '8px 10px !important',
+        maxWidth: '140px',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
+        transition: 'padding 0.2s ease',
+    },
 
-        // Smooth transition for label padding
-        transition: 'padding 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    '& .MuiChip-icon': {
+        marginLeft: isSticky ? '8px' : '10px',
+        marginRight: '-2px',
     },
 
     [theme.breakpoints.down('md')]: {
@@ -68,13 +101,84 @@ export const CustomChip = styled(Chip)(({ theme, query, value, isSticky }) => ({
         padding: '4px 4px',
         height: '31px',
     },
-}))
+    }
+})
 
 export const SearchIconButton = styled(IconButton)(({ theme }) => ({
     backgroundColor: theme.palette.borderBottomBg,
     padding: '6px',
     borderRadius: '4px',
 }))
+
+const getFilterIcon = (value) => {
+    const baseStyle = { fontSize: '16px' }
+    switch (value) {
+        case 'sort_by':
+            return (
+                <TuneRoundedIcon style={{ ...baseStyle, color: '#6366F1' }} />
+            )
+        case 'veg':
+            return (
+                <Box
+                    sx={{
+                        width: '10px',
+                        height: '10px',
+                        borderRadius: '50%',
+                        border: '2px solid #16A34A',
+                    }}
+                />
+            )
+        case 'nonVeg':
+            return (
+                <Box
+                    sx={{
+                        width: '10px',
+                        height: '10px',
+                        borderRadius: '50%',
+                        border: '2px solid #DC2626',
+                    }}
+                />
+            )
+        case 'ratings':
+        case 'rating':
+        case 'rating5':
+            return (
+                <StarRoundedIcon style={{ ...baseStyle, color: '#F59E0B' }} />
+            )
+        case 'new_arrivals':
+            return (
+                <AutoAwesomeRoundedIcon
+                    style={{ ...baseStyle, color: '#8B5CF6' }}
+                />
+            )
+        case 'discounted':
+            return (
+                <LocalOfferRoundedIcon
+                    style={{ ...baseStyle, color: '#F97316' }}
+                />
+            )
+        case 'popular':
+            return (
+                <WhatshotRoundedIcon
+                    style={{ ...baseStyle, color: '#EF4444' }}
+                />
+            )
+        case 'currentlyAvailable':
+            return (
+                <AccessTimeRoundedIcon
+                    style={{ ...baseStyle, color: '#3B82F6' }}
+                />
+            )
+        case 'halal':
+            return (
+                <VerifiedRoundedIcon
+                    style={{ ...baseStyle, color: '#16A34A' }}
+                />
+            )
+        default:
+            return null
+    }
+}
 const FilterTag = ({
     handleClick,
     query,
@@ -109,6 +213,9 @@ const FilterTag = ({
     const iconColor = theme.palette.neutral[1000]
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const isMobileMenuEnabled = useMediaQuery(theme.breakpoints.down('md'))
+    // useEffect(() => {
+    //     if (isSmall) setOpen(true)
+    // }, [isSmall])
     const handleCuisineData = () => {
         dispatch(
             setCuisineData(
@@ -194,6 +301,7 @@ const FilterTag = ({
         dispatch(setSelectedValue(e.target.value))
         dispatch(setSelectedName(e.target.labels[0].innerText))
         handleSort(e.target.value)
+        handleClose()
     }
     useEffect(() => {
         setAnchorElCard(null)
@@ -224,18 +332,37 @@ const FilterTag = ({
     }
 
     return (
-        <>
+        <RTL direction={languageDirection}>
             <Stack
                 direction="row"
-                alignItems={{ xs: 'center', md: 'flex-end' }}
-                spacing={{ xs: 1.5, md: 0 }}
-                gap="1rem"
+                alignItems="center"
+                spacing={{ xs: 1, md: 0 }}
+                gap={{ xs: ".5rem", md: "1rem" }}
             >
                 {!open ? (
+                    <Box sx={{ flex: 1, minWidth: 0, position: 'relative' }}>
+                    {isSmall && (
+                        <Box
+                            sx={{
+                                display: { xs: 'block', md: 'none' },
+                                position: 'absolute',
+                                right: 0,
+                                top: 0,
+                                bottom: 0,
+                                width: '40px',
+                                zIndex: 1,
+                                pointerEvents: 'none',
+                                background: (theme) =>
+                                    `linear-gradient(to right, transparent, ${theme.palette.background.default})`,
+                            }}
+                        />
+                    )}
                     <Stack
                         sx={{
-                            width: '100%',
+                            flex: 1,
+                            minWidth: 0,
                             overflowX: 'auto',
+                            overflowY: 'hidden',
                             '&::-webkit-scrollbar': {
                                 width: '0',
                                 height: '0',
@@ -256,6 +383,7 @@ const FilterTag = ({
                                     maxHeight: '40px',
                                 },
                                 cursor: 'pointer',
+                                paddingInlineEnd: { xs: '40px', md: '20px' },
                             }}
                         >
                             {isSticky && !isMobileMenuEnabled && (
@@ -272,26 +400,39 @@ const FilterTag = ({
                                 if (item?.id === 1) {
                                     return (
                                         <CustomChip
+                                            key={item?.id}
                                             sx={{
                                                 marginInlineEnd:
                                                     languageDirection ===
-                                                    'rtl' &&
+                                                        'rtl' &&
                                                     '10px !important',
                                             }}
-                                            onClick={(event) =>
-                                                handlePopOverOpen(event, 'sort')
+                                            onPointerDown={(e) =>
+                                                e.stopPropagation()
                                             }
+                                            onMouseDown={(e) =>
+                                                e.stopPropagation()
+                                            }
+                                            onTouchStart={(e) =>
+                                                e.stopPropagation()
+                                            }
+                                            onClick={(event) => {
+                                                event.stopPropagation()
+                                                handlePopOverOpen(event, 'sort')
+                                            }}
                                             isSticky={isSticky}
                                             value={item?.isActive}
+                                            icon={getFilterIcon(item?.value)}
                                             label={
                                                 selectedName
                                                     ? t(selectedName)
                                                     : t(item?.name)
                                             }
                                             variant="outlined"
-                                            onDelete={(event) =>
+                                            onDelete={(event) => {
+                                                event.stopPropagation()
                                                 handlePopOverOpen(event, 'sort')
-                                            }
+                                            }}
                                             deleteIcon={
                                                 <IconButton
                                                     sx={{ padding: '0px' }}
@@ -306,29 +447,42 @@ const FilterTag = ({
                                             }
                                         />
                                     )
-                                } else {
-                                    if (item?.id === 3 || item?.id === 5) {
-                                        return null
-                                    } else if (
-                                        item?.id === 9 &&
-                                        restaurantType !== 'dine-in'
-                                    ) {
-                                        return null
-                                    } else {
-                                        return (
-                                            <CustomChip
-                                                isSticky={isSticky}
-                                                value={item?.isActive}
-                                                label={t(item?.name)}
-                                                variant="outlined"
-                                                onClick={() =>
-                                                    handleClick(item?.value)
-                                                }
-                                            //onDelete={() => handleDelete(item)}
-                                            />
-                                        )
-                                    }
                                 }
+                                if (item?.id === 3 || item?.id === 5) {
+                                    return null
+                                }
+                                if (
+                                    item?.id === 9 &&
+                                    restaurantType !== 'dine-in'
+                                ) {
+                                    return null
+                                }
+                                return (
+                                    <CustomChip
+                                        key={item?.id}
+                                        isSticky={isSticky}
+                                        value={item?.isActive}
+                                        label={t(item?.name)}
+                                        variant="outlined"
+                                        icon={getFilterIcon(
+                                            item?.value,
+                                            item?.isActive
+                                        )}
+                                        onPointerDown={(e) =>
+                                            e.stopPropagation()
+                                        }
+                                        onMouseDown={(e) =>
+                                            e.stopPropagation()
+                                        }
+                                        onTouchStart={(e) =>
+                                            e.stopPropagation()
+                                        }
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            handleClick(item?.value, e)
+                                        }}
+                                    />
+                                )
                             })}
                             {(query || tags || restaurantType === 'dine-in') &&
                                 !isSticky && (
@@ -343,16 +497,97 @@ const FilterTag = ({
                                 )}
                         </Stack>
                     </Stack>
-                ) : (
-                    <Box
-                        sx={{
-                            width: '100%',
-                            marginTop: '8px',
-                            animation: 'fadeInRight 1s  1',
-                        }}
-                    >
-                        <SearchBox query={query} />
                     </Box>
+                ) : (
+                     <Box
+                    sx={{
+                        width: '100%',
+                        maxWidth: '560px',
+                        '& form': { width: '100%' },
+                        '& form > div': {
+                            background: 'transparent !important',
+                            border: 'none !important',
+                        },
+                        '& .MuiInputBase-root': {
+                            borderRadius: '999px',
+                            backgroundColor: (theme) =>
+                                `${theme.palette.mode === 'dark'
+                                    ? theme.palette.background.paper
+                                    : '#FFFFFF'} !important`,
+                            border: (theme) =>
+                                `1px solid ${theme.palette.mode === 'dark'
+                                    ? 'rgba(255,255,255,0.12)'
+                                    : '#E2E8F0'}`,
+                            paddingInline: {
+                                xs: '0px',
+                                sm: '10px',
+                                md: '10px',
+                            },
+                            height: '40px',
+                            gap: {
+                                xs: '6px',
+                                sm: '10px',
+                                md: '10px',
+                            },
+                            boxShadow: '0 1px 2px rgba(15,23,42,0.04)',
+                            transition: 'border-color .2s ease, box-shadow .2s ease',
+                        },
+                        '& .MuiInputBase-root:hover': {
+                            borderColor: (theme) =>
+                                theme.palette.primary.main,
+                        },
+                        '& .MuiInputBase-root.Mui-focused, & .MuiInputBase-root:focus-within': {
+                            borderColor: (theme) =>
+                                theme.palette.primary.main,
+                            boxShadow: '0 0 0 4px rgba(255,117,24,.14)',
+                        },
+                        '& .MuiInputBase-input': {
+                            padding: '0 !important',
+                            fontSize: '14px !important',
+                            color: (theme) =>
+                                theme.palette.mode === 'dark'
+                                    ? '#fff'
+                                    : '#0F172A',
+                            height: 'auto !important',
+                        },
+                        '& .MuiInputBase-input::placeholder': {
+                            color: '#94A3B8',
+                            opacity: 1,
+                            fontSize: {
+                                xs: '11px',
+                                sm: '14px',
+                                md: '14px',
+                            },
+                        },
+                        '& .MuiSvgIcon-root': {
+                            color: '#94A3B8',
+                        },
+                        '& .MuiInputAdornment-positionStart .MuiSvgIcon-root': {
+                            fontSize: '20px',
+                        },
+                        '& .MuiInputAdornment-positionEnd .MuiIconButton-root': {
+                            width: 28,
+                            height: 28,
+                            backgroundColor: '#FFF4EC',
+                            '& .MuiSvgIcon-root': {
+                                color: (theme) => theme.palette.primary.main,
+                                fontSize: '16px',
+                            },
+                            '&:hover': {
+                                backgroundColor: (theme) =>
+                                    theme.palette.primary.main,
+                                '& .MuiSvgIcon-root': {
+                                    color: '#fff',
+                                },
+                            },
+                        },
+                    }}
+                >
+                    <SearchBox
+                        query={query}
+                        //setOpenSearchBox={setOpenSearchBox}
+                    />
+                </Box>
                 )}
                 {isSticky && !isSmall && (
                     <Box
@@ -366,7 +601,7 @@ const FilterTag = ({
                     </Box>
                 )}
                 {isSmall && (
-                    <>
+                    <Box sx={{ ml: '0 !important' }}>
                         {open ? (
                             <SearchIconButton onClick={() => setOpen(false)}>
                                 <ChevronRightIcon />
@@ -376,13 +611,64 @@ const FilterTag = ({
                                 <SearchIcon />
                             </SearchIconButton>
                         )}
-                    </>
+                    </Box>
                 )}
+                {!isSmall && (() => {
+                    const loc =
+                        typeof window !== 'undefined'
+                            ? localStorage.getItem('location')
+                            : null
+                    const parts = loc
+                        ? loc.split(',').map((s) => s.trim()).filter(Boolean)
+                        : []
+                    const city =
+                        parts.length >= 2
+                            ? parts[parts.length - 2]
+                            : parts[0] || ''
+                    if (!city) return null
+                    return (
+                        <Stack
+                            direction="row"
+                            alignItems="center"
+                            sx={{
+                                flexShrink: 0,
+                                marginInlineStart: 'auto',
+                                whiteSpace: 'nowrap',
+                                gap: '6px',
+                            }}
+                        >
+                            <Typography
+                                component="span"
+                                sx={{
+                                    fontSize: '13px',
+                                    color: (theme) =>
+                                        theme.palette.mode === 'dark'
+                                            ? theme.palette.neutral[300]
+                                            : theme.palette.neutral[700],
+                                }}
+                            >
+                                {t('Showing results for')}
+                            </Typography>
+                            <Typography
+                                component="span"
+                                sx={{
+                                    fontSize: '14px',
+                                    fontWeight: 700,
+                                    color: (theme) =>
+                                        theme.palette.neutral[1000],
+                                }}
+                            >
+                                {city}
+                            </Typography>
+                        </Stack>
+                    )
+                })()}
             </Stack>
             <Popover
                 open={Boolean(anchorEl)}
                 anchorEl={anchorEl}
                 onClose={handleClose}
+                disableScrollLock
                 anchorOrigin={{
                     vertical: 'bottom',
                     horizontal: 'left',
@@ -610,6 +896,7 @@ const FilterTag = ({
                 id="fade-button"
                 open={Boolean(anchorElCard)}
                 anchorEl={anchorElCard}
+                disableScrollLock
                 anchorOrigin={{
                     vertical: 'bottom',
                     horizontal: 'left',
@@ -629,7 +916,7 @@ const FilterTag = ({
                     cuisineState={cuisineState}
                 />
             </Popover>
-        </>
+        </RTL>
     )
 }
 

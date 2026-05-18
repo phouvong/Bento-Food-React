@@ -9,7 +9,7 @@ import {
     CustomPaperBigCard,
     CustomStackFullWidth,
 } from '@/styled-components/CustomStyles.style'
-import { DistanceCalculate, getAmount } from '@/utils/customFunctions'
+import { DistanceCalculate, getAmount, handleRestaurantRedirect } from '@/utils/customFunctions'
 import CustomImageContainer from '../CustomImageContainer'
 import { CustomChip } from '../food-card/FoodCard.style'
 import { HomeTextTypography } from '../home/HomeStyle'
@@ -79,17 +79,17 @@ const LatestRestaurantCard = (props) => {
                         label={
                             !discount.end_date
                                 ? ` ${getAmount(
-                                      discount?.discount,
-                                      currencySymbolDirection,
-                                      currencySymbol,
-                                      digitAfterDecimalPoint
-                                  )}`
+                                    discount?.discount,
+                                    currencySymbolDirection,
+                                    currencySymbol,
+                                    digitAfterDecimalPoint
+                                )}`
                                 : ` ${getAmount(
-                                      discount?.discount,
-                                      currencySymbolDirection,
-                                      currencySymbol,
-                                      digitAfterDecimalPoint
-                                  )} ${OFF}`
+                                    discount?.discount,
+                                    currencySymbolDirection,
+                                    currencySymbol,
+                                    digitAfterDecimalPoint
+                                )} ${OFF}`
                         }
                         campaign={discount.end_date}
                     />
@@ -165,12 +165,7 @@ const LatestRestaurantCard = (props) => {
         }
     }
     const handleClick = () => {
-        router.push({
-            pathname: `/restaurants/${slug || id}`,
-            query: {
-                restaurant_zone_id: zone_id,
-            },
-        })
+        handleRestaurantRedirect(router, slug, id)
     }
 
     return (
@@ -180,7 +175,7 @@ const LatestRestaurantCard = (props) => {
                 height={{ xs: '195px', md: '210px' }}
                 onClick={handleClick}
                 id={`restaurent-${id}`}
-                
+
             >
                 <CustomPaperBigCard
                     nopadding="true"
@@ -241,7 +236,7 @@ const LatestRestaurantCard = (props) => {
                                     src={image}
                                     width="310"
                                     height="100"
-                                    objectFit={image?"cover":"contain"}
+                                    objectFit={image ? "cover" : "contain"}
                                     borderRadius="8px"
                                 />
                             </Box>
@@ -260,9 +255,9 @@ const LatestRestaurantCard = (props) => {
                             >
                                 <CustomNextImage
                                     src={logo}
-                                    width={isSmall?'30':'50'}
-                                    height={isSmall?'30':'50'}
-                                    objectFit={logo?"cover":"contain"}
+                                    width={isSmall ? '30' : '50'}
+                                    height={isSmall ? '30' : '50'}
+                                    objectFit={logo ? "cover" : "contain"}
                                     borderRadius="100%"
                                 />
                             </ProfilePhotoWrapper>
@@ -277,16 +272,16 @@ const LatestRestaurantCard = (props) => {
                                     sx={{ position: 'relative' }}
                                 >
                                     <HomeTextTypography component="h3"
-                                      sx={{
-                                      transition: theme.transitions.create(['color'], {
+                                        sx={{
+                                            transition: theme.transitions.create(['color'], {
                                                 duration: theme.transitions.duration.short,
                                             }),
-                                    cursor: 'pointer',
-                                    '&:hover': {
-                                        color: theme.palette.primary.main,
-                                        transform: 'scale(1.02)',
-                                    },
-                                      }}
+                                            cursor: 'pointer',
+                                            '&:hover': {
+                                                color: theme.palette.primary.main,
+                                                transform: 'scale(1.02)',
+                                            },
+                                        }}
                                     >
                                         {name.length > 30
                                             ? `${name.slice(0, 30)}... `
@@ -313,7 +308,7 @@ const LatestRestaurantCard = (props) => {
                                             <>
                                                 {item}{' '}
                                                 {characteristics.length - 1 ===
-                                                index
+                                                    index
                                                     ? ''
                                                     : ','}
                                             </>
@@ -326,28 +321,28 @@ const LatestRestaurantCard = (props) => {
                                         delivery_fee === '0' ||
                                         order_details
                                     ) && (
-                                        <Stack
-                                            flexDirection="row"
-                                            alignItems="center"
-                                            gap="3px"
-                                        >
-                                            <DelivaryTruckIcon />
-                                            <Typography
-                                                fontSize="12px"
-                                                fontWeight={400}
+                                            <Stack
+                                                flexDirection="row"
+                                                alignItems="center"
+                                                gap="3px"
                                             >
-                                                {delivery_fee ===
-                                                'free_delivery'
-                                                    ? t('Free')
-                                                    : getAmount(
-                                                          delivery_fee,
-                                                          currencySymbolDirection,
-                                                          currencySymbol,
-                                                          0
-                                                      )}
-                                            </Typography>
-                                        </Stack>
-                                    )}
+                                                <DelivaryTruckIcon />
+                                                <Typography
+                                                    fontSize="12px"
+                                                    fontWeight={400}
+                                                >
+                                                    {delivery_fee ===
+                                                        'free_delivery'
+                                                        ? t('Free')
+                                                        : getAmount(
+                                                            delivery_fee,
+                                                            currencySymbolDirection,
+                                                            currencySymbol,
+                                                            0
+                                                        )}
+                                                </Typography>
+                                            </Stack>
+                                        )}
                                     <Stack
                                         flexDirection="row"
                                         alignItems="center"
@@ -374,10 +369,10 @@ const LatestRestaurantCard = (props) => {
                                             fontWeight={400}
                                         >
                                             {foods_count
-                                                ? foods_count> 99
+                                                ? foods_count > 99
                                                     ? `${foods_count}+`
                                                     : `${foods_count}` +
-                                                      ` items`
+                                                    ` items`
                                                 : ''}
                                         </Typography>
                                     </Stack>

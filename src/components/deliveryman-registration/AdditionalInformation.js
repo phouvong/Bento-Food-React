@@ -6,6 +6,7 @@ import {
     FormControlLabel,
     FormGroup,
     FormLabel,
+    GlobalStyles,
     Grid,
     InputAdornment,
     InputLabel,
@@ -17,19 +18,23 @@ import { useTheme } from '@emotion/react'
 import CustomTextFieldWithFormik from '../form-fields/CustomTextFieldWithFormik'
 import { t } from 'i18next'
 import Groups2Icon from '@mui/icons-material/Groups2'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import DescriptionIcon from '@mui/icons-material/Description'
+import EditIcon from '@mui/icons-material/Edit'
+import IconButton from '@mui/material/IconButton'
+import toast from 'react-hot-toast'
 import TodayIcon from '@mui/icons-material/Today'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import ImageUploaderWithPreview from '../single-file-uploader-with-preview/ImageUploaderWithPreview'
-import MultiFileUploader from '../multi-file-uploader/MultiFileUploader'
+
 import { capitalize } from '@/utils/capitalize'
 import CustomPhoneInput from '../CustomPhoneInput'
 import moment from 'moment'
 import { concat } from 'lodash'
 import DeliverymanForm from '../rate-and-review/DeliverymanForm'
 import dayjs from 'dayjs'
-import { getAcceptedFileInputFormat } from '@/utils/getAcceptedFileInputFormat'
+
 import { CustomTextFieldStyle } from '../form-fields/CustomTextField.style'
 import { Calendar } from 'react-date-range'
 import { format } from 'date-fns'
@@ -37,16 +42,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import { formatPhoneNumber } from '@/utils/customFunctions'
 // const acceptedFileInputFormat =
 //     'application/pdf,image/*,text/plain,.doc, .docx,.txt'
-const supportedFormatMultiImages = [
-    'jpg',
-    'jpeg',
-    'gif',
-    'png',
-    'pdf',
-    'doc',
-    'docx',
-    'deb',
-]
+
 const AdditionalInformation = ({
     deliveryManFormik,
     additionalImage,
@@ -55,18 +51,61 @@ const AdditionalInformation = ({
 }) => {
     const theme = useTheme()
 
-    const singleFileUploadHandlerForImage = (value, index, inputData) => {
-        const file = value.currentTarget.files[0]
+    const fileInputRef = useRef(null)
+    const [targetField, setTargetField] = useState(null)
+    const [fileIndex, setFileIndex] = useState(null)
+    const [isMulti, setIsMulti] = useState(false)
 
-        if (file) {
-            // Dynamically set the field value in Formik
-            deliveryManFormik.setFieldValue(inputData, file)
-        }
+    const triggerFileSelect = (target, index, isMulti) => {
+        setTargetField(target)
+        setFileIndex(index)
+        setIsMulti(isMulti)
+        fileInputRef.current.click()
     }
 
-    const imageOnchangeHandlerForImage = (value) => {
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0]
+        if (!file) return
 
-        setAdditionalImage(value)
+        const fileExtension = file.name.split('.').pop().toLowerCase()
+        const allowedExtensions = [
+            'jpg',
+            'jpeg',
+            'png',
+            'gif',
+            'pdf',
+            'doc',
+            'docx',
+            'webp',
+        ]
+        if (!allowedExtensions.includes(fileExtension)) {
+            toast.error(t('Unsupported file format!'))
+            return
+        }
+
+        if (file.size > 1 * 1024 * 1024) {
+            toast.error(t('File must be less than 1MB'))
+            return
+        }
+
+        if (isMulti) {
+            const currentFiles = deliveryManFormik.values[targetField]
+            const newFiles = Array.isArray(currentFiles)
+                ? [...currentFiles]
+                : currentFiles
+                    ? [currentFiles]
+                    : []
+
+            if (fileIndex !== null) {
+                newFiles[fileIndex] = file
+            } else {
+                newFiles.push(file)
+            }
+            deliveryManFormik.setFieldValue(targetField, newFiles)
+        } else {
+            deliveryManFormik.setFieldValue(targetField, file)
+        }
+        e.target.value = ''
     }
     const [dateRange, setDateRange] = useState([])
 
@@ -93,10 +132,6 @@ const AdditionalInformation = ({
         configData?.deliveryman_additional_join_us_page_data?.data
             ?.filter((item) => item?.field_type === 'file')
             .map((item) => ({ ...item }))
-
-    const acceptedFileInputFormat = getAcceptedFileInputFormat(
-        configData?.deliveryman_additional_join_us_page_data?.data
-    )
 
     const [openCalendars, setOpenCalendars] = useState({}) // State to track open calendars
     const calendarRefs = useRef({}) // Refs for each calendar
@@ -155,11 +190,130 @@ const AdditionalInformation = ({
         }
     }, [openCalendars])
 
+    const isImageFile = (file) => {
+        if (!file) return false
+        if (file.type) return file.type.startsWith('image/')
+        if (typeof file === 'string')
+            return file.match(/\.(jpg|jpeg|png|gif|webp)$/i)
+        return false
+    }
+
+    const getFileUrl = (file) => {
+        if (!file) return ''
+        if (typeof file === 'string') return file
+        return URL.createObjectURL(file)
+    }
+
+    const renderPdfOrIcon = (file, fileUrl) => {
+        const isPdf =
+            file?.type === 'application/pdf' ||
+            (typeof file === 'string' && file.endsWith('.pdf'))
+
+        if (isPdf) {
+            return (
+                <Stack
+                    height="100%"
+                    justifyContent="space-between"
+                    onClick={() => window.open(fileUrl, '_blank')}
+                    sx={{ cursor: 'pointer' }}
+                >
+                    <Box
+                        sx={{
+                            height: '60%',
+                            backgroundColor: (theme) =>
+                                theme.palette.neutral[200],
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <embed
+                            src={fileUrl}
+                            type="application/pdf"
+                            width="100%"
+                            height="100%"
+                            style={{ pointerEvents: 'none' }}
+                        />
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                            }}
+                        />
+                    </Box>
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={1}
+                        sx={{
+                            height: '40%',
+                            px: 1,
+                            backgroundColor: (theme) =>
+                                theme.palette.neutral[100],
+                            position: 'relative',
+                            zIndex: 1,
+                        }}
+                    >
+                        <DescriptionIcon
+                            sx={{
+                                fontSize: '16px',
+                                color: (theme) => theme.palette.text.secondary,
+                            }}
+                        />
+                        <Stack overflow="hidden">
+                            <Typography
+                                fontSize="10px"
+                                noWrap
+                                title={file?.name || 'File'}
+                            >
+                                {file?.name ||
+                                    (typeof file === 'string'
+                                        ? file.split('/').pop()
+                                        : 'File')}
+                            </Typography>
+                            <Typography fontSize="9px" color="primary">
+                                {t('Click to view')}
+                            </Typography>
+                        </Stack>
+                    </Stack>
+                </Stack>
+            )
+        }
+
+        return (
+            <Stack
+                height="100%"
+                justifyContent="center"
+                alignItems="center"
+                onClick={() => window.open(fileUrl, '_blank')}
+                sx={{ cursor: 'pointer' }}
+            >
+                <DescriptionIcon
+                    sx={{
+                        fontSize: '40px',
+                        color: (theme) => theme.palette.neutral[500],
+                    }}
+                />
+            </Stack>
+        )
+    }
+
     return (
-        <>
-            <CustomBoxFullWidth>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} lg={6}>
+        <CustomBoxFullWidth>
+            <Grid container spacing={2}>
+                <Grid item xs={12}>
+                    <Stack
+                        sx={{
+                            borderRadius: '.3125rem',
+                            background: theme.palette.neutral[200],
+                            p: '1.5rem 1rem 1rem',
+                            height: '100%',
+                        }}
+                    >
                         <Grid container spacing={2}>
                             {configData?.deliveryman_additional_join_us_page_data?.data?.map(
                                 (item, index) => {
@@ -172,6 +326,7 @@ const AdditionalInformation = ({
                                                     <Grid
                                                         item
                                                         xs={12}
+                                                        md={6}
                                                         key={index}
                                                     >
                                                         <CustomTextFieldWithFormik
@@ -192,8 +347,8 @@ const AdditionalInformation = ({
                                                                 deliveryManFormik
                                                                     .touched
                                                                     .additional_data?.[
-                                                                    item
-                                                                        .input_data
+                                                                item
+                                                                    .input_data
                                                                 ]
                                                             }
                                                             errors={capitalize(
@@ -211,13 +366,13 @@ const AdditionalInformation = ({
                                                                 value
                                                             ) => {
                                                                 const updatedAdditionalData =
-                                                                    {
-                                                                        ...deliveryManFormik
-                                                                            .values
-                                                                            .additional_data,
-                                                                        [item.input_data]:
-                                                                            value,
-                                                                    }
+                                                                {
+                                                                    ...deliveryManFormik
+                                                                        .values
+                                                                        .additional_data,
+                                                                    [item.input_data]:
+                                                                        value,
+                                                                }
 
                                                                 deliveryManFormik.setFieldValue(
                                                                     'additional_data',
@@ -229,8 +384,8 @@ const AdditionalInformation = ({
                                                                 deliveryManFormik
                                                                     .values
                                                                     .additional_data?.[
-                                                                    item
-                                                                        .input_data
+                                                                item
+                                                                    .input_data
                                                                 ]
                                                             }
                                                             fontSize="14px"
@@ -242,19 +397,19 @@ const AdditionalInformation = ({
                                                                                 deliveryManFormik
                                                                                     .touched
                                                                                     .identity_number &&
-                                                                                !deliveryManFormik
-                                                                                    .errors
-                                                                                    .identity_number
+                                                                                    !deliveryManFormik
+                                                                                        .errors
+                                                                                        .identity_number
                                                                                     ? theme
-                                                                                          .palette
-                                                                                          .primary
-                                                                                          .main
+                                                                                        .palette
+                                                                                        .primary
+                                                                                        .main
                                                                                     : alpha(
-                                                                                          theme
-                                                                                              .palette
-                                                                                              .neutral[400],
-                                                                                          0.7
-                                                                                      ),
+                                                                                        theme
+                                                                                            .palette
+                                                                                            .neutral[400],
+                                                                                        0.7
+                                                                                    ),
                                                                             fontSize:
                                                                                 '18px',
                                                                         }}
@@ -272,6 +427,7 @@ const AdditionalInformation = ({
                                                     <Grid
                                                         item
                                                         xs={12}
+                                                        md={6}
                                                         key={index}
                                                         sx={{ pb: '16px' }}
                                                     >
@@ -283,8 +439,8 @@ const AdditionalInformation = ({
                                                                 deliveryManFormik
                                                                     .values
                                                                     .additional_data?.[
-                                                                    item
-                                                                        .input_data
+                                                                item
+                                                                    .input_data
                                                                 ]
                                                             }
                                                             // required={
@@ -300,15 +456,15 @@ const AdditionalInformation = ({
                                                                 value
                                                             ) => {
                                                                 const updatedAdditionalData =
-                                                                    {
-                                                                        ...deliveryManFormik
-                                                                            .values
-                                                                            .additional_data,
-                                                                        [item.input_data]:
-                                                                            formatPhoneNumber(
-                                                                                value
-                                                                            ),
-                                                                    }
+                                                                {
+                                                                    ...deliveryManFormik
+                                                                        .values
+                                                                        .additional_data,
+                                                                    [item.input_data]:
+                                                                        formatPhoneNumber(
+                                                                            value
+                                                                        ),
+                                                                }
 
                                                                 deliveryManFormik.setFieldValue(
                                                                     'additional_data',
@@ -322,8 +478,8 @@ const AdditionalInformation = ({
                                                                 deliveryManFormik
                                                                     .touched
                                                                     .additional_data?.[
-                                                                    item
-                                                                        .input_data
+                                                                item
+                                                                    .input_data
                                                                 ]
                                                             }
                                                             errors={capitalize(
@@ -344,7 +500,7 @@ const AdditionalInformation = ({
                                             )
                                         case 'date':
                                             return (
-                                                <Grid item xs={12} key={index}>
+                                                <Grid item xs={12} md={6} key={index}>
                                                     <Box
                                                         sx={{
                                                             position:
@@ -360,8 +516,8 @@ const AdditionalInformation = ({
                                                                 deliveryManFormik
                                                                     ?.values
                                                                     ?.additional_data?.[
-                                                                    item
-                                                                        ?.input_data
+                                                                item
+                                                                    ?.input_data
                                                                 ] || ''
                                                             }
                                                             borderRadius="10px"
@@ -384,19 +540,19 @@ const AdditionalInformation = ({
                                                                                     deliveryManFormik
                                                                                         .touched
                                                                                         .identity_number &&
-                                                                                    !deliveryManFormik
-                                                                                        .errors
-                                                                                        .identity_number
+                                                                                        !deliveryManFormik
+                                                                                            .errors
+                                                                                            .identity_number
                                                                                         ? theme
-                                                                                              .palette
-                                                                                              .primary
-                                                                                              .main
+                                                                                            .palette
+                                                                                            .primary
+                                                                                            .main
                                                                                         : alpha(
-                                                                                              theme
-                                                                                                  .palette
-                                                                                                  .neutral[400],
-                                                                                              0.7
-                                                                                          ),
+                                                                                            theme
+                                                                                                .palette
+                                                                                                .neutral[400],
+                                                                                            0.7
+                                                                                        ),
                                                                                 fontSize:
                                                                                     '18px',
                                                                             }}
@@ -406,91 +562,150 @@ const AdditionalInformation = ({
                                                             }}
                                                         />
 
+                                                        {/* Global dark-mode overrides for react-date-range */}
+                                                        <GlobalStyles
+                                                            styles={(theme) => {
+                                                                if (
+                                                                    theme.palette.mode !==
+                                                                    'dark'
+                                                                )
+                                                                    return {}
+                                                                const bg =
+                                                                    theme.palette
+                                                                        .background.paper
+                                                                const fg = '#fff'
+                                                                const muted =
+                                                                    'rgba(255,255,255,0.6)'
+                                                                const dim =
+                                                                    'rgba(255,255,255,0.3)'
+                                                                return {
+                                                                    '.rdrCalendarWrapper, .rdrDateDisplayWrapper, .rdrMonthAndYearWrapper, .rdrMonth, .rdrMonths, .rdrMonthsVertical, .rdrMonthsHorizontal':
+                                                                        {
+                                                                            backgroundColor: `${bg} !important`,
+                                                                            color: `${fg} !important`,
+                                                                        },
+                                                                    '.rdrMonthAndYearPickers select':
+                                                                        {
+                                                                            color: `${fg} !important`,
+                                                                            backgroundColor:
+                                                                                'transparent !important',
+                                                                        },
+                                                                    '.rdrMonthAndYearPickers select:hover':
+                                                                        {
+                                                                            backgroundColor:
+                                                                                'rgba(255,255,255,0.08) !important',
+                                                                        },
+                                                                    '.rdrMonthAndYearPickers select option':
+                                                                        {
+                                                                            backgroundColor: `${bg} !important`,
+                                                                            color: `${fg} !important`,
+                                                                        },
+                                                                    '.rdrNextPrevButton':
+                                                                        {
+                                                                            backgroundColor:
+                                                                                'rgba(255,255,255,0.08) !important',
+                                                                        },
+                                                                    '.rdrPprevButton i':
+                                                                        {
+                                                                            borderColor: `transparent ${fg} transparent transparent !important`,
+                                                                        },
+                                                                    '.rdrNextButton i':
+                                                                        {
+                                                                            borderColor: `transparent transparent transparent ${fg} !important`,
+                                                                        },
+                                                                    '.rdrWeekDay': {
+                                                                        color: `${muted} !important`,
+                                                                    },
+                                                                    '.rdrDayNumber span':
+                                                                        {
+                                                                            color: `${fg} !important`,
+                                                                        },
+                                                                    '.rdrDayPassive .rdrDayNumber span':
+                                                                        {
+                                                                            color: `${dim} !important`,
+                                                                        },
+                                                                    '.rdrDayDisabled':
+                                                                        {
+                                                                            backgroundColor:
+                                                                                'rgba(255,255,255,0.04) !important',
+                                                                        },
+                                                                    '.rdrDayDisabled .rdrDayNumber span':
+                                                                        {
+                                                                            color: `${dim} !important`,
+                                                                        },
+                                                                    '.rdrDayToday .rdrDayNumber span:after':
+                                                                        {
+                                                                            background: `${theme.palette.primary.main} !important`,
+                                                                        },
+                                                                    '.rdrSelected, .rdrInRange, .rdrStartEdge, .rdrEndEdge':
+                                                                        {
+                                                                            color: `${theme.palette.primary.main} !important`,
+                                                                        },
+                                                                }
+                                                            }}
+                                                        />
+
                                                         {/* Calendar for Date Selection */}
                                                         <Box
-                                                            ref={(el) =>
-                                                                (calendarRefs.current[
-                                                                    item.input_data
-                                                                ] = el)
-                                                            }
+                                                            ref={(el) => (calendarRefs.current[item.input_data] = el)}
                                                             sx={{
-                                                                position:
-                                                                    'absolute',
+                                                                position: 'absolute',
                                                                 zIndex: 1000,
+                                                                width: '300px',
+                                                                top: '50px',
                                                             }}
                                                         >
-                                                            {openCalendars[
-                                                                item.input_data
-                                                            ] && (
+                                                            {openCalendars[item.input_data] && (
                                                                 <Calendar
                                                                     date={
-                                                                        deliveryManFormik
-                                                                            ?.values
-                                                                            ?.additional_data?.[
-                                                                            item
-                                                                                ?.input_data
-                                                                        ]
+                                                                        deliveryManFormik?.values?.additional_data?.[item?.input_data]
                                                                             ? new Date(
-                                                                                  deliveryManFormik.values.additional_data?.[
-                                                                                      item?.input_data
-                                                                                  ]
-                                                                              )
+                                                                                deliveryManFormik.values.additional_data?.[item?.input_data]
+                                                                            )
                                                                             : new Date()
-                                                                    } // Prefill with Formik value or current date
-                                                                    onChange={(
-                                                                        date
-                                                                    ) =>
-                                                                        handleDateChange(
-                                                                            date,
-                                                                            item.input_data
-                                                                        )
-                                                                    } // Handle date change
-                                                                    color={(
-                                                                        theme
-                                                                    ) =>
-                                                                        theme
-                                                                            .palette
-                                                                            .primary
-                                                                    } // Primary color for the calendar selection
-                                                                    showMonthAndYearPickers // Show month/year picker for easier navigation
+                                                                    }
+                                                                    onChange={(date) => handleDateChange(date, item.input_data)}
+                                                                    color={(theme) => theme.palette.primary}
+                                                                    showMonthAndYearPickers
                                                                 />
                                                             )}
                                                         </Box>
+
                                                     </Box>
 
                                                     {deliveryManFormik.touched
                                                         .additional_data?.[
                                                         item.input_data
                                                     ] && (
-                                                        <Typography
-                                                            sx={{
-                                                                mt: '-15px',
-                                                                color: (
-                                                                    theme
-                                                                ) =>
-                                                                    theme
-                                                                        .palette
-                                                                        .error
-                                                                        .main,
-                                                                fontSize:
-                                                                    '12px',
-                                                            }}
-                                                        >
-                                                            {capitalize(
-                                                                deliveryManFormik.errors.additional_data?.[
-                                                                    item
-                                                                        .input_data
-                                                                ]
-                                                                    ?.split('_')
-                                                                    ?.join(' ')
-                                                            )}
-                                                        </Typography>
-                                                    )}
+                                                            <Typography
+                                                                sx={{
+                                                                    mt: '-15px',
+                                                                    color: (
+                                                                        theme
+                                                                    ) =>
+                                                                        theme
+                                                                            .palette
+                                                                            .error
+                                                                            .main,
+                                                                    fontSize:
+                                                                        '12px',
+                                                                }}
+                                                            >
+                                                                {capitalize(
+                                                                    deliveryManFormik.errors.additional_data?.[
+                                                                        item
+                                                                            .input_data
+                                                                    ]
+                                                                        ?.split('_')
+                                                                        ?.join(' ')
+                                                                )}
+                                                            </Typography>
+                                                        )}
                                                 </Grid>
                                             )
                                         case 'check_box':
                                             return (
-                                                <Grid item xs={12} key={index}>
+                                                <Grid item xs={12} md={6} key={index}>
                                                     <Typography
                                                         variant="h6"
                                                         sx={{
@@ -520,22 +735,22 @@ const AdditionalInformation = ({
                                                                         }
                                                                         sx={{
                                                                             '& .MuiFormControlLabel-asterisk':
-                                                                                {
-                                                                                    color: (
-                                                                                        theme
-                                                                                    ) =>
-                                                                                        theme
-                                                                                            .palette
-                                                                                            .error
-                                                                                            .main, // Change color to match the theme error color
-                                                                                },
+                                                                            {
+                                                                                color: (
+                                                                                    theme
+                                                                                ) =>
+                                                                                    theme
+                                                                                        .palette
+                                                                                        .error
+                                                                                        .main, // Change color to match the theme error color
+                                                                            },
                                                                             '& .MuiFormControlLabel-label':
-                                                                                {
-                                                                                    fontSize:
-                                                                                        '13px',
-                                                                                    fontWeight:
-                                                                                        'normal', // Adjust the font size here
-                                                                                },
+                                                                            {
+                                                                                fontSize:
+                                                                                    '13px',
+                                                                                fontWeight:
+                                                                                    'normal', // Adjust the font size here
+                                                                            },
 
                                                                             color: (
                                                                                 theme
@@ -596,7 +811,7 @@ const AdditionalInformation = ({
                                                                                                     item !==
                                                                                                     data
                                                                                             ) ||
-                                                                                                []
+                                                                                            []
                                                                                         )
                                                                                     }
                                                                                 }}
@@ -616,8 +831,24 @@ const AdditionalInformation = ({
                                 }
                             )}
                         </Grid>
-                    </Grid>
-                    <Grid item xs={12} lg={6}>
+                    </Stack>
+                </Grid>
+                <Grid item xs={12}>
+                    <Stack
+                        sx={{
+                            borderRadius: '.3125rem',
+                            background: theme.palette.neutral[200],
+                            p: '1.5rem 1rem 1rem',
+                            height: '100%',
+                        }}
+                    >
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            hidden
+                            accept=".jpg, .jpeg, .png, .pdf, .doc, .docx, .webp"
+                            onChange={handleFileUpload}
+                        />
                         {newFileTypes?.map((item, index) => {
                             switch (item.field_type) {
                                 case 'file':
@@ -632,6 +863,7 @@ const AdditionalInformation = ({
                                             >
                                                 <Stack
                                                     direction="row"
+                                                    flexWrap="wrap"
                                                     width="100%"
                                                     spacing={1}
                                                     alignItems="center"
@@ -645,9 +877,8 @@ const AdditionalInformation = ({
                                                         sx={{
                                                             fontWeight: '600',
                                                             fontSize: '14px',
-                                                            color: (theme) =>
-                                                                theme.palette
-                                                                    .neutral[500],
+                                                            color: theme.palette
+                                                                .text.primary,
                                                         }}
                                                     >
                                                         {t(
@@ -668,116 +899,339 @@ const AdditionalInformation = ({
                                                         }}
                                                     >
                                                         {t(
-                                                            'pdf, doc.image Less Than 1MB'
+                                                            'pdf, doc, image Less Than 1MB'
                                                         )}
                                                     </Typography>
                                                 </Stack>
-                                                {item.media_data
-                                                    ?.upload_multiple_files ===
-                                                0 ? (
-                                                    <>
+                                                <Stack
+                                                    direction="row"
+                                                    flexWrap="wrap"
+                                                    gap={2}
+                                                    width="100%"
+                                                >
+                                                    {(item.media_data
+                                                        ?.upload_multiple_files !==
+                                                        0 ||
+                                                        !deliveryManFormik.values[
+                                                        item.input_data
+                                                        ]) ? (
                                                         <Box
+                                                            onClick={() =>
+                                                                triggerFileSelect(
+                                                                    item.input_data,
+                                                                    null,
+                                                                    item
+                                                                        .media_data
+                                                                        ?.upload_multiple_files !==
+                                                                    0
+                                                                )
+                                                            }
                                                             sx={{
-                                                                width: {
+                                                                width: '100%',
+                                                                maxWidth: {
                                                                     xs: '100%',
-                                                                    md: '8.75rem',
+                                                                    md: '200px',
+                                                                },
+                                                                height: '100px',
+                                                                border: '2px dashed #aaa',
+                                                                borderRadius:
+                                                                    '8px',
+                                                                display: 'flex',
+                                                                flexDirection:
+                                                                    'column',
+                                                                alignItems:
+                                                                    'center',
+                                                                justifyContent:
+                                                                    'center',
+                                                                cursor: 'pointer',
+                                                                backgroundColor:
+                                                                    (theme) =>
+                                                                        theme
+                                                                            .palette
+                                                                            .neutral[100],
+                                                                '&:hover': {
+                                                                    backgroundColor:
+                                                                        (
+                                                                            theme
+                                                                        ) =>
+                                                                            theme
+                                                                                .palette
+                                                                                .neutral[200],
+                                                                    borderColor:
+                                                                        (
+                                                                            theme
+                                                                        ) =>
+                                                                            theme
+                                                                                .palette
+                                                                                .primary
+                                                                                .main,
                                                                 },
                                                             }}
                                                         >
-                                                            <ImageUploaderWithPreview
-                                                                type="file"
-                                                                labelText={t(
-                                                                    'Click to upload'
+                                                            <CloudUploadIcon
+                                                                sx={{
+                                                                    color: (
+                                                                        theme
+                                                                    ) =>
+                                                                        theme
+                                                                            .palette
+                                                                            .neutral[400],
+                                                                    fontSize:
+                                                                        '30px',
+                                                                }}
+                                                            />
+                                                            <Typography
+                                                                fontSize="12px"
+                                                                color="text.secondary"
+                                                            >
+                                                                {t(
+                                                                    'Select a file'
                                                                 )}
-                                                                file={
-                                                                    (deliveryManFormik
-                                                                        ?.values?.[
-                                                                        item
-                                                                            .input_data
-                                                                    ] &&
-                                                                        deliveryManFormik
-                                                                            ?.values?.[
-                                                                            item
-                                                                                .input_data
-                                                                        ]) ||
-                                                                    ''
-                                                                }
-                                                                onChange={
-                                                                    // singleFileUploadHandlerForImage
-                                                                    (value) => {
-                                                                        singleFileUploadHandlerForImage(
-                                                                            value,
-                                                                            index,
-                                                                            item.input_data
+                                                            </Typography>
+                                                            {/* <Typography
+                                                                fontSize="12px"
+                                                                fontWeight="600"
+                                                            >
+                                                                {t(
+                                                                    'Drag & Drop'
+                                                                )}
+                                                            </Typography> */}
+                                                        </Box>
+                                                    ) : null}
+
+
+
+                                                    {/* Render Multi Files */}
+                                                    {item.media_data
+                                                        ?.upload_multiple_files !==
+                                                        0 &&
+                                                        Array.isArray(
+                                                            deliveryManFormik
+                                                                .values[
+                                                            item.input_data
+                                                            ]
+                                                        ) &&
+                                                        deliveryManFormik.values[
+                                                            item.input_data
+                                                        ].map(
+                                                            (
+                                                                file,
+                                                                fileIndex
+                                                            ) => (
+                                                                <Box
+                                                                    key={
+                                                                        fileIndex
+                                                                    }
+                                                                    sx={{
+                                                                        width: '100%',
+                                                                        maxWidth:
+                                                                        {
+                                                                            xs: '100%',
+                                                                            md: '200px',
+                                                                        },
+                                                                        height: '100px',
+                                                                        border: '1px solid #ccc',
+                                                                        borderRadius:
+                                                                            '8px',
+                                                                        position:
+                                                                            'relative',
+                                                                        overflow:
+                                                                            'hidden',
+                                                                        backgroundColor:
+                                                                            (
+                                                                                theme
+                                                                            ) =>
+                                                                                theme
+                                                                                    .palette
+                                                                                    .background
+                                                                                    .paper,
+                                                                    }}
+                                                                >
+                                                                    <IconButton
+                                                                        size="small"
+                                                                        onClick={() =>
+                                                                            triggerFileSelect(
+                                                                                item.input_data,
+                                                                                fileIndex,
+                                                                                true
+                                                                            )
+                                                                        }
+                                                                        sx={{
+                                                                            position:
+                                                                                'absolute',
+                                                                            top: 5,
+                                                                            right: 5,
+                                                                            backgroundColor:
+                                                                                (
+                                                                                    theme
+                                                                                ) =>
+                                                                                    theme
+                                                                                        .palette
+                                                                                        .primary
+                                                                                        .main,
+                                                                            color: '#fff',
+                                                                            zIndex: 10,
+                                                                            '&:hover':
+                                                                            {
+                                                                                backgroundColor:
+                                                                                    (
+                                                                                        theme
+                                                                                    ) =>
+                                                                                        theme
+                                                                                            .palette
+                                                                                            .primary
+                                                                                            .dark,
+                                                                            },
+                                                                        }}
+                                                                    >
+                                                                        <EditIcon fontSize="small" />
+                                                                    </IconButton>
+                                                                    {isImageFile(
+                                                                        file
+                                                                    ) ? (
+                                                                        <Box
+                                                                            sx={{
+                                                                                width: '100%',
+                                                                                height: '100%',
+                                                                                display:
+                                                                                    'flex',
+                                                                                alignItems:
+                                                                                    'center',
+                                                                                justifyContent:
+                                                                                    'center',
+                                                                            }}
+                                                                            onClick={() =>
+                                                                                triggerFileSelect(
+                                                                                    item.input_data,
+                                                                                    fileIndex,
+                                                                                    true
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <img
+                                                                                src={getFileUrl(
+                                                                                    file
+                                                                                )}
+                                                                                alt="file"
+                                                                                style={{
+                                                                                    width: '100%',
+                                                                                    height: '100%',
+                                                                                    objectFit:
+                                                                                        'cover',
+                                                                                }}
+                                                                            />
+                                                                        </Box>
+                                                                    ) : (
+                                                                        renderPdfOrIcon(
+                                                                            file,
+                                                                            getFileUrl(
+                                                                                file
+                                                                            )
+                                                                        )
+                                                                    )}
+                                                                </Box>
+                                                            )
+                                                        )}
+
+                                                    {/* Render Single File */}
+                                                    {item.media_data
+                                                        ?.upload_multiple_files ===
+                                                        0 &&
+                                                        deliveryManFormik.values[
+                                                        item.input_data
+                                                        ] && (
+                                                            <Box
+                                                                sx={{
+                                                                    width: '100%',
+                                                                    maxWidth: {
+                                                                        xs: '100%',
+                                                                        md: '200px',
+                                                                    },
+                                                                    height: '100px',
+                                                                    border: '1px solid #ccc',
+                                                                    borderRadius: '8px',
+                                                                    position: 'relative',
+                                                                    overflow: 'hidden',
+                                                                    backgroundColor: (theme) =>
+                                                                        theme.palette.background.paper,
+                                                                }}
+                                                            >
+                                                                <IconButton
+                                                                    size="small"
+                                                                    onClick={() =>
+                                                                        triggerFileSelect(
+                                                                            item.input_data,
+                                                                            null,
+                                                                            false
                                                                         )
                                                                     }
-                                                                }
-                                                                imageOnChange={
-                                                                    imageOnchangeHandlerForImage
-                                                                }
-                                                                width="8.75rem"
-                                                                height="100px"
-                                                                error={
-                                                                    deliveryManFormik
-                                                                        .errors
-                                                                        .additional_documents
-                                                                }
-                                                                acceptedFileInput={
-                                                                    acceptedFileInputFormat.formatsForSingle
-                                                                }
-                                                            />
-                                                        </Box>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <MultiFileUploader
-                                                            delivery
-                                                            fileImagesHandler={(
-                                                                value
-                                                            ) => {
-                                                                // When files are uploaded, set the files in the corresponding Formik field
-                                                                deliveryManFormik.setFieldValue(
-                                                                    `${item.input_data}`,
-                                                                    value
-                                                                )
-                                                            }}
-                                                            totalFiles={
-                                                                (deliveryManFormik
-                                                                    ?.values?.[
-                                                                    item
-                                                                        .input_data
-                                                                ] &&
-                                                                    deliveryManFormik
-                                                                        ?.values?.[
-                                                                        item
-                                                                            .input_data
-                                                                    ]) ||
-                                                                ''
-                                                            }
-                                                            maxFileSize={
-                                                                20000000
-                                                            }
-                                                            supportedFileFormats={
-                                                                supportedFormatMultiImages
-                                                            }
-                                                            acceptedFileInput={
-                                                                acceptedFileInputFormat.formatsForMultiple
-                                                            }
-                                                            width="8.75rem"
-                                                            height="100px"
-                                                            gridControl="true"
-                                                        />
-                                                    </>
-                                                )}
+                                                                    sx={{
+                                                                        position: 'absolute',
+                                                                        top: 5,
+                                                                        right: 5,
+                                                                        backgroundColor: (theme) =>
+                                                                            theme.palette.primary.main,
+                                                                        color: '#fff',
+                                                                        zIndex: 10,
+                                                                        '&:hover': {
+                                                                            backgroundColor: (theme) =>
+                                                                                theme.palette.primary.dark,
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    <EditIcon fontSize="small" />
+                                                                </IconButton>
+                                                                {isImageFile(
+                                                                    deliveryManFormik.values[item.input_data]
+                                                                ) ? (
+                                                                    <Box
+                                                                        sx={{
+                                                                            width: '100%',
+                                                                            height: '100%',
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            justifyContent: 'center',
+                                                                        }}
+                                                                        onClick={() =>
+                                                                            triggerFileSelect(
+                                                                                item.input_data,
+                                                                                null,
+                                                                                false
+                                                                            )
+                                                                        }
+                                                                    >
+                                                                        <img
+                                                                            src={getFileUrl(
+                                                                                deliveryManFormik.values[item.input_data]
+                                                                            )}
+                                                                            alt="file"
+                                                                            style={{
+                                                                                width: '100%',
+                                                                                height: '100%',
+                                                                                objectFit: 'cover',
+                                                                            }}
+                                                                        />
+                                                                    </Box>
+                                                                ) : (
+                                                                    renderPdfOrIcon(
+                                                                        deliveryManFormik.values[item.input_data],
+                                                                        getFileUrl(
+                                                                            deliveryManFormik.values[item.input_data]
+                                                                        )
+                                                                    )
+                                                                )}
+                                                            </Box>
+                                                        )}
+                                                </Stack>
                                             </Stack>
                                         </>
                                     )
                             }
                         })}
-                    </Grid>
+                    </Stack>
                 </Grid>
-            </CustomBoxFullWidth>
-        </>
+            </Grid>
+        </CustomBoxFullWidth>
     )
 }
 

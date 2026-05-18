@@ -37,7 +37,9 @@ const SuggestedCuisines = ({ routeHandler }) => {
                                             borderRadius="50%"
                                             objectFit="cover"
                                         />
-                                        <Typography>{item?.name}</Typography>
+                                        <Typography fontSize="13px" fontWeight="600">
+                                            {item?.name}
+                                        </Typography>
                                     </Stack>
                                 )
                             })}

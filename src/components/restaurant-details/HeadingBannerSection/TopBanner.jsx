@@ -16,7 +16,7 @@ import { onErrorResponse } from '../../ErrorResponse'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
 
-const TopBanner = ({ details, isHidden, removeStickyBanner }) => {
+const TopBanner = ({ details, isHidden, removeStickyBanner, isCategoryBarSticky }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
@@ -54,8 +54,10 @@ const TopBanner = ({ details, isHidden, removeStickyBanner }) => {
         autoplaySpeed: 2000,
     }
 
-    const hasCoupon = data?.data?.length > 0
-    const showRightSection = hasCoupon ? scrollPosition <= threshold : true
+    // On mobile, never collapse the banner — let it scroll naturally with the page.
+    // Sticky/fixed banner behavior is desktop-only.
+    const showRightSection = isXSmall ? true : scrollPosition <= threshold
+    const isFixedBanner = !isXSmall && !showRightSection
 
     // Update CSS custom property for banner height
     useEffect(() => {
@@ -72,28 +74,35 @@ const TopBanner = ({ details, isHidden, removeStickyBanner }) => {
 
     return (
         <>
-            <Box minHeight={{ xs: data?.data?.length > 1?400:350, sm: 450, md: 250 }}>
+            <Box
+                minHeight={
+                    isXSmall
+                        ? 'auto'
+                        : showRightSection
+                        ? { sm: 450, md: 250 }
+                        : { sm: 110, md: 110 }
+                }
+                sx={{ transition: 'min-height 0.2s ease' }}
+            >
                 <Box
                     ref={bannerRef}
-                    className={!showRightSection && 'fadeInTop'}
+                    className={isFixedBanner ? 'fadeInTop' : undefined}
                     sx={{
                         transition: 'all 0.25s ease',
-                        position: showRightSection ? 'static' : 'fixed',
-                        top: isXSmall
-                            ? removeStickyBanner
-                                ? 'calc(-163px)'
-                                : '10px'
-                            : isHidden
-                            ? removeStickyBanner
-                                ? 'calc(-163px)'
+                        position: isFixedBanner ? 'fixed' : 'static',
+                        top: isFixedBanner
+                            ? isHidden
+                                ? removeStickyBanner
+                                    ? 'calc(-163px)'
+                                    : isSmall
+                                    ? '48px'
+                                    : '60px'
+                                : removeStickyBanner
+                                ? 'calc(163px + 58px * -1)'
                                 : isSmall
-                                ? '48px'
-                                : '63px'
-                            : removeStickyBanner
-                            ? 'calc(163px + 58px * -1)'
-                            : isSmall
-                            ? 'calc(48px)'
-                            : 'calc(63px + 58px)',
+                                ? 'calc(48px)'
+                                : 'calc(45px + 58px)'
+                            : 'auto',
                         insetInlineStart: 0,
                         zIndex: 100,
                         width: '100%',

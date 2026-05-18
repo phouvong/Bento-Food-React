@@ -231,9 +231,14 @@ export const CustomChip = styled(Chip)(
                 : theme.palette.customColor.two,
             color: theme.palette.whiteContainer.main,
             borderRadius: discount ? '0 4px 4px 0' : '6px',
-            fontSize: '14px',
+            fontSize: {
+                xs: '10px',
+                sm: '10px',
+                md:'14px'
+            }
+            ,
             fontWeight: 400,
-            paddingInline: '5px',
+            paddingInline: '8px 5px',
             marginBottom: 'auto',
             marginTop: 'auto',
         },

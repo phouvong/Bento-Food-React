@@ -4,6 +4,7 @@ import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import ChatIcon from '@mui/icons-material/Chat'
 import LockIcon from '@mui/icons-material/Lock'
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined'
+import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded'
 import { Avatar, Box, ButtonBase, NoSsr, Stack, styled } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 import Toolbar from '@mui/material/Toolbar'
@@ -59,16 +60,11 @@ export const getSelectedVariations = (variations) => {
     return selectedItem
 }
 
-export const CustomNavBox = styled(Box)(({ theme, isSticky }) => ({
+export const CustomNavBox = styled(Box)(({ theme }) => ({
     background: theme.palette.navbarBg,
     boxShadow: '0px 5px 15px 0px rgba(0, 0, 0, 0.05)',
-    transition: 'opacity 0.3s ease, transform 0.3s ease',
-    opacity: isSticky ? 0 : 1,
-    display: isSticky ? 'none' : 'block',
-    transform: isSticky ? 'translateY(-20px)' : 'translateY(0)',
-    pointerEvents: isSticky ? 'none' : 'auto', // optional to prevent clicks
 }))
-const SecondNavbar = ({ isSticky, cartListRefetch }) => {
+const SecondNavbar = ({ cartListRefetch }) => {
     const [modalFor, setModalFor] = useState('sign-in')
     const [openSearchBox, setOpenSearchBox] = useState(false)
     const [authModalOpen, setOpen] = useState(false)
@@ -90,7 +86,7 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
     const { countryCode, language } = useSelector(
         (state) => state.languageChange
     )
-    const businessLogo = global?.fav_icon_full_url
+    const businessLogo = global?.logo_full_url
 
     const handleOpenPopover = () => {
         setOpenPopover(true)
@@ -137,7 +133,8 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
             dispatch(setOfflineWithPartials(false))
         }
     }, [router.pathname])
-
+    console.log({userData});
+    
     const handleAuthBasedOnRoute = () => {
         return (
             <RTL direction={languageDirection}>
@@ -146,28 +143,20 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
                         <SignInButton
                             onClick={handleOpenAuthModal}
                             variant="contained"
+                            startIcon={
+                                <PersonOutlineRoundedIcon sx={{ fontSize: '20px !important' }} />
+                            }
                         >
-                            <CustomStackFullWidth
-                                direction={
-                                    languageDirection === 'rtl'
-                                        ? 'row'
-                                        : 'row-reverse'
-                                }
-                                alignItems="center"
-                                spacing={1}
+                            <CustomTypography
+                                sx={{
+                                    color: (theme) =>
+                                        theme.palette.whiteContainer.main,
+                                    fontSize: '14px',
+                                    fontWeight: 600,
+                                }}
                             >
-                                <CustomTypography
-                                    sx={{
-                                        color: (theme) =>
-                                            theme.palette.whiteContainer.main,
-                                        borderRadius: '10px',
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                    }}
-                                >
-                                    {t('Sign In')}
-                                </CustomTypography>
-                            </CustomStackFullWidth>
+                                {t('Sign In')}
+                            </CustomTypography>
                         </SignInButton>
                         <AuthModal
                             cartListRefetch={cartListRefetch}
@@ -228,7 +217,7 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
                                         width: 30,
                                         backgroundColor: userData?.image
                                             ? (theme) =>
-                                                theme.palette.neutral[100]
+                                                theme.palette.neutral[500]
                                             : (theme) =>
                                                 theme.palette.neutral[400],
                                     }}
@@ -248,9 +237,79 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
         )
     }
     const handleShowSearch = () => {
-        if ((router.pathname === '/home' && location) || openSearchBox) {
+        if (location) {
             return (
-                <Box sx={{ minWidth: '450px', marginInlineEnd: '20px' }}>
+                <Box
+                    sx={{
+                        width: '100%',
+                        maxWidth: '560px',
+                        '& form': { width: '100%' },
+                        '& form > div': {
+                            background: 'transparent !important',
+                            border: 'none !important',
+                        },
+                        '& .MuiInputBase-root': {
+                            borderRadius: '999px',
+                            backgroundColor: (theme) =>
+                                `${theme.palette.mode === 'dark'
+                                    ? theme.palette.background.paper
+                                    : '#FFFFFF'} !important`,
+                            border: (theme) =>
+                                `1px solid ${theme.palette.mode === 'dark'
+                                    ? 'rgba(255,255,255,0.12)'
+                                    : '#E2E8F0'}`,
+                            paddingInline: '14px',
+                            height: '40px',
+                            gap: '10px',
+                            boxShadow: '0 1px 2px rgba(15,23,42,0.04)',
+                            transition: 'border-color .2s ease, box-shadow .2s ease',
+                        },
+                        '& .MuiInputBase-root:hover': {
+                            borderColor: (theme) =>
+                                theme.palette.primary.main,
+                        },
+                        '& .MuiInputBase-root.Mui-focused, & .MuiInputBase-root:focus-within': {
+                            borderColor: (theme) =>
+                                theme.palette.primary.main,
+                            boxShadow: '0 0 0 4px rgba(255,117,24,.14)',
+                        },
+                        '& .MuiInputBase-input': {
+                            padding: '0 !important',
+                            fontSize: '14px !important',
+                            color: (theme) =>
+                                theme.palette.mode === 'dark'
+                                    ? '#fff'
+                                    : '#0F172A',
+                            height: 'auto !important',
+                        },
+                        '& .MuiInputBase-input::placeholder': {
+                            color: '#94A3B8',
+                            opacity: 1,
+                        },
+                        '& .MuiSvgIcon-root': {
+                            color: '#94A3B8',
+                        },
+                        '& .MuiInputAdornment-positionStart .MuiSvgIcon-root': {
+                            fontSize: '20px',
+                        },
+                        '& .MuiInputAdornment-positionEnd .MuiIconButton-root': {
+                            width: 28,
+                            height: 28,
+                            backgroundColor: '#FFF4EC',
+                            '& .MuiSvgIcon-root': {
+                                color: (theme) => theme.palette.primary.main,
+                                fontSize: '16px',
+                            },
+                            '&:hover': {
+                                backgroundColor: (theme) =>
+                                    theme.palette.primary.main,
+                                '& .MuiSvgIcon-root': {
+                                    color: '#fff',
+                                },
+                            },
+                        },
+                    }}
+                >
                     <SearchBox
                         query={query}
                         setOpenSearchBox={setOpenSearchBox}
@@ -265,7 +324,10 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
             return (
                 <Stack
                     onClick={(e) => handleSearchBoxOpen(e)}
-                    sx={{ transition: 'all ease .4s' }}
+                    sx={{
+                        transition: 'all ease .4s',
+                        marginInlineStart: 'auto',
+                    }}
                 >
                     <CustomNavSearchIcon>
                         <SearchOutlinedIcon
@@ -279,82 +341,99 @@ const SecondNavbar = ({ isSticky, cartListRefetch }) => {
     }
 
     return (
-        <CustomNavBox isSticky={isSticky}>
+        <CustomNavBox>
             <CustomContainer>
-                <Toolbar disableGutters={true}>
-                    <CustomStackFullWidth
+                <Toolbar
+                    disableGutters={true}
+                    sx={{ minHeight: { xs: 58, md: 58 } }}
+                >
+                    <Stack
                         ref={searchBoxRef}
                         direction="row"
-                        justifyContent="space-between"
                         alignItems="center"
+                        spacing={{ xs: 1.5, md: 3 }}
+                        sx={{ width: '100%', minHeight: { xs: 58, md: 58 } }}
                     >
+                        {/* 1. Logo + business name */}
                         <Stack
                             direction="row"
                             alignItems="center"
-                            justifyContent="center"
-                            gap="1rem"
+                            spacing={1}
+                            onClick={() => {
+                                const hasLocation =
+                                    typeof window !== 'undefined' &&
+                                    Boolean(localStorage.getItem('location'))
+                                router.push(hasLocation ? '/home' : '/')
+                            }}
+                            sx={{ cursor: 'pointer', flexShrink: 0 }}
                         >
-                            {!location && router.pathname === '/' && (
-                                <LogoSide
-                                    global={global}
-                                    width="unset"
-                                    businessLogo={businessLogo}
-                                />
-                            )}
-                            {/* {!location && (
-                                <AddressReselect
-                                    location={location}
-                                    userLocationUpdate={userLocationUpdate}
-                                />
-                            )} */}
-                            {!isSmall && (router.pathname !== '/' || location) && (
+                            <Box
+                                sx={{
+                                    height: '36px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    flexShrink: 0,
+                                }}
+                            >
+                                {businessLogo ? (
+                                    <Box
+                                        component="img"
+                                        src={businessLogo}
+                                        alt="logo"
+                                        sx={{
+                                            height: '100%',
+                                            width: 'auto',
+                                            objectFit: 'contain',
+                                        }}
+                                    />
+                                ) : null}
+                            </Box>
+                        </Stack>
+
+                        {/* 2. Nav links */}
+                        {!isSmall && (
+                            <Box sx={{ flexShrink: 0 }}>
                                 <NavLinks
                                     languageDirection={languageDirection}
                                     t={t}
                                     zoneid={zoneid}
                                 />
-                            )}
-                        </Stack>
-                        <Stack direction="row" alignItems="center">
-                            {handleShowSearch()}
-                            {!isSmall && !location && router.pathname === '/' && (
-                                <Stack flexDirection="row" alignItems="center">
-                                    <Stack
-                                        direction="row"
-                                        spacing={2}
-                                        justifyContent="end"
-                                        mr="15px"
-                                    >
-                                        <ThemeSwitches />
-                                    </Stack>
-
-                                </Stack>
-                            )}
-                            <Box>
-                                <CustomLanguage
-                                    countryCode={countryCode}
-                                    language={language}
-                                    noLocation
-                                />
                             </Box>
+                        )}
+
+                        {/* 3. Search — grows, right-aligned for constant gap to auth */}
+                        <Box
+                            sx={{
+                                flex: 1,
+                                display: 'flex',
+                                justifyContent: 'flex-end',
+                                minWidth: 0,
+                            }}
+                        >
+                            {handleShowSearch()}
+                        </Box>
+
+                        {/* 4. Auth / Sign-in / Avatar — right */}
+                        <Stack
+                            direction="row"
+                            alignItems="center"
+                            spacing={1}
+                            sx={{ flexShrink: 0 }}
+                        >
+                            {!isSmall && !location && router.pathname === '/' && (
+                                <ThemeSwitches />
+                            )}
                             <Box
                                 sx={{
                                     display: { xs: 'none', md: 'flex' },
-                                    flexGrow: 0,
                                     height: '40px',
                                     alignItems: 'center',
                                 }}
                             >
                                 {handleAuthBasedOnRoute()}
                             </Box>
-                            {/* {!isSmall && location && (
-                                <CustomLanguage
-                                    countryCode={countryCode}
-                                    language={language}
-                                />
-                            )} */}
                         </Stack>
-                    </CustomStackFullWidth>
+                    </Stack>
                 </Toolbar>
             </CustomContainer>
         </CustomNavBox>

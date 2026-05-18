@@ -667,9 +667,9 @@ const RestaurantFilterCard = (props) => {
         <WrapperForSideDrawerFilter
             sx={{
                 p: '16px !important',
-                width: { xs: '200px', sm: '280px' },
-                minWidth: { xs: '176px', sm: '176px' },
-                maxWidth: { xs: '200px', sm: '300px' },
+                width: { xs: '250px', sm: '280px' },
+                minWidth: { xs: '250px', sm: '176px' },
+                maxWidth: { xs: '300px', sm: '300px' },
                 maxHeight: '78vh',
                 overflowY: 'auto',
                 backgroundColor: theme.palette.background.paper,

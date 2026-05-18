@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from 'react'
-import { alpha, Grid, Stack, Typography } from '@mui/material'
-import CustomImageContainer from '@/components/CustomImageContainer'
+import React, { useEffect, useRef } from 'react'
+import { alpha, Box, Grid, Stack, Typography } from '@mui/material'
 import { t } from 'i18next'
 import { useTheme } from '@mui/styles'
 import {
-    CustomButton,
     CustomStackFullWidth,
     SliderCustom,
 } from '@/styled-components/CustomStyles.style'
@@ -12,19 +10,18 @@ import { PrimaryButton } from '@/components/products-page/FoodOrRestaurant'
 import { useQuery } from 'react-query'
 import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
 import { onErrorResponse } from '@/components/ErrorResponse'
-import { HandleNext, HandlePrev } from '@/components/CustomSliderIcon'
 import Slider from 'react-slick'
 import Skeleton from '@mui/material/Skeleton'
-import FoodCardShimmer from '@/components/food-card/FoodCarShimmer'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import RestaurantBoxCard from '@/components/restaurant-details/RestaurantBoxCard'
 import { useRouter } from 'next/router'
 import dineInImage from '../../../../public/dinein.png'
 import CustomNextImage from '@/components/CustomNextImage'
+import SliderSectionHeader from '@/components/slider-section-header/SliderSectionHeader'
 const DineIn = () => {
     const theme = useTheme()
     const router = useRouter()
-    const [hoverOn, setHoverOn] = useState(false)
+    const sliderRef = useRef(null)
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const languageDirection = localStorage.getItem('direction')
     const {
@@ -53,8 +50,7 @@ const DineIn = () => {
         slidesToShow: 3.4,
         slidesToScroll: 1,
         initialSlide: 0,
-        nextArrow: hoverOn && <HandleNext overLay={true} />,
-        prevArrow: hoverOn && <HandlePrev />,
+        arrows: false,
         infinite: false,
         responsive: [
             {
@@ -177,153 +173,140 @@ const DineIn = () => {
         )
     }
 
+    if (!isLoading && !newRestuarants?.data?.restaurants?.length) return null
+
     return (
-        <Grid
-            container
-            spacing={3}
-            paddingTop={newRestuarants?.data?.restaurants?.length > 0 && '40px'}
-        >
-            {newRestuarants?.data?.restaurants?.length > 0 && (
-                <Grid item xs={12} md={3}>
-                    <Stack
-                        width="100%"
-                        backgroundColor={alpha(theme.palette.primary.main, 0.1)}
-                        justifyContent="center"
-                        alignItems="center"
-                        spacing={2}
-                        borderRadius="10px"
-                        padding="20px"
+        <Grid container spacing={3}>
+            <Grid item xs={12} md={3}>
+                <Stack
+                    width="100%"
+                    backgroundColor={alpha(theme.palette.primary.main, 0.1)}
+                    justifyContent="center"
+                    alignItems="center"
+                    spacing={2}
+                    borderRadius="10px"
+                    padding="20px"
+                >
+                    <CustomNextImage
+                        src={dineInImage?.src}
+                        width="116"
+                        height="90"
+                    />
+                    <Typography
+                        color={theme.palette.neutral[1000]}
+                        fontSize="18px"
+                        fontWeight="600"
+                        component="h2"
                     >
-                        <CustomNextImage
-                            src={dineInImage?.src}
-                            width="116"
-                            height="90"
-                        />
-                        <Typography
-                            color={theme.palette.neutral[1000]}
-                            fontSize="18px"
-                            fontWeight="600"
-                            component="h2"
-                        >
-                            {t('Want to Dine in?')}
-                        </Typography>
-                        <PrimaryButton
-                            backgroundColor={theme.palette.primary.main}
-                            variant="contained"
-                            onClick={handleClick}
-                            sx={{
-                                padding:"4px 10px",
-                                fontWeight:"500",
-                                '&:hover': {
-                                    backgroundColor: theme=>theme.palette.neutral[100],
-                                    color:theme=>theme.palette.primary.main
+                        {t('Want to Dine in?')}
+                    </Typography>
+                    <PrimaryButton
+                        backgroundColor={theme.palette.primary.main}
+                        variant="contained"
+                        onClick={handleClick}
+                        sx={{
+                            padding: '4px 10px',
+                            fontWeight: '500',
+                            '&:hover': {
+                                backgroundColor: (theme) =>
+                                    theme.palette.neutral[100],
+                                color: (theme) => theme.palette.primary.main,
+                            },
+                        }}
+                    >
+                        {t('View Restaurants')}
+                    </PrimaryButton>
+                </Stack>
+            </Grid>
 
-                                },
-                            }}
+            <Grid item xs={12} md={9}>
+                <SliderSectionHeader
+                    title={t('Dine-in Restaurants')}
+                    sliderRef={sliderRef}
+                    itemsCount={newRestuarants?.data?.restaurants?.length}
+                    sx={{ mb: { xs: 1, md: 1.5 } }}
+                />
+                <CustomStackFullWidth>
+                    <SliderCustom
+                        languageDirection={languageDirection}
+                        gap="16px"
+                        paddingBottom={isSmall ? '10px' : '20px'}
+                    >
+                        <Slider
+                            {...settings}
+                            ref={isLoading ? null : sliderRef}
                         >
-                            {t('View Restaurants')}
-                        </PrimaryButton>
-                    </Stack>
-                </Grid>
-            )}
-
-            <Grid
-                item
-                xs={12}
-                md={9}
-                onMouseEnter={() => setHoverOn(true)}
-                onMouseLeave={() => setHoverOn(false)}
-            >
-                {!isLoading ? (
-                    <CustomStackFullWidth>
-                        <SliderCustom
-                            languageDirection={languageDirection}
-                            gap="12px"
-                            paddingBottom={isSmall ? '10px' : '20px'}
-                        >
-                            <Slider {...settings}>
-                                {newRestuarants?.data?.restaurants?.map(
-                                    (restaurantData) => {
-                                        return (
-                                            <Stack>
-                                                <RestaurantBoxCard
-                                                    key={restaurantData?.id}
-                                                    id={restaurantData.id}
-                                                    image={
-                                                        restaurantData?.cover_photo_full_url
-                                                    }
-                                                    name={restaurantData?.name}
-                                                    rating={
-                                                        restaurantData?.avg_rating
-                                                    }
-                                                    restaurantImageUrl={
-                                                        global?.base_urls
-                                                            ?.restaurant_cover_photo_url
-                                                    }
-                                                    restaurantDiscount={
-                                                        restaurantData.discount &&
-                                                        restaurantData.discount
-                                                    }
-                                                    freeDelivery={
-                                                        restaurantData.free_delivery
-                                                    }
-                                                    open={restaurantData?.open}
-                                                    active={
-                                                        restaurantData?.active
-                                                    }
-                                                    delivery_time={
-                                                        restaurantData?.delivery_time
-                                                    }
-                                                    cuisines={
-                                                        restaurantData?.cuisine
-                                                    }
-                                                    coupons={
-                                                        restaurantData?.coupons
-                                                    }
-                                                    slug={restaurantData?.slug}
-                                                    zone_id={
-                                                        restaurantData?.zone_id
-                                                    }
-                                                    rating_count={
-                                                        restaurantData?.rating_count
-                                                    }
-                                                    opening_time={
-                                                        restaurantData?.current_opening_time
-                                                    }
-                                                    characteristics={
-                                                        restaurantData?.characteristics
-                                                    }
-                                                    dine_in="dine_in"
-                                                />
-                                            </Stack>
-                                        )
-                                    }
-                                )}
-                            </Slider>
-                        </SliderCustom>
-                    </CustomStackFullWidth>
-                ) : (
-                    <Stack marginTop="40px" spacing={2}>
-                        <Skeleton
-                            variant="rectangular"
-                            width="40%"
-                            height="20px"
-                        />
-                        <SliderCustom
-                            languageDirection={languageDirection}
-                            gap="12px"
-                            paddingBottom={isSmall ? '10px' : '20px'}
-                        >
-                            <Slider {...settings}>
-                                <FoodCardShimmer />
-                                <FoodCardShimmer />
-                                <FoodCardShimmer />
-                                <FoodCardShimmer />
-                                <FoodCardShimmer />
-                            </Slider>
-                        </SliderCustom>
-                    </Stack>
-                )}
+                            {isLoading
+                                ? [...Array(4)].map((_, i) => (
+                                      <Box key={i} sx={{ px: '4px' }}>
+                                          <Skeleton
+                                              variant="rectangular"
+                                              animation="wave"
+                                              sx={{
+                                                  width: '100%',
+                                                  height: '225px',
+                                                  borderRadius: '5px',
+                                              }}
+                                          />
+                                      </Box>
+                                  ))
+                                : newRestuarants?.data?.restaurants?.map(
+                                      (restaurantData) => (
+                                          <Stack key={restaurantData?.id}>
+                                              <RestaurantBoxCard
+                                                  id={restaurantData.id}
+                                                  image={
+                                                      restaurantData?.cover_photo_full_url
+                                                  }
+                                                  name={restaurantData?.name}
+                                                  rating={
+                                                      restaurantData?.avg_rating
+                                                  }
+                                                  restaurantImageUrl={
+                                                      global?.base_urls
+                                                          ?.restaurant_cover_photo_url
+                                                  }
+                                                  restaurantDiscount={
+                                                      restaurantData.discount &&
+                                                      restaurantData.discount
+                                                  }
+                                                  freeDelivery={
+                                                      restaurantData.free_delivery
+                                                  }
+                                                  open={restaurantData?.open}
+                                                  active={
+                                                      restaurantData?.active
+                                                  }
+                                                  delivery_time={
+                                                      restaurantData?.delivery_time
+                                                  }
+                                                  cuisines={
+                                                      restaurantData?.cuisine
+                                                  }
+                                                  coupons={
+                                                      restaurantData?.coupons
+                                                  }
+                                                  slug={restaurantData?.slug}
+                                                  zone_id={
+                                                      restaurantData?.zone_id
+                                                  }
+                                                  rating_count={
+                                                      restaurantData?.rating_count
+                                                  }
+                                                  opening_time={
+                                                      restaurantData?.current_opening_time
+                                                  }
+                                                  characteristics={
+                                                      restaurantData?.characteristics
+                                                  }
+                                                  dine_in="dine_in"
+                                              />
+                                          </Stack>
+                                      )
+                                  )}
+                        </Slider>
+                    </SliderCustom>
+                </CustomStackFullWidth>
             </Grid>
         </Grid>
     )

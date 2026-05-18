@@ -28,7 +28,7 @@ const FoodCategories = ({ category_section }) => {
     const searchKey = ''
 
     const { data, refetch: refetchCategories } = useQuery(
-        ['category'],
+        ['category', searchKey],
         () => CategoryApi.categories(searchKey),
         {
             enabled: false,

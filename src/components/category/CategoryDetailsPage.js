@@ -51,7 +51,6 @@ const CategoryDetailsPage = ({
     const [highestPrice, setHighestPrice] = useState(0)
     const open = Boolean(anchorEl)
     const [checkedFilterKey, setCheckedFilterKey] = useState(mockData)
-    const activeFilters = checkedFilterKey?.filter((item) => item?.isActive)
     const { foodOrRestaurant } = useSelector((state) => state.searchFilterStore)
     const [forFilter, setForFilter] = useState(false)
     const [isFirstRender, setIsFirstRender] = useState(true)
@@ -111,6 +110,7 @@ const CategoryDetailsPage = ({
     const handleDropClose = () => {
         setAnchorEl(null)
     }
+    const activeFilters = checkedFilterKey?.filter((item) => item?.isActive)
     useEffect(() => {
         handleFilterData(
             checkedFilterKey,
@@ -165,6 +165,22 @@ const CategoryDetailsPage = ({
             rating: 0,
         })
     }
+
+    // Reset filters when category changes
+    const isInitialMount = useRef(true)
+    useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false
+            return
+        }
+        const resetData = mockData.map((item) => ({
+            ...item,
+            isActive: false,
+        }))
+        setCheckedFilterKey(resetData)
+        setPriceAndRating({ price: [], rating: 0 })
+        setOffset(1)
+    }, [id])
 
     const handleCategoryClick = (category) => {
         router.push(
@@ -233,7 +249,8 @@ const CategoryDetailsPage = ({
     return (
         <NoSsr>
             <Grid container spacing={{ xs: 1, sm: 3, md: 2 }}>
-                <Grid item md={12} sm={12} xs={12} align="center">
+                {false && (
+                <Grid item md={12} sm={12} xs={12} align="center" key="category-top-slider-removed">
                     {allCategories?.data?.length > 0 && (
                         <Box
                             sx={{
@@ -375,6 +392,7 @@ const CategoryDetailsPage = ({
                         </Box>
                     )}
                 </Grid>
+                )}
                 <Grid item xs={12} sm={12} md={12} align="center">
                     <NoSsr>
                         <CustomStackFullWidth
@@ -407,21 +425,33 @@ const CategoryDetailsPage = ({
                                 : 'flex-end'
                         }
                         alignItems="center"
+                        gap={{ xs: 1, sm: 1.5 }}
+                        sx={{ minWidth: 0 }}
                     >
                         {catetoryMenus?.length > 0 && (
-                            <FoodNavigation
-                                catetoryMenus={catetoryMenus}
-                                setCategoryId={setCategoryId}
-                                category_id={category_id}
-                                id={id}
-                            />
+                            <Box
+                                sx={{
+                                    flex: 1,
+                                    minWidth: 0,
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                <FoodNavigation
+                                    catetoryMenus={catetoryMenus}
+                                    setCategoryId={setCategoryId}
+                                    category_id={category_id}
+                                    id={id}
+                                />
+                            </Box>
                         )}
                         {catetoryMenus?.length > 0  && (
-                            <FilterButton
-                                id="fade-button"
-                                handleClick={handleDropClick}
-                                activeFilters={activeFilters}
-                            />
+                            <Box sx={{ flexShrink: 0 }}>
+                                <FilterButton
+                                    id="fade-button"
+                                    handleClick={handleDropClick}
+                                    activeFilters={activeFilters}
+                                />
+                            </Box>
                         )}
                     </CustomStackFullWidth>
                 </Grid>
@@ -433,7 +463,7 @@ const CategoryDetailsPage = ({
                     container
                     spacing={{
                         xs: 1,
-                        md: foodOrRestaurant === 'products' ? 2 : 4,
+                        md: 2,
                     }}
                 >
                     {foodOrRestaurant === 'products' &&
@@ -462,7 +492,7 @@ const CategoryDetailsPage = ({
                                 <RestaurantsData
                                     resData={resData}
                                     offset={offset}
-                                    page_limit={page_limit}
+                                    page_limit={20}
                                     setOffset={setOffset}
                                     global={global}
                                 />

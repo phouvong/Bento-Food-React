@@ -41,13 +41,13 @@ const RegularOrders = ({ orderType }) => {
                         spacing={2}
                         mt={index !== 0 && '1rem'}
                     >
-                        <Stack position="relative">
+                        <Stack position="relative" sx={{ flexShrink: 0 }}>
                             <CustomNextImage
                                 height="90"
                                 width="90"
                                 src={item.image_full_url}
                                 borderRadius="10px"
-                                objectFit={item.image_full_url?"cover":"contain"}
+                                objectFit={item.image_full_url ? "cover" : "contain"}
 
                             />
                             <Stack
@@ -79,6 +79,7 @@ const RegularOrders = ({ orderType }) => {
                         </Stack>
                         <Stack
                             paddingRight={languageDirection === 'rtl' && '10px'}
+                            sx={{ overflow: 'hidden' }}
                         >
                             <OrderFoodName>{item.name}</OrderFoodName>
                             {item?.variations?.length > 0 && (

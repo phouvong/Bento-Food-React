@@ -26,19 +26,20 @@ const SearchFilterWithResults = ({
     restaurantType,
     filterData,
 }) => {
-   // console.log({isLoading});
+
+    console.log({isLoading,isNetworkCalling});
     
     return (
         <CustomStackFullWidth
             spacing={2}
             sx={{
                 minHeight: '53vh',
-                marginTop: page || restaurantType ? '0px' : '20px',
+                marginTop: page || restaurantType ? '0px' : '0px',
             }}
         >
             <Grid container gap="15px">
                 <Grid item xs={12} sm={12} md={12} align="center">
-                    {!page && !restaurantType && (
+                    {!restaurantType && (
                         <FoodOrRestaurant
                             filterData={filterData}
                             foodOrRestaurant={foodOrRestaurant}
@@ -46,7 +47,6 @@ const SearchFilterWithResults = ({
                         />
                     )}
                 </Grid>
-
                 <Grid
                     item
                     xs={12}
@@ -57,9 +57,9 @@ const SearchFilterWithResults = ({
                     paddingTop="1rem"
                 >
                     {/* Products Section */}
-                    {(foodOrRestaurant === 'products' || page) && (
+                    {(foodOrRestaurant === 'products' ) && (
                         <>
-                            {isLoading || isNetworkCalling? (
+                            {isLoading || isNetworkCalling ? (
                                 <Stack width="100%" minHeight="500px">
                                     <AnimationDots align="center" />
                                 </Stack>
@@ -85,9 +85,9 @@ const SearchFilterWithResults = ({
                     )}
 
                     {/* Restaurants Section */}
-                    {foodOrRestaurant === 'restaurants' && !page && (
+                    {foodOrRestaurant === 'restaurants'  && (
                         <>
-                            {isLoading || isNetworkCalling  ? (
+                            {isLoading || isNetworkCalling ? (
                                 <Stack width="100%" minHeight="500px">
                                     <AnimationDots align="center" />
                                 </Stack>
@@ -97,7 +97,7 @@ const SearchFilterWithResults = ({
                                         <RestaurantsData
                                             resData={data}
                                             offset={offset}
-                                            page_limit={page_limit}
+                                            page_limit="20"
                                             setOffset={setOffset}
                                             global={global}
                                             restaurantType={restaurantType}

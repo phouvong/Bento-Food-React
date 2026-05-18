@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
 import {
-    alpha,
     Grid,
     IconButton,
     Popover,
@@ -14,13 +13,12 @@ import { styled, useTheme } from '@mui/material/styles'
 import FilterButton from '../Button/FilterButton'
 import RestaurantFilterCard from '../home/restaurant/RestaurantFilterCard'
 import { RTL } from '../RTL/RTL'
-import SearchIcon from '@mui/icons-material/Search'
-import { t } from 'i18next'
-import CustomSearch from '../custom-search/CustomSearch'
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import SearchBox from '../home/hero-section-with-search/SearchBox'
 import { useInView } from 'react-intersection-observer'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import CustomSearch from '../custom-search/CustomSearch'
+import { t } from 'i18next'
 
 const CustomBox = styled(Box)(({ theme }) => ({
     width: '100%',
@@ -62,7 +60,6 @@ const RestaurantCategoryBar = (props) => {
         selectedId,
         handleClick,
         isSmall,
-        handleSearchResult,
         searchKey,
         isHidden,
         setRemoveStickyBanner,
@@ -76,8 +73,8 @@ const RestaurantCategoryBar = (props) => {
         setCheckedFilterKey,
         priceAndRating,
         activeFilters,
+        handleSearchResult
     } = props
-    const [searchBoxOpen, setSearchBoxOpen] = useState(false)
     const theme = useTheme()
 
     const [anchorEl, setAnchorEl] = useState(null)
@@ -101,9 +98,11 @@ const RestaurantCategoryBar = (props) => {
             const offset =
                 buttonLeft -
                 scrollerLeft +
-                (selectedButton.offsetWidth - scrollerRef.current.offsetWidth) /
-                2
-            scrollerRef.current.scrollLeft = offset
+                scrollerRef.current.scrollLeft
+            scrollerRef.current.scrollTo({
+                left: Math.max(0, offset),
+                behavior: 'smooth',
+            })
         }
     }, [selectedId])
 
@@ -153,9 +152,6 @@ const RestaurantCategoryBar = (props) => {
         languageDirection = localStorage.getItem('direction')
     }
 
-    const handleSearchBox = () => {
-        setSearchBoxOpen(!searchBoxOpen)
-    }
     const isActiveCategoryBar = (item, index) => {
         if (selectedId !== null) {
             if (selectedId === item?.id) {
@@ -172,50 +168,63 @@ const RestaurantCategoryBar = (props) => {
     const { ref, inView } = useInView({
         rootMargin: '-130px 0px 0px 0px',
     })
-    
+
+    // Detect when the sticky bar reaches its mobile stick-top (190px) so we
+    // can break it out of the parent Container only while it's stuck.
+    const { ref: stickySentinelRef, inView: stickySentinelInView } = useInView({
+        rootMargin: '-190px 0px 0px 0px',
+    })
+    const isMobileStuck = isSmall && !stickySentinelInView
+
     useEffect(() => {
+        // Skip the sticky-banner-removal dance on mobile — the banner is no longer
+        // fixed there, so this state isn't read by TopBanner on small viewports.
+        if (isSmall) return
         if (inView) {
             setRemoveStickyBanner(false)
         } else {
             setRemoveStickyBanner(true)
         }
-    }, [inView]);
-    console.log({inView,removeStickyBanner});
-    
-    
+    }, [inView, isSmall])
+
+
     return (
         <RTL direction={languageDirection}>
+            <Box ref={stickySentinelRef} sx={{ height: '1px', marginBottom: '-1px' }} />
             <Grid
                 container
-                spacing={1}
+                spacing={{ xs: 0, sm: 1 }}
+                rowSpacing={{ xs: 0.5, sm: 0 }}
                 ref={ref}
                 sx={{
                     position: 'sticky',
                     top: {
-                        xs: '179px',
+                        xs: 'calc(var(--restaurant-fixed-top-bottom, 190px) + (-12px))',
                         sm: '140px',
-                        md: isHidden ? '163px' : 'calc(163px + 58px)',
+                        md: isHidden ? '162px' : '203px',
                     },
                     background: (theme) => theme.palette.neutral[1800],
-                    padding: '10px 0px 5px',
-                    zIndex: 998,
-                    transition: 'all 0.25s ease',
+                    padding: { xs: '8px 8px', md: '10px 0px 5px' },
+                    ...(isMobileStuck && {
+                        marginLeft: '-16px',
+                        marginRight: '-16px',
+                        width: 'calc(100% + 32px)',
+                        maxWidth: 'none',
+                    }),
+                    zIndex: 100,
+                    transition: 'top 0.25s ease, box-shadow 0.25s ease',
                 }}
                 alignItems="center"
             >
-                <Grid item xs={8} sm={9} md={7} sx={{ position: 'relative' }}>
-                    {isSmall && searchBoxOpen ? (
-                        <Stack sx={{ animation: 'fadeInRight 1s  1' }}>
-                            <CustomSearch
-                                borderRadius="5px"
-                                handleSearchResult={handleSearchResult}
-                                label={t('Search foods')}
-                                searchFrom="restaurantDetails"
-                                selectedValue={searchKey}
-                            />
-                        </Stack>
-                    ) : (
-                        <CustomBox ref={scrollerRef}>
+                <Grid
+                    item
+                    xs={12}
+                    sm={9}
+                    md={7}
+                    order={{ xs: 1, sm: 1 }}
+                    sx={{ position: 'relative' }}
+                >
+                    <CustomBox ref={scrollerRef}>
                             {showLeftBtn && (
                                 <IconButton
                                     sx={{
@@ -229,7 +238,7 @@ const RestaurantCategoryBar = (props) => {
                                         top: 'calc(50% + 2.5px)',
                                         transform: 'translateY(-50%)',
                                         left: '0px',
-                                        zIndex: 999,
+                                        zIndex: 9999,
                                         '&:hover': {
                                             backgroundColor:
                                                 theme.palette.neutral[100],
@@ -266,7 +275,7 @@ const RestaurantCategoryBar = (props) => {
                                         >
                                             <Typography
                                                 fontSize={{
-                                                    xs: '11px',
+                                                    xs: '13px',
                                                     sm: '14px',
                                                     md: '14px',
                                                 }}
@@ -317,32 +326,26 @@ const RestaurantCategoryBar = (props) => {
                                     <ChevronRightIcon fontSize="small" />
                                 </IconButton>
                             )}
-                        </CustomBox>
-                    )}
+                    </CustomBox>
                 </Grid>
 
                 <Grid
                     item
-                    xs={4}
+                    xs={12}
                     sm={3}
                     md={5}
+                    order={{ xs: 2, sm: 2 }}
                     align={languageDirection === 'rtl' ? 'left' : 'right'}
                     marginBottom={{ xs: '0px', md: '8px' }}
                 >
                     <Stack
                         direction="row"
                         width="100%"
+                        spacing={1}
+                        alignItems="center"
                         sx={{ marginInlineStart: 'auto' }}
                     >
-                        {!isSmall && (
-                            <Stack
-                                sx={{
-                                    backgroundColor:
-                                        theme.palette.neutral[1800],
-                                    marginInlineStart: 'auto',
-                                }}
-                            >
-                                <CustomSearch
+                     <CustomSearch
                                     //key={reRenderSearch}
                                     handleSearchResult={handleSearchResult}
                                     label={t('Search foods')}
@@ -352,66 +355,12 @@ const RestaurantCategoryBar = (props) => {
                                     backgroundColor={theme.palette.neutral[200]}
                                     borderRadius="10px"
                                 />
-                            </Stack>
-                        )}
 
-                        <Stack
-                            direction="row"
-                            spacing={0.5}
-                            justifyContent="flex-end"
-                            alignItems="center"
-                            paddingLeft="15px"
-                            marginInlineStart="auto"
-                        >
-                            <Stack
-                                direction="row"
-                                spacing={1}
-                                justifySelf="flex-end"
-                            >
-                                {isSmall && (
-                                    <IconButton
-                                        onClick={handleSearchBox}
-                                        sx={{
-                                            background: (theme) =>
-                                                alpha(
-                                                    theme.palette.primary.main,
-                                                    0.3
-                                                ),
-                                            borderRadius: '6px',
-                                            padding: '3px',
-                                            fontSize: '16px',
-                                            minWidth: 32,
-                                            height: 32,
-                                            }}
-                                    >
-                                        {!searchBoxOpen ? (
-                                            <SearchIcon
-                                                fontSize="18px"
-                                                sx={{
-                                                    color: (theme) =>
-                                                        theme.palette.primary
-                                                            .main,
-                                                }}
-                                            />
-                                        ) : (
-                                            <ArrowForwardIosIcon
-                                                fontSize="18px"
-                                                sx={{
-                                                    color: (theme) =>
-                                                        theme.palette.primary
-                                                            .main,
-                                                }}
-                                            />
-                                        )}
-                                    </IconButton>
-                                )}
-                                <FilterButton
-                                    handleClick={handleDropClick}
-                                    height="32px"
-                                    activeFilters={activeFilters}
-                                />
-                            </Stack>
-                        </Stack>
+                        <FilterButton
+                            handleClick={handleDropClick}
+                            height="32px"
+                            activeFilters={activeFilters}
+                        />
                     </Stack>
                 </Grid>
             </Grid>

@@ -8,7 +8,7 @@ export const LeftArrowStyle = styled(Box, {
         prop !== 'left' &&
         prop !== 'isdisabled',
 })(({ theme, languageDirection, left, isdisabled }) => ({
-    zIndex: 999,
+    zIndex: 9,
     top: '42%',
     position: 'absolute',
     display: isdisabled ? 'none' : 'block',
@@ -24,7 +24,7 @@ export const RightArrowStyle = styled(Box, {
         prop !== 'right' &&
         prop !== 'isdisabled',
 })(({ theme, languageDirection, right, isdisabled }) => ({
-    zIndex: 999,
+    zIndex: 9,
     position: 'absolute',
     top: '42%',
     right: languageDirection === 'rtl' ? '2%' : right,
@@ -129,7 +129,7 @@ export const CustomSpinner = styled(Stack)(({ theme, color }) => ({
 }))
 
 export const MapSetionWrapper = styled(Stack)(({ theme }) => ({
-     backgroundImage: `url(${map.src})`,
+    backgroundImage: `url(${map.src})`,
     backgroundRepeat: 'no-repeat',
     backgroundSize: 'cover',
     borderRadius: '16px',
@@ -153,7 +153,7 @@ export const VisitAgainWrapper = styled(Stack)(({ theme }) => ({
     alignItems: 'center',
     paddingBlock: '30px',
     gap: '30px',
-    backgroundColor: theme.palette.customColor.thirteen,
+    backgroundColor: theme.palette.neutral[200],
     '& .slick-dots': {
         position: 'absolute !important',
         bottom: '-35px !important',
@@ -168,6 +168,6 @@ export const VisitAgainWrapper = styled(Stack)(({ theme }) => ({
         gap: '16px',
     },
     '& .slick-track': {
-        gap: '30px',
+        gap: '16px',
     },
 }))

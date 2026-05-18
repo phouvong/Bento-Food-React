@@ -35,7 +35,7 @@ const ProductSearchPage = ({
     )
     console.log({tags,searchTagData});
     
-    const [page_limit, setPageLimit] = useState(15)
+    const [page_limit, setPageLimit] = useState(36)
     const [offset, setOffset] = useState(1)
     const [searchValue, setSearchValue] = useState('')
     const { filterData, foodOrRestaurant } = useSelector(
@@ -47,13 +47,25 @@ const ProductSearchPage = ({
     const [totalData, setTotalData] = useState(null)
     const activeFilters = searchTagData.filter((item) => item.isActive === true)
     const isPageMode = Boolean(page)
-
+    console.log({activeFilters});
+    
     // Hydrate searchTagData / filterBy / sortBy from URL query params
     useEffect(() => {
         if (!router.isReady) return
 
         const filtersParam = router.query.filters
         const sortByParam = router.query.sort_by
+
+        // Skip hydration when URL has no relevant params and there are already active filters
+        // This prevents resetting state during click-driven navigation flows
+        const hasUrlParams =
+            Boolean(filtersParam) ||
+            Boolean(sortByParam) ||
+            Boolean(page) ||
+            Boolean(restaurantType)
+        const hasActiveFiltersInState = activeFilters?.length > 0
+
+        if (!hasUrlParams && hasActiveFiltersInState) return
 
         const activeValues = filtersParam
             ? String(filtersParam).split(',').filter(Boolean)
@@ -118,9 +130,7 @@ const ProductSearchPage = ({
                 },
             })
         } else {
-            if (isPageMode) {
-                dispatch(setFoodOrRestaurant('products'))
-            }
+          
             setPageData(res)
             setSearchOrPage(res)
         }
@@ -153,22 +163,24 @@ const ProductSearchPage = ({
             onError: onErrorResponse,
         }
     )
-console.log({isLoading});
+ console.log({foodOrRestaurant});
 
     
     //POPULAR AND BEST REVIEW FOOD API
-    const {
-        isLoading: popularFoodisLoading,
-        data: popularData,
-        refetch: popularRefetch,
-    } = useQuery(
-        ['popular-food', offset, page_limit, type],
-        () => ProductsApi.products(page, offset, page_limit, type),
-        {
-            enabled: false,
-            onSuccess: handleAPiCallOnSuccess,
-        }
-    )
+    // const {
+    //     isLoading: popularFoodisLoading,
+    //     data: popularData,
+    //     refetch: popularRefetch,
+    // } = useQuery(
+    //     ['popular-food', offset, page_limit, type],
+    //     () => ProductsApi.products(type, offset, page_limit, type),
+    //     {
+    //         enabled: false,
+    //         onSuccess: handleAPiCallOnSuccess,
+    //     }
+    // )
+    console.log({type});
+    
     const {
         isLoading: restaurantIsLoading,
         data: restaurantData,
@@ -216,44 +228,27 @@ console.log({isLoading});
     ])
 console.log({activeFilters});
 
+    // useEffect(() => {
+    //     if (isPageMode) {
+    //         popularRefetch()
+    //     }
+    // }, [isPageMode, offset, popularRefetch])
     useEffect(() => {
-        if (isPageMode) {
-            popularRefetch()
-        }
-    }, [isPageMode, offset, popularRefetch])
-    useEffect(() => {
-        if (isPageMode) {
+        if (restaurantType && tags) {
             setSearchValue(null)
-        } else if (restaurantType && tags) {
-            setSearchValue(null)
-        } else if (query || page || restaurantType) {
+        } else if (query) {
             setSearchValue(removeSpecialCharacters(query))
-        } else {
-            if (tags) {
-                setSearchValue(null)
-            } else {
-                router.push('/home')
-            }
+        } else if (page || restaurantType) {
+            setSearchValue(null)
+        } else if (tags) {
+            setSearchValue(null)
         }
-    }, [query, tags, restaurantType, page, isPageMode])
-
-    useEffect(() => {
-        if (
-            activeFilters?.length === 0 &&
-            !query &&
-            !page &&
-            !restaurantType &&
-            !searchValue
-        ) {
-            router.push('/home')
-        }
-    }, [searchTagData])
+    }, [query, tags, restaurantType, page, offset])
 
     useEffect(() => {
         console.log({isPageMode,tags,page,activeFilters});
         
-        if (isPageMode) return
-        const apiRefetch = async () => {
+    const apiRefetch = async () => {
             if (searchValue) {
                 await refetch()
             } else if (tags && page) {
@@ -264,9 +259,10 @@ console.log({activeFilters});
                 }
             }
         }
+        
 
         apiRefetch()
-    }, [searchValue, filterData, tags, offset, isPageMode, refetch])
+    }, [searchValue, filterData, tags, offset, refetch,foodOrRestaurant])
     useEffect(() => {
         if (isPageMode) return
         setOffset(1)
@@ -287,12 +283,13 @@ console.log({activeFilters});
         setCheckfilter((prevState) => !prevState)
     }
     const handleClearAll = async () => {
-        if (isPageMode) {
-            await popularRefetch()
-            return
-        }
-        await refetch()
+        // if (isPageMode) {
+        //     await popularRefetch()
+        //     return
+        // }
+        // await refetch()
     }
+console.log({searchValue});
 
     const handleFilteredData = () => {
         let filteredData = getFilterChoices(
@@ -329,19 +326,16 @@ console.log({activeFilters});
                 }`}
             />
             <CustomStackFullWidth mb="5rem" sx={{ minHeight: '70vh' }}>
-                {pageData && (
-                    <SearchFilterWithResults
+                <SearchFilterWithResults
                         filterData={filterData}
                         searchValue={searchValue}
                         foodOrRestaurant={foodOrRestaurant}
                         setFoodOrRestaurant={setFoodOrRestaurant}
                         isLoading={
-                            !pageData?.data ||
-                            isFetching ||
-                            isLoading ||
-                            restaurantIsLoading ||
-                            popularFoodisLoading
+                            
+                            isRefetching || isFetching || restaurantIsLoading
                         }
+                        isRefetching={isRefetching}
                         isNetworkCalling={isRefetching}
                         data={pageData}
                         page_limit={page_limit}
@@ -351,12 +345,11 @@ console.log({activeFilters});
                         handleFilter={handleFilter}
                         handleClearAll={handleClearAll}
                         page={page === 'most-reviewed' ? 'most_reviewed' : page}
-                        popularFoodisLoading={popularFoodisLoading}
+                        // popularFoodisLoading={popularFoodisLoading}
                         restaurantType={restaurantType}
                         restaurantIsLoading={restaurantIsLoading}
                         totalData={totalData}
                     />
-                )}
             </CustomStackFullWidth>
         </>
     )

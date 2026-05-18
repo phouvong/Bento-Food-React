@@ -39,7 +39,7 @@ const WalletFundBonus = ({ walleBonus, isLoading }) => {
                 settings: {
                     slidesToShow: 1,
                     slidesToScroll: 1,
-
+                    infinite: false,
                     initialSlide: 1,
                 },
             },

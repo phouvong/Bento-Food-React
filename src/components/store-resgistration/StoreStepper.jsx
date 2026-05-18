@@ -35,23 +35,23 @@ const CustomStep = styled(Step)(({ theme, active, complete, isSmallSize }) => ({
         color: complete
             ? theme.palette.primary.main
             : active
-                ? 'white'
-                : theme.palette.grey[600],
-        padding: isSmallSize ? '10px 10px' : '15px 37px',
+            ? 'white'
+            : theme.palette.grey[600],
+        padding: isSmallSize ? '10px' : '15px 37px',
         alignItems: 'center',
         justifyContent: 'center',
         display: 'flex',
     },
     '& .MuiStepLabel-root .MuiStepLabel-label': {
-        marginTop: '5px',
+        // marginTop: '5px',
         fontWeight: 400,
         color: complete
             ? theme.palette.primary.main
             : active
-                ? theme.palette.text.primary
-                : theme.palette.grey[500],
-        fontSize: isSmallSize ? '12px' : '16px',
-        lineHeight: '16px',
+            ? theme.palette.text.primary
+            : theme.palette.grey[500],
+        fontSize: isSmallSize ? '8px' : '16px',
+        lineHeight: isSmallSize ? '8px' : '16px',
     },
 }))
 
@@ -82,32 +82,45 @@ const CustomStepper = ({ activeStep, flag }) => {
                             paddingLeft: '0px',
                             paddingRight: '0px',
                             position: 'relative',
+                            '.MuiStepLabel-iconContainer': {
+                                paddingRight: '4px !important',
+                            },
+                            '.MuiStepLabel-iconContainer .MuiSvgIcon-root ': {
+                                width: isSmallSize ? '12px' : '1em',
+                                height: isSmallSize ? '12px' : '1em',
+                            },
                         }}
                         key={label}
                         active={index === activeStep}
                         complete={isComplete}
                     >
-                        {index !== steps.length - 1 && !isSmallSize && (
+                        {index !== steps.length - 1 && (
                             <Box
                                 sx={{
                                     position: 'absolute',
-                                    right: '18px',
+                                    right: isSmallSize ? '0' : '18px',
                                     top: '50%',
-                                    width: '38px',
-                                    height: '38px',
+                                    width: isSmallSize ? '16px' : '38px',
+                                    height: isSmallSize ? '16px' : '38px',
                                     content: '""',
-                                    borderLeft: `2px solid ${isComplete
+                                    borderLeft: `${
+                                        isSmallSize ? '1px' : '2px'
+                                    } solid ${
+                                        isComplete
                                             ? theme.palette.primary.main
                                             : activeStep === index
-                                                ? theme.palette.primary.main
-                                                : theme.palette.neutral[400]
-                                        }`,
-                                    borderTop: `2px solid ${isComplete
+                                            ? theme.palette.primary.main
+                                            : theme.palette.neutral[400]
+                                    }`,
+                                    borderTop: `${
+                                        isSmallSize ? '1px' : '2px'
+                                    } solid ${
+                                        isComplete
                                             ? theme.palette.primary.main
                                             : activeStep === index
-                                                ? theme.palette.primary.main
-                                                : theme.palette.neutral[400]
-                                        }`,
+                                            ? theme.palette.primary.main
+                                            : theme.palette.neutral[400]
+                                    }`,
                                     transform:
                                         'translateY(-50%) rotate(135deg)',
                                 }}
@@ -125,7 +138,7 @@ const CustomStepper = ({ activeStep, flag }) => {
 export default function StoreStepper({ activeStep, flag }) {
     return (
         <CustomStackFullWidth
-            sx={{ marginTop: '40px' }}
+            sx={{ marginTop: { xs: '16px', md: '40px' } }}
             justifyContent="center"
             alignItems="center"
         >

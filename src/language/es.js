@@ -1,4 +1,5 @@
 export const spanish = {
+    "Browse and filter restaurants to match your vibe.": "Explora y filtra restaurantes que combinen con tu estilo.",
     "Welcome to React": "Bienvenido a React y React-I18Next",
     "Dont have a cutlery? Restaurant will provide you.": "¿No tienes un cubiertos? El restaurante le proporcionará.",
     "Minimum Order": "Pedido mínimo",
@@ -384,6 +385,7 @@ export const spanish = {
     "Logged in successfully": "Iniciado sesión con éxito",
     "Terms & Conditions": "Términos y condiciones",
     "Privacy Policy": "política de privacidad",
+    "Theme Mode": "Modo de tema",
     "Quick Links": "enlaces rápidos",
     "Contact Us": "Contáctenos",
     "About Us": "Sobre nosotros",
@@ -817,4 +819,5 @@ export const spanish = {
     "Update Payment Info": "Actualizar información de pago",
     "Update": "Actualizar",
     "search": "buscar",
+    "Refer a Friend": "Recomienda a un amigo"
 }

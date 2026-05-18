@@ -9,6 +9,7 @@ import AllNearbyRestaurants from './AllNearbyRestaurants'
 import MapComponentFindNear from './MapComponentFindNear'
 import { RTL } from '@/components/RTL/RTL'
 import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
+import { handleRestaurantRedirect } from '@/utils/customFunctions'
 
 const NearByRestaurant = ({ dineIn }) => {
     const theme = useTheme()
@@ -69,12 +70,12 @@ const NearByRestaurant = ({ dineIn }) => {
     )
 
     const handleRouteToRestaurant = (restaurant) => {
-        router.push({
-            pathname: `/restaurants/${restaurant?.slug || restaurant?.id}`,
-            query: {
-                restaurant_zone_id: restaurant?.zone_id,
-            },
-        })
+        handleRestaurantRedirect(
+            router,
+            restaurant?.slug,
+            restaurant?.id,
+
+        )
     }
     useEffect(() => {
         const apiRefetch = async () => {
@@ -94,7 +95,7 @@ const NearByRestaurant = ({ dineIn }) => {
     }
     return (
         <RTL direction={languageDirection}>
-            <Grid container>
+            <Grid container p={2} >
                 <Grid item xs={12} sm={6.5} md={7.5}>
                     <Stack borderRadius="8px">
                         <MapComponentFindNear

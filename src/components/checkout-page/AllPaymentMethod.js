@@ -13,6 +13,7 @@ import {
     Box,
     TextField,
     Collapse,
+    IconButton,
 } from '@mui/material'
 import { PymentTitle } from './CheckOut.style'
 import { t } from 'i18next'
@@ -235,7 +236,9 @@ const AllPaymentMethod = ({
     }, [selected])
 
     const handleClickOffline = () => {
-        setOpenOfflineOptions(!openOfflineOptions)
+        const next = !openOfflineOptions
+        setOpenOfflineOptions(next)
+        setIsCheckedOffline(next)
     }
 
     const handleClickOfflineItem = (item) => {
@@ -256,12 +259,12 @@ const AllPaymentMethod = ({
         currencySymbolDirection = global.currency_symbol_direction
         digitAfterDecimalPoint = global.digit_after_decimal_point
     }
-
+    console.log({ global });
     return (
-        <Stack width="100%" padding="2rem" spacing={2.4}>
-            <button className="closebtn" onClick={handleClose}>
+        <Stack width="100%" padding={{xs:"1rem", sm: "1.5rem", md: "2rem"}} spacing={2.4}>
+           {/* <IconButton>
                 <CloseIcon fontSize="18px" />
-            </button>
+            </IconButton> */}
 
             <Stack padding="0px 10px">
                 <Stack
@@ -475,10 +478,7 @@ const AllPaymentMethod = ({
                                 {usePartialPayment ? (
                                     <>
                                         {global?.cash_on_delivery &&
-                                            (global?.partial_payment_method ===
-                                                'both' ||
-                                                global?.partial_payment_method ===
-                                                'cod') ? (
+                                            (global?.partial_payment_method?.includes('cash_on_delivery')) ? (
                                             <PayButton
                                                 value="cash_on_delivery"
                                                 paymentMethod={selected?.name}
@@ -635,17 +635,15 @@ const AllPaymentMethod = ({
 
                                     <Grid container rowGap="2.1rem">
                                         {global?.digital_payment &&
-                                            (global?.partial_payment_method ===
-                                                'digital_payment' ||
-                                                global?.partial_payment_method ===
-                                                'both') && (
+                                            (global?.partial_payment_method?.includes('digital_payment')) && (
                                                 <>
                                                     {global?.active_payment_method_list?.map(
                                                         (item, index) => {
                                                             return (
                                                                 <Grid
                                                                     item
-                                                                    md={6}
+                                                                    xs={12}
+                                                                    sm={6}
                                                                     key={index}
                                                                 >
                                                                     <PaymentMethodCard
@@ -909,9 +907,8 @@ const AllPaymentMethod = ({
                                                 {global?.active_payment_method_list?.map(
                                                     (item, index) => {
                                                         return (
-                                                            <Grid item md={6}>
+                                                            <Grid item xs={12} sm={6} key={index}>
                                                                 <PaymentMethodCard
-                                                                    key={index}
                                                                     paymentType={
                                                                         item?.gateway_title
                                                                     }
@@ -952,24 +949,32 @@ const AllPaymentMethod = ({
                     typeof offlinePaymentOptions !== 'undefined' &&
                     Object?.keys(offlinePaymentOptions)?.length !== 0 &&
                     subscriptionStates.order !== '1' &&
-                    (usePartialPayment ? (global?.partial_payment_method === 'both' || global?.partial_payment_method === 'offline_payment') : true) && (
+                    (usePartialPayment ? (global?.partial_payment_method?.includes('offline_payment')) : true) && (
                         <CustomStackFullWidth
-                            padding="10px 10px 10px 15px"
-                            borderRadius="10px"
-                            backgroundColor={alpha(
-                                theme.palette.primary.main,
-                                0.1
-                            )}
+                            sx={{
+                                padding: '10px 10px 10px 15px',
+                                borderRadius: '10px',
+                                backgroundColor: alpha(
+                                    theme.palette.primary.main,
+                                    0.1
+                                ),
+                                mt: { xs: '16px', sm: '20px' },
+                                mx: '10px',
+                                width: 'auto',
+                            }}
                         >
                             <CustomStackFullWidth gap="15px">
                                 <CustomStackFullWidth
                                     flexDirection="row"
                                     justifyContent="space-between"
+                                    alignItems="center"
                                 >
                                     <FormControl
                                         sx={{
                                             marginRight: { xs: '0px' },
                                             marginLeft: { xs: '5px' },
+                                            flex: 1,
+                                            minWidth: 0,
                                         }}
                                     >
                                         <RadioGroup
@@ -982,14 +987,16 @@ const AllPaymentMethod = ({
                                                     color: (theme) =>
                                                         theme.palette
                                                             .neutral[1000],
+                                                    margin: 0,
+                                                    alignItems: 'center',
                                                 }}
                                                 value="Pay Offline"
                                                 control={
                                                     <Radio
                                                         sx={{
                                                             padding: {
-                                                                xs: '2px',
-                                                                md: '10px',
+                                                                xs: '4px',
+                                                                md: '8px',
                                                             },
                                                         }}
                                                         checked={
@@ -1004,12 +1011,17 @@ const AllPaymentMethod = ({
                                                     <Typography
                                                         fontSize="14px"
                                                         fontWeight="500"
+                                                        sx={{
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            flexWrap: 'wrap',
+                                                            gap: '4px',
+                                                        }}
                                                     >
                                                         {t('Pay Offline')}
                                                         <Typography
                                                             component="span"
                                                             fontSize="10px"
-                                                            ml="5px"
                                                             color={
                                                                 theme.palette
                                                                     .neutral[1000]
@@ -1034,10 +1046,12 @@ const AllPaymentMethod = ({
                                         )}
                                     >
                                         <InfoIcon
-                                            fontSize="16px"
                                             sx={{
+                                                fontSize: '18px',
                                                 color: theme.palette.primary
                                                     .main,
+                                                flexShrink: 0,
+                                                ml: '8px',
                                             }}
                                         />
                                     </Tooltip>

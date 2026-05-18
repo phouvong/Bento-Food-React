@@ -57,19 +57,25 @@ const RestaurantAnnouncementMessege = ({ storeAnnouncement }) => {
                             sx={{
                                 ...marqueeBase,
                                 animation: `scroll ${duration}s linear infinite`,
+                                animationDelay: `-${0.15 * duration}s`,
                                 '@keyframes scroll': {
                                     '0%': { transform: 'translateX(100%)' },
                                     '100%': { transform: 'translateX(-100%)' },
                                 },
-
                             }}
                         >
-                            <CampaignIcon sx={{ color: theme.palette.whiteContainer.main }} />
+                            <CampaignIcon
+                                sx={{
+                                    color: theme.palette.whiteContainer.main,
+                                }}
+                            />
                             <Typography
-                                fontSize="16px"
+                                fontSize={{ xs: '14px', sm: '16px' }}
                                 fontWeight="500"
                                 textTransform="capitalize"
-                                sx={{ color: theme.palette.whiteContainer.main }}
+                                sx={{
+                                    color: theme.palette.whiteContainer.main,
+                                }}
                             >
                                 {storeAnnouncement}
                             </Typography>
@@ -81,20 +87,32 @@ const RestaurantAnnouncementMessege = ({ storeAnnouncement }) => {
                                 ...marqueeBase,
                                 opacity: 0, // hidden initially
                                 animation: `scroll2 ${duration}s linear infinite`,
-                                animationDelay: `${duration / 2}s`,
+                                animationDelay: `${0.35 * duration}s`,
                                 '@keyframes scroll2': {
-                                    '0%': { transform: 'translateX(100%)', opacity: 0 },
-                                    '5%': { opacity: 1 }, // fade in when starts scrolling
-                                    '100%': { transform: 'translateX(-100%)', opacity: 1 },
+                                    '0%': {
+                                        transform: 'translateX(100%)',
+                                        opacity: 0,
+                                    },
+                                    '5%': { opacity: 1 },
+                                    '100%': {
+                                        transform: 'translateX(-100%)',
+                                        opacity: 1,
+                                    },
                                 },
                             }}
                         >
-                            <CampaignIcon sx={{ color: theme.palette.whiteContainer.main }} />
+                            <CampaignIcon
+                                sx={{
+                                    color: theme.palette.whiteContainer.main,
+                                }}
+                            />
                             <Typography
                                 fontSize="16px"
                                 fontWeight="500"
                                 textTransform="capitalize"
-                                sx={{ color: theme.palette.whiteContainer.main }}
+                                sx={{
+                                    color: theme.palette.whiteContainer.main,
+                                }}
                             >
                                 {storeAnnouncement}
                             </Typography>
@@ -102,7 +120,9 @@ const RestaurantAnnouncementMessege = ({ storeAnnouncement }) => {
                     </>
                 ) : (
                     <Stack direction="row" spacing={1} sx={normalStyle}>
-                        <CampaignIcon sx={{ color: theme.palette.whiteContainer.main }} />
+                        <CampaignIcon
+                            sx={{ color: theme.palette.whiteContainer.main }}
+                        />
                         <Typography
                             fontSize="16px"
                             fontWeight="500"

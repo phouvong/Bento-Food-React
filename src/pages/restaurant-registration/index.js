@@ -15,7 +15,7 @@ const Index = ({ configData, landingPageData }) => {
             <CssBaseline />
             <Meta title={`Store registration - ${configData?.business_name}`} />
             <NoSsr>
-                <StoreRegistration configData={configData} />
+                 <StoreRegistration configData={configData} />
             </NoSsr>
         </>
     )

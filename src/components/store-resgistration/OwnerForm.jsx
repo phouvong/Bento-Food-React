@@ -23,22 +23,16 @@ const OwnerForm = ({
     const { t } = useTranslation()
     return (
         <CustomStackFullWidth>
-            <Typography
-                fontSize="18px"
-                fontWeight="500"
+            <Grid
+                container
+                columnSpacing={3}
+                rowSpacing={2}
                 sx={{
-                    borderBottom: (theme) =>
-                        `1px solid ${alpha(theme.palette.neutral[400], 0.3)}`,
-                    p: '1rem',
-                    color: (theme) => theme.palette.neutral[1000],
+                    px: { xs: '0.75rem', md: '1.25rem' },
+                    pt: '1.5rem',
+                    pb: { xs: '1.25rem', md: '0' },
                 }}
             >
-                {t('Owner Info')}
-            </Typography>
-            <Grid container spacing={3} sx={{ p: '1rem' }}>
-                <Grid item xs={12} md={12} align="left">
-
-                </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                     <CustomTextFieldWithFormik
                         placeholder={t('First Name')}
@@ -61,14 +55,14 @@ const OwnerForm = ({
                                         color:
                                             RestaurantJoinFormik.touched
                                                 .restaurant_name &&
-                                                !RestaurantJoinFormik.errors
-                                                    .restaurant_name
+                                            !RestaurantJoinFormik.errors
+                                                .restaurant_name
                                                 ? theme.palette.primary.main
                                                 : alpha(
-                                                    theme.palette
-                                                        .neutral[400],
-                                                    0.7
-                                                ),
+                                                      theme.palette
+                                                          .neutral[400],
+                                                      0.7
+                                                  ),
                                         fontSize: '18px',
                                     }}
                                 />
@@ -98,14 +92,14 @@ const OwnerForm = ({
                                         color:
                                             RestaurantJoinFormik.touched
                                                 .restaurant_name &&
-                                                !RestaurantJoinFormik.errors
-                                                    .restaurant_name
+                                            !RestaurantJoinFormik.errors
+                                                .restaurant_name
                                                 ? theme.palette.primary.main
                                                 : alpha(
-                                                    theme.palette
-                                                        .neutral[400],
-                                                    0.7
-                                                ),
+                                                      theme.palette
+                                                          .neutral[400],
+                                                      0.7
+                                                  ),
                                         fontSize: '18px',
                                     }}
                                 />

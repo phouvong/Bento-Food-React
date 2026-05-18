@@ -1,1 +1,1 @@
-export const networkLimit = 10
+export const networkLimit = 36

@@ -25,12 +25,12 @@ export const buttonsData = [
 import Meta from '../Meta'
 import { noOrderFound } from '@/utils/LocalImages'
 
-const OrderHistoryPage = () => {
+const OrderHistoryPage = ({ noCard = false, limit: propLimit }) => {
     const dispatch = useDispatch()
     const theme = useTheme()
     const { global } = useSelector((state) => state.globalSettings)
     const { orderType } = useSelector((state) => state.orderType)
-    const [limit, setLimit] = useState(10)
+    const [limit, setLimit] = useState(propLimit || 10)
     const [offset, setOffset] = useState(1)
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const { isLoading, data, isError, error, refetch } = useQuery(
@@ -49,6 +49,70 @@ const OrderHistoryPage = () => {
         orderType && refetch()
     }, [])
 
+    const content = (
+        <Grid container spacing={2.4}>
+            <Grid item xs={12} sm={12} md={12}>
+                <OutLineGroupButtons
+                    handleSelection={handleOrderType}
+                    buttonsData={buttonsData}
+                    selected={orderType}
+                />
+            </Grid>
+            <Grid item xs={12} sm={12} md={12}>
+                {isLoading ? (
+                    <Box mb="1rem">
+                        <CustomShimmerCard />
+                    </Box>
+                ) : data?.data?.orders?.length > 0 ? (
+                    <Grid container spacing={3}>
+                        {data?.data?.orders?.map((order, index) => (
+                            <Grid item xs={12} sm={6} md={6} key={index}>
+                                <OrderCard
+                                    order={order}
+                                    index={index}
+                                    limit={limit}
+                                    offset={offset}
+                                    refetch={refetch}
+                                />
+                            </Grid>
+                        ))}
+                    </Grid>
+                ) : null}
+
+                {data?.data?.orders?.length > 0 &&
+                    data?.data?.total_size > 10 && (
+                        <CustomStackFullWidth
+                            sx={{ height: '50px', mt: '1rem' }}
+                            alignItems="center"
+                            justifyContent="center"
+                        >
+                            <CustomePagination
+                                total_size={data?.data?.total_size}
+                                page_limit={limit}
+                                offset={offset}
+                                setOffset={setOffset}
+                            />
+                        </CustomStackFullWidth>
+                    )}
+            </Grid>
+            <Grid item xs={12} sm={12} md={12}>
+                {data?.data?.orders?.length === 0 && (
+                    <Stack
+                        minHeight="30vh"
+                        pt={{ xs: '10px', md: '50px' }}
+                    >
+                        <CustomEmptyResult
+                            label="No Order found"
+                            image={noOrderFound}
+                            height={80}
+                            width={80}
+                        />
+                    </Stack>
+                )}
+            </Grid>
+        </Grid>
+    )
+
     return (
         <>
             <Meta
@@ -56,70 +120,20 @@ const OrderHistoryPage = () => {
                 description=""
                 keywords=""
             />
-            <CustomPaperBigCard
-                padding={isXSmall ? '10px 10px' : '30px 40px'}
-                border={false}
-                sx={{
-                    minHeight: !isXSmall && '558px',
-                    boxShadow: isXSmall && 'unset',
-                }}
-            >
-                <Grid container spacing={2.4}>
-                    <Grid item xs={12} sm={12} md={12}>
-                        <OutLineGroupButtons
-                            handleSelection={handleOrderType}
-                            buttonsData={buttonsData}
-                            selected={orderType}
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12} columnSpacing={3}>
-                        {data?.data?.orders?.map((order, index) => (
-                            <OrderCard
-                                key={index}
-                                order={order}
-                                index={index}
-                                limit={limit}
-                                offset={offset}
-                                refetch={refetch}
-                            />
-                        ))}
-                        {isLoading && (
-                            <Box mb="1rem">
-                                <CustomShimmerCard />
-                            </Box>
-                        )}
-                        <CustomStackFullWidth
-                            sx={{ height: '50px' }}
-                            alignItems="center"
-                            justifyContent="center"
-                        >
-                            {data?.data?.total_size > 10 && (
-                                <CustomePagination
-                                    total_size={data?.data?.total_size}
-                                    page_limit={limit}
-                                    offset={offset}
-                                    setOffset={setOffset}
-                                />
-                            )}
-                        </CustomStackFullWidth>
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={12}>
-                        {data?.data?.orders?.length === 0 && (
-                            <Stack
-                                minHeight="30vh"
-                                pt={{ xs: '10px', md: '50px' }}
-                            >
-                                <CustomEmptyResult
-                                    label="No Order found"
-                                    image={noOrderFound}
-                                    height={80}
-                                    width={80}
-                                />
-                            </Stack>
-                        )}
-                    </Grid>
-                </Grid>
-            </CustomPaperBigCard>
+            {noCard ? (
+                content
+            ) : (
+                <CustomPaperBigCard
+                    padding={isXSmall ? '10px 10px' : '30px 40px'}
+                    border={false}
+                    sx={{
+                        minHeight: !isXSmall && '558px',
+                        boxShadow: isXSmall && 'unset',
+                    }}
+                >
+                    {content}
+                </CustomPaperBigCard>
+            )}
         </>
     )
 }

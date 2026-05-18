@@ -46,13 +46,16 @@ export const CardWrapper = styled(Card)(({ theme, authorType, userType }) => ({
         authorType === userType
             ? theme.palette.primary.main
             : theme.palette.mode === 'dark'
-            ? theme.palette.cardBackground1
-            : theme.palette.neutral[200],
+                ? theme.palette.cardBackground1
+                : theme.palette.neutral[200],
     color:
         authorType === userType
             ? theme.palette.neutral[100]
             : theme.palette.neutral[1000],
-    width: 'max-content',
+    width: 'fit-content',
+    maxWidth: '100%',
+    overflowWrap: 'anywhere',
+    wordBreak: 'break-word',
     paddingInlineEnd: '.5rem',
     paddingInlineStart: '.5rem',
     paddingBlockStart: '.5rem',

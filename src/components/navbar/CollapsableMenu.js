@@ -15,8 +15,8 @@ const CollapsableMenu = ({ value, setOpenDrawer, pathName }) => {
     const theme = useTheme()
     const [open, setOpen] = useState(false)
     const handleClick = () => setOpen(!open)
-    const handleRoute = (id, name) => {
-        router.push(`${value.path}/${id}?name=${name}`)
+    const handleRoute = (id, name, slug) => {
+        router.push(`${value.path}/${slug|| id}?name=${name}`)
         setOpen(false)
         setOpenDrawer(false)
     }
@@ -69,7 +69,7 @@ const CollapsableMenu = ({ value, setOpenDrawer, pathName }) => {
                                 },
                             }}
                             key={index}
-                            onClick={() => handleRoute(item.id, item?.name)}
+                            onClick={() => handleRoute(item.id, item?.name,item?.slug)}
                         >
                             <ListItemText
                                 primary={

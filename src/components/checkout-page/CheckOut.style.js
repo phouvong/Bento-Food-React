@@ -118,6 +118,11 @@ export const OrderSummary = styled(Typography)(({ theme }) => ({
 export const OrderFoodName = styled(Typography)(({ theme }) => ({
     fontSize: '14px',
     color: `${theme.palette.mode === 'dark' ? '#fff' : '#414141'}`,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    display: '-webkit-box',
+    WebkitLineClamp: '1',
+    WebkitBoxOrient: 'vertical',
 }))
 export const OrderFoodSubtitle = styled(Typography)(
     ({ theme, orderdetailscolor }) => ({

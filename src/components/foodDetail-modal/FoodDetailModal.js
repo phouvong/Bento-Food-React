@@ -166,9 +166,7 @@ const FoodDetailModal = ({
 
     useEffect(() => {
         if (productUpdate) return
-
         if (foodDetails?.variations?.length > 0) {
-
             isInCartWithVari();
         } else {
             if (isInCart(foodDetails?.id)) {
@@ -191,7 +189,6 @@ const FoodDetailModal = ({
                 setSelectedOptions
             )
         }
-
         //initially setting these states to use further
     }, [product])
     let location = undefined
@@ -870,12 +867,14 @@ const FoodDetailModal = ({
         if (modalData[0]) {
             handleTotalPrice()
         }
-    }, [quantity, modalData])
+    }, [quantity, modalData, totalPrice])
     const decrementPrice = () => {
         setQuantity((prevQty) => prevQty - 1)
     }
 
     const incrementPrice = () => {
+        console.log("mmm",modalData[0]);
+        
         const isLimitedOrDaily = modalData[0]?.stock_type !== 'unlimited'
         const maxCartQuantity = modalData[0]?.maximum_cart_quantity
         // Helper function to check stock limits and update quantity
@@ -1055,26 +1054,27 @@ const FoodDetailModal = ({
                                         isInList={isInList}
                                         deleteWishlistItem={deleteWishlistItem}
                                         addToFavorite={addToFavorite}
+                                        global={global}
                                     />
 
                                     <CustomStackFullWidth
-                                        sx={{ padding: '20px' }}
-                                        spacing={2}
+                                        sx={{ padding: { xs: '10px', md: '12px' } }}
+                                        spacing={1}
                                     >
                                         <SimpleBar
                                             style={{
                                                 maxHeight: '35vh',
-                                                paddingRight: '10px',
+                                                paddingRight: '6px',
                                             }}
                                             className="test123"
                                         >
-                                            <CustomStackFullWidth spacing={0.5}>
+                                            <CustomStackFullWidth spacing={0.25}>
                                                 <Stack
                                                     direction="row"
                                                     justifyContent="flex-start"
                                                     alignItems="center"
                                                     flexWrap="wrap"
-                                                    spacing={0.5}
+                                                    spacing={0.25}
                                                 >
                                                     <Typography variant="h4">
                                                         {modalData.length > 0 &&
@@ -1342,7 +1342,7 @@ const FoodDetailModal = ({
                                                 item
                                                 xs={12}
                                                 alignSelf="center"
-                                                marginBottom="10px"
+                                                marginBottom="6px"
                                             >
                                                 <TotalAmountVisibility
                                                     modalData={modalData}
@@ -1378,7 +1378,7 @@ const FoodDetailModal = ({
                                                 sm={12}
                                                 xs={12}
                                                 alignSelf="center"
-                                                marginBottom={{ xs: "15px", md: "0px" }}
+                                                marginBottom={{ xs: "10px", md: "0px" }}
                                             >
                                                 <IncrementDecrementManager
                                                     decrementPrice={

@@ -8,7 +8,7 @@ const initialState = {
     handleHomePage: false,
     openMapDrawer: false,
     userLocationUpdate: false,
-    businessLogo: null,
+
 }
 
 export const globalSettingSlice = createSlice({
@@ -21,9 +21,7 @@ export const globalSettingSlice = createSlice({
         setCouponInfo: (state, action) => {
             state.couponInfo = action?.payload
         },
-        setBusinessLogo: (state, action) => {
-            state.businessLogo = action?.payload
-        },
+
         setCouponType: (state, action) => {
             state.couponType = action?.payload
         },
@@ -51,6 +49,6 @@ export const {
     setHandleHomePage,
     setOpenMapDrawer,
     setUserLocationUpdate,
-    setBusinessLogo,
+
 } = globalSettingSlice.actions
 export default globalSettingSlice.reducer

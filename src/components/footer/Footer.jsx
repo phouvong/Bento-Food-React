@@ -5,12 +5,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import { StyledFooterBackground } from './Footer.style'
 import FooterBottom from './FooterBottom'
 import FooterMiddle from './FooterMiddle'
-import FooterTop from './FooterTop'
 import FooterTopSection from './FooterTopSection'
 
 import { useGetLandingPageData } from '@/hooks/react-query/landing-page/useGetLandingPageData'
 import { setLandingPageData } from '@/redux/slices/storedData'
 import { checkMaintenanceMode } from '@/utils/customFunctions'
+import SubscribeServices from '../home/subscribe-services/SubscribeServices'
+import CustomContainer from '../container'
 const Footer = ({ languageDirection }) => {
     const dispatch = useDispatch()
     const { landingPageData } = useSelector((state) => state.storedData)
@@ -32,15 +33,19 @@ const Footer = ({ languageDirection }) => {
     }
     return (
         <>
-            <FooterTop landingPageData={landingPageData} />
+            <CustomContainer sx={{marginTop:"32px"}}>
+                <SubscribeServices />
+            </CustomContainer>
             <StyledFooterBackground router={router.pathname}>
                 <CustomStackFullWidth
                     height="100%"
                     alignItems="center"
                     justifyContent="space-between"
-                    paddingTop={{ xs: '20px', md: '50px' }}
                 >
-                    <FooterTopSection />
+                    <FooterTopSection
+                        landingPageData={landingPageData}
+                        isLoading={isLoading}
+                    />
                     <FooterMiddle
                         landingPageData={landingPageData}
                         isLoading={isLoading}

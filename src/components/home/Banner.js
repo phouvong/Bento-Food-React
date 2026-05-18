@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
     CustomStackFullWidth,
     SliderCustom,
@@ -12,21 +12,30 @@ import dynamic from 'next/dynamic'
 import { useSelector } from 'react-redux'
 import Skeleton from '@mui/material/Skeleton'
 import { handleBadge } from '@/utils/customFunctions'
-import { HandleNext, HandlePrev } from '../CustomSliderIcon'
+import { Box, useMediaQuery, useTheme } from '@mui/material'
+import { useTranslation } from 'react-i18next'
+import SliderSectionHeader from '@/components/slider-section-header/SliderSectionHeader'
 
 const FoodDetailModal = dynamic(() =>
     import('../foodDetail-modal/FoodDetailModal')
 )
 
+export const SLIDE_GAP = '20px'
+
 const Banner = ({ isFetched, data }) => {
     const router = useRouter()
+    const { t } = useTranslation()
+    const sliderRef = useRef(null)
     const { banners } = useSelector((state) => state.storedData)
     const [allBanners, setAllBanners] = useState()
     const [FoodBannerData, setFoodBannerData] = useState(null)
     const bannerData = allBanners?.concat(banners?.campaigns)
     const [openModal, setOpenModal] = useState(false)
     const { global } = useSelector((state) => state.globalSettings)
-    const [hoverOn, setHoverOn] = useState(false)
+    const [activeSlide, setActiveSlide] = useState(0)
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+    const slideGap = isMobile ? '10px' : SLIDE_GAP
     let currencySymbol
     let currencySymbolDirection
     let digitAfterDecimalPoint
@@ -85,9 +94,9 @@ const Banner = ({ isFetched, data }) => {
         speed: 600,
         slidesToShow: 3,
         autoplay: true,
-        dots: true,
-        nextArrow: hoverOn && <HandleNext />,
-        prevArrow: hoverOn && <HandlePrev />,
+        dots: false,
+        arrows: false,
+        beforeChange: (_, next) => setActiveSlide(next),
         responsive: [
             {
                 breakpoint: 1450,
@@ -153,26 +162,26 @@ const Banner = ({ isFetched, data }) => {
         ...(data?.data?.campaigns || []),
     ]
     const bData = mergeBanner || bannerData;
+    const displayBanners = bData?.slice(0, 8) || []
+    const totalBanners = displayBanners.length
 
     return (
-        <CustomStackFullWidth
-            sx={{
-                paddingTop: {
-                    xs: bData?.length > 0 && '15px',
-                    md: bData?.length > 0 && '20px',
-                },
-                paddingBottom: { xs: '30px', md: '35px' },
-            }}
-        >
-            <SliderCustom
-                gap=".8rem"
-                onMouseEnter={() => setHoverOn(true)}
-                onMouseLeave={() => setHoverOn(false)}
-                sx={{ minHeight: { xs: '165px', md: '185px' } }}
-            >
+        <CustomStackFullWidth sx={{marginTop:{xs:"16px", md: "23px"}}} >
+            <SliderSectionHeader
+                title={t('Find Best Restaurants and Foods')}
+                subtitle={t(
+                    'Discover what fits your mood — filter, explore, and order in a tap.'
+                )}
+                titleComponent="h1"
+                sliderRef={sliderRef}
+                itemsCount={totalBanners}
+                viewAllText={t('See all offers')}
+                onViewAll={() => router.push('/campaigns')}
+            />
+            <SliderCustom gap={slideGap}>
                 {isFetched ? (
-                    <Slider {...bannerSettings}>
-                        {bData?.slice(0, 8).map((banner) => {
+                    <Slider {...bannerSettings} ref={sliderRef}>
+                        {displayBanners.map((banner) => {
                             return (
                                 <BannerCard
                                     banner={banner}
@@ -189,6 +198,7 @@ const Banner = ({ isFetched, data }) => {
                         })}
                     </Slider>
                 )}
+              
             </SliderCustom>
             {FoodBannerData && openModal && (
                 <FoodDetailModal

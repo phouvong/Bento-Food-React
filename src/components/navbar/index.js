@@ -25,10 +25,12 @@ import { ConfigApi } from '@/hooks/react-query/config/useConfig'
 import { useQuery } from 'react-query'
 import { onSingleErrorResponse } from '@/components/ErrorResponse'
 import { setGlobalSettings } from '@/redux/slices/global'
+import useHideOnScroll from '@/hooks/custom-hooks/useHideOnScroll'
 
 const Navigation = () => {
     const { global } = useSelector((state) => state.globalSettings)
     const router = useRouter()
+    const isHidden = useHideOnScroll({ threshold: 50 })
     const dispatch = useDispatch()
     const guestId = getGuestId()
     const theme = useTheme()
@@ -38,6 +40,7 @@ const Navigation = () => {
     const [userLocation, setUserLocation] = useState(null)
     const { userLocationUpdate } = useSelector((state) => state.globalSettings)
     let location = undefined
+
     if (typeof window !== 'undefined') {
         location = localStorage.getItem('location')
     }
@@ -118,34 +121,30 @@ const Navigation = () => {
         }
     }, [global])
 
-
-
-
-
     return (
         <AppBarStyle
+            sx={{
+                borderRadius: '0px',
+                zIndex: '1200',
+               transition: "all 0.25s ease" ,
+                transform: {
+                    xs: 'translateY(0)',
+                    md: isHidden ? 'translateY(-41px)' : 'translateY(0)',
+                },
+                
+            }}
             disableGutters={true}
-            scrolling={
-                userLocation && router.pathname !== '/home' ? scrolling : router.pathname !== '/' && !userLocation ? scrolling : false
-            }
+            // scrolling={
+            //     userLocation && router.pathname !== '/home' ? scrolling : router.pathname !== '/' && !userLocation ? scrolling : false
+            // }
             isSmall={isSmall}
         >
-            {(isSmall && !location) ? (
-                <TopNav
-                    isSticky={isSticky}
-                    cartListRefetch={cartListRefetch}
-                />
-            ) : (
-                (location || (!location && router.pathname !== '/')) && (
-                    <TopNav
-                        isSticky={isSticky}
-                        cartListRefetch={cartListRefetch}
-                    />
-                )
-            )}
+            <TopNav
+                isSticky={isSticky}
+                cartListRefetch={cartListRefetch}
+            />
 
-
-            {!isSmall && (
+            {!isSmall && (router.pathname !== '/' || location) && (
                 <SecondNavbar
                     isSticky={isSticky}
                     cartListRefetch={cartListRefetch}

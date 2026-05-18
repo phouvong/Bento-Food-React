@@ -299,7 +299,7 @@ const AuthModal = ({
             >
                 <CustomBoxForModal
                     maxWidth={forWidth ? '757px' : '428px'}
-                    padding="30px 64px 43px 64px "
+                    padding="30px 64px 60px 64px "
                 >
                     <Stack
                         direction="row"

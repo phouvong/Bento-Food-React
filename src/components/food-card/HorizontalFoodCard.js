@@ -404,7 +404,7 @@ const HorizontalFoodCard = (props) => {
                     icon={<WishListImage />}
                     deleteItem={handleClick}
                     handleClose={handleClose}
-                    confirmButtonText="Yes , Remove"
+                    confirmButtonText="Remove"
                     cancelButtonText="Cancel"
                     title="Remove this food"
                     subTitle="Want to remove this food your favourite list ?"

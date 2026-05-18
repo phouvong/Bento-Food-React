@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Grid, Stack, Typography } from '@mui/material'
+import { Box, Grid, IconButton, Stack, Typography } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 import delivery from '../../../public/static/bannerslider/delivery.png'
 import Drawer from '@mui/material/Drawer'
 import { useRouter } from 'next/router'
@@ -11,6 +12,7 @@ import {
     getConvertDiscount,
     handleBadge,
     handleProductValueWithOutDiscount,
+    handleRestaurantRedirect,
 } from '@/utils/customFunctions'
 import { setCartItemByDispatch, cart } from '@/redux/slices/cart'
 import AuthModal from '../auth'
@@ -167,15 +169,13 @@ const FloatingCart = (props) => {
         const slug = restaurantData?.data?.slug
         const id = restaurantData?.data?.id
         const zone_id = restaurantData?.data?.zone_id
-        router.push({
-            pathname: `/restaurants/${slug || id}`,
-            query: {
-                restaurant_zone_id: zone_id,
-                isDineIn: ""
-            },
-        })
+        handleRestaurantRedirect(
+            router,
+            slug,
+            id,
+        )
     }
-    
+
     return (
         <>
             {authModalOpen && (
@@ -296,6 +296,25 @@ const FloatingCart = (props) => {
                         },
                     }}
                 >
+                    <IconButton
+                        aria-label={t('Close cart')}
+                        onClick={() => setSideDrawerOpen(false)}
+                        sx={{
+                            position: 'absolute',
+                            top: 8,
+                            insetInlineEnd: 8,
+                            zIndex: 2,
+                            backgroundColor: (theme) =>
+                                theme.palette.neutral[200],
+                            '&:hover': {
+                                backgroundColor: (theme) =>
+                                    theme.palette.neutral[300],
+                            },
+                        }}
+                        size="small"
+                    >
+                        <CloseIcon fontSize="small" />
+                    </IconButton>
                     {cartList?.length === 0 ? (
                         <Stack
                             sx={{
@@ -351,39 +370,7 @@ const FloatingCart = (props) => {
                                             </Typography>{' '}
                                             {t('in your cart')}
                                         </Typography>
-                                        {restaurantData?.data
-                                            ?.delivery_time && (
-                                                <Typography
-                                                    sx={{
-                                                        textAlign: 'center',
-                                                        fontSize: '14px',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                    }}
-                                                >
-                                                    <img
-                                                        
-                                                        src={delivery?.src}
-                                                        loading="lazy"
-                                                    />
-                                                    <Typography
-                                                        component="span"
-                                                        sx={{
-                                                            color: (theme) =>
-                                                                theme.palette
-                                                                    .neutral[400],
-                                                            marginLeft: '10px',
-                                                            fontWeight: 600,
-                                                        }}
-                                                    >
-                                                        {t('Estimated delivery time')}: {
-                                                            restaurantData?.data
-                                                                ?.delivery_time
-                                                        }
-                                                    </Typography>
-                                                </Typography>
-                                            )}
+                                       
                                     </Stack>
                                     {restaurantData?.data ? (
                                         <Stack
@@ -400,32 +387,109 @@ const FloatingCart = (props) => {
                                             onClick={handleClick}
                                             sx={{ cursor: "pointer" }}
                                         >
-                                            <CustomNextImage
-                                                height={40}
-                                                width={40}
-                                                src={
-                                                    restaurantData?.data
-                                                        ?.logo_full_url
-                                                }
-                                                objectFit="cover"
-                                                borderRadius="50%"
-                                            />
-                                            <Typography fontSize="14px">
-                                                {restaurantData?.data?.name}
-                                            </Typography>
 
-                                            <Stack direction="row" gap="5px" sx={{ marginInlineStart: "10px" }} alignItems="center">
-                                                <StarIcon
-                                                    style={{
-                                                        width: '12px',
-                                                        height: '12px',
-                                                        color: starColor,
-                                                    }}
+                                            <Stack
+                                                direction="row"
+                                                alignItems="center"
+                                                spacing={1}
+                                                flex={1}
+                                                minWidth={0}
+                                            >
+                                                <CustomNextImage
+                                                    height={40}
+                                                    width={40}
+                                                    src={
+                                                        restaurantData?.data
+                                                            ?.logo_full_url
+                                                    }
+                                                    objectFit="cover"
+                                                    borderRadius="50%"
                                                 />
-                                                <Typography fontSize="12px">{restaurantData?.data?.avg_rating}</Typography>
-                                                <Typography fontSize="12px" color={theme.palette.neutral[400]}>({restaurantData?.data?.rating_count})</Typography>
+                                                <Stack minWidth={0} flex={1}>
+                                                    <Stack
+                                                        direction="row"
+                                                        alignItems="center"
+                                                        gap="6px"
+                                                        minWidth={0}
+                                                    >
+                                                        <Typography
+                                                            fontSize="14px"
+                                                            noWrap
+                                                            sx={{
+                                                                flex: 1,
+                                                                minWidth: 0,
+                                                            }}
+                                                        >
+                                                            {restaurantData?.data?.name}
+                                                        </Typography>
+                                                        <Stack
+                                                            direction="row"
+                                                            gap="5px"
+                                                            alignItems="center"
+                                                            flexShrink={0}
+                                                        >
+                                                            <StarIcon
+                                                                style={{
+                                                                    width: '12px',
+                                                                    height: '12px',
+                                                                    color: starColor,
+                                                                }}
+                                                            />
+                                                            <Typography fontSize="12px">
+                                                                {restaurantData?.data?.avg_rating}
+                                                            </Typography>
+                                                            <Typography
+                                                                fontSize="12px"
+                                                                color={theme.palette.neutral[400]}
+                                                            >
+                                                                ({restaurantData?.data?.rating_count})
+                                                            </Typography>
+                                                        </Stack>
+                                                    </Stack>
+                                                    {restaurantData?.data
+                                                        ?.delivery_time && (
+                                                        <Typography
+                                                            sx={{
+                                                                fontSize: '12px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                mt: 0.4,
+                                                            }}
+                                                        >
+                                                            <img
+                                                                src={
+                                                                    delivery?.src
+                                                                }
+                                                                loading="lazy"
+                                                                alt=""
+                                                            />
+                                                            <Typography
+                                                                component="span"
+                                                                sx={{
+                                                                    color: (theme) =>
+                                                                        theme
+                                                                            .palette
+                                                                            .neutral[400],
+                                                                    marginLeft:
+                                                                        '10px',
+                                                                    fontWeight: 500,
+                                                                    fontSize: '12px',
+                                                                    lineHeight: 1.3,
+                                                                }}
+                                                            >
+                                                                {t(
+                                                                    'Estimated delivery'
+                                                                )}
+                                                                :{' '}
+                                                                {restaurantData?.data?.delivery_time}
+                                                            </Typography>
+                                                        </Typography>
+                                                    )}
+                                                </Stack>
                                             </Stack>
+                                          
                                         </Stack>
+                                        
                                     ) : null}
 
                                     <SimpleBar

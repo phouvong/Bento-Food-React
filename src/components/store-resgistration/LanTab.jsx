@@ -59,10 +59,11 @@ const LangTab = (props) => {
                 alignItems="center"
                 spacing={2}
                 sx={{
-                    overflowX: 'auto', // Enable horizontal scrolling
                     overflowY: 'hidden', // Hide vertical scrollbar
+                    overflowX: 'auto', // Enable horizontal scrolling
                     whiteSpace: 'nowrap', // Keep elements in a single line
                     paddingBottom: '10px', // Add space to avoid content being hidden behind scrollbar
+                    maxWidth: 'calc(100dvw - 86px)',
                     '&::-webkit-scrollbar': {
                         height: '0', // Hide horizontal scrollbar
                         display: 'none', // Hide scrollbar completely
@@ -83,8 +84,12 @@ const LangTab = (props) => {
                                 alignItems="center"
                                 justifyContent="center"
                                 spacing={1}
+                                sx={{
+                                    cursor: 'pointer',
+                                }}
                             >
                                 <Typography
+                                    fontSize={14}
                                     active={
                                         currentTab === index ? 'true' : 'false'
                                     }

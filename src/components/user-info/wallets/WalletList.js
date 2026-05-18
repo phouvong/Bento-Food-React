@@ -113,6 +113,7 @@ const Wallet = ({ page }) => {
     const [transactionType, setTransactionType] = useState('all')
     const [hasMounted, setHasMounted] = useState(false)
     const { global } = useSelector((state) => state.globalSettings)
+    console.log({ global })
     const [value, setValue] = useState(null)
     let currencySymbol
     let currencySymbolDirection
@@ -174,12 +175,21 @@ const Wallet = ({ page }) => {
         validationSchema: validationSchema,
         onSubmit: async (values, helpers) => {
             try {
+
                 if (values?.amount > 0) {
-                    formSubmitHandler(values)
+                    if (values?.amount > global?.customer_add_fund_min_amount) {
+                        formSubmitHandler(values)
+                    } else {
+                        toast.error(
+                            t(
+                                `Payment amount should be greater than ${global?.customer_add_fund_min_amount}`
+                            )
+                        )
+                    }
                 } else {
                     toast.error(t('Payment amount can not be 0'))
                 }
-            } catch (err) {}
+            } catch (err) { }
         },
     })
 
@@ -199,7 +209,10 @@ const Wallet = ({ page }) => {
                 const url = response?.redirect_link
                 Router.push(url)
             },
-            onError: onErrorResponse,
+            onError: (errors) => {
+                console.log({ errors })
+                toast.error(t(errors?.response?.data?.errors?.message))
+            },
         })
     }
 
@@ -353,7 +366,7 @@ const Wallet = ({ page }) => {
                                         {t('Total Balance')}
                                     </Typography>
                                     {global?.digital_payment &&
-                                    global?.add_fund_status ? (
+                                        global?.add_fund_status ? (
                                         <Button
                                             sx={{
                                                 backgroundColor: (theme) =>
@@ -400,7 +413,7 @@ const Wallet = ({ page }) => {
                                 openModal={
                                     open &&
                                     global?.active_payment_method_list?.length >
-                                        0
+                                    0
                                 }
                                 setModalOpen={setOpen}
                                 bgColor={theme.palette.customColor.ten}
@@ -508,7 +521,7 @@ const Wallet = ({ page }) => {
                                                                     <label
                                                                         className={
                                                                             value ===
-                                                                            item.gateway
+                                                                                item.gateway
                                                                                 ? 'active'
                                                                                 : ''
                                                                         }
@@ -537,7 +550,7 @@ const Wallet = ({ page }) => {
                                                                             }}
                                                                         />
                                                                         {value ===
-                                                                        item.gateway ? (
+                                                                            item.gateway ? (
                                                                             <CheckCircle />
                                                                         ) : (
                                                                             <Box
@@ -628,12 +641,12 @@ const Wallet = ({ page }) => {
                         </Grid>
                     ) : (
                         <Grid item sm={12} xs={12} md={7.5}>
-                            {global?.add_fund_status ?  (
+                            {global?.add_fund_status ? (
                                 <WalletFundBonus
                                     walleBonus={walleBonus}
                                     isLoading={walletBonusIsLoading}
                                 />
-                            ):null}
+                            ) : null}
                         </Grid>
                     )}
                     <Grid item md={12} xs={12}>
@@ -697,17 +710,19 @@ const Wallet = ({ page }) => {
                         {/* </ScrollerProvider> */}
                         {data?.data?.data?.length === 0 && (
                             <Stack
-                                marginTop="5px"
                                 alignItems="center"
-                                height="100%"
-                                witdh="100%"
-                                borderRadius="10px"
                                 justifyContent="center"
-                                backgroundColor={
-                                    theme.palette.mode === 'dark'
-                                        ? '#322F2F'
-                                        : theme.palette.neutral[200]
-                                }
+                                sx={{
+                                    width: '100%',
+                                    minHeight: { xs: 220, sm: 280 },
+                                    mt: 1.5,
+                                    p: { xs: 3, sm: 4 },
+                                    borderRadius: '12px',
+                                    backgroundColor:
+                                        theme.palette.mode === 'dark'
+                                            ? '#322F2F'
+                                            : theme.palette.neutral[200],
+                                }}
                             >
                                 <CustomEmptyResult
                                     label="No Transaction History"

@@ -1,4 +1,5 @@
 import { Box, Stack } from '@mui/system'
+import CheckIcon from '@mui/icons-material/Check'
 import { BannerFormPaper } from '@/components/restaurant-resgistration-landing/LandingStyles.style'
 import {
     alpha,
@@ -26,9 +27,9 @@ import { PrimaryButton } from '@/components/products-page/FoodOrRestaurant'
 import Router from 'next/router'
 import { toast } from 'react-hot-toast'
 import { useDispatch } from 'react-redux'
-import { setBusinessLogo } from '@/redux/slices/global'
+
 import useGetZoneList from '@/hooks/react-query/zone-list/zone-list'
-import { setZoneOptions } from '@/redux/slices/storeRegistrationData'
+import { setBusinessLogo, setZoneOptions } from '@/redux/slices/storeRegistrationData'
 import HeroLocationForm from '@/components/landingpage/HeroLocationForm'
 
 const BannerForm = ({ business_name }) => {
@@ -81,8 +82,21 @@ const BannerForm = ({ business_name }) => {
 
         setValue({ ...value, image: file })
         dispatch(setBusinessLogo(file))
-    }
 
+        // Convert File to base64 and store in localStorage for persistence
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            const imageData = {
+                base64: reader.result,
+                name: file.name,
+                type: file.type,
+                size: file.size,
+            }
+            localStorage.setItem('restaurant_registration_logo', JSON.stringify(imageData))
+        }
+        reader.readAsDataURL(file)
+    }
+    console.log("value", value)
     const handleSubmit = () => {
         setSubmitted(true)
         if (!value?.restaurant_name || value?.restaurant_name.trim() === '') {
@@ -105,11 +119,9 @@ const BannerForm = ({ business_name }) => {
 
         Router.push(
             {
-                pathname: '/restaurants-registration',
+                pathname: '/restaurant-registration',
                 query: { active: 'active', data: JSON.stringify(value) },
-            },
-            undefined,
-            { shallow: true }
+            }
         )
     }
 
@@ -118,11 +130,12 @@ const BannerForm = ({ business_name }) => {
     }
     return (
         <BannerFormPaper>
-            <Typography variant="h3" sx={{ fontSize: { xs: 24, sm: 30 } }}>
+            <Typography variant="h3" sx={{ fontSize: { xs: 20, sm: 30 } }}>
                 {`${t('Boost your revenue with')} ${business_name}`}!
             </Typography>
             <Typography
                 variant="body2"
+                sx={{ fontSize: { xs: 12, sm: 14 } }}
                 color={theme.palette.neutral[500]}
                 mt={1}
                 mb={4}
@@ -153,8 +166,8 @@ const BannerForm = ({ business_name }) => {
                         }
                         helperText={
                             submitted &&
-                            (!value?.restaurant_name ||
-                                value?.restaurant_name.trim() === '')
+                                (!value?.restaurant_name ||
+                                    value?.restaurant_name.trim() === '')
                                 ? t('Restaurant name is required')
                                 : ''
                         }
@@ -164,6 +177,14 @@ const BannerForm = ({ business_name }) => {
                                     <StoreIcon sx={{ fontSize: '18px' }} />
                                 </InputAdornment>
                             ),
+                        }}
+                        sx={{
+                            '& input::placeholder': {
+                                color: theme.palette.neutral[400],
+                                fontSize: '14px',
+                                opacity: 1,
+                                fontWeight: '400',
+                            },
                         }}
                     />
                 </Stack>
@@ -193,6 +214,27 @@ const BannerForm = ({ business_name }) => {
                         onChange={(e) =>
                             setValue({ ...value, zoneId: e.target.value })
                         }
+                        displayEmpty
+                        renderValue={(selected) => {
+                            if (selected.length === 0) {
+                                return (
+                                    <span
+                                        style={{
+                                            color: theme.palette.neutral[400],
+                                            fontSize: '14px',
+                                        }}
+                                    >
+                                        {t('Select Zones')}
+                                    </span>
+                                )
+                            }
+                            const selectedOption = zoneOption.find(
+                                (item) => item.value === selected
+                            )
+                            return selectedOption
+                                ? t(selectedOption.label)
+                                : selected
+                        }}
                         sx={{
                             height: 55,
                             borderRadius: '8px',
@@ -218,17 +260,33 @@ const BannerForm = ({ business_name }) => {
                                     key={index}
                                     value={item.value}
                                     sx={{
-                                        maxWidth: '100%',
-                                        fontSize: '13px',
+                                        // maxWidth: '100%',
+                                        fontSize: '14px',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        textTransform: 'capitalize',
+
                                         '&:hover': {
                                             backgroundColor: alpha(
                                                 theme.palette.primary.main,
                                                 0.6
                                             ),
                                         },
+
                                     }}
                                 >
                                     {t(item.label)}
+                                    {value?.zoneId === item.value && (
+                                        <CheckIcon
+                                            sx={{
+                                                color: theme.palette.primary
+                                                    .main,
+                                                fontSize: '20px',
+                                                ml: 1,
+                                            }}
+                                        />
+                                    )}
                                 </MenuItem>
                             ))}
                     </Select>
@@ -241,12 +299,14 @@ const BannerForm = ({ business_name }) => {
                     )}
                 </FormControl>
                 <Box>
-                    <HeroLocationForm getLocation={getLocation} />
+                    <HeroLocationForm getLocation={getLocation} isStoreCreate
+                        place_holder_search_text={t('Search for your location *')}
+                    />
                     {submitted && !value?.restaurant_address && (
                         <FormHelperText
-                            sx={{ color: (theme) => theme.palette.error.light }}
+                            sx={{ color: (theme) => theme.palette.error.light, marginTop: '1rem' }}
                         >
-                            {t('Zone selection is required')}
+                            {t('Address is required')}
                         </FormHelperText>
                     )}
                 </Box>
@@ -284,6 +344,18 @@ const BannerForm = ({ business_name }) => {
                             onChange={singleFileUploadHandlerForImage}
                         />
                     </Box>
+                    <Typography
+                        fontSize="12px"
+                        textAlign="center"
+                        sx={{
+                            color: (theme) => theme.palette.neutral[1000],
+                            mt: '1rem',
+                        }}
+                    >
+                        {t(
+                            'jpg, png, jpeg,Webp, gif Image Size - maximum size 2 MB (Ratio 2:1)'
+                        )}
+                    </Typography>
                 </Box>
                 {submitted && !value?.image && (
                     <FormHelperText

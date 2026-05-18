@@ -23,7 +23,7 @@ export default function CustomePagination({
     return (
         <Box
             sx={{
-                display: 'flex',
+                display: total_size > page_limit ? 'flex' : 'none' ,
                 justifyContent: 'center',
                 paddingBlockStart: '25px',
             }}
@@ -34,6 +34,7 @@ export default function CustomePagination({
                 count={Math.ceil(total_size / page_limit)}
                 onChange={(e, value) => {
                     setOffset(value)
+                    window.scrollTo({ top: 0, behavior: 'smooth' })
                 }}
                 page={offset}
             />

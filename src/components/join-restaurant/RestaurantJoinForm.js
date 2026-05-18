@@ -36,7 +36,7 @@ const RestaurantJoinForm = ({ zoneData, formSubmit }) => {
         onSubmit: async (values, helpers) => {
             try {
                 formSubmitOnSuccess(values)
-            } catch (err) {}
+            } catch (err) { }
         },
     })
 
@@ -159,7 +159,7 @@ const RestaurantJoinForm = ({ zoneData, formSubmit }) => {
                                 fullWidth
                                 variant="contained"
                                 sx={{ mt: 3, mb: 2 }}
-                                // loading={isLoading}
+                            // loading={isLoading}
                             >
                                 {t('Submit')}
                             </LoadingButton>

@@ -35,13 +35,13 @@ const CustomizedTimeline = ({ stepper_content }) => {
 
                     <TimelineDot
                         sx={{
-                            bgcolor: theme.palette.neutral[200],
+                            bgcolor: theme.palette.mode === 'light' ? theme.palette.neutral[200] : 'grey',
                             borderWidth: 1,
                             padding: '8px',
                             margin: 0,
                             img: { width: '16px', height: '16px', minWidth: "16px" },
                         }}
-                        color="grey"
+                        // color="grey"
                         variant="outlined"
                     >
                         <CustomNextImage
@@ -83,7 +83,7 @@ const CustomizedTimeline = ({ stepper_content }) => {
                     <TimelineConnector />
                     <TimelineDot
                         sx={{
-                            bgcolor: theme.palette.neutral[200],
+                            bgcolor: theme.palette.mode === 'light' ? theme.palette.neutral[200] : 'grey',
                             borderWidth: 1,
                             padding: '8px',
                             margin: 0,
@@ -131,7 +131,7 @@ const CustomizedTimeline = ({ stepper_content }) => {
                     <TimelineConnector />
                     <TimelineDot
                         sx={{
-                            bgcolor: theme.palette.neutral[200],
+                            bgcolor: theme.palette.mode === 'light' ? theme.palette.neutral[200] : 'grey',
                             borderWidth: 1,
                             padding: '8px',
                             margin: 0,
@@ -179,7 +179,7 @@ const CustomizedTimeline = ({ stepper_content }) => {
                     <TimelineConnector />
                     <TimelineDot
                         sx={{
-                            bgcolor: theme.palette.neutral[200],
+                            bgcolor: theme.palette.mode === 'light' ? theme.palette.neutral[200] : 'grey',
                             borderWidth: 1,
                             padding: '8px',
                             margin: 0,

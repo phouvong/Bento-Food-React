@@ -31,7 +31,6 @@ const RestaurantDetailsPage = ({ restaurantData, configData }) => {
     const pageDescription = restaurantData?.meta_description || ''
     const pageImage = restaurantData?.meta_image_full_url ||
         `${configData?.base_urls?.restaurant_image_url}/${restaurantData?.meta_image}`
-    console.log({ restaurantData });
 
     return (
         <>

@@ -58,6 +58,7 @@ const CustomMapSearch = ({
     currentLocationValue,
 }) => {
     const { t } = useTranslation()
+console.log({currentLocationValue});
 
     return (
         <CustomStackFullWidth mb="1rem">
@@ -71,8 +72,8 @@ const CustomMapSearch = ({
                     fullWidth
                     freeSolo
                     id="combo-box-demo"
-                    getOptionLabel={(option) => option.description}
-                    options={predictions}
+                    getOptionLabel={(option) => option?.description}
+                    options={predictions || []}
                     value={currentLocationValue}
                     loading={isLoadingPlacesApi}
                     loadingText={t('Loading...')}
@@ -85,7 +86,7 @@ const CustomMapSearch = ({
                             setPlaceDetailsEnabled(true)
                         }
                         setPlaceDescription(value?.description)
-                       
+
                     }}
                     clearOnBlur={true}
                     renderInput={(params) => (

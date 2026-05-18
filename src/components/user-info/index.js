@@ -52,11 +52,7 @@ const UserInfo = ({ page, orderId, setAttributeId }) => {
                     md={token ? 9 : 12}
                     mb={isXs ? '20px' : '20px'}
                 >
-                    {isXs ? (
-                        <ProfileBody page={page} orderId={orderId} />
-                    ) : (
-                        <ProfileBody page={page} orderId={orderId} />
-                    )}
+                    <ProfileBody page={page} orderId={orderId} />
                 </Grid>
             </Grid>
         </CustomStackFullWidth>

@@ -126,13 +126,21 @@ const IncDecAddOn = ({
                     alignItems="center"
                     justifyContent="space-between"
                 >
-                    <Grid item md={6} sm={5} xs={5}>
+                    <Grid item md={7} sm={6} xs={7}>
                         <FormControlLabel
                             disabled={
                                 add_on?.stock_type !== 'unlimited' &&
                                 add_on?.addon_stock === 0
                             }
-                            sx={{ marginInlineStart: '-10px' }}
+                            sx={{
+                                marginInlineStart: '-10px',
+                                marginRight: 0,
+                                alignItems: 'center',
+                                '& .MuiFormControlLabel-label': {
+                                    minWidth: 0,
+                                    flex: 1,
+                                },
+                            }}
                             key={addOn?.id}
                             control={
                                 <Checkbox
@@ -141,9 +149,21 @@ const IncDecAddOn = ({
                                 />
                             }
                             label={
-                                <Stack direction="row" spacing={1}>
+                                <Stack
+                                    direction="row"
+                                    spacing={0.5}
+                                    alignItems="center"
+                                    flexWrap="nowrap"
+                                    sx={{ minWidth: 0 }}
+                                >
                                     <CustomTypographyLabel
                                         sx={{
+                                            textAlign: 'start',
+                                            overflow: 'hidden',
+                                            display: 'block',
+                                            WebkitLineClamp: 'unset',
+                                            whiteSpace: 'nowrap',
+                                            textOverflow: 'ellipsis',
                                             color: (theme) =>
                                                 add_on?.stock_type !==
                                                     'unlimited' &&
@@ -156,24 +176,28 @@ const IncDecAddOn = ({
                                     >
                                         {addOn?.name}
                                     </CustomTypographyLabel>
-                                    <Typography
-                                        fontSize="12px"
-                                        color={theme.palette.error.main}
-                                    >
-                                        {add_on?.stock_type !== 'unlimited' &&
-                                        add_on?.addon_stock === 0
-                                            ? `(${t('out of stock')})`
-                                            : ''}
-                                    </Typography>
+                                    {add_on?.stock_type !== 'unlimited' &&
+                                        add_on?.addon_stock === 0 && (
+                                            <Typography
+                                                fontSize={{ xs: '10px', md: '12px' }}
+                                                color={theme.palette.error.main}
+                                                sx={{
+                                                    whiteSpace: 'nowrap',
+                                                    flexShrink: 0,
+                                                }}
+                                            >
+                                                {`(${t('out of stock')})`}
+                                            </Typography>
+                                        )}
                                 </Stack>
                             }
                         />
                     </Grid>
                     <Grid
                         item
-                        md={quantity > 0 ? 3 : 6}
-                        sm={3}
-                        xs={3}
+                        md={quantity > 0 ? 2 : 5}
+                        sm={quantity > 0 ? 2 : 6}
+                        xs={quantity > 0 ? 2 : 5}
                         justifySelf="flex-end"
                     >
                         <CustomTypographyLabel

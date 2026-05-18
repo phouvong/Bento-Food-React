@@ -19,13 +19,22 @@ import PauseIcon from '@mui/icons-material/Pause'
 import CustomModal from '@/components/custom-modal/CustomModal'
 import CloseIcon from '@mui/icons-material/Close'
 import moment from 'moment'
+import { t } from 'i18next'
 
-export const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp']
+export const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp','webp']
 export const videoExtensions = ['mp4', 'avi', 'mov', 'wmv']
 export const documentExtensions = ['pdf']
+const allowedExtensions = [...imageExtensions, ...videoExtensions, ...documentExtensions]
 export const getFileExtension = (url) => {
-    const parts = url?.split('.')
-    return parts?.length > 1 ? parts.pop().toLowerCase() : ''
+    if (!url) return ''
+    if (url.startsWith('data:')) {
+        const mimeMatch = url.match(/^data:([^;]+);/i)
+        const mime = mimeMatch?.[1] || ''
+        return mime.split('/')[1]?.toLowerCase() || ''
+    }
+    const cleanedUrl = url.split('#')[0].split('?')[0]
+    const parts = cleanedUrl.split('.')
+    return parts.length > 1 ? parts.pop().toLowerCase() : ''
 }
 
 const ChatMessage = (props) => {
@@ -80,6 +89,8 @@ const ChatMessage = (props) => {
     }
 
     const checkFileType = (url) => {
+        console.log({url});
+        
         const extension = getFileExtension(url)
         if (imageExtensions.includes(extension)) {
             return 'image'
@@ -124,6 +135,21 @@ const ChatMessage = (props) => {
         window.open(url, '_blank')
     }
 
+    const attachmentItems = (Array.isArray(image) ? image : image ? [image] : [])
+        .map((item) =>
+            typeof item === 'string'
+                ? item
+                : item?.file_full_url || item?.url || item?.path || ''
+        )
+        .filter(Boolean)
+        // drop any unsupported file types (e.g., zip)
+        .filter((item) => allowedExtensions.includes(getFileExtension(item)))
+
+    // allow only supported image formats to be shown/uploaded
+    const allowedImageItems = attachmentItems.filter((item) =>
+        imageExtensions.includes(getFileExtension(item))
+    )
+
     return (
         <ChatMessageWrapper
             authorType={authorType}
@@ -146,8 +172,10 @@ const ChatMessage = (props) => {
                     marginInlineStart={authorType === userType ? 'auto' : ''}
                     flexWrap="wrap"
                 >
-                    {image?.slice(0, 4).map((item, index) => {
+                    {allowedImageItems.slice(0, 4).map((item, index) => {
                         const fileType = checkFileType(item)
+                        console.log({fileType});
+                        
                         if (fileType === 'image' && index < 3) {
                             return (
                                 <Box
@@ -159,7 +187,7 @@ const ChatMessage = (props) => {
                                         display: 'inline-flex',
                                     }}
                                     onClick={() =>
-                                        handleImageOnClick(item, image)
+                                        handleImageOnClick(item, allowedImageItems)
                                     }
                                 >
                                     <CustomImageContainer
@@ -172,7 +200,8 @@ const ChatMessage = (props) => {
                                 </Box>
                             )
                         } else if (fileType === 'image' && index === 3) {
-                            const remainingImagesCount = image.length - 3
+                            const remainingImagesCount =
+                                attachmentItems.length - 3
                             return (
                                 <Box
                                     key={item}
@@ -184,7 +213,10 @@ const ChatMessage = (props) => {
                                         position: 'relative',
                                     }}
                                     onClick={() =>
-                                        handleImageOnClick(item, image)
+                                        handleImageOnClick(
+                                            item,
+                                            allowedImageItems
+                                        )
                                     }
                                 >
                                     <CustomImageContainer
@@ -295,7 +327,7 @@ const ChatMessage = (props) => {
                         } else if (fileType === 'unknown') {
                             return (
                                 <Typography key={item} variant="body2">
-                                    Unsupported file type
+                                    {t("Unsupported file type")}
                                 </Typography>
                             )
                         }
@@ -311,6 +343,11 @@ const ChatMessage = (props) => {
                             }
                             align={authorType === userType ? 'right' : 'left'}
                             fontSize="13px"
+                            sx={{
+                                whiteSpace: 'pre-wrap',
+                                overflowWrap: 'anywhere',
+                                wordBreak: 'break-word',
+                            }}
                         >
                             {body}
                         </Typography>

@@ -22,13 +22,32 @@ const handleTokenExpire = (status) => {
     }
 }
 
+const handle429Error = (error) => {
+    const retryAfter =
+        error?.response?.data?.errors?.[0]?.retry_after
+
+    const message = retryAfter
+        ? `Too many requests. Please try again after ${retryAfter} seconds.`
+        : 'Too many requests. Please slow down.'
+
+    CustomToaster('error', message)
+}
 export const onErrorResponse = (error) => {
+    console.log({ error })
+    if (error?.response?.status === 429) {
+        handle429Error(error)
+        return
+    }
     error?.response?.data?.errors?.forEach((item) => {
         CustomToaster('error', item?.message)
     })
     handleTokenExpire(error?.response?.status)
 }
 export const onSingleErrorResponse = (error) => {
+    if (error?.response?.status === 429) {
+        handle429Error(error)
+        return
+    }
     CustomToaster('error', error?.response?.data?.message)
     handleTokenExpire(error?.response?.status)
 }

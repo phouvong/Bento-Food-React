@@ -9,6 +9,15 @@ export const baseThemeOptions = {
         },
     },
     components: {
+        MuiContainer: {
+            styleOverrides: {
+                maxWidthLg: {
+                    '@media (min-width: 1200px)': {
+                        maxWidth: 'min(1440px, calc(100vw - 64px))',
+                    },
+                },
+            },
+        },
         MuiAvatar: {
             styleOverrides: {
                 root: {

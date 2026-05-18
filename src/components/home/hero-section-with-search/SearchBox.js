@@ -3,20 +3,30 @@ import CustomSearchInput from './CustomSearchInput'
 import { useRouter } from 'next/router'
 import SearchSuggestionsBottom from '../../search/SearchSuggestionsBottom'
 import { useSelector } from 'react-redux'
-import { Stack } from '@mui/material'
+import { Stack, useMediaQuery } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 
 const SearchBox = ({ query }) => {
+    const theme = useTheme()
+    const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const [focused, setFocused] = React.useState(false)
     const { token } = useSelector((state) => state.userToken)
     const [inputValue, setInputValue] = useState('')
     const router = useRouter()
     const { categoryIsSticky } = useSelector((state) => state.scrollPosition)
+    const containerRef = useRef(null)
     const searchRef = useRef(null)
     const onFocus = () => setFocused(true)
     const onBlur = () => {
         setFocused(false)
     }
+    console.log({inputValue});
     
+
+    useEffect(() => {
+        if (isSmall) setFocused(true)
+    }, [isSmall])
+
     useEffect(() => {
         if (categoryIsSticky) {
             setFocused(false)
@@ -72,48 +82,52 @@ const SearchBox = ({ query }) => {
         routeHandler(trimmedValue)
     }
     const handleClickOutside = (event) => {
-        if (searchRef.current && !searchRef.current.contains(event.target)) {
+        const target = event.target
+        const insideContainer = containerRef.current?.contains(target)
+        const insidePopover = searchRef.current?.contains(target)
+        if (!insideContainer && !insidePopover) {
             setFocused(false)
             setInputValue('')
         }
     }
     useEffect(() => {
-        document.addEventListener('mousedown', handleClickOutside, {
+        document.addEventListener('pointerdown', handleClickOutside, {
             passive: true,
         })
 
         return () => {
-            document.removeEventListener('mousedown', handleClickOutside)
+            document.removeEventListener('pointerdown', handleClickOutside)
         }
-    }, [searchRef])
+    }, [])
+    console.log({focused,inputValue});
+    
     const handleSearchSuggestionsBottom = () => {
+        if (!focused) return null
         if (token) {
-            if (focused) {
-                return (
-                    <SearchSuggestionsBottom
-                        routeHandler={routeHandler}
-                        handleFocus={onFocus}
-                        inputValue={inputValue}
-                        searchRef={searchRef}
-                    />
-                )
-            }
-        } else {
-            if (inputValue.trim().length >= 1) {
-                return (
-                    <SearchSuggestionsBottom
-                        routeHandler={routeHandler}
-                        handleFocus={onFocus}
-                        inputValue={inputValue}
-                        searchRef={searchRef}
-                    />
-                )
-            }
+            return (
+                <SearchSuggestionsBottom
+                    routeHandler={routeHandler}
+                    handleFocus={onFocus}
+                    inputValue={inputValue}
+                    searchRef={searchRef}
+                />
+            )
         }
+        if (inputValue.trim().length >= 1) {
+            return (
+                <SearchSuggestionsBottom
+                    routeHandler={routeHandler}
+                    handleFocus={onFocus}
+                    inputValue={inputValue}
+                    searchRef={searchRef}
+                />
+            )
+        }
+        return null
     }
 
     return (
-        <Stack>
+        <Stack ref={containerRef} sx={{ position: 'relative' }}>
             <CustomSearchInput
                 setInputValue={setInputValue}
                 handleSearchResult={handleKeyPress}

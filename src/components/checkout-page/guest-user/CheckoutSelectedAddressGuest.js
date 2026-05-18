@@ -49,11 +49,13 @@ const CheckoutSelectedAddressGuest = ({
 
     return (
         <div>
-            <DeliveryCaption>
-                {orderType === 'take_away'
-                    ? t('Contact Info')
-                    : t('Delivery Addresses')}
-            </DeliveryCaption>
+            {orderType !== 'dine_in' && (
+                <DeliveryCaption>
+                    {orderType === 'take_away'
+                        ? t('Contact Info')
+                        : t('Delivery Addresses')}
+                </DeliveryCaption>
+            )}
             <CustomStackFullWidth
                 border={`1px solid ${theme.palette.neutral[300]}`}
                 borderRadius="5px"

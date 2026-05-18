@@ -25,6 +25,7 @@ const StoreRegistration = ({ configData }) => {
     const { mutate, isLoading: regIsloading } =
         usePostStoreRegistration(configData)
     const { mutate: businessMutate, isLoading } = usePostBusiness()
+    
 
     const formSubmit = (value) => {
         const tempData = { ...formValues, value }
@@ -52,6 +53,8 @@ const StoreRegistration = ({ configData }) => {
                             { shallow: true }
                         )
                         dispatch(setAllData(null))
+                        // Clean up localStorage after successful registration
+                        localStorage.removeItem('restaurant_registration_logo')
                     } else {
                         dispatch(setActiveStep(2))
                     }
@@ -66,6 +69,9 @@ const StoreRegistration = ({ configData }) => {
         businessMutate(values, {
             onSuccess: (res) => {
                 if (res) {
+                    // Clean up localStorage after successful business plan submission
+                    localStorage.removeItem('restaurant_registration_logo')
+
                     if (res?.redirect_link && res?.payment !== 'free_trial') {
                         const redirect_url = `${res?.redirect_link}`
                         dispatch(setActiveStep(3))
@@ -149,7 +155,7 @@ const StoreRegistration = ({ configData }) => {
                     mt={{ xs: '4rem', md: '150px' }}
                 >
                     <Typography
-                        fontSize={{ xs: '18px', sm: '20px', md: '36px' }}
+                        fontSize={{ xs: '16px', sm: '20px', md: '36px' }}
                         fontWeight="700"
                         textAlign="center"
                         sx={{

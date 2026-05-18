@@ -151,6 +151,7 @@ const ReviewContent = ({ review, restaurantName }) => {
                         currencySymbol={currencySymbol}
                         digitAfterDecimalPoint={digitAfterDecimalPoint}
                         handleBadge={handleBadge}
+                        image={review?.food_image_full_url}
                     />
                 </RTL>
             )}

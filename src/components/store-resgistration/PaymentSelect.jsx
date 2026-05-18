@@ -27,6 +27,8 @@ const PaymentSelect = ({ submitBusiness, resData, isLoading, configData }) => {
     useEffect(() => {
         scrollToTop()
     }, [])
+    console.log({resData});
+    
 
     const submitPayment = () => {
         submitBusiness({
@@ -162,7 +164,10 @@ const PaymentSelect = ({ submitBusiness, resData, isLoading, configData }) => {
                             }
                         >
                             {t(
-                                `${configData?.subscription_free_trial_days} Days free trial`
+                                '{{days}} Days free trial',
+                                {
+                                    days: configData?.subscription_free_trial_days,
+                                }
                             )}
                         </Typography>
                         {selectType === 'free_trial' && (
@@ -180,7 +185,10 @@ const PaymentSelect = ({ submitBusiness, resData, isLoading, configData }) => {
                         color={theme.palette.neutral[400]}
                     >
                         {t(
-                            `Enjoy ${configData?.subscription_free_trial_days} Days free trial and pay your subscription fee within these trial period.`
+                            'Enjoy {{days}} Days free trial and pay your subscription fee within these trial period.',
+                            {
+                                days: configData?.subscription_free_trial_days,
+                            }
                         )}
                     </Typography>
                 </Stack>

@@ -24,9 +24,9 @@ export default function CustomerSlider({ testimonial_data }) {
     const nextSlide = () => setActiveIndex((prev) => (prev + 1) % total);
     const prevSlide = () => setActiveIndex((prev) => (prev - 1 + total) % total);
 
-    // Get 5 visible slides around the active index
+    // Show 3 cards on mobile, 5 on desktop
     const getVisibleSlides = () => {
-        const visibleCount = 5;
+        const visibleCount = isSmall ? 3 : 5;
         const slides = [];
         const halfVisible = Math.floor(visibleCount / 2);
 
@@ -42,11 +42,10 @@ export default function CustomerSlider({ testimonial_data }) {
     };
 
     const getPosition = (position) => {
-        // Position is relative to center (-2, -1, 0, 1, 2)
-        const horizontalSpacing = isSmall ? 180 : 220;
+        const horizontalSpacing = isSmall ? 115 : 220;
         const x = position * horizontalSpacing; // horizontal spread
-        const y = Math.abs(position) * 80; // arc curve
-        const rotate = position * 12; // rotation based on position
+        const y = Math.abs(position) * (isSmall ? 30 : 80); // arc curve
+        const rotate = position * (isSmall ? 8 : 12);
         const zIndex = 10 - Math.abs(position);
 
         return { x, y, rotate, zIndex };
@@ -70,7 +69,7 @@ export default function CustomerSlider({ testimonial_data }) {
                 sx={{
                     position: "relative",
                     width: "100%",
-                    height: 330,
+                    height: { xs: 220, md: 330 },
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -81,16 +80,16 @@ export default function CustomerSlider({ testimonial_data }) {
                     const isActive = position === 0;
 
                     // Size based on position from center
-                    let width = 130;
-                    let height = 150;
+                    let width;
+                    let height;
 
                     if (position === 0) {
-                        width = 200;
-                        height = 230;
+                        width = isSmall ? 110 : 200;
+                        height = isSmall ? 130 : 230;
                     } else if (Math.abs(position) === 1) {
-                        width = 155;
-                        height = 180;
-                    } else if (Math.abs(position) === 2) {
+                        width = isSmall ? 80 : 155;
+                        height = isSmall ? 95 : 180;
+                    } else {
                         width = 130;
                         height = 150;
                     }

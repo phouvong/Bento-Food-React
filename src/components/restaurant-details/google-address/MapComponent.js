@@ -67,6 +67,7 @@ const MapComponent = ({
         mapTypeControl: false,
         fullscreenControl: false,
         styles: grayscaleMapStyles,
+          disableDefaultUI: true,
     }), []);
 
     const onLoad = useCallback((mapInstance) => {
@@ -109,7 +110,17 @@ const MapComponent = ({
     return (
         <CustomStackFullWidth position="relative" className="map">
             {/* Zoom Buttons */}
-            <Stack position="absolute" zIndex={1} bottom="20px" left="20px" direction="column" spacing={1}>
+            <Stack
+                direction="column"
+                spacing={1}
+                sx={{
+                    position: 'absolute',
+                    zIndex: 1,
+                    left: '15px',
+                    top: { xs: '85px', sm: 'auto' },
+                    bottom: { xs: 'auto', sm: '20px' },
+                }}
+            >
                 <Stack sx={{ backgroundColor: theme.palette.neutral[1800], borderRadius: '8px' }}>
                     <IconButton onClick={handleZoomIn}><AddIcon sx={{ color: theme.palette.neutral[1000] }} /></IconButton>
                     <Divider variant="middle" sx={{ backgroundColor: 'red', marginInline: '8px' }} />
@@ -145,12 +156,24 @@ const MapComponent = ({
 
             <GoogleMap
                 mapContainerStyle={customMapStyle || containerStyle}
-                center={order_details?center:null} // Only initial center
+                center={center}
                 zoom={zoom}
                 onLoad={onLoad}
                 onUnmount={onUnmount}
                 options={options}
             >
+                {isRestaurant && latitude && longitude && (
+                    <MarkerF
+                        position={{
+                            lat: parseFloat(latitude),
+                            lng: parseFloat(longitude),
+                        }}
+                        icon={{
+                            url: '/static/location-pins/restaurant_location_icon.svg',
+                            scaledSize: new window.google.maps.Size(36, 36),
+                        }}
+                    />
+                )}
                 {/* Restaurant Markers */}
                 {data?.length > 0 && data.map((restaurant) => (
                     <MarkerF

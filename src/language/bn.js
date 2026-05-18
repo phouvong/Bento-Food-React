@@ -1,4 +1,6 @@
 export const bengali = {
+    'Browse and filter restaurants to match your vibe.':
+        'আপনার পছন্দের রেস্তোরাঁ খুঁজে নিতে ব্রাউজ এবং ফিল্টার করুন।',
     'This charge includes extra vehicle charge':
         'এই চার্জ এক্সট্রা গাড়ির চার্জে অন্তর্ভুক্ত',
     'and bad weather charge': 'এবং খারাপ আবহাওয়া চার্জ',
@@ -1067,4 +1069,5 @@ export const bengali = {
         'আমাদের জনপ্রিয় ফুড & রেস্টুরেন্ট দেখুন',
     'Currently Open': 'বর্তমানে খোলা',
     'View From Map': 'মানচিত্র থেকে দেখুন',
+    'Refer a Friend': 'বন্ধুকে রেফার করুন'
 }

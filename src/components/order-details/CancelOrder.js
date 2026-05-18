@@ -70,7 +70,32 @@ const CancelOrder = ({
 
                 <DialogContent sx={{ padding: '15px 14px' }}>
                     <CustomStackFullWidth justifyContent="center" spacing={2}>
-                        <FormControl>
+                        <FormControl
+                            sx={{
+                                maxHeight: '250px',
+                                overflowY: 'auto',
+                                scrollbarWidth: 'thin',
+                                scrollbarColor: (theme) =>
+                                    `${theme.palette.neutral[400]} ${theme.palette.neutral[100]}`,
+                                '&::-webkit-scrollbar': {
+                                    width: '6px',
+                                },
+                                '&::-webkit-scrollbar-track': {
+                                    backgroundColor: (theme) =>
+                                        theme.palette.neutral[100],
+                                    borderRadius: '8px',
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    backgroundColor: (theme) =>
+                                        theme.palette.neutral[400],
+                                    borderRadius: '8px',
+                                },
+                                '&::-webkit-scrollbar-thumb:hover': {
+                                    backgroundColor: (theme) =>
+                                        theme.palette.neutral[500],
+                                },
+                            }}
+                        >
                             <RadioGroup
                                 aria-label="cancel-reason"
                                 name="cancel-reason"

@@ -3,7 +3,7 @@ import CustomImageContainer from '../CustomImageContainer'
 
 const PromotionalBanner = ({ global }) => {
     return (
-        <Stack padding={{xs:"30px 0px 5px", md:"40px 0 15px"}} >
+        <Stack marginTop="8px">
             <CustomImageContainer
                 src={global?.banner_data?.promotional_banner_image_full_url}
                 alt={global?.banner_data?.promotional_banner_title}

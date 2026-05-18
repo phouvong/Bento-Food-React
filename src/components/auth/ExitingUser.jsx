@@ -17,6 +17,7 @@ const ExitingUser = ({ formSubmitHandler, loginIsLoading, loginInfo }) => {
         setIsYes(value)
         formSubmitHandler(value)
     }
+console.log({loginInfo});
 
     return (
         <CustomStackFullWidth spacing={3}>
@@ -36,7 +37,9 @@ const ExitingUser = ({ formSubmitHandler, loginIsLoading, loginInfo }) => {
                     color={theme.palette.text.secondary}
                 >
                     {t(
-                        'It looks like the email you entered has already been used and has an existing account.'
+                        loginInfo?.login_type === 'otp'
+                            ? 'It looks like the phone number you entered has already been used and has an existing account.'
+                            : 'It looks like the email you entered has already been used and has an existing account.'
                     )}
                 </Typography>
             </CustomStackFullWidth>

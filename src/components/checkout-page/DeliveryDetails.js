@@ -16,6 +16,7 @@ import { Box, Typography } from '@mui/material'
 import CheckoutSelectedAddressGuest from './guest-user/CheckoutSelectedAddressGuest'
 import { getToken } from './functions/getGuestUserId'
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded'
+import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined'
 const DeliveryDetails = (props) => {
     const {
         global,
@@ -379,7 +380,7 @@ const handleSelectDeliverySpeed = (option) => {
     console.log({selectedDeliverySpeed});
     
     return (
-        <CustomPaperBigCard>
+        <CustomPaperBigCard padding="16px" >
             <CustomStackFullWidth>
                 <DeliveryTitle>
                     {global?.cash_on_delivery &&
@@ -482,6 +483,37 @@ const handleSelectDeliverySpeed = (option) => {
                                     ''
                                 )}
                             </RadioGroup>
+                            {!restaurantData?.data?.delivery &&
+                                !restaurantData?.data?.take_away && (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                            p: 1,
+                                            borderRadius: '8px',
+                                            backgroundColor: theme =>
+                                                theme.palette.mode === 'dark'
+                                                    ? 'rgba(255, 167, 38, 0.12)'
+                                                    : 'rgba(255, 167, 38, 0.15)',
+                                            color: 'warning.main',
+                                        }}
+                                    >
+                                        <ReportProblemOutlinedIcon
+                                            sx={{ fontSize: 18 }}
+                                        />
+                                        <Typography
+                                            sx={{
+                                                fontSize: '13px',
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            {t(
+                                                'Delivery is currently unavailable at this restaurant.'
+                                            )}
+                                        </Typography>
+                                    </Box>
+                                )}
                             {orderType === 'delivery' &&
                                 global?.home_delivery &&
                                 restaurantData?.data?.delivery &&

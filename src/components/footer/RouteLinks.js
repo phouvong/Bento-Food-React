@@ -1,60 +1,35 @@
 import React, { useState } from 'react'
-import {
-    CustomColouredTypography,
-    CustomStackFullWidth,
-} from '@/styled-components/CustomStyles.style'
-
+import { Box, Typography } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import Router from 'next/router'
-import { Typography, useMediaQuery } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
-import { router } from 'next/client'
 import MapModal from '../landingpage/google-map/MapModal'
 import { CustomToaster } from '../custom-toaster/CustomToaster'
-import { alpha } from '@mui/material'
 
-const RouteLinks = (props) => {
-    const { token, global, title, RouteLinksData, isCenter } = props
-    const zoneId = localStorage.getItem('zoneid')
+const RouteLinks = ({ token, global, title, RouteLinksData, isCenter }) => {
     const theme = useTheme()
-    const isXSmall = useMediaQuery(theme.breakpoints.down('md'))
     const { t } = useTranslation()
     const [open, setOpen] = useState(false)
-    const [url, setUrl] = useState({})
+
     const handleClose = () => {
         setOpen(false)
     }
+
     const handleClick = (href, value) => {
         if (value === 'loyalty' || value === 'wallets') {
             if (token) {
                 Router.push(
-                    {
-                        pathname: '/info',
-                        query: { page: value },
-                    },
+                    { pathname: '/info', query: { page: value } },
                     undefined,
                     { shallow: true }
                 )
             } else {
                 CustomToaster('error', 'You must be login to access this page.')
-                // handleOpen()
             }
         } else if (value === 'popular' || value === 'latest') {
-            Router.push({
-                pathname: '/home',
-
-                query: {
-                    restaurantType: value,
-                },
-            })
+            Router.push({ pathname: '/home', query: { restaurantType: value } })
         } else if (value === 'most-reviewed') {
-            Router.push({
-                pathname: '/home',
-
-                query: {
-                    page: value,
-                },
-            })
+            Router.push({ pathname: '/home', query: { page: value } })
         } else if (value === 'cuisines') {
             Router.push(href)
         } else if (value === 'restaurant_owner') {
@@ -67,91 +42,122 @@ const RouteLinks = (props) => {
             Router.push(href, undefined, { shallow: true })
         }
     }
+
     const handleClickToRoute = (href) => {
-        router.push(href, undefined, { shallow: true })
+        Router.push(href, undefined, { shallow: true })
+    }
+
+    const linkSx = {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '8px',
+        color: '#94A3B8',
+        fontSize: '13px',
+        cursor: 'pointer',
+        transition: 'color .15s ease, transform .15s ease',
+        alignSelf: isCenter ? 'center' : 'flex-start',
+        '&::before': {
+            content: '""',
+            width: '4px',
+            height: '4px',
+            borderRadius: '50%',
+            background: theme.palette.primary.main,
+            opacity: 0,
+            transition: 'opacity .15s ease',
+            flexShrink: 0,
+        },
+        '&:hover': {
+            color: '#fff',
+            transform: 'translateX(3px)',
+        },
+        '&:hover::before': {
+            opacity: 1,
+        },
     }
 
     return (
-        <CustomStackFullWidth
-            spacing={{ xs: 1.2, sm: 2 }}
-            alignItems={isCenter && 'center'}
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: isCenter ? 'center' : 'flex-start',
+            }}
         >
-            <Typography
-                color={alpha(theme.palette.whiteContainer.main, 0.8)}
-                fontSize="14px"
-                fontWeight="600"
-            >
-                {t(title)}
-            </Typography>
+            {/* Column heading */}
+            <Box sx={{ position: 'relative', pb: '10px', mb: '18px' }}>
+                <Typography
+                    sx={{
+                        color: '#fff',
+                        fontSize: '12px',
+                        fontWeight: 800,
+                        letterSpacing: '.08em',
+                        textTransform: 'uppercase',
+                    }}
+                >
+                    {t(title)}
+                </Typography>
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: isCenter ? '50%' : 0,
+                        transform: isCenter ? 'translateX(-50%)' : 'none',
+                        width: '22px',
+                        height: '2px',
+                        background: theme.palette.primary.main,
+                        borderRadius: '999px',
+                    }}
+                />
+            </Box>
 
-            {RouteLinksData.map((item, index) => {
-                return (
-                    <CustomColouredTypography
+            {/* Links */}
+            <Box
+                sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+            >
+                {RouteLinksData.map((item, index) => (
+                    <Box
                         key={index}
-                        fontSize={isXSmall ? '14px' : '14px'}
-                        color="whiteContainer.main"
+                        sx={linkSx}
                         onClick={() => handleClick(item.link, item.value)}
-                        sx={{
-                            cursor: 'pointer',
-                            fontWeight: 300,
-                            color: alpha(
-                                theme.palette.whiteContainer.main,
-                                0.8
-                            ),
-                            '&:hover': {
-                                color: 'primary.main',
-                            },
-                        }}
                     >
                         {t(item.name)}
-                    </CustomColouredTypography>
-                )
-            })}
-            {title === 'Other' && global?.refund_policy_status !== 0 && (
-                <CustomColouredTypography
-                    fontSize={isXSmall ? '13px' : '14px'}
-                    color="whiteContainer.main"
-                    onClick={() => handleClickToRoute('/refund-policy')}
-                    sx={{
-                        fontWeight: 300,
-                        color: alpha(theme.palette.whiteContainer.main, 0.8),
-                        cursor: 'pointer',
-                        '&:hover': {
-                            color: 'primary.main',
-                        },
-                    }}
-                >
-                    {t('Refund Policy')}
-                </CustomColouredTypography>
-            )}
-            {title === 'Other' && global?.cancellation_policy_status !== 0 && (
-                <CustomColouredTypography
-                    fontSize={isXSmall ? '13px' : '14px'}
-                    color="whiteContainer.main"
-                    onClick={() => handleClickToRoute('/cancellation-policy')}
-                    sx={{
-                        fontWeight: 300,
-                        color: alpha(theme.palette.whiteContainer.main, 0.8),
-                        cursor: 'pointer',
-                        '&:hover': {
-                            color: 'primary.main',
-                        },
-                    }}
-                >
-                    {t('Cancellation Policy')}
-                </CustomColouredTypography>
-            )}
+                    </Box>
+                ))}
+
+                {title === 'Other' &&
+                    global?.refund_policy_status !== 0 && (
+                        <Box
+                            sx={linkSx}
+                            onClick={() =>
+                                handleClickToRoute('/refund-policy')
+                            }
+                        >
+                            {t('Refund Policy')}
+                        </Box>
+                    )}
+
+                {title === 'Other' &&
+                    global?.cancellation_policy_status !== 0 && (
+                        <Box
+                            sx={linkSx}
+                            onClick={() =>
+                                handleClickToRoute('/cancellation-policy')
+                            }
+                        >
+                            {t('Cancellation Policy')}
+                        </Box>
+                    )}
+            </Box>
+
             {open && (
                 <MapModal
-                    redirectUrl={url}
+                    redirectUrl={{}}
                     open={open}
                     handleClose={handleClose}
                 />
             )}
-        </CustomStackFullWidth>
+        </Box>
     )
 }
-
-RouteLinks.propTypes = {}
 
 export default RouteLinks

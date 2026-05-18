@@ -1,10 +1,9 @@
 import CssBaseline from '@mui/material/CssBaseline'
-import { NoSsr } from '@mui/material'
 import Meta from '@/components/Meta'
-
 import { checkMaintenanceMode } from '@/utils/customFunctions'
 import { fetchPageMetadata, processMetadata } from '@/utils/fetchPageMetadata'
 import RestaurantRegistrationLanding from '@/components/restaurant-resgistration-landing/Index'
+import { NoSsr } from '@mui/material'
 
 const Index = ({ configData, registrationLandingPageData, metaData, pathName }) => {
     const metadata = processMetadata(metaData, {

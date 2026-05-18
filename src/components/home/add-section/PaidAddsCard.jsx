@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { alpha, Box, IconButton, Stack, Typography } from '@mui/material'
-import CustomImageContainer from '@/components/CustomImageContainer'
-import { useTheme } from '@mui/styles'
+import { alpha, Box, IconButton, Stack, Typography, styled } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import ArrowForwardSharpIcon from '@mui/icons-material/ArrowForwardSharp'
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined'
 import StarIcon from '@mui/icons-material/Star'
@@ -19,6 +18,136 @@ import { useDispatch, useSelector } from 'react-redux'
 import { t } from 'i18next'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import CustomNextImage from '@/components/CustomNextImage'
+import { handleRestaurantRedirect } from '@/utils/customFunctions'
+
+const HiCard = styled(Box)(({ theme }) => ({
+    background: 'transparent',
+    border: `1px solid ${alpha(theme.palette.neutral[400], 0.3)}`,
+    borderRadius: 14,
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    transition: 'border-color .18s ease, transform .18s ease',
+    cursor: 'pointer',
+    height: '100%',
+    '&:hover': {
+        borderColor: alpha(theme.palette.primary.main, 0.4),
+        transform: 'translateY(-2px)',
+    },
+}))
+
+const HiMedia = styled(Box)(({ theme }) => ({
+    position: 'relative',
+    aspectRatio: '16 / 10',
+    overflow: 'hidden',
+    backgroundColor: theme.palette.neutral[100],
+    '& img, & video': {
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        display: 'block',
+    },
+}))
+
+const RatingPill = styled(Stack)(({ theme }) => ({
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    zIndex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    padding: '4px 9px',
+    borderRadius: 6,
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.common.white,
+    fontSize: 11.5,
+    fontWeight: 700,
+    letterSpacing: '-0.005em',
+}))
+
+const HiLogo = styled(Box)(({ theme }) => ({
+    width: 44,
+    height: 44,
+    borderRadius: '50%',
+    overflow: 'hidden',
+    backgroundColor: theme.palette.neutral[100],
+    border: `2px solid ${theme.palette.background.paper}`,
+    outline: `1px solid ${theme.palette.neutral[300]}`,
+    flexShrink: 0,
+    alignSelf: 'center',
+}))
+
+const HiTitle = styled(Typography)(({ theme }) => ({
+    margin: 0,
+    fontSize: 14.5,
+    fontWeight: 700,
+    color: theme.palette.text.primary,
+    letterSpacing: '-0.005em',
+    lineHeight: 1.3,
+    flex: 1,
+    minWidth: 0,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+}))
+
+const HiDesc = styled(Typography)(({ theme }) => ({
+    margin: 0,
+    color: theme.palette.text.secondary,
+    fontSize: 12.5,
+    fontWeight: 500,
+    lineHeight: 1.5,
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+}))
+
+const WishBtn = styled(IconButton)(({ theme }) => ({
+    flexShrink: 0,
+    width: 26,
+    height: 26,
+    padding: 0,
+    color: theme.palette.primary.main,
+    transition: 'background .15s ease',
+    '&:hover': {
+        backgroundColor: alpha(theme.palette.primary.main, 0.1),
+    },
+    '& svg': { fontSize: 17 },
+}))
+
+const ArrowBtn = styled(IconButton)(({ theme }) => ({
+    width: 36,
+    height: 36,
+    alignSelf: 'center',
+    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+    color: theme.palette.primary.main,
+    borderRadius: '50%',
+    '&:hover': {
+        backgroundColor: theme.palette.primary.main,
+        color: theme.palette.common.white,
+    },
+    '& svg': { fontSize: 18 },
+}))
+
+const VideoBar = styled(Stack)(({ theme }) => ({
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    padding: '6px 10px 8px',
+    background: 'linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0))',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    color: theme.palette.common.white,
+    fontSize: 11,
+    fontWeight: 600,
+    zIndex: 2,
+    pointerEvents: 'none',
+}))
 
 const PaidAddsCard = ({
     item,
@@ -43,10 +172,9 @@ const PaidAddsCard = ({
     const { wishLists } = useSelector((state) => state.wishList)
 
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
+
     const slideHandler = () => {
         if (!activeSlideData) return
-
-        // Handle the case when there are more than 3 slides
         if (itemLength > 3 || isSmall) {
             if (
                 !ended &&
@@ -57,20 +185,16 @@ const PaidAddsCard = ({
             }
             return
         }
-
-        // Handle the case when there are 3 or fewer slides
         if (index === 0 && item.add_type === 'video_promotion') {
             setPlaying(true)
             return
         }
-
         if (index === 1 && item.add_type === 'video_promotion') {
             if (ended || data[0]?.add_type !== 'video_promotion') {
                 setPlaying(true)
             }
             return
         }
-
         if (index === 2 && item.add_type === 'video_promotion') {
             if (
                 ended ||
@@ -83,16 +207,11 @@ const PaidAddsCard = ({
     }
 
     useEffect(() => {
-        if (data) {
-            slideHandler()
-        }
+        if (data) slideHandler()
     }, [itemLength, activeSlideData, index])
 
     useEffect(() => {
-        // Handle autoplay state based on video end
-        if (ended && sliderRef.current) {
-            sliderRef.current.slickPlay()
-        }
+        if (ended && sliderRef.current) sliderRef.current.slickPlay()
     }, [ended])
 
     useEffect(() => {
@@ -121,21 +240,14 @@ const PaidAddsCard = ({
     }, [ended, index, itemLength, sliderRef])
 
     const handleClick = () => {
-        router.push({
-            pathname: `/restaurants/${item?.restaurant?.slug || item?.restaurant?.id}`,
-            query: {
-                restaurant_zone_id: item?.restaurant?.zone_id,
-            },
-        })
+        handleRestaurantRedirect(
+            router,
+            item?.restaurant?.slug,
+            item?.restaurant?.id,
+        )
     }
-    const handleVideoClick = () => {
-        setVideoModal(true)
-    }
-    const {
-        mutate: addFavoriteMutation,
-        isLoading,
-        error,
-    } = useMutation(
+
+    const { mutate: addFavoriteMutation } = useMutation(
         'add-favourite',
         () => RestaurantsApi.addFavorite(item?.restaurant?.id),
         {
@@ -157,29 +269,27 @@ const PaidAddsCard = ({
                             id: tempId,
                         })
                     )
-
-                    //setOpen(false)
                 }
             },
-            onError: (error) => {},
+            onError: () => {},
         }
     )
+
     const addToFavorite = (e) => {
         e.stopPropagation()
-        if (token) {
-            addFavoriteMutation()
-        } else toast.error(t('You are not logged in'))
+        if (token) addFavoriteMutation()
+        else toast.error(t('You are not logged in'))
     }
-    const onSuccessHandlerForResDelete = (res, id) => {
+
+    const onSuccessHandlerForResDelete = (res) => {
         if (res) {
             toast.success(
-                t('Removed from  favorite successfully.', {
-                    id: 'favorite',
-                })
+                t('Removed from  favorite successfully.', { id: 'favorite' })
             )
             dispatch(removeWishListRes(item?.restaurant?.id))
         }
     }
+
     const { mutate: restaurantMutate } = useWishListResDelete(
         onSuccessHandlerForResDelete
     )
@@ -189,327 +299,171 @@ const PaidAddsCard = ({
         restaurantMutate(item?.restaurant?.id)
     }
 
-    const isInList = (id) => {
-        return !!wishLists?.restaurant?.find(
-            (wishRestaurant) => wishRestaurant.id === id
-        )
-    }
+    const isInList = (id) =>
+        !!wishLists?.restaurant?.find((r) => r.id === id)
+
+    const isRestaurant = item?.add_type === 'restaurant_promotion'
+    const showRating =
+        (item?.is_rating_active === 1 || item?.is_review_active === 1) &&
+        item?.average_rating > 0
+
     return (
         <>
-            <Box
-                sx={{ maxWidth: '450px', cursor: 'pointer' }}
-                onClick={handleClick}
-            >
-                {item?.add_type === 'restaurant_promotion' ? (
-                    <Stack
-                        sx={{
-                            position: 'relative',
-                            margin: '0px 25px -110px',
-                            boxShadow:
-                                '0px 15px 30px rgba(150, 150, 154, 0.40)',
-                            borderRadius: '10px',
-                        }}
-                    >
-                        <Stack position="relative">
-                            {(item?.is_rating_active === 1 ||
-                                item.is_review_active === 1) && (
-                                <Stack
-                                    maxWidth="90px"
-                                    width="100%"
-                                    position="absolute"
-                                    bottom="10px"
-                                    right="10px"
-                                    alignItems="center"
-                                    zIndex="1"
-                                    flexDirection="row"
-                                    backgroundColor={theme.palette.primary.main}
-                                    borderRadius="6px"
-                                    padding="5px"
-                                    gap="5px"
-                                >
-                                    {item.is_review_active === 1 && (
-                                        <>
-                                            <StarIcon
-                                                sx={{
-                                                    fontSize: '18px',
-                                                    color: (theme) =>
-                                                        theme.palette
-                                                            .neutral[100],
-                                                }}
-                                            />
-                                            <Typography
-                                                color={
-                                                    theme.palette.neutral[100]
-                                                }
-                                                fontSize="14px"
-                                                fontWeight="600"
-                                            >
-                                                {item?.average_rating.toFixed(
-                                                    1
-                                                )}
-                                            </Typography>
-                                        </>
-                                    )}
-                                    {item.is_review_active === 1 && (
-                                        <Typography
-                                            color={theme.palette.neutral[100]}
-                                            fontSize="14px"
-                                        >
-                                            ({item?.reviews_comments_count}+)
-                                        </Typography>
-                                    )}
-                                </Stack>
-                            )}
-
+            <Box sx={{  height: '100%' }}>
+                <HiCard onClick={handleClick}>
+                    <HiMedia>
+                        {isRestaurant ? (
+                            <CustomNextImage
+                                src={item?.cover_image_full_url}
+                                width="400"
+                                height="250"
+                                objectFit={
+                                    item?.cover_image_full_url
+                                        ? 'cover'
+                                        : 'contain'
+                                }
+                                alt="cover image"
+                            />
+                        ) : (
                             <Box
-                                sx={(theme) => ({
-                                    boxShadow:
-                                        theme.palette.mode === 'dark'
-                                            ? '0px 15px 30px rgba(0, 0, 0, 0.8)'
-                                            : '0px 15px 30px rgba(150, 150, 154, 0.4)',
-                                    borderRadius: '10px',
-                                })}
-                            >
-                                <CustomNextImage
-                                    src={item?.cover_image_full_url}
-                                    width="390"
-                                    height="200"
-                                    objectFit={item?.cover_image_full_url?"cover":"contain"}
-                                    alt="cover image"
-                                    borderRadius="10px"
-                                />
-                                {/* content here */}
-                            </Box>
-                        </Stack>
-                    </Stack>
-                ) : (
-                    <VideoPlayerWithCenteredControl
-                        ended={ended}
-                        setEnded={setEnded}
-                        playing={playing}
-                        setPlaying={setPlaying}
-                        video={item?.video_attachment_full_url}
-                        setDuration={setDuration}
-                        isMargin={true}
-                    />
-                )}
-
-                <Stack
-                    paddingTop="130px"
-                    paddingBottom="20px"
-                    paddingInline="25px"
-                    position="relative"
-                    sx={{
-                        '&::after': {
-                            transform: 'perspective(500px) rotateX(5deg)',
-                            boxShadow:
-                                '0px -4.412px 29.412px rgba(150, 150, 154, 0.20)',
-                            content: "''",
-                            position: 'absolute',
-                            top: '0px',
-                            left: '0px',
-                            width: '100%',
-                            height: '100%',
-                            borderRadius: '15px',
-                            zIndex: '-1',
-                            backgroundColor: (theme) =>
-                                theme.palette.neutral[100],
-
-                        },
-
-                    }}
-                >
-                    {item?.add_type === 'restaurant_promotion' ? (
-                        <Stack flexDirection="row" gap="1rem" width="100%">
-                            <Stack
                                 sx={{
-                                    border: `1px solid ${alpha(
-                                        theme.palette.primary.main,
-                                        0.5
-                                    )}`,
-                                    borderRadius: '50%',
-                                }}
-                            >
-                                <CustomNextImage
-                                    src={item?.profile_image_full_url}
-                                    width="70"
-                                    height="70"
-                                    objectFit={item?.profile_image_full_url?"cover":"contain"}
-                                    borderRadius="50%"
-                                />
-                            </Stack>
-                            <Stack width={0} flexGrow={1}>
-                                <Stack
-                                    flexDirection="row"
-                                    gap=".6rem"
-                                    width="100%"
-                                    justifyContent="space-between"
-                                    alignItems="center"
-                                >
-                                    <Typography
-                                        sx={{
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: '1',
-                                            WebkitBoxOrient: 'vertical',
-
-                                            whiteSpace: 'wrap',
-                                            wordWrap: 'break-word',
-                                            transition: "all 0.2s ease", // 👈 smooth transition
-                                            "&:hover": {
-                                                color: (theme) => theme.palette.primary.main,
-                                                fontWeight: "600",
-                                                transform: 'scale(1.06)',
-                                            },
-                                         
-                                        }}
-                                        color={theme.palette.neutral[1000]}
-                                        fontSize={{
-                                            xs: '16px',
-                                            sm: '18px',
-                                            md: '20px',
-                                        }}
-                                        fontWeight="600"
-                                        component="h3"
-                                    >
-                                        {item?.title}
-                                    </Typography>
-                                    {!isInList(item?.restaurant?.id) ? (
-                                        <FavoriteBorderOutlinedIcon
-                                            onClick={(e) => addToFavorite(e)}
-                                            sx={{
-                                                cursor: 'pointer',
-                                                flexShrink: 0,
-                                                transition: "all 0.2s ease", // 👈 smooth transition
-                                                "&:hover": {
-                                                    color: (theme) => theme.palette.primary.main,
-
-                                                    transform: 'scale(1.1)',
-                                                },
-                                            }}
-                                            color="primary"
-                                        />
-                                    ) : (
-                                        <FavoriteIcon
-                                            onClick={(e) =>
-                                                deleteWishlistRes(e)
-                                            }
-                                            color="primary"
-                                            sx={{
-                                                fontSize: {
-                                                    xs: '16px',
-                                                    sm: '18px',
-                                                    md: '20px',
-                                                },
-                                                transition: "all 0.2s ease", // 👈 smooth transition
-                                                "&:hover": {
-                                                    color: (theme) => theme.palette.primary.main,
-
-                                                    transform: 'scale(1.1)',
-                                                },
-
-                                            }}
-                                        />
-                                    )}
-                                </Stack>
-                                <Typography
-                                    sx={{
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        display: '-webkit-box',
-                                        WebkitLineClamp: '2',
-                                        WebkitBoxOrient: 'vertical',
-                                        wordWrap: 'break-word',
-                                        color: theme.palette.neutral[1000],
-                                    }}
-                                    color={theme.palette.neutral[500]}
-                                    fontSize={{
-                                        xs: '13px',
-                                        sm: '14px',
-                                        md: '14px',
-                                    }}
-                                    component="p"
-                                >
-                                    {item?.description}
-                                </Typography>
-                            </Stack>
-                        </Stack>
-                    ) : (
-                        <>
-                            <Typography
-                                sx={{
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: '1',
-                                    WebkitBoxOrient: 'vertical',
-                                    color: (theme) =>
-                                        theme.palette.neutral[1000],
-                                    transition: "all 0.2s ease", // 👈 smooth transition
-                                    "&:hover": {
-                                        color: (theme) => theme.palette.primary.main,
-                                        fontWeight: "600",
-                                        transform: 'scale(1.06)',
+                                    position: 'absolute',
+                                    inset: 0,
+                                    '& > .MuiStack-root': {
+                                        height: '100% !important',
+                                        margin: '0 !important',
+                                        borderRadius: 0,
+                                        boxShadow: 'none',
                                     },
                                 }}
-                                fontSize={{
-                                    xs: '16px',
-                                    sm: '18px',
-                                    md: '20px',
-                                }}
-                                component="h3"
-                                fontWeight="600"
                             >
-                                {item?.title}
-                            </Typography>
-                            <Stack
-                                flexDirection="row"
-                                gap="20px"
-                                justifyContent="space-between"
-                            >
-                                <Typography
-                                    sx={{
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        display: '-webkit-box',
-                                        WebkitLineClamp: '2',
-                                        WebkitBoxOrient: 'vertical',
-                                    }}
-                                    fontSize={{
-                                        xs: '13px',
-                                        sm: '14px',
-                                        md: '14px',
-                                    }}
-                                    color={theme.palette.neutral[500]}
-                                    component="p"
+                                <VideoPlayerWithCenteredControl
+                                    ended={ended}
+                                    setEnded={setEnded}
+                                    playing={playing}
+                                    setPlaying={setPlaying}
+                                    video={item?.video_attachment_full_url}
+                                    setDuration={setDuration}
+                                    isMargin={false}
+                                    height="100%"
+                                />
+                            </Box>
+                        )}
+
+                        {isRestaurant && showRating && (
+                            <RatingPill>
+                                {item.is_review_active === 1 && (
+                                    <>
+                                        <StarIcon sx={{ fontSize: 12 }} />
+                                        <Box component="span">
+                                            {item?.average_rating.toFixed(1)}
+                                        </Box>
+                                    </>
+                                )}
+                                {item.is_rating_active === 1 && (
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            opacity: 0.9,
+                                            fontWeight: 600,
+                                            fontSize: 11,
+                                        }}
+                                    >
+                                        ({item?.reviews_comments_count}+)
+                                    </Box>
+                                )}
+                            </RatingPill>
+                        )}
+                    </HiMedia>
+
+                    {isRestaurant ? (
+                        <Box
+                            sx={{
+                                padding: '14px 16px 16px',
+                                display: 'grid',
+                                gridTemplateColumns: '44px 1fr',
+                                gap: '12px',
+                                alignItems: 'start',
+                            }}
+                        >
+                            <HiLogo>
+                                <CustomNextImage
+                                    src={item?.profile_image_full_url}
+                                    width="44"
+                                    height="44"
+                                    objectFit={
+                                        item?.profile_image_full_url
+                                            ? 'cover'
+                                            : 'contain'
+                                    }
+                                />
+                            </HiLogo>
+                            <Box sx={{ minWidth: 0 }}>
+                                <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    justifyContent="space-between"
+                                    gap={1}
+                                    sx={{ mb: '4px' }}
                                 >
+                                    <HiTitle component="h3">
+                                        {item?.title || item?.restaurant?.name}
+                                    </HiTitle>
+                                    {/* <WishBtn
+                                        aria-label="wishlist"
+                                        onClick={(e) =>
+                                            isInList(item?.restaurant?.id)
+                                                ? deleteWishlistRes(e)
+                                                : addToFavorite(e)
+                                        }
+                                    >
+                                        {isInList(item?.restaurant?.id) ? (
+                                            <FavoriteIcon />
+                                        ) : (
+                                            <FavoriteBorderOutlinedIcon />
+                                        )}
+                                    </WishBtn> */}
+                                </Stack>
+                                <HiDesc component="p">
                                     {item?.description}
-                                </Typography>
-                                <IconButton
-                                    onClick={handleClick}
-                                    padding="10px"
-                                    sx={{
-                                        borderRadius: '10px',
-                                        border: `1.5px solid ${theme.palette.primary.main}`,
-                                        transition: "all 0.2s ease", // 👈 smooth transition
-                                        "&:hover": {
-                                            color: (theme) => theme.palette.neutral[100],
-                                            transform: 'scale(1..6)',
-                                            backgroundColor:(theme) => theme.palette.primary.main
-                                        },
-                                    }}
+                                </HiDesc>
+                            </Box>
+                        </Box>
+                    ) : (
+                        <Box
+                            sx={{
+                                padding: '14px 16px 16px',
+                                display: 'grid',
+                                gridTemplateColumns: '1fr 36px',
+                                gap: '10px',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Box sx={{ minWidth: 0 }}>
+                                <HiTitle
+                                    component="h3"
+                                    sx={{ mb: '4px', display: 'block' }}
                                 >
-                                    <ArrowForwardSharpIcon color="primary" sx={{
-                                        "&:hover": {
-                                            color: (theme) => theme.palette.neutral[100],}
-                                    }} />
-                                </IconButton>
-                            </Stack>
-                        </>
+                                    {item?.title}
+                                </HiTitle>
+                                <HiDesc component="p">
+                                    {item?.description}
+                                </HiDesc>
+                            </Box>
+                            <ArrowBtn
+                                aria-label="open"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleClick()
+                                }}
+                            >
+                                <ArrowForwardSharpIcon />
+                            </ArrowBtn>
+                        </Box>
                     )}
-                </Stack>
+                </HiCard>
             </Box>
+
             <CustomModal
                 openModal={videoModal}
                 closeButton

@@ -21,6 +21,8 @@ import { StyledMenu } from './navbar/top-navbar/TopNav.style'
 const CustomLanguage = ({ formMobileMenu, language, isMobile, noLocation }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
+    console.log({language});
+    
 
     const [anchorEl, setAnchorEl] = useState(null)
     const [mounted, setMounted] = useState(false)
@@ -33,9 +35,15 @@ const CustomLanguage = ({ formMobileMenu, language, isMobile, noLocation }) => {
     useEffect(() => {
         setMounted(true)
         if (typeof window !== 'undefined') {
-            dispatch(
-                setLanguage(localStorage.getItem('language') || i18n.language)
+            const savedLanguage = localStorage.getItem('language') || i18n.language
+            dispatch(setLanguage(savedLanguage))
+            const langData = languageLists.find(
+                (l) => l.languageCode === savedLanguage
             )
+            if (langData) {
+                dispatch(setCountryCode(langData.countryCode))
+                dispatch(setCountryFlag(langData.countryFlag))
+            }
         }
     }, [language])
     const handleClick = (event) => {
@@ -82,7 +90,8 @@ const CustomLanguage = ({ formMobileMenu, language, isMobile, noLocation }) => {
     }
     const arrowColor = theme.palette.neutral[500]
     const marginRight = languageDirection === 'rtl' ? '1rem' : '0px';
-
+   console.log({countryFlag});
+   
 
     return (
         <>
@@ -91,24 +100,84 @@ const CustomLanguage = ({ formMobileMenu, language, isMobile, noLocation }) => {
                     formMobileMenu={formMobileMenu}
                     variant="text"
                     size="small"
+                    sx={
+                        noLocation
+                            ? {
+                                  padding: '4px 10px',
+                                  borderRadius: '999px',
+                                  border: `1px solid ${theme.palette.divider}`,
+                                  backgroundColor:
+                                      theme.palette.mode === 'dark'
+                                          ? alpha(theme.palette.common.white, 0.06)
+                                          : '#FFFFFF',
+                                  fontWeight: 600,
+                                  fontSize: '12.5px',
+                                  color: theme.palette.text.primary,
+                                  minWidth: 'auto',
+                                  '&:hover': {
+                                      backgroundColor:
+                                          theme.palette.mode === 'dark'
+                                              ? alpha(
+                                                    theme.palette.common.white,
+                                                    0.1
+                                                )
+                                              : '#FFFFFF',
+                                      borderColor: theme.palette.primary.main,
+                                  },
+                              }
+                            : { py: '4px' }
+                    }
                     aria-controls={open ? 'demo-customized-menu' : undefined}
                     aria-haspopup="true"
                     aria-expanded={open ? 'true' : undefined}
                     disableElevation
                     onClick={handleClick}
                     endIcon={
-                        <KeyboardArrowDownIcon style={{ color: arrowColor, marginInlineStart: "10px" }} />
+                        <KeyboardArrowDownIcon
+                            style={{
+                                color: arrowColor,
+                                marginInlineStart: noLocation ? '2px' : '10px',
+                                fontSize: noLocation ? '16px' : undefined,
+                            }}
+                        />
                     }
                     noLocation={noLocation}
                 >
-                    <Stack flexDirection="row" gap="15px">
-                        {(!location || isMobile) && (
-                            <img width="20" alt="" src={countryFlag} />
-                        )}
+                    <Stack
+                        flexDirection="row"
+                        alignItems="center"
+                        gap={noLocation ? '6px' : '10px'}
+                    >
+                        <img
+                            width={noLocation ? '16' : '20'}
+                            height={noLocation ? '11' : undefined}
+                            alt=""
+                            src={countryFlag}
+                            style={
+                                noLocation
+                                    ? {
+                                          borderRadius: '2px',
+                                          objectFit: 'cover',
+                                      }
+                                    : undefined
+                            }
+                        />
                         <CustomColouredTypography
-                            color={theme.palette.neutral[600]}
-                            sx={{ textTransform: 'capitalize', width: "10px" }}
-                            fontSize={{ xs: '14px', sm: '16px' }}
+                            color={
+                                noLocation
+                                    ? theme.palette.text.primary
+                                    : theme.palette.neutral[600]
+                            }
+                            sx={{
+                                textTransform: 'capitalize',
+                                width: noLocation ? 'auto' : '10px',
+                                fontWeight: noLocation ? 600 : undefined,
+                            }}
+                            fontSize={
+                                noLocation
+                                    ? '12.5px'
+                                    : { xs: '14px', sm: '16px' }
+                            }
                         >
                             {mounted ? languageValue(language)?.languageCode : ''}
                         </CustomColouredTypography>
@@ -132,19 +201,30 @@ const CustomLanguage = ({ formMobileMenu, language, isMobile, noLocation }) => {
                         sx={{
                             backgroundColor:
                                 language === lan.languageCode
-                                    ? alpha(theme.palette.primary.main, 0.8)
+                                    ? theme.palette.neutral[200]
                                     : 'inherit',
                             '&:hover': {
-                                backgroundColor: 'primary.main',
+                                backgroundColor: theme.palette.neutral[200],
                             },
                         }}
                     >
-                        <ListItemIcon>
+                        <ListItemIcon
+                            sx={{
+                                minWidth: '20px !important',
+                                marginInlineEnd: '8px',
+                            }}
+                        >
                             <img width="20" alt="" src={lan?.countryFlag} />
                         </ListItemIcon>
                         <Typography
-                            fontSize={{ xs: '14px', sm: '16px' }}
-                            marginRight={marginRight}
+                            fontSize={{ xs: '14px', sm: '14px' }}
+                            marginInlineEnd={marginRight}
+                            sx={{
+                                '&:hover': {
+                                    fontWeight: 700,
+                                },
+                                fontWeight:language === lan.languageCode ? 500 : 400,
+                            }}
                         >
                             {lan.languageName}
                         </Typography>

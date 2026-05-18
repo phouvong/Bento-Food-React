@@ -8,13 +8,13 @@ const HomeSearch = () => {
     const [selectedValue, setSelectedValue] = useState('')
     const router = useRouter()
     const searchRef = useRef(null)
+    const popoverRef = useRef(null)
 
     useEffect(() => {
         function handleClickOutside(event) {
-            if (
-                searchRef.current &&
-                !searchRef.current.contains(event.target)
-            ) {
+            const insideContainer = searchRef.current?.contains(event.target)
+            const insidePopover = popoverRef.current?.contains(event.target)
+            if (!insideContainer && !insidePopover) {
                 setOpenSearchSuggestions(false)
             }
         }
@@ -22,7 +22,7 @@ const HomeSearch = () => {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside)
         }
-    }, [searchRef])
+    }, [])
     const handleOnFocus = () => {
         setOpenSearchSuggestions(true)
         localStorage.setItem('bg', true)
@@ -79,6 +79,7 @@ const HomeSearch = () => {
                         <SearchSuggestionsBottom
                             setOpenSearchSuggestions={setOpenSearchSuggestions}
                             setSelectedValue={setSelectedValue}
+                            searchRef={popoverRef}
                         />
                     )}
                 </>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { CustomTypography } from '../../custom-tables/Tables.style'
-import { IconButton, Modal, Stack, Typography } from '@mui/material'
+import { IconButton, Modal, Stack, Typography, alpha } from '@mui/material'
 import { t } from 'i18next'
 import { useTheme } from '@mui/material/styles'
 import DeleteAddress from './DeleteAddress'
@@ -24,6 +24,13 @@ import toast from 'react-hot-toast'
 import { setLocation } from '@/redux/slices/addressData'
 import { onErrorResponse } from '@/components/ErrorResponse'
 import { setGuestUserInfo } from '@/redux/slices/guestUserInfo'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
+import { Menu, MenuItem, Box, Chip } from '@mui/material'
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
+//import EditLocationOutlinedIcon from '@mui/icons-material/EditLocationOutlined'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import HomeIcon from '@mui/icons-material/Home';
 
 const style = {
     position: 'absolute',
@@ -37,10 +44,11 @@ const style = {
     borderRadius: '10px',
 }
 
-const AddressCard = ({ address, refetch }) => {
+const AddressCard = ({ address, refetch, isDefault, setIsDefault }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
     const [open, setOpen] = useState(false)
+    const [openDelete, setOpenDelete] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
     const [addressSymbol, setAddressSymbol] = useState('')
     const [rerenderMap, setRerenderMap] = useState(false)
@@ -49,25 +57,26 @@ const AddressCard = ({ address, refetch }) => {
     const { location, formatted_address } = useSelector(
         (state) => state.addressData
     )
-    const { data, isError } = useQuery(['profile-info'], ProfileApi.profileInfo)
+    console.log({ address })
+    //const { data, isError } = useQuery(['profile-info'], ProfileApi.profileInfo)
     useEffect(() => {
-        if (address?.address_type === 'Home') {
+        if (address?.address_type === 'home' || address?.address_type === 'Home') {
             setAddressSymbol(
-                <HomeRoundedIcon
+                <HomeIcon
                     sx={{
                         width: '20px',
                         height: '20px',
-                        color: theme.palette.customColor.twelve,
+                        color: theme.palette.primary.main,
                     }}
                 />
             )
-        } else if (address.address_type === 'Office') {
+        } else if (address.address_type === 'Office' || address.address_type === 'office') {
             setAddressSymbol(
                 <ApartmentIcon
                     sx={{
                         width: '20px',
                         height: '20px',
-                        color: theme.palette.customColor.twelve,
+                        color: theme.palette.primary.main,
                     }}
                 />
             )
@@ -77,7 +86,7 @@ const AddressCard = ({ address, refetch }) => {
                     sx={{
                         width: '20px',
                         height: '20px',
-                        color: theme.palette.customColor.twelve,
+                        color: theme.palette.primary.main,
                     }}
                 />
             )
@@ -108,10 +117,23 @@ const AddressCard = ({ address, refetch }) => {
         setAnchorEl(null)
     }
     const handleEditAddress = () => {
+        handleClose()
         dispatch(
             setLocation({ lat: address?.latitude, lng: address?.longitude })
         )
+        setRerenderMap((prev) => !prev)
         setOpen(true)
+    }
+    const handleDeleteClick = () => {
+        // We will keep the Popover logic for delete confirmation if it's already there,
+        // or we can just trigger the deletion logic.
+        // The previous code used handleClick for the DeleteIcon to open CustomPopover.
+        // I will keep that logic.
+    }
+    const handleSetDefault = (id) => {
+        handleClose()
+        setIsDefault(id)
+
     }
     const formSubmitHandler = (values) => {
         let newData = {
@@ -134,107 +156,167 @@ const AddressCard = ({ address, refetch }) => {
     }
 
     return (
-        <CustomDivWithBorder>
-            <CustomStackFullWidth spacing={1}>
-                <CustomStackFullWidth
-                    sx={{
-                        backgroundColor: (theme) =>
-                            theme.palette.mode === 'dark'
-                                ? theme.palette.cardBackground1
-                                : theme.palette.sectionBg,
-                    }}
-                >
-                    <CustomStackFullWidth
-                        justifyContent="space-between"
-                        direction="row"
-                        alignItems="center"
-                        sx={{ padding: '5px 15px' }}
+        <CustomDivWithBorder
+            sx={{
+                p: '1rem',
+                borderRadius: '10px',
+                height: '100%',
+                position: 'relative',
+                '&:hover': {
+                    borderColor: 'primary.main',
+                },
+            }}
+        >
+            <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
+                spacing={1}
+            >
+                <Stack direction="row" alignItems="center" spacing={2}>
+                    <Box
+                        sx={{
+                            p: '12px',
+                            borderRadius: '50%',
+                            backgroundColor: (theme) =>
+                                theme.palette.mode === 'dark'
+                                    ? alpha(theme.palette.primary.main, 0.1)
+                                    : theme.palette.sectionBg,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
                     >
-                        <Stack
-                            flexDirection="row"
-                            gap="5px"
-                            alignItems="center"
+                        {addressSymbol}
+                    </Box>
+                    <Stack>
+                        <Typography
+                            fontSize="14px"
+                            fontWeight="600"
+                            sx={{ textTransform: 'capitalize' }}
                         >
-                            <CustomStackFullWidth>
-                                {addressSymbol}
-                            </CustomStackFullWidth>
-                            <CustomTypography
-                                sx={{ textTransform: 'capitalize' }}
-                            >
-                                {t(address?.address_type)}
-                            </CustomTypography>
-                        </Stack>
-                        <Stack flexDirection="row">
-                            <IconButton onClick={handleEditAddress}>
-                                <EditLocationOutlinedIcon
+                            {t(address?.address_type)}
+                            {isDefault === address?.id && (
+                                <Chip
+                                    label={t('Default')}
+                                    color="primary"
+                                    size="small"
                                     sx={{
-                                        fontSize: '20px',
-                                        color: theme.palette.customColor.two,
+                                        ml: '10px',
+                                        fontSize: '12px',
+                                        height: '16px',
+                                        borderRadius: '2px',
+                                        '& .MuiChip-label': {
+                                            px: '5px',
+                                        },
                                     }}
                                 />
-                            </IconButton>
-                            <IconButton onClick={handleClick}>
-                                <DeleteIcon />
-                            </IconButton>
-                        </Stack>
-                    </CustomStackFullWidth>
-                </CustomStackFullWidth>
-                <CustomStackFullWidth
-                    spacing={1}
-                    sx={{ paddingX: '20px', paddingBottom: '25px' }}
-                >
-                    <Stack direction="row" spacing={2}>
-                        <Typography fontSize="14px" fontWeight="500">
-                            {t('Name')}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            )}
                         </Typography>
                         <Typography
                             fontSize="14px"
                             fontWeight="400"
                             color={theme.palette.neutral[500]}
-                        >
-                            {address?.contact_person_name}
-                        </Typography>
-                    </Stack>
-                    <Stack direction="row" spacing={2}>
-                        <Typography fontSize="14px" fontWeight="500">
-                            {t('Phone')}&nbsp;&nbsp;&nbsp;
-                        </Typography>
-                        <Typography
-                            fontSize="14px"
-                            fontWeight="400"
-                            color={theme.palette.neutral[500]}
-                        >
-                            {convertPhoneNumber(address?.contact_person_number)}
-                            {}
-                        </Typography>
-                    </Stack>
-                    <Stack direction="row" spacing={2}>
-                        <Typography fontSize="14px" fontWeight="500">
-                            {t('Address')}
-                        </Typography>
-                        <Typography
-                            fontSize="14px"
-                            fontWeight="400"
-                            color={theme.palette.neutral[500]}
+                            sx={{
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: '-webkit-box',
+                                WebkitLineClamp: '2',
+                                WebkitBoxOrient: 'vertical',
+                            }}
                         >
                             {address?.address}
                         </Typography>
                     </Stack>
-                </CustomStackFullWidth>
-            </CustomStackFullWidth>
-            <CustomPopover
+                </Stack>
+                <IconButton
+                    onClick={handleClick}
+                    sx={{
+                        p: '5px',
+                        position: 'absolute',
+                        top: '10px',
+                        right: '5px',
+                    }}
+                >
+                    <MoreVertIcon sx={{ fontSize: '20px' }} />
+                </IconButton>
+            </Stack>
+
+            <Menu
                 anchorEl={anchorEl}
-                setAnchorEl={setAnchorEl}
-                handleClose={handleClose}
-                maxWidth="255px"
-                padding="20px 35px 25px"
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}
             >
-                <DeleteAddress
-                    addressId={address?.id}
-                    refetch={refetch}
-                    handleClose={handleClose}
-                />
-            </CustomPopover>
+                <MenuItem onClick={handleEditAddress}>
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                        <EditLocationOutlinedIcon sx={{ fontSize: '18px' }} />
+                        <Typography fontSize="14px" sx={{ color: 'text.primary' }}>
+                            {t('Edit')}
+                        </Typography>
+                    </Stack>
+                </MenuItem>
+                {isDefault !== address?.id && (
+                    <MenuItem onClick={() => handleSetDefault(address?.id)}>
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                            <CheckCircleOutlineIcon sx={{ fontSize: '18px' }} />
+                            <Typography
+                                fontSize="14px"
+                                sx={{ color: 'text.primary' }}
+                            >
+                                {t('Set as Default')}
+                            </Typography>
+                        </Stack>
+                    </MenuItem>
+                )}
+                <MenuItem
+                    onClick={() => {
+                        handleClose()
+                        setOpenDelete(true)
+                    }}
+                >
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                        <DeleteOutlineIcon
+                            sx={{ fontSize: '18px', color: 'error.main' }}
+                        />
+                        <Typography fontSize="14px" sx={{ color: 'error.main' }}>
+                            {t('Delete')}
+                        </Typography>
+                    </Stack>
+                </MenuItem>
+            </Menu>
+
+            {openDelete && (
+                <Modal
+                    open={openDelete}
+                    onClose={() => setOpenDelete(false)}
+                    aria-labelledby="delete-address-modal"
+                >
+                    <Stack
+                        sx={{
+                            ...style,
+                            p: '2rem',
+                            width: { xs: '90%', sm: '400px' },
+                            alignItems: 'center',
+                            textAlign: 'center',
+                        }}
+                        spacing={2}
+                    >
+                        <DeleteAddress
+                            addressId={address?.id}
+                            refetch={refetch}
+                            handleClose={() => setOpenDelete(false)}
+                        />
+                    </Stack>
+                </Modal>
+            )}
             {open && (
                 <Modal
                     open={open}

@@ -48,9 +48,9 @@ export default function FoodOrRestaurant({
     }, [])
     const handleClick = (value) => {
         dispatch(setFoodOrRestaurant(value))
-        dispatch(setSelectedValue(''))
-        dispatch(setSelectedName(''))
     }
+    console.log({foodOrRestaurant});
+    
     return (
         <>
             {languageDirection && (

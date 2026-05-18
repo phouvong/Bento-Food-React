@@ -92,103 +92,51 @@ const BusinessPlan = ({ formSubmit, isLoading, configData }) => {
     )
 
     return (
-        <CustomStackFullWidth
-            sx={{
-                border: `1px solid ${alpha(theme.palette.neutral[400], 0.2)}`,
-                marginTop: '2rem',
-                borderRadius: '8px',
-                padding: { xs: '1rem', md: '30px' },
-            }}
-        >
-            <Stack
+        <>
+            <CustomStackFullWidth
                 sx={{
-                    // backgroundColor: (theme) => alpha(theme.palette.neutral[400], 0.1),
-                    padding: '.6rem',
+                    // border: `1px solid ${alpha(theme.palette.neutral[400], 0.2)}`,
+                    marginTop: '2rem',
                     borderRadius: '8px',
-                    justifyContent: 'center',
-                    alignItems: 'center',
+                    padding: { xs: '1rem', md: '30px' },
+                    backgroundColor: theme.palette.neutral[100],
+                    boxShadow:
+                        '0px 8px 15px rgba(28, 30, 32, 0.03), 0px 0px 2px rgba(28, 30, 32, 0.08)',
                 }}
             >
-                <Typography
-                    fontSize="18px"
-                    fontWeight="500"
-                    textAlign="center"
-                    sx={{ color: theme.palette.neutral[1000] }}
+                <Stack
+                    sx={{
+                        borderRadius: '8px',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
                 >
-                    {t('Choose Your Business Plan for')}
-                </Typography>
+                    <Typography
+                        fontSize="20px"
+                        fontWeight="700"
+                        textAlign="center"
+                        sx={{ color: theme.palette.neutral[1000] }}
+                    >
+                        {t('Choose Your Business Plan')}
+                    </Typography>
+                    <Typography
+                        fontSize="13px"
+                        textAlign="center"
+                        sx={{ color: theme.palette.neutral[500] }}
+                    >
+                        {t(
+                            'To start your business with us, please select a business plan from the options below'
+                        )}
+                        :
+                    </Typography>
 
-                <CustomStackFullWidth
-                    direction={{ xs: 'column', md: 'row' }}
-                    mt="1rem"
-                    gap="20px"
-                >
-                    {configData?.commission_business_model !== 0 && (
-                        <Stack
-                            flexGrow={1}
-                            padding="20px"
-                            sx={{
-                                cursor: 'pointer',
-                                borderRadius: '10px',
-                                border: '1px solid',
-                                backgroundColor:
-                                    selectedPlan === 'commission'
-                                        ? (theme) =>
-                                              alpha(
-                                                  theme.palette.primary.main,
-                                                  0.1
-                                              )
-                                        : theme.palette.neutral[100],
-                                borderColor:
-                                    selectedPlan === 'commission'
-                                        ? (theme) => theme.palette.primary.main
-                                        : alpha(
-                                              theme.palette.neutral[400],
-                                              0.5
-                                          ),
-                            }}
-                            spacing={1}
-                            onClick={() => setSelectedPlan('commission')}
-                        >
+                    <CustomStackFullWidth
+                        direction={{ xs: 'column', md: 'row' }}
+                        mt="1.5rem"
+                        gap="20px"
+                    >
+                        {configData?.commission_business_model !== 0 && (
                             <Stack
-                                direction="row"
-                                justifyContent="space-between"
-                            >
-                                <Typography
-                                    fontSize="16px"
-                                    fontWeight="700"
-                                    color={
-                                        selectedPlan === 'commission'
-                                            ? theme.palette.primary.main
-                                            : theme.palette.neutral[1000]
-                                    }
-                                >
-                                    {t('Commission Base')}
-                                </Typography>
-                                {selectedPlan === 'commission' && (
-                                    <CheckCircleIcon
-                                        sx={{
-                                            fontSize: '24px',
-                                            color: (theme) =>
-                                                theme.palette.primary.main,
-                                        }}
-                                    />
-                                )}
-                            </Stack>
-                            <Typography
-                                fontSize="13px"
-                                color={theme.palette.neutral[400]}
-                            >
-                                {t(
-                                    `${text1} ${configData?.admin_commission}% ${text2} ${configData?.business_name} ${text3}`
-                                )}
-                            </Typography>
-                        </Stack>
-                    )}
-                    {configData?.subscription_business_model !== 0 &&
-                        data?.packages?.length > 0 && (
-                            <Stack
-                                onClick={() => setSelectedPlan('subscription')}
                                 flexGrow={1}
                                 padding="20px"
                                 sx={{
@@ -196,24 +144,18 @@ const BusinessPlan = ({ formSubmit, isLoading, configData }) => {
                                     borderRadius: '10px',
                                     border: '1px solid',
                                     backgroundColor:
-                                        selectedPlan === 'subscription'
-                                            ? (theme) =>
-                                                  alpha(
-                                                      theme.palette.primary
-                                                          .main,
-                                                      0.1
-                                                  )
-                                            : theme.palette.neutral[100],
+                                        selectedPlan === 'commission'
+                                            ? theme.palette.neutral[100]
+                                            : theme.palette.background
+                                                  .profileBackground,
                                     borderColor:
-                                        selectedPlan === 'subscription'
+                                        selectedPlan === 'commission'
                                             ? (theme) =>
                                                   theme.palette.primary.main
-                                            : alpha(
-                                                  theme.palette.neutral[400],
-                                                  0.5
-                                              ),
+                                            : 'transparent',
                                 }}
                                 spacing={1}
+                                onClick={() => setSelectedPlan('commission')}
                             >
                                 <Stack
                                     direction="row"
@@ -223,14 +165,14 @@ const BusinessPlan = ({ formSubmit, isLoading, configData }) => {
                                         fontSize="16px"
                                         fontWeight="700"
                                         color={
-                                            selectedPlan === 'subscription'
+                                            selectedPlan === 'commission'
                                                 ? theme.palette.primary.main
                                                 : theme.palette.neutral[1000]
                                         }
                                     >
-                                        {t('Subscription Base')}
+                                        {t('Commission Base')}
                                     </Typography>
-                                    {selectedPlan === 'subscription' && (
+                                    {selectedPlan === 'commission' && (
                                         <CheckCircleIcon
                                             sx={{
                                                 fontSize: '24px',
@@ -240,118 +182,183 @@ const BusinessPlan = ({ formSubmit, isLoading, configData }) => {
                                         />
                                     )}
                                 </Stack>
-
                                 <Typography
                                     fontSize="13px"
                                     color={theme.palette.neutral[400]}
                                 >
                                     {t(
-                                        'Run restaurant by purchasing subscription packages. You will have access to the features in restaurant panel, app and interaction with user according to the subscription packages.'
+                                        `${text1} ${configData?.admin_commission}% ${text2} ${configData?.business_name} ${text3}`
                                     )}
                                 </Typography>
                             </Stack>
                         )}
-                </CustomStackFullWidth>
-                {data?.packages?.length > 0 && selectedPlan === 'subscription' && (
-                    <Stack
-                        width="100%"
-                        maxWidth="850px"
-                        justifyContent="center"
-                        mt="40px"
-                        spacing={5}
-                    >
-                        <Typography
-                            textAlign="center"
-                            fontWeight="bold"
-                            fontSize="18px"
-                            color={theme.palette.neutral[1000]}
-                        >
-                            {t('Choose Subscription Package')}
-                        </Typography>
-                        <Box
-                            onMouseEnter={() => setIsHover(true)}
-                            onMouseLeave={() => setIsHover(false)}
-                            sx={{
-                                '.slick-slide': {
-                                    '&:nth-of-type(3n+1) .plan-item': {
-                                        background: '#E2F4EB',
-                                    },
-                                    '&:nth-of-type(3n+2) .plan-item': {
-                                        background: '#E3F5FF',
-                                    },
-                                    '&:nth-of-type(3n+3) .plan-item': {
-                                        background: '#FFE2D3',
-                                    },
-                                    '&:nth-of-type(3n+4) .plan-item': {
-                                        background: '#E4EDFF',
-                                    },
-                                },
-                            }}
-                        >
-                            <SliderCustom padding="15px" gap="25px">
-                                <Slider {...settings}>
-                                    {data?.packages?.map((item) => (
-                                        <Plan
-                                            key={item.id}
-                                            item={item}
-                                            setSelectedPackage={
-                                                setSelectedPackage
+                        {configData?.subscription_business_model !== 0 &&
+                            data?.packages?.length > 0 && (
+                                <Stack
+                                    onClick={() =>
+                                        setSelectedPlan('subscription')
+                                    }
+                                    flexGrow={1}
+                                    padding="20px"
+                                    sx={{
+                                        cursor: 'pointer',
+                                        borderRadius: '10px',
+                                        border: '1px solid',
+                                        backgroundColor:
+                                            selectedPlan === 'subscription'
+                                                ? theme.palette.neutral[100]
+                                                : theme.palette.background
+                                                      .profileBackground,
+                                        borderColor:
+                                            selectedPlan === 'subscription'
+                                                ? (theme) =>
+                                                      theme.palette.primary.main
+                                                : 'transparent',
+                                    }}
+                                    spacing={1}
+                                >
+                                    <Stack
+                                        direction="row"
+                                        justifyContent="space-between"
+                                    >
+                                        <Typography
+                                            fontSize="16px"
+                                            fontWeight="700"
+                                            color={
+                                                selectedPlan === 'subscription'
+                                                    ? theme.palette.primary.main
+                                                    : theme.palette
+                                                          .neutral[1000]
                                             }
-                                            selectedPackage={selectedPackage}
-                                        />
-                                    ))}
-                                </Slider>
-                            </SliderCustom>
-                        </Box>
-                    </Stack>
-                )}
+                                        >
+                                            {t('Subscription Base')}
+                                        </Typography>
+                                        {selectedPlan === 'subscription' && (
+                                            <CheckCircleIcon
+                                                sx={{
+                                                    fontSize: '24px',
+                                                    color: (theme) =>
+                                                        theme.palette.primary
+                                                            .main,
+                                                }}
+                                            />
+                                        )}
+                                    </Stack>
 
-                <CustomStackFullWidth
-                    justifyContent="flex-end"
-                    direction="row"
-                    spacing={2}
-                    mt="2rem"
+                                    <Typography
+                                        fontSize="13px"
+                                        color={theme.palette.neutral[400]}
+                                    >
+                                        {t(
+                                            'Run restaurant by purchasing subscription packages. You will have access to the features in restaurant panel, app and interaction with user according to the subscription packages.'
+                                        )}
+                                    </Typography>
+                                </Stack>
+                            )}
+                    </CustomStackFullWidth>
+                    {data?.packages?.length > 0 &&
+                        selectedPlan === 'subscription' && (
+                            <Stack
+                                width="100%"
+                                maxWidth="850px"
+                                justifyContent="center"
+                                mt="40px"
+                                spacing={2}
+                            >
+                                <Typography
+                                    textAlign="center"
+                                    fontWeight="bold"
+                                    fontSize="18px"
+                                    color={theme.palette.neutral[1000]}
+                                >
+                                    {t('Choose Subscription Package')}
+                                </Typography>
+                                <Box
+                                    onMouseEnter={() => setIsHover(true)}
+                                    onMouseLeave={() => setIsHover(false)}
+                                    sx={{
+                                        '.slick-slide': {
+                                            '&:nth-of-type(3n+1) .plan-item': {
+                                                background: '#E2F4EB',
+                                            },
+                                            '&:nth-of-type(3n+2) .plan-item': {
+                                                background: '#E3F5FF',
+                                            },
+                                            '&:nth-of-type(3n+3) .plan-item': {
+                                                background: '#FFE2D3',
+                                            },
+                                            '&:nth-of-type(3n+4) .plan-item': {
+                                                background: '#E4EDFF',
+                                            },
+                                        },
+                                    }}
+                                >
+                                    <SliderCustom padding="15px" gap="25px">
+                                        <Slider {...settings}>
+                                            {data?.packages?.map((item) => (
+                                                <Plan
+                                                    key={item.id}
+                                                    item={item}
+                                                    setSelectedPackage={
+                                                        setSelectedPackage
+                                                    }
+                                                    selectedPackage={
+                                                        selectedPackage
+                                                    }
+                                                />
+                                            ))}
+                                        </Slider>
+                                    </SliderCustom>
+                                </Box>
+                            </Stack>
+                        )}
+                </Stack>
+            </CustomStackFullWidth>
+
+            <CustomStackFullWidth
+                justifyContent="flex-end"
+                direction="row"
+                spacing={2}
+                mt="2rem"
+            >
+                <CustomButton
+                    onClick={() => dispatch(setActiveStep(0))}
+                    sx={{
+                        bgcolor: alpha(theme.palette.neutral[200], 0.5),
+                        color: `${theme.palette.neutral[1000]} !important`,
+                        px: '30px',
+
+                        borderRadius: '5px',
+                        mr: 2,
+                    }}
                 >
-                    <CustomButton
-                        onClick={() => dispatch(setActiveStep(0))}
-                        sx={{
-                            bgcolor: (theme) =>
-                                alpha(theme.palette.neutral[200], 0.5),
-                            color: (theme) =>
-                                `${theme.palette.primary.dark} !important`,
-                            px: '30px',
+                    {t('Back')}
+                </CustomButton>
 
-                            borderRadius: '5px',
-                            mr: 2,
-                        }}
-                    >
-                        {t('Back')}
-                    </CustomButton>
-
-                    <LoadingButton
-                        type="submit"
-                        onClick={handleSubmit}
-                        disabled={
-                            selectedPackage === null &&
-                            selectedPlan === 'subscription'
-                        }
-                        variant="contained"
-                        loading={isLoading}
-                        sx={{
-                            background: (theme) => theme.palette.primary.main,
-                            minWidth: '100px',
-                            color: (theme) =>
-                                `${theme.palette.neutral[100]}!important`,
-                            px: '30px',
-                            borderRadius: '5px',
-                            fontWeight: '500',
-                            fontSize: '14px',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        {t('Next')}
-                    </LoadingButton>
-                    {/* <ResetButton
+                <LoadingButton
+                    type="submit"
+                    onClick={handleSubmit}
+                    disabled={
+                        selectedPackage === null &&
+                        selectedPlan === 'subscription'
+                    }
+                    variant="contained"
+                    loading={isLoading}
+                    sx={{
+                        background: (theme) => theme.palette.primary.main,
+                        minWidth: '100px',
+                        color: (theme) =>
+                            `${theme.palette.neutral[100]}!important`,
+                        px: '30px',
+                        borderRadius: '5px',
+                        fontWeight: '500',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                    }}
+                >
+                    {t('Next')}
+                </LoadingButton>
+                {/* <ResetButton
                         onClick={() => dispatch(setActiveStep(0))}
                         variant="outlined"
                     >
@@ -367,9 +374,8 @@ const BusinessPlan = ({ formSubmit, isLoading, configData }) => {
                     >
                         {t('Next')}
                     </SaveButton> */}
-                </CustomStackFullWidth>
-            </Stack>
-        </CustomStackFullWidth>
+            </CustomStackFullWidth>
+        </>
     )
 }
 

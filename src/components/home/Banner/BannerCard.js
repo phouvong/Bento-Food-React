@@ -16,7 +16,10 @@ const BannerCard = ({ banner, handleBannerClick, onlyShimmer }) => {
                         width="100%"
                         height="auto"
                         variant="rounded"
-                        sx={{ aspectRatio: '2 / 1.06' }}
+                        sx={{
+                            borderRadius: '16px',
+                            aspectRatio: { xs: '2 / 0.77', md: '2 / 1' },
+                        }}
                     />
                 </CustomStackFullWidth>
             ) : (
@@ -26,8 +29,10 @@ const BannerCard = ({ banner, handleBannerClick, onlyShimmer }) => {
                         cursor: 'pointer',
                         overflow: 'hidden',
                         transition: 'transform 0.3s ease',
+                        // boxShadow: '0px 10px 30px rgba(0, 0, 0, 0)',
                         '&:hover': {
-                            transform: 'scale(1.03)', // slight zoom/lift
+                            transform: 'scale(1.02)',
+                            // boxShadow: '0px 10px 30px rgba(0, 0, 0, 0.16)',
                         },
                     }}
                     onClick={() => handleBannerClick(banner)}
@@ -39,8 +44,10 @@ const BannerCard = ({ banner, handleBannerClick, onlyShimmer }) => {
                         alt="banner"
                         priority
                         borderRadius="16px"
-                        objectFit="contain"
+                        objectFit="cover"
                         style={{
+                            width: '100%',
+                            height: '100%',
                             transition: 'transform 0.4s ease',
                         }}
                     />

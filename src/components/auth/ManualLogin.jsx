@@ -33,7 +33,7 @@ const ManualLogin = (props) => {
         rememberMeHandleChange,
         handleClick,
         setModalFor,
-        setForWidth,isRemember
+        setForWidth, isRemember
 
     } = props
     const theme = useTheme()
@@ -55,6 +55,8 @@ const ManualLogin = (props) => {
         }
     }, [loginFormik.values.email_or_phone])
 
+
+
     return (
         <form onSubmit={loginFormik.handleSubmit} noValidate>
             <CustomStackFullWidth
@@ -64,7 +66,7 @@ const ManualLogin = (props) => {
                 <Stack width="100%" minHeight="45px">
                     {isPhone === 'phone' ? (
                         <CustomLoginPhoneInput
-                            value={loginFormik.values.email_or_phone}
+                            value={loginFormik.values.email_or_phone ?? ''}
                             onHandleChange={handleOnChange}
                             initCountry={global?.country}
                             touched={loginFormik.touched.email_or_phone}
@@ -100,7 +102,7 @@ const ManualLogin = (props) => {
                                 id="email_or_phone"
                                 name="email_or_phone"
                                 placeholder={t('Email/Phone')}
-                                value={loginFormik.values.email_or_phone}
+                                value={loginFormik.values.email_or_phone === "undefined" ? "" : loginFormik.values.email_or_phone}
                                 onChange={loginFormik.handleChange}
                                 error={
                                     loginFormik.touched.email_or_phone &&
@@ -273,6 +275,13 @@ const ManualLogin = (props) => {
                             textTransform: 'none',
                             cursor: 'pointer',
                             color: (theme) => theme.palette.primary.main,
+
+                            '&:hover': {
+                                color: (theme) => theme.palette.primary.dark,
+                                textDecoration: 'underline',
+                                textDecorationThickness: '1px',
+                                textUnderlineOffset: '2px',
+                            },
                         }}
                     >
                         {t('Forgot password?')}
@@ -282,9 +291,9 @@ const ManualLogin = (props) => {
             <CustomStackFullWidth sx={{ paddingY: '10px' }}>
                 <CustomColouredTypography
                     color={theme.palette.neutral[500]}
-                    onClick={handleClick}
+                   
                     sx={{
-                        cursor: 'pointer',
+                       
                         fontWeight: '400',
                         fontSize: '12px',
                         [theme.breakpoints.down('sm')]: {
@@ -295,12 +304,20 @@ const ManualLogin = (props) => {
                 >
                     {t('* By login I Agree with all the')}
                     <Typography
+                     onClick={handleClick}
                         component="span"
                         color={theme.palette.primary.main}
                         sx={{
+                             cursor: 'pointer',
                             textAlign: 'center',
                             fontWeight: '400',
                             fontSize: '12px',
+                            '&:hover': {
+                                color: (theme) => theme.palette.primary.dark,
+                                textDecoration: 'underline',
+                                textDecorationThickness: '1px',
+                                textUnderlineOffset: '2px',
+                            },
                         }}
                     >
                         {t(' Terms & Conditions')}

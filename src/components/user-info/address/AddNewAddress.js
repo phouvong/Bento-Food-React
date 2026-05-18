@@ -133,14 +133,14 @@ const AddNewAddress = ({
                 <PrimaryButton
                     variant={buttonbg === 'true' ? '' : 'outlined'}
                     sx={{
-                        borderRadius: buttonbg === 'true' ? '5px' : '20px',
+                        borderRadius: buttonbg === 'true' ? '5px' : '5px',
                         minWidth: '0',
                         justifyContent: 'left',
                         padding: isXs
                             ? '5px'
                             : buttonbg === 'true'
-                            ? '5px 0px'
-                            : '5px 10px',
+                                ? '5px 0px'
+                                : '5px 10px',
                         '&:hover': {
                             backgroundColor: (theme) =>
                                 theme.palette.neutral[100],
@@ -165,6 +165,18 @@ const AddNewAddress = ({
                                 }}
                             />
                         )}
+                        {buttonbg !== 'true' && (
+                            <AddLocationIcon
+                                style={{
+                                    width: '18px',
+                                    height: '18px',
+                                    color:
+                                        buttonbg === 'true'
+                                            ? whiteColor
+                                            : primaryColor,
+                                }}
+                            />
+                        )}
                         <Typography
                             fontSize={{
                                 xs: '12px',
@@ -181,18 +193,7 @@ const AddNewAddress = ({
                             {t('Add Address')}
                         </Typography>
 
-                        {buttonbg !== 'true' && (
-                            <AddLocationIcon
-                                style={{
-                                    width: '18px',
-                                    height: '18px',
-                                    color:
-                                        buttonbg === 'true'
-                                            ? whiteColor
-                                            : primaryColor,
-                                }}
-                            />
-                        )}
+
                     </Stack>
                 </PrimaryButton>
             )}

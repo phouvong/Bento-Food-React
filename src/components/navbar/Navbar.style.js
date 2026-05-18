@@ -34,7 +34,7 @@ export const AppBarStyle = styled(AppBar, {
 })(({ theme, scrolling, isSmall }) => ({
     background: 'transparent !important',
     boxShadow: 'none !important',
-    top: !scrolling ? '0' : isSmall ? '0' : '-50px',
+    
     WebkitAnimation:
         !isSmall && scrolling ? 'fadeInUp 0.4s' : 'fadeInDown 0.4s',
     animation: !isSmall && scrolling ? 'fadeInUp 0.4s' : 'fadeInDown 0.4s',
@@ -56,21 +56,56 @@ export const AppBarStyle = styled(AppBar, {
     },
 }));
 
-export const NavLinkStyle = styled(Stack)(({ theme, languageDirection }) => ({
-    color: `${theme.palette.mode === 'dark' ? '#fff' : '#000'}`,
-    marginLeft: `${languageDirection === 'rtl' && '20px'}`,
-    marginRight: languageDirection === 'rtl' ? '16px' : '0px',
-    underLine: 'none',
-    '&:hover': {
-        color: theme.palette.primary.main,
-    },
-}))
+export const NavLinkStyle = styled(Stack, {
+    shouldForwardProp: (prop) => prop !== 'active' && prop !== 'languageDirection',
+})(({ theme, active }) => {
+    const activeBg =
+        theme.palette.mode === 'dark'
+            ? alpha(theme.palette.primary.main, 0.18)
+            : '#FFF4EC'
+    const inactiveColor =
+        theme.palette.mode === 'dark' ? '#fff' : '#334155'
+    return {
+        display: 'inline-flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '6px',
+        color: active ? theme.palette.primary.main : inactiveColor,
+        padding: '6px 12px',
+        borderRadius: '8px',
+        textAlign: 'center',
+        lineHeight: 1,
+        backgroundColor: active ? activeBg : 'transparent',
+        fontWeight: 600,
+        fontSize: '13px',
+        whiteSpace: 'nowrap',
+        transition: 'background-color 0.18s ease, color 0.18s ease',
+        '&:hover': {
+            color: theme.palette.primary.main,
+            backgroundColor: activeBg,
+        },
+    }
+})
 export const NavMenuLink = styled(MenuLink)(({ theme }) => ({
-    color: `${theme.palette.mode === 'dark' ? '#fff' : '#000'}`,
-    display: 'flex',
+    color: theme.palette.mode === 'dark' ? '#fff' : '#334155',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
     cursor: 'pointer',
+    padding: '6px 12px',
+    borderRadius: '8px',
+    fontWeight: 600,
+    fontSize: '13px',
+    whiteSpace: 'nowrap',
+    lineHeight: 1,
+    transition: 'background-color 0.18s ease, color 0.18s ease',
     '&:hover': {
         color: theme.palette.primary.main,
+        backgroundColor:
+            theme.palette.mode === 'dark'
+                ? alpha(theme.palette.primary.main, 0.15)
+                : '#FFF4EC',
     },
 }))
 export const TopBarButton = styled(Button)(({ theme, formMobileMenu,noLocation }) => ({
@@ -79,7 +114,7 @@ export const TopBarButton = styled(Button)(({ theme, formMobileMenu,noLocation }
     backgroundColor: noLocation && theme.palette.neutral[200],
     minWidth: '40px',
     maxWidth: '200px',
-    borderRadius:"10px"
+    borderRadius:"6px"
 }))
 export const CustomSwitch = styled(Switch)(({ theme, noimage }) => ({
     width: 42,
@@ -170,15 +205,8 @@ export const CustomNavSearchIcon = styled(IconButton)(({ theme }) => ({
 
 export const LefRightBorderBox = styled(Stack)(
     ({ theme, languageDirection, location, isMobile }) => ({
-        borderRight:
-            isMobile || !location
-                ? 'none'
-                : `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-        borderLeft:
-            isMobile || !location
-                ? 'location'
-                : `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
-        height: !isMobile && '64px',
+       
+        //height: !isMobile && '64px',
         alignItems: 'center',
         justifyContent: 'center',
         paddingInline: '.5rem',

@@ -38,7 +38,7 @@ const PaymentUpdate = ({ id, refetchOrderDetails, refetchTrackData }) => {
             <PrimaryButton
                 variant="contained"
                 onClick={() => setOpenModal(true)}
-                sx={{ width: '100%' }}
+                sx={{ width: '100%', marginTop: "10px" }}
             >
                 <Typography variant="h5">
                     {t('Switch to cash on delivery')}

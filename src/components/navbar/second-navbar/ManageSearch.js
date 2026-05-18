@@ -41,23 +41,21 @@ const ManageSearch = ({ zoneid, token, router }) => {
         localStorage.setItem('bg', true)
     }
     const searchRef = useRef(null)
+    const popoverRef = useRef(null)
 
     useEffect(() => {
         function handleClickOutside(event) {
-            if (
-                searchRef.current &&
-                !searchRef.current.contains(event.target)
-            ) {
+            const insideContainer = searchRef.current?.contains(event.target)
+            const insidePopover = popoverRef.current?.contains(event.target)
+            if (!insideContainer && !insidePopover) {
                 setOpenSearchSuggestions(false)
             }
         }
-        // Bind the event listener
         document.addEventListener('mousedown', handleClickOutside)
         return () => {
-            // Unbind the event listener on clean up
             document.removeEventListener('mousedown', handleClickOutside)
         }
-    }, [searchRef])
+    }, [])
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -96,6 +94,7 @@ const ManageSearch = ({ zoneid, token, router }) => {
                                             setOpenSearchSuggestions
                                         }
                                         setSelectedValue={setSelectedValue}
+                                        searchRef={popoverRef}
                                     />
                                 )}
                             </Box>

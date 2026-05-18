@@ -46,7 +46,7 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
     const searchKey = ''
 
     const { data, refetch: refetchCategories } = useQuery(
-        ['category'],
+        ['category', searchKey],
         () => CategoryApi.categories(searchKey),
         {
             enabled: false,
@@ -76,7 +76,7 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
         router.push('/categories')
         handledropClose()
     }
-
+    console.log({ featuredCategories })
     return (
         <div
             onMouseEnter={(e) => handledropClick(e)}
@@ -88,12 +88,10 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                 aria-haspopup="true"
                 aria-expanded={opendrop ? 'true' : undefined}
                 underline="none"
-                fontSize="14px"
-                alignItems="center"
             >
-                {t('Categories')}{' '}
+                {t('Categories')}
                 <KeyboardArrowDownIcon
-                    style={{ width: '16px', marginLeft: '5px' }}
+                    style={{ width: '14px', height: '14px' }}
                 />
             </NavMenuLink>
             <Popover
@@ -115,7 +113,7 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                 }}
             >
                 <Stack width="460px">
-                    <Grid container p="1rem" spacing={2}>
+                    <Grid container p="1.5rem" spacing={1}>
                         {featuredCategories?.length > 12 ? (
                             <>
                                 {featuredCategories
@@ -146,7 +144,7 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                                 sx={{
                                                                     alignItems:
                                                                         'center',
-                                                                    gap: '5px',
+                                                                   
                                                                     borderRadius:
                                                                         '5px',
                                                                     '&:hover': {
@@ -169,15 +167,17 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                                         src={
                                                                             category.image_full_url
                                                                         }
-                                                                        width="35px"
-                                                                        height="35px"
+                                                                        width="40px"
+                                                                        height="40px"
                                                                         loading="lazy"
                                                                         objectFit="cover"
+                                                                        borderRadius="50%"
                                                                     />
                                                                 </ListItemIcon>
                                                                 <Typography
+                                                                    fontSize="13px"
                                                                     variant="h5"
-                                                                    fontWeight="400"
+                                                                    fontWeight="600"
                                                                     color={
                                                                         theme
                                                                             .palette
@@ -198,6 +198,7 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                                 <CustomTypographyGray
                                                                     variant="h5"
                                                                     nodefaultfont="true"
+                                                                    sx={{ ml: '4px' }}
                                                                 >
                                                                     (
                                                                     {
@@ -231,7 +232,7 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                                 sx={{
                                                                     alignItems:
                                                                         'center',
-                                                                    gap: '5px',
+                                                                    
                                                                     borderRadius:
                                                                         '5px',
                                                                     '&:hover': {
@@ -254,10 +255,11 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                                         src={
                                                                             category.image_full_url
                                                                         }
-                                                                        width="35px"
-                                                                        height="35px"
+                                                                        width="40px"
+                                                                        height="40px"
                                                                         loading="lazy"
                                                                         objectFit="cover"
+                                                                        borderRadius="50%"
                                                                     />
                                                                 </ListItemIcon>
                                                                 <Typography
@@ -266,9 +268,10 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                                         overflow: 'hidden',
                                                                         textOverflow: 'ellipsis',
                                                                         whiteSpace: 'nowrap',
+                                                                        fontSize: '13px',
                                                                     }}
                                                                     variant="h5"
-                                                                    fontWeight="400"
+                                                                    fontWeight="600"
                                                                     color={
                                                                         theme
                                                                             .palette
@@ -282,6 +285,7 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                                 <CustomTypographyGray
                                                                     variant="h5"
                                                                     nodefaultfont="true"
+                                                                    sx={{ ml: '4px' }}
                                                                 >
                                                                     (
                                                                     {
@@ -320,7 +324,7 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                             sx={{
                                                                 alignItems:
                                                                     'center',
-                                                                gap: '5px',
+                                                         
                                                                 borderRadius:
                                                                     '5px',
                                                                 '&:hover': {
@@ -343,19 +347,22 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                                     src={
                                                                         category.image_full_url
                                                                     }
-                                                                    width="35px"
-                                                                    height="35px"
+                                                                    width="40px"
+                                                                    height="40px"
                                                                     loading="lazy"
                                                                     objectFit="cover"
+                                                                    borderRadius="50%"
                                                                 />
                                                             </ListItemIcon>
                                                             <Typography
+                                                               fontSize="13px"
                                                                 variant="h5"
-                                                                fontWeight="400"
+                                                                fontWeight="600"
                                                                 color={
                                                                     theme
                                                                         .palette
-                                                                        .neutral[1000]
+                                                                        .text
+                                                                        .primary
                                                                 }
                                                             >
                                                                 {category.name}
@@ -363,6 +370,7 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                             <CustomTypographyGray
                                                                 variant="h5"
                                                                 nodefaultfont="true"
+                                                                sx={{ ml: '4px' }}
                                                             >
                                                                 (
                                                                 {
@@ -392,7 +400,7 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                             sx={{
                                                                 alignItems:
                                                                     'center',
-                                                                gap: '5px',
+                                                                
                                                                 borderRadius:
                                                                     '5px',
                                                                 '&:hover': {
@@ -415,19 +423,22 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                                     src={
                                                                         category.image_full_url
                                                                     }
-                                                                    width="35px"
-                                                                    height="35px"
+                                                                    width="40px"
+                                                                    height="40px"
                                                                     loading="lazy"
                                                                     objectFit="cover"
+                                                                    borderRadius="50%"
                                                                 />
                                                             </ListItemIcon>
                                                             <Typography
+                                                                fontSize="13px"
                                                                 variant="h5"
-                                                                fontWeight="400"
+                                                                fontWeight="600"
                                                                 color={
                                                                     theme
                                                                         .palette
-                                                                        .neutral[1000]
+                                                                        .text
+                                                                        .primary
                                                                 }
                                                             >
                                                                 {category.name}
@@ -435,6 +446,7 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                                                             <CustomTypographyGray
                                                                 variant="h5"
                                                                 nodefaultfont="true"
+                                                                sx={{ ml: '4px' }}
                                                             >
                                                                 (
                                                                 {
@@ -458,7 +470,8 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
                             md={12}
                             justifyContent="center"
                             alignItems="center"
-                            p=".8rem"
+                            
+                            pb="2rem"
                         >
                             <Button
                                 sx={{

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Stack } from '@mui/material'
+import { Stack, Box } from '@mui/material'
 import { OrderFoodSubtitle } from '../checkout-page/CheckOut.style'
 
 const VisibleVariations = (props) => {
@@ -34,21 +34,30 @@ const VisibleVariations = (props) => {
     return (
         <>
             {variationsWithChild.length > 0 && (
-                <Stack
-                    direction="row"
-                    alignItems="center"
-                    spacing={0.5}
-                    flexWrap="wrap"
+                <Box
+                    sx={{
+                        display: 'block',
+                        width: '100%',
+                    }}
                 >
-                    <OrderFoodSubtitle orderdetailscolor={orderDetailsColor}>
+                    <OrderFoodSubtitle
+                        component="span"
+                        orderdetailscolor={orderDetailsColor}
+                    >
                         {t('Variation')}
                     </OrderFoodSubtitle>
-                    <OrderFoodSubtitle>:</OrderFoodSubtitle>
+                    <OrderFoodSubtitle component="span" sx={{ mx: 0.5 }}>
+                        :
+                    </OrderFoodSubtitle>
                     {variationsWithChild.map((item, parentIndex) => {
                         return (
-                            <Stack direction="row" alignItems="center">
+                            <Box component="span" key={parentIndex}>
                                 <OrderFoodSubtitle
-                                    sx={{marginInlineEnd:"4px"}}
+                                    component="span"
+                                    sx={{
+                                        marginInlineEnd: '4px',
+                                        wordBreak: 'break-word',
+                                    }}
                                     orderdetailscolor={orderDetailsColor}
                                 >
                                     {item?.variationName}
@@ -56,29 +65,29 @@ const VisibleVariations = (props) => {
 
                                 {item?.variationValues?.length > 0 && (
                                     <OrderFoodSubtitle
+                                        component="span"
                                         orderdetailscolor={orderDetailsColor}
                                     >
                                         (
                                         {item?.variationValues?.map(
                                             (val, index) =>
-                                                `${val.label}${
-                                                    index + 1 !==
+                                                `${val.label}${index + 1 !==
                                                     item.variationValues.length
-                                                        ? ','
-                                                        : ''
+                                                    ? ','
+                                                    : ''
                                                 }`
                                         )}
                                         )
                                         {parentIndex + 1 !==
-                                        variationsWithChild?.length
+                                            variationsWithChild?.length
                                             ? ','
                                             : ' '}
                                     </OrderFoodSubtitle>
                                 )}
-                            </Stack>
+                            </Box>
                         )
                     })}
-                </Stack>
+                </Box>
             )}
         </>
     )

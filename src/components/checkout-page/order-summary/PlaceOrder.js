@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { FormControlLabel } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { CustomTypography } from '../../custom-tables/Tables.style'
@@ -29,6 +30,7 @@ const PlaceOrder = (props) => {
     const router = useRouter()
     const { t } = useTranslation()
     const dispatch = useDispatch()
+    const theme = useTheme()
     const [checked, setChecked] = useState(false)
     const { token } = useSelector((state) => state.userToken)
     const { offlineInfoStep } = useSelector((state) => state.offlinePayment)
@@ -73,8 +75,17 @@ const PlaceOrder = (props) => {
         }
     }
 
+    const mobileFullWidthButtonSx = {
+        width: { xs: '100%', sm: '100%' },
+        alignSelf: { xs: 'stretch', sm: 'auto' },
+    }
+
     return (
-        <CustomStackFullWidth alignItems="center" spacing={2} marginTop="1rem">
+        <CustomStackFullWidth
+            alignItems={{ xs: 'stretch', sm: 'center' }}
+            spacing={2}
+            marginTop="1rem"
+        >
             {paymentMethodDetails?.method !== 'offline_payment' ? (
                 <>
                     <FormGroup>
@@ -92,14 +103,20 @@ const PlaceOrder = (props) => {
                                     )}{' '}
                                     <Link
                                         href="/terms-and-conditions"
-                                        style={{ textDecoration: 'underline' }}
+                                        style={{
+                                            textDecoration: 'underline',
+                                            color: theme.palette.primary.main,
+                                        }}
                                     >
                                         {t('Terms and Conditions')}
                                     </Link>{' '}
                                     {t('&')}
                                     <Link
                                         href="/privacy-policy"
-                                        style={{ textDecoration: 'underline' }}
+                                        style={{
+                                            textDecoration: 'underline',
+                                            color: theme.palette.primary.main,
+                                        }}
                                     >
                                         {t('Privacy Policy')}
                                     </Link>
@@ -112,6 +129,7 @@ const PlaceOrder = (props) => {
                         fullWidth
                         variant="contained"
                         onClick={placeOrder}
+                        sx={mobileFullWidthButtonSx}
                         loading={orderLoading || distanceLoading}
                         disabled={!checked}
                     >
@@ -141,6 +159,8 @@ const PlaceOrder = (props) => {
                                                 href="/terms-and-conditions"
                                                 style={{
                                                     textDecoration: 'underline',
+                                                    color: theme.palette
+                                                        .primary.main,
                                                 }}
                                             >
                                                 {t('Terms and Conditions')}
@@ -150,6 +170,8 @@ const PlaceOrder = (props) => {
                                                 href="/privacy-policy"
                                                 style={{
                                                     textDecoration: 'underline',
+                                                    color: theme.palette
+                                                        .primary.main,
                                                 }}
                                             >
                                                 {t('Privacy Policy')}
@@ -163,6 +185,7 @@ const PlaceOrder = (props) => {
                                 fullWidth
                                 variant="contained"
                                 onClick={offlinePlaceOrder}
+                                sx={mobileFullWidthButtonSx}
                                 loading={
                                     orderLoading ||
                                     offlinePaymentLoading ||
@@ -182,6 +205,7 @@ const PlaceOrder = (props) => {
                                     fullWidth
                                     variant="contained"
                                     onClick={handleOfflineOrder}
+                                    sx={mobileFullWidthButtonSx}
                                 >
                                     {t('Confirm Order')}
                                 </LoadingButton>

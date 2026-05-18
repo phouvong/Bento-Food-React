@@ -110,7 +110,7 @@ const GuestCheckoutModal = ({
                         </IconButton>
                     </CustomStackFullWidth>
                     <GuestModalSvg />
-                    <Box padding="30px 70px">
+                    <Box padding={{xs:"30px 16px",md:"30px 70px"}}>
                         <Typography
                             color={theme.palette.neutral[1000]}
                             variant="h6"
@@ -118,7 +118,7 @@ const GuestCheckoutModal = ({
                         >
                             {t('Do you want to login or continue as a guest?')}
                         </Typography>
-                        <Typography color={theme.palette.neutral[1000]}>
+                        <Typography color={theme.palette.neutral[1000]} sx={{fontSize: {xs: '14px', md: '16px' }}}>
                             {t(
                                 "If you log in, your order history will be saved. However, if you continue as a guest, you won't be able to see your order history after completing your order."
                             )}

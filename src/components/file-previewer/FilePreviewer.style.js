@@ -41,7 +41,7 @@ export const IconButtonImagePreviewer = styled(IconButton)(({ theme }) => ({
         backgroundColor: theme.palette.error.main,
         transform: 'scale(1.1)',
     },
-}));
+}))
 export const CustomBoxForFilePreviewer = styled(Box)(
     ({ theme, width, fullWidth, height }) => ({
         width: width ? width : '100%',
@@ -50,7 +50,6 @@ export const CustomBoxForFilePreviewer = styled(Box)(
         //border: `2px dashed ${theme.palette.neutral[600]}`,
         padding: '4px',
         overflow: 'visible', // Ensure delete button is visible
-
     })
 )
 export const CustomDotBox = styled(Box)(
@@ -59,6 +58,7 @@ export const CustomDotBox = styled(Box)(
         position: 'relative',
         height: height ?? '9.25rem',
         border: `1px dashed ${theme.palette.neutral[400]}`,
+        backgroundColor: theme.palette.background.paper,
         borderRadius: borderRadius ? borderRadius : '10px',
         display: 'flex',
         justifyContent: 'center',

@@ -1,69 +1,78 @@
 import React from 'react'
-import CustomImageContainer from '../../CustomImageContainer'
-import { Stack, Typography } from '@mui/material'
+import { Box, Typography, styled } from '@mui/material'
 import Link from 'next/link'
 import CustomNextImage from '@/components/CustomNextImage'
 
+const Tile = styled(Box)(({ theme }) => ({
+    position: 'relative',
+    aspectRatio: '1 / 1',
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: theme.palette.common.black,
+    transition: 'transform .18s ease, box-shadow .18s ease',
+    cursor: 'pointer',
+    '& .cuisine-img': {
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        opacity: 0.88,
+        transition: 'transform .35s ease, opacity .35s ease',
+    },
+    '&::after': {
+        content: '""',
+        position: 'absolute',
+        inset: 0,
+        background:
+            'linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.72) 100%)',
+    },
+    '&:hover': {
+        transform: 'translateY(-2px)',
+        boxShadow: '0 4px 14px -6px rgba(20,20,20,.18)',
+        '& .cuisine-img': {
+            transform: 'scale(1.05)',
+            opacity: 1,
+        },
+    },
+}))
+
+const Name = styled(Typography)(({ theme }) => ({
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    bottom: 12,
+    zIndex: 1,
+    color: theme.palette.common.white,
+    margin: 0,
+    fontSize: 13,
+    fontWeight: 700,
+    letterSpacing: '-0.005em',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    display: '-webkit-box',
+    WebkitLineClamp: 1,
+    WebkitBoxOrient: 'vertical',
+}))
+
 const CuisinesCard = ({ item }) => {
     return (
-        <>
-            <Link
-                href={{
-                    pathname: `/cuisines/${item?.slug || item?.id}`,
-                    query: { name: item?.name },
-                }}
-                style={{ textDecoration: 'none' }}
-            >
-                <Stack sx={{ overflow: 'hidden' }} spacing={1}>
-                    <Stack
-                        alignItems="center"
-                        justifyContent="center"
-                        paddingY={{ xs: '5px', md: '12px' }}
-                        borderRadius="50%"
-                        sx={{
-                            transition: 'transform 0.5s ease-in-out',
-                            '&:hover': {
-                                transform: 'scale(1.03)',
-                            },
-                        }}
-                    >
-                        <CustomNextImage
-                            src={item?.image_full_url}
-                            height="100"
-                            width="100"
-                            borderRadius="50%"
-                            objectFit="cover"
-                            // smMb="5px"
-                            // smHeight="50px"
-                            // smMaxWidth="50px"
-                            // cursor="pointer"
-                        />
-                    </Stack>{' '}
-                    <Typography
-                        textAlign="center"
-                        fontSize={{ xs: '13px', sm: '14px', md: '14px' }}
-                        fontWeight="400"
-                        sx={{
-                            color: (theme) => theme.palette.neutral[1000],
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            display: '-webkit-box',
-                            WebkitLineClamp: '1',
-                            WebkitBoxOrient: 'vertical',
-                            textDecoration: 'none',
-                            transition: 'transform 0.5s ease-in-out',
-                            '&:hover': {
-                                color: (theme) => theme.palette.primary.main,
-                                transform: 'scale(1.03)',
-                            },
-                        }}
-                        component="h3"
-                    >
-                        {item?.name}
-                    </Typography>
-                </Stack>
-            </Link>
-        </>
+        <Link
+            href={{ pathname: `/cuisines/${item?.slug || item?.id}` }}
+            style={{ textDecoration: 'none' }}
+        >
+            <Box sx={{ px: { xs: '4px', md: '0px' } }}>
+                <Tile>
+                    <CustomNextImage
+                        className="cuisine-img"
+                        src={item?.image_full_url}
+                        alt={item?.name}
+                        width="162"
+                        height="162"
+                        objectFit="cover"
+                    />
+                    <Name component="h3">{item?.name}</Name>
+                </Tile>
+            </Box>
+        </Link>
     )
 }
 

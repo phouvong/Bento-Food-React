@@ -49,11 +49,27 @@ const pulse = keyframes`
 // Styled IconButton with pulse animation
 const AnimatedIconButton = styled(IconButton)(({ theme, listening }) => ({
     borderRadius: '50%',
+    width: 32,
+    height: 32,
+    backgroundColor:
+        theme.palette.mode === 'dark'
+            ? theme.palette.background.paper
+            : '#fff',
+    border: `1px solid ${theme.palette.divider}`,
+    '&:hover': {
+        backgroundColor:
+            theme.palette.mode === 'dark'
+                ? theme.palette.background.paper
+                : '#fff',
+        borderColor: theme.palette.primary.main,
+    },
     ...(listening && {
         backgroundColor: theme.palette.error.main + '15',
+        borderColor: theme.palette.error.main,
         animation: `${pulse} 1.2s ease-in-out infinite`,
         '&:hover': {
             backgroundColor: theme.palette.error.main + '25',
+            borderColor: theme.palette.error.main,
         },
     }),
 }))
@@ -71,6 +87,7 @@ const CustomSearch = ({
     const [debouncedValue] = useDebounce(value, 400)
     const [showPermissionDialog, setShowPermissionDialog] = useState(false)
     const [permissionDenied, setPermissionDenied] = useState(false)
+console.log({value});
 
     // Speech recognition setup
     const {
@@ -125,6 +142,8 @@ const CustomSearch = ({
         }
     }
     const handleChange = (value) => {
+        console.log({value});
+        
         if (value === '') {
             handleSearchResult('')
         }

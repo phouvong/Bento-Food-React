@@ -85,6 +85,7 @@ export const english = {
   "Back to home": "Back to home",
   "Best Reviewed Foods": "Best Reviewed Foods",
   "Boost your revenue with": "Boost your revenue with",
+  "Browse and filter restaurants to match your vibe.": "Browse and filter restaurants to match your vibe.",
   "Bring Change Amount": "Bring Change Amount",
   "Bring Change Intruction": "Bring Change Intruction",
   "Brings new Opportunities": "Brings new Opportunities",
@@ -870,5 +871,14 @@ export const english = {
   "you are not logged in": "you are not logged in",
   "Standard Delivery": "Standard Delivery",
   "Express Delivery": "Express Delivery",
-  "Slightly Delay Delivery": "Slightly Delay Delivery"
+  "Slightly Delay Delivery": "Slightly Delay Delivery",
+  "Refer a Friend": "Refer a Friend",
+  "Your Offers": "Your Offers",
+  "Coupons": "Coupons",
+  "Offers": "Offers",
+  "Instant Access": "Instant Access",
+  "Restaurants Near You": "Restaurants Near You",
+  "Recommended Store": "Recommended Store",
+  "Your Cravings": "Your Cravings",
+  "Recently Ordered": "Recently Ordered"
 };

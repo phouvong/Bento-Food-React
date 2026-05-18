@@ -1,12 +1,13 @@
 import CustomLogo from '../../CustomLogo'
 
-const LogoSide = ({ width, businessLogo }) => {
+const LogoSide = ({ width, businessLogo, objectFit ,height}) => {
     return (
         <CustomLogo
             atlText="logo"
             logoImg={businessLogo}
-            height="1.5rem"
+            height={height}
             width={width}
+            objectFit={objectFit}
         />
     )
 }

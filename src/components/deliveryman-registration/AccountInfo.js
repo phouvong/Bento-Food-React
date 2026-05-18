@@ -1,4 +1,4 @@
-import { alpha, Grid, InputAdornment } from '@mui/material'
+import { alpha, Grid, Stack, InputAdornment } from '@mui/material'
 import CustomSelectWithFormik from '../custom-select/CustomSelectWithFormik'
 
 import { t } from 'i18next'
@@ -21,7 +21,14 @@ const AccountInfo = ({
     // const lanDirection = getLanguage() ? getLanguage() : "ltr";
 
     return (
-        <>
+        <Stack
+            sx={{
+                borderRadius: '.3125rem',
+                background: theme.palette.neutral[200],
+                p: '1.5rem 1rem 0.5rem',
+                height: '100%',
+            }}
+        >
             <Grid container spacing={3}>
                 <Grid item xs={12} lg={4}>
                     <CustomPhoneInput
@@ -106,7 +113,7 @@ const AccountInfo = ({
                     />
                 </Grid>
             </Grid>
-        </>
+        </Stack>
     )
 }
 

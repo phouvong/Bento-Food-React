@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Stack, NoSsr } from '@mui/material'
+import { Box, Stack, NoSsr } from '@mui/material'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import CuisinesDetailsPage from '../../../components/cuisines-page/CuisinesDetailsPage'
 import { useRouter } from 'next/router'
@@ -9,10 +9,11 @@ import CustomContainer from '../../../components/container'
 import HomeGuard from '../../../components/home-guard/HomeGuard'
 import { getCommonServerSideProps } from '@/helpers/serverSidePropsHelper'
 import { processMetadata } from '@/utils/fetchPageMetadata'
+import HomeSidebar from '@/components/home/home-sidebar/HomeSidebar'
 
 const Index = ({ configData, landingPageData, pathName, metaData }) => {
     const [offset, setOffset] = useState(1)
-    const [page_limit, setPageLimit] = useState(10)
+    const [page_limit, setPageLimit] = useState(36)
     const [filterByData, setFilterByData] = useState({})
     const [priceAndRating, setPriceAndRating] = useState({ price: [], rating: 0 })
     const [filterBy, setFilterBy] = useState([])
@@ -47,17 +48,28 @@ const Index = ({ configData, landingPageData, pathName, metaData }) => {
             <NoSsr>
                 <HomeGuard>
                     <CustomContainer>
-                        <CustomStackFullWidth>
-                            <Stack
+                        <Box
+                            sx={{
+                                marginTop: {
+                                    xs: '4rem',
+                                    sm: '5rem',
+                                    md: '7rem',
+                                },
+                                marginBottom: '1rem',
+                                display: { xs: 'block', md: 'grid' },
+                                gridTemplateColumns: { md: '260px 1fr' },
+                                columnGap: { md: '28px' },
+                            }}
+                        >
+                            <Box
                                 sx={{
-                                    marginTop: {
-                                        xs: '.3rem',
-                                        sm: '2rem',
-                                        md: '5rem',
-                                    },
-                                    marginBottom: '1rem',
+                                    display: { xs: 'none', md: 'block' },
+                                    position: 'relative',
                                 }}
                             >
+                                <HomeSidebar />
+                            </Box>
+                            <CustomStackFullWidth sx={{ minWidth: 0,marginTop:{xs:"1.5rem",md:".5rem"}          }}>
                                 <CuisinesDetailsPage
                                     data={data}
                                     isLoading={isLoading}
@@ -69,8 +81,8 @@ const Index = ({ configData, landingPageData, pathName, metaData }) => {
                                     setFilterBy={setFilterBy}
                                     setSearchKey={setSearchKey}
                                 />
-                            </Stack>
-                        </CustomStackFullWidth>
+                            </CustomStackFullWidth>
+                        </Box>
                     </CustomContainer>
                 </HomeGuard>
             </NoSsr>

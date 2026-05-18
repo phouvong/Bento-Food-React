@@ -15,7 +15,7 @@ export const data = [
     },
     {
         id: 3,
-        userType: 'admin',
+        userType: 'Admin',
         value: 'admin',
     },
 ]

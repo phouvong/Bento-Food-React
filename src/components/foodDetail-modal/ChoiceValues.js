@@ -47,7 +47,6 @@ export const ChoiceValues = (props) => {
     } = props
     const [radioData, setRadioData] = useState({ isChecked: false })
 
-    
     const theme = useTheme()
     useEffect(() => {
         radioData?.option &&
@@ -117,35 +116,61 @@ export const ChoiceValues = (props) => {
 
     return (
         <CustomStackFullWidth>
-           <Stack direction="row" justifyContent='space-between' alignItems="center">
-             <FoodTitleTypography
-                gutterBottom
-                fontWeight="600"
-                component="h6"
-                sx={{
-                    margin: '5px 0',
-                    textAlign: 'left',
-                }}
+            <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
             >
-                {choice.name} :
-                {choice?.type === 'multi' && (
-                    <CustomTooltip title={text} placement="top-start">
-                        <InfoIcon
-                            style={{
-                                with: '12px',
-                                height: '12px',
-                                cursor: 'pointer',
-                            }}
-                            color="primary"
-                        />
-                    </CustomTooltip>
+                <FoodTitleTypography
+                    gutterBottom
+                    fontWeight="600"
+                    component="h6"
+                    sx={{
+                        margin: '5px 0',
+                        textAlign: 'left',
+                    }}
+                >
+                    {choice.name} :
+                    {choice?.type === 'multi' && (
+                        <CustomTooltip title={text} placement="top-start">
+                            <InfoIcon
+                                style={{
+                                    with: '12px',
+                                    height: '12px',
+                                    cursor: 'pointer',
+                                }}
+                                color="primary"
+                            />
+                        </CustomTooltip>
+                    )}
+                </FoodTitleTypography>
+                {choice?.required === 'on' ? (
+                    <Typography
+                        backgroundColor={alpha(theme.palette.error.main, 0.1)}
+                        color={theme.palette.error.main}
+                        padding="5px"
+                        borderRadius="5px"
+                        fontWeight="700"
+                        fontSize="10px"
+                    >
+                        {t('Required')}
+                    </Typography>
+                ) : (
+                    <Typography
+                        backgroundColor={alpha(theme.palette.success.main, 0.1)}
+                        color={theme.palette.success.main}
+                        padding="5px"
+                        borderRadius="5px"
+                        fontWeight="700"
+                        fontSize="10px"
+                    >
+                        {t('Optional')}
+                    </Typography>
                 )}
-             
-            </FoodTitleTypography>
-            {choice?.required==="on" ? ( <Typography backgroundColor={alpha(theme.palette.error.main,.1)} color={theme.palette.error.main} padding="5px" borderRadius="5px" fontWeight="700" fontSize="10px">{t("Required")}</Typography>):
-            <Typography backgroundColor={alpha(theme.palette.success.main,.1)} color={theme.palette.success.main} padding="5px" borderRadius="5px" fontWeight="700" fontSize="10px">{t("Optional")}</Typography>}  
-            </Stack>    
-            <FormControl sx={{ marginInlineStart: '-10px' }}>
+            </Stack>
+            <FormControl
+                sx={{ marginInlineStart: '-10px', marginBottom: '10px' }}
+            >
                 <RadioGroup
                     aria-labelledby="demo-radio-buttons-group-label"
                     name="radio-buttons-group"
@@ -211,6 +236,8 @@ export const ChoiceValues = (props) => {
                                         <Stack direction="row" spacing={1}>
                                             <CustomTypographyLabel
                                                 sx={{
+                                                    textAlign: 'start',
+                                                    overflow: 'visible',
                                                     color: (theme) =>
                                                         option.current_stock ===
                                                             0 &&
@@ -250,7 +277,9 @@ export const ChoiceValues = (props) => {
                                     }
                                 />
 
-                                <CustomTypographyLabel>
+                                <CustomTypographyLabel
+                                    sx={{ textAlign: 'end', minWidth: '50px' }}
+                                >
                                     {option.optionPrice === '0'
                                         ? 'Free'
                                         : `+${getAmount(

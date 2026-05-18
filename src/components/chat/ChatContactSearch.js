@@ -1,4 +1,5 @@
-import { IconButton, InputAdornment, Stack } from '@mui/material'
+import { IconButton, InputAdornment, Stack, alpha } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import SearchIcon from '@mui/icons-material/Search'
 import { CloseIconWrapper } from '@/styled-components/CustomStyles.style'
 import { Search, StyledInputBase } from '../custom-search/CustomSearch.style'
@@ -13,14 +14,15 @@ const ChatContactSearch = ({
     handleReset,
     searchSubmitHandler,
 }) => {
+    const theme = useTheme()
     const onChangeHandler = (e) => {
         e.preventDefault()
         handleSearch(e.target.value)
     }
     return (
-        <Stack padding=".4rem">
+        <Stack padding="1rem 0rem">
             <form onSubmit={(e) => searchSubmitHandler(e)}>
-                <Search>
+                <Search border={`1px solid ${alpha(theme.palette.primary.main, 0.2)}`} backgroundColor="background.paper" borderRadius="8px">
                     <StyledInputBase
                         fullWidth
                         label={t('Search...')}
@@ -30,7 +32,7 @@ const ChatContactSearch = ({
                                 position="start"
                                 sx={{
                                     paddingInlineStart: '10px',
-                                    marginInlineEnd: '-10px',
+                                    marginInlineEnd: "-2px",
                                 }}
                             >
                                 <SearchIcon fontSize="small" />

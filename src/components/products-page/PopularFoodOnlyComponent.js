@@ -66,7 +66,7 @@ const PopularFoodOnlyComponent = ({
         if (Number.isInteger(page) && page > 0) return page
         return 1
     }
-    const [page_limit] = useState(15)
+    const [page_limit] = useState(36)
     const [offset, setOffset] = useState(() => getPageOffset(router?.query?.page))
     const [type] = useState('all')
     const [anchorEl, setAnchorEl] = useState(null)

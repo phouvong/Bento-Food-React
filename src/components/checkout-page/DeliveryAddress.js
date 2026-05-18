@@ -366,7 +366,7 @@ const DeliveryAddress = ({
                 aria-labelledby="pick-location-on-map"
             >
                 <Stack sx={mapModalStyle} spacing={2}>
-                    <Typography fontWeight={600} fontSize="16px">
+                    <Typography fontWeight={600} fontSize="16px" color={theme.palette.neutral[100]}>
                         {t('Set from map')}
                     </Typography>
                     <MapWithSearchBox

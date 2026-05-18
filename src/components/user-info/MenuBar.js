@@ -5,8 +5,10 @@ import { t } from 'i18next'
 import CustomImageContainer from '../CustomImageContainer'
 import Router from 'next/router'
 import { useSelector } from 'react-redux'
+import { useTheme } from '@mui/material/styles'
 
 const MenuBar = ({ tabData, onClose, sidedrawer, page, setAttributeId }) => {
+    const theme =useTheme()
     const { global } = useSelector((state) => state.globalSettings)
     const handleClick = (item) => {
         setAttributeId('')
@@ -62,7 +64,7 @@ const MenuBar = ({ tabData, onClose, sidedrawer, page, setAttributeId }) => {
                                     src={item?.img.src}
                                     width="20px"
                                 />
-                                <Typography fontSize="14px" fontWeight="500">
+                                <Typography color={theme.palette.neutral[500]} fontSize="14px" fontWeight="500">
                                     {t(item.label.replaceAll('-', ' '))}
                                 </Typography>
                             </CustomStackFullWidth>

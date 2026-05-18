@@ -8,7 +8,7 @@ import OtpForm from '../../forgot-password/OtpForm'
 import { useVerifyPhone } from '@/hooks/react-query/otp/useVerifyPhone'
 import { toast } from 'react-hot-toast'
 import facebookLatest from '../../../../../public/static/Facebook.png'
-import { Stack } from '@mui/material'
+import { alpha, Stack } from '@mui/material'
 import {
     CustomColouredTypography,
     CustomStackFullWidth,
@@ -138,18 +138,21 @@ const FbLoginComp = (props) => {
                             alignItems="center"
                             sx={{
                                 width: '100%',
-                                backgroundColor: theme.palette.neutral[100],
+                               backgroundColor: theme.palette.mode === 'dark' ? alpha(theme.palette.neutral[200],.7) : alpha(theme.palette.neutral[300],.7),
                                 height: '45px',
                                 justifyContent: 'center',
                                 borderRadius: '10px',
                                 padding: '10px',
                                 color: theme.palette.neutral[600],
-                                boxShadow: `0px 2px 3px 0px rgba(0, 0, 0, 0.17), 0px 0px 3px 0px rgba(0, 0, 0, 0.08)`,
+                                //boxShadow: `0px 2px 3px 0px rgba(0, 0, 0, 0.17), 0px 0px 3px 0px rgba(0, 0, 0, 0.08)`,
                                 //maxWidth: '355px',
 
                                 transition: 'box-shadow 0.3s',
                                 '&:hover': {
-                                    boxShadow: `0px 5px 10px 0px rgba(0, 0, 0, 0.3), 0px 2px 5px 0px rgba(0, 0, 0, 0.15)`,
+                                    backgroundColor: alpha(theme.palette.neutral[400],.2),
+                                },
+                                '&:hover .fb-login-text': {
+                                    fontWeight: 600,
                                 },
                             }}
                         >
@@ -168,9 +171,10 @@ const FbLoginComp = (props) => {
                                     borderRadius="50%"
                                 />
                                 <CustomColouredTypography
+                                    className="fb-login-text"
                                     sx={{
                                         color: theme.palette.neutral[600],
-                                        fontWeight: '600',
+                                        fontWeight: '400',
                                         fontSize: '14px',
                                     }}
                                 >
@@ -187,7 +191,6 @@ const FbLoginComp = (props) => {
                 setModalOpen={setOpenOtpModal}
             >
                 <OtpForm
-
                     data={otpData?.phone}
                     formSubmitHandler={formSubmitHandler}
                     isLoading={isLoading}

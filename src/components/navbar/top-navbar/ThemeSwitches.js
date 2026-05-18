@@ -43,8 +43,10 @@ const ThemeSwitches = () => {
                 svg: {
                     height: location ? '1rem' : '1em',
                     width: location ? '1rem' : '1em',
-                }
+                },
+                marginInline: 'auto',
             }}
+
         >
             {theme.palette.mode === 'light' ? (
                 <LightModeIcon

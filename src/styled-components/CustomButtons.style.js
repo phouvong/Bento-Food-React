@@ -81,6 +81,18 @@ export const CustomButtonPrimary = styled(Button)(
 export const SignInButton = styled(Button)(({ theme }) => ({
     color: '#fff',
     backgroundColor: theme.palette.primary.main,
-    padding: '7px 20px',
-    borderRadius: '10px',
+    padding: '10px 18px',
+    borderRadius: '999px',
+    fontWeight: 700,
+    fontSize: '13.5px',
+    textTransform: 'none',
+    whiteSpace: 'nowrap',
+    boxShadow: '0 6px 16px rgba(255, 117, 24, 0.28)',
+    transition:
+        'background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease',
+    '&:hover': {
+        backgroundColor: theme.palette.primary.dark || theme.palette.primary.main,
+        boxShadow: '0 8px 18px rgba(255, 117, 24, 0.35)',
+        transform: 'translateY(-1px)',
+    },
 }))

@@ -1,8 +1,10 @@
 import {
     Box,
+    Button,
     Grid,
     List,
     ListItem,
+    Stack,
     Typography,
     useMediaQuery,
 } from '@mui/material'
@@ -17,6 +19,7 @@ import {
 } from '@/styled-components/CustomStyles.style'
 import { noTransactionFound } from '@/utils/LocalImages'
 import PaidIcon from '@mui/icons-material/Paid'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import Skeleton from '@mui/material/Skeleton'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from 'react-query'
@@ -90,119 +93,169 @@ const LoyalityList = () => {
                 sx={{ minHeight: !isXSmall ? '558px' : '450px' }}
             >
                 <Grid container spacing={2}>
-                    <Grid item sm={12} xs={12} md={4}>
-                        <WalletBox>
-                            <CustomStackFullWidth
-                                spacing={0.5}
-                                sx={{ flexWrap: 'wrap' }}
+                    <Grid item sm={12} xs={12} md={6}>
+                        <WalletBox
+                            sx={{
+                                minHeight: { xs: '120px', md: '140px' },
+                                padding: '18px 20px',
+                            }}
+                        >
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                justifyContent="space-between"
+                                spacing={2}
                             >
-                                <CustomImageContainer
-                                    src={Tropy.src}
-                                    width="34px"
-                                    height="34px"
-                                    objectFit="contain"
-                                />
-                                <Typography
-                                    fontSize="36px"
-                                    fontWeight="700"
-                                    color={theme.palette.neutral[100]}
-                                >
-                                    {profileDataLoading ? (
-                                        <Skeleton
-                                            variant="text"
-                                            width={150}
-                                            height="50px"
-                                        />
-                                    ) : (
-                                        profileData?.data?.loyalty_point
-                                    )}
-                                </Typography>
-                                <Typography
-                                    fontSize="12px"
-                                    fontWeight="400"
-                                    color={theme.palette.neutral[100]}
-                                >
-                                    {t('Total Point')}
-                                </Typography>
-                            </CustomStackFullWidth>
+                                <Stack spacing={0.5}>
+                                    <CustomImageContainer
+                                        src={Tropy.src}
+                                        width="34px"
+                                        height="34px"
+                                        objectFit="contain"
+                                    />
+                                    <Typography
+                                        fontSize="12px"
+                                        fontWeight="400"
+                                        color={theme.palette.neutral[100]}
+                                    >
+                                        {t('Total Point')}
+                                    </Typography>
+                                    <Typography
+                                        fontSize="32px"
+                                        fontWeight="700"
+                                        color={theme.palette.neutral[100]}
+                                        lineHeight="1"
+                                    >
+                                        {profileDataLoading ? (
+                                            <Skeleton
+                                                variant="text"
+                                                width={150}
+                                                height="40px"
+                                            />
+                                        ) : (
+                                            profileData?.data?.loyalty_point
+                                        )}
+                                    </Typography>
+                                </Stack>
+                                {profileData?.data?.loyalty_point > 0 && (
+                                    <Button
+                                        variant="contained"
+                                        startIcon={<PaidIcon />}
+                                        sx={{
+                                            backgroundColor:
+                                                theme.palette.neutral[100],
+                                            '&:hover': {
+                                                backgroundColor:
+                                                    theme.palette.neutral[200],
+                                            },
+                                            borderRadius: '10px',
+                                            color: theme.palette.primary.main,
+                                            fontWeight: 600,
+                                            fontSize: {
+                                                xs: '11px',
+                                                sm: '14px',
+                                            },
+                                            paddingInline: {
+                                                xs: '8px',
+                                                sm: '14px',
+                                            },
+                                            minWidth: { xs: 'auto', sm: '150px' },
+                                            whiteSpace: 'nowrap',
+                                            '& .MuiButton-startIcon': {
+                                                //color: theme.palette.primary.main,
+                                            },
+                                        }}
+                                        onClick={() => convertLoyalty()}
+                                    >
+                                        {t('Convert to Currency')}
+                                    </Button>
+                                )}
+                            </Stack>
                         </WalletBox>
                     </Grid>
-                    <Grid item sm={12} xs={12} md={8}>
-                        <CustomStackFullWidth
-                            alignItems="start"
-                            justifyContent="center"
-                            sx={{ height: '100%' }}
-                            spacing={1}
+                    <Grid item sm={12} xs={12} md={6}>
+                        <Box
+                            sx={{
+                                height: '100%',
+                                borderRadius: '12px',
+                                border: '1px solid',
+                                borderColor: (theme) => theme.palette.neutral[300],
+                                padding: '16px 18px',
+                                backgroundColor: (theme) =>
+                                    theme.palette.neutral[100],
+                            }}
                         >
-                            <Typography fontSize="14px" fontWeight="700">
-                                {t('How to use')}
-                            </Typography>
-                            <List
-                                sx={{
-                                    listStyleType: 'disc',
-                                    pl: 4,
-                                    pt: 0,
-                                    '& .MuiListItem-root': {
-                                        display: 'list-item',
-                                        paddingLeft: '0px',
-                                        paddingBottom: '0px',
-                                        paddingTop: '0px',
-                                    },
-                                }}
-                            >
-                                <ListItem>
-                                    <Typography
-                                        fontSize="13px"
-                                        fontWeight="400"
-                                    >
-                                        {t(
-                                            'Convert your loyalty point to wallet money.'
-                                        )}
+                            <CustomStackFullWidth spacing={1}>
+                                <Stack direction="row" alignItems="center" spacing={0.5}>
+                                    <InfoOutlinedIcon
+                                        sx={{
+                                            fontSize: '16px',
+                                            color: theme.palette.primary.main,
+                                        }}
+                                    />
+                                    <Typography fontSize="14px" fontWeight="700">
+                                        {t('How to use')}
                                     </Typography>
-                                </ListItem>
-                                <ListItem>
-                                    <Typography
-                                        fontSize="13px"
-                                        fontWeight="400"
-                                    >
-                                        {t('Minimum')}{' '}
-                                        {t(global?.minimum_point_to_transfer)}{' '}
-                                        {t(
-                                            'points required to convert into currency'
-                                        )}
-                                    </Typography>
-                                </ListItem>
-                            </List>
-                            {profileData?.data?.loyalty_point > 0 && (
-                                <PrimaryButton
-                                    startIcon={<PaidIcon />}
-                                    style={{ color: textColor }}
-                                    backgroundColor={theme.palette.primary.main}
-                                    sx={{ borderRadius: '10px' }}
-                                    onClick={() => convertLoyalty()}
+                                </Stack>
+                                <List
+                                    sx={{
+                                        listStyleType: 'disc',
+                                        pl: 3,
+                                        pt: 0,
+                                        m: 0,
+                                        '& .MuiListItem-root': {
+                                            display: 'list-item',
+                                            paddingLeft: '0px',
+                                            paddingBottom: '2px',
+                                            paddingTop: '0px',
+                                        },
+                                    }}
                                 >
-                                    {t('Convert to Currency')}
-                                </PrimaryButton>
-                            )}
-                        </CustomStackFullWidth>
+                                    <ListItem>
+                                        <Typography
+                                            fontSize="13px"
+                                            fontWeight="400"
+                                            color={theme.palette.neutral[1000]}
+                                        >
+                                            {t(
+                                                'Convert your loyalty point to wallet money.'
+                                            )}
+                                        </Typography>
+                                    </ListItem>
+                                    <ListItem>
+                                        <Typography
+                                            fontSize="13px"
+                                            fontWeight="400"
+                                            color={theme.palette.neutral[1000]}
+                                        >
+                                            {t('Minimum')}{' '}
+                                            {t(
+                                                global?.minimum_point_to_transfer
+                                            )}{' '}
+                                            {t(
+                                                'points required to convert into currency'
+                                            )}
+                                        </Typography>
+                                    </ListItem>
+                                </List>
+                            </CustomStackFullWidth>
+                        </Box>
                     </Grid>
 
                     <Grid item xs={12} sm={12} md={12}>
-                        <Box sx={{ padding: '10px' }}>
-                            <Typography fontSize="16px" fontWeight="500">
+                        <Box sx={{ padding: '10px 0 6px' }}>
+                            <Typography fontSize="16px" fontWeight="600">
                                 {t('Point History')}
                             </Typography>
                         </Box>
                         {data ? (
-                            data?.data?.data?.map((loyality, index) => (
-                                <LoyalityPage
-                                    key={loyality.id}
-                                    data={{ loyality }}
-                                    profileDataLoading={profileDataLoading}
-                                    isLast={data?.data?.data?.length - 1}
-                                    index={index}
-                                />
-                            ))
+                            <Grid container spacing={2}>
+                                {data?.data?.data?.map((loyality, index) => (
+                                    <Grid item xs={12} md={6} key={loyality.id}>
+                                        <LoyalityPage data={{ loyality }} />
+                                    </Grid>
+                                ))}
+                            </Grid>
                         ) : (
                             <WalletShimmer />
                         )}

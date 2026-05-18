@@ -434,14 +434,21 @@ const OrderDetails = ({ OrderIdDigital }) => {
                     >
                         <Stack
                             direction="row"
-                            gap="10px"
-                            justifyContent={{ xs: 'center', md: 'flex-start' }}
+                            flexWrap="wrap"
+                            alignItems="center"
+                            sx={{
+                                rowGap: { xs: '6px', md: '10px' },
+                                columnGap: { xs: '6px', md: '10px' },
+                                justifyContent: { xs: 'center', md: 'flex-start' },
+                            }}
                         >
                             <Typography
                                 sx={{
                                     color: 'customColor.fifteen',
-                                    fontSize: '18px',
+                                    fontSize: { xs: '13px', sm: '15px', md: '18px' },
                                     fontWeight: '600',
+                                    width: { xs: '100%', sm: 'auto' },
+                                    textAlign: { xs: 'center', sm: 'inherit' },
                                 }}
                             >
                                 {trackData?.data?.subscription !== null
@@ -458,8 +465,9 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                         textTransform="capitalize"
                                         color={backgroundColorOrderStatus()}
                                         align="left"
-                                        fontSize={{ xs: '13px', md: '14px' }}
+                                        fontSize={{ xs: '11px', sm: '13px', md: '14px' }}
                                         fontWeight="bold"
+                                        sx={{ whiteSpace: 'nowrap' }}
                                     >
                                         <>
                                             {trackData?.data?.order_type ===
@@ -486,10 +494,11 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                 color={theme.palette.success.main}
                             >
                                 <Typography
-                                    fontSize="12px"
+                                    fontSize={{ xs: '10px', sm: '11px', md: '12px' }}
                                     fontWeight="500"
                                     textTransform="capitalize"
                                     color={theme.palette.success.main}
+                                    sx={{ whiteSpace: 'nowrap' }}
                                 >
                                     {trackData?.data?.order_type === 'delivery'
                                         ? t('Home Delivery')

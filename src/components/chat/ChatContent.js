@@ -44,27 +44,36 @@ const ChatContent = (props) => {
         }
     }
     return (
-        <Stack spacing={1} padding=".5rem">
-            <Typography
-                sx={{ paddingInline: '1rem', paddingBlockStart: '.5rem' }}
-                fontSize="18px"
-                fontWeight="700"
-            >
-                {t('Messages')}
-            </Typography>
-            <ChatContactSearch
-                searchValue={searchValue}
-                setSearchValue={setSearchValue}
-                handleSearch={handleSearch}
-                isLoading={isLoading}
-                handleReset={handleReset}
-                searchSubmitHandler={searchSubmitHandler}
-            />
-            <ChatUserTab
-                setUserType={setUserType}
-                useType={useType}
-                setChannelId={setChannelId}
-            />
+        <Stack spacing={1} >
+            <Stack padding="0.5rem">
+                <Typography
+                    sx={{
+                        paddingInline: '1rem', paddingBlockStart: '.5rem',
+
+                        borderBottom: '1px solid',
+                        borderColor: 'divider',
+                        paddingBlockEnd: '.5rem',
+
+                    }}
+                    fontSize="18px"
+                    fontWeight="700"
+                >
+                    {t('Messages')}
+                </Typography>
+                <ChatContactSearch
+                    searchValue={searchValue}
+                    setSearchValue={setSearchValue}
+                    handleSearch={handleSearch}
+                    isLoading={isLoading}
+                    handleReset={handleReset}
+                    searchSubmitHandler={searchSubmitHandler}
+                />
+                <ChatUserTab
+                    setUserType={setUserType}
+                    useType={useType}
+                    setChannelId={setChannelId}
+                />
+            </Stack>
             {handleChatWithAdmin()}
             <ContactLists
                 useType={useType}
@@ -72,6 +81,7 @@ const ChatContent = (props) => {
                 handleChannelOnClick={handleChannelOnClick}
                 channelLoading={channelLoading}
                 selectedId={selectedId}
+                searchValue={searchValue}
             />
         </Stack>
     )

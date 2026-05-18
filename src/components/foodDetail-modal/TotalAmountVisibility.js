@@ -24,7 +24,13 @@ const TotalAmountVisibility = (props) => {
     } = props
 
     return (
-        <Stack direction="row" alignItems="center" spacing={0.5} justifyContent="space-between" >
+        <Stack
+            direction="row"
+            alignItems="center"
+            spacing={0.5}
+            justifyContent={{xs:"flex-start",md:"space-between"}}
+            //sx={{ '@media (max-width:330.95px)': { flexDirection: 'column' } }}
+        >
             <FoodTitleTypography
                 gutterBottom
                 variant="h6"
@@ -34,7 +40,7 @@ const TotalAmountVisibility = (props) => {
                     alignItems: 'end',
                     justifyContent: 'flex-start',
                     padding: {
-                        xs:"12px",
+                        //xs:"12px",
                         sm:0
                     },
                     textAlign: 'left',
@@ -44,7 +50,7 @@ const TotalAmountVisibility = (props) => {
                
             </FoodTitleTypography>
              <Typography
-                    fontSize="14px"
+                    fontSize={{xs:"12px",sm:"14px"}}
                     component="span"
                     fontWeight="600"
                     sx={{
@@ -73,7 +79,7 @@ const TotalAmountVisibility = (props) => {
                 <CustomTypographyGray
                     nodefaultfont="true"
                     textdecoration="line-through"
-                    sx={{ fontSize: '14px',marginInlineStart:"10px" }}
+                    sx={{ fontSize: '12px',marginInlineStart:"10px" }}
                     component="span"
                 >
                     (

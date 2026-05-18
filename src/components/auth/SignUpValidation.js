@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next'
 const SignUpvalidation = () => {
     const { t } = useTranslation()
     return Yup.object({
+        name: Yup.string().trim().required(t('Name is required')),
         email: Yup.string().email('Must be a valid email').max(255).required(t('Email is required')),
-
         phone: Yup.string()
             .required(t('Please give a phone number'))
             .matches(/^(\+?\d{1,4})?\d{10}$/, t('Number must be 10 digits')),

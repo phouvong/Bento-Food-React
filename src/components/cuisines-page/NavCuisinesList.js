@@ -11,7 +11,7 @@ const NavCuisinesList = ({ item, handledropClose }) => {
         <Link
             href={{
                 pathname: `/cuisines/${item.slug || item?.id}`,
-                query: { name: item?.name },
+
             }}
             key={item?.id}
             style={{ textDecoration: 'none' }}
@@ -20,7 +20,7 @@ const NavCuisinesList = ({ item, handledropClose }) => {
                 onClick={handledropClose}
                 sx={{
                     alignItems: 'center',
-                    gap: '5px',
+                   
                     borderRadius: '5px',
                     '&:hover': {
                         backgroundColor: (theme) =>
@@ -31,15 +31,17 @@ const NavCuisinesList = ({ item, handledropClose }) => {
                 <ListItemIcon>
                     <CustomImageContainer
                         src={item.image_full_url}
-                        width="35px"
-                        height="35px"
+                        width="40px"
+                        height="40px"
                         loading="lazy"
                         objectFit="cover"
+                        borderRadius="50%"
                     />
                 </ListItemIcon>
                 <Typography
+                    fontSize="13px"
                     variant="h5"
-                    fontWeight="400"
+                    fontWeight="600"
                     color={theme.palette.neutral[1000]}
                     sx={{
                         maxWidth: '100px',

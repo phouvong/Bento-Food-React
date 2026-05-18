@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Grid } from '@mui/material'
-import FoodCard from '../food-card/FoodCard'
+import NewFoodCard from '@/components/new-food-card/NewFoodCard'
 import { useSelector } from 'react-redux'
 import CustomePagination from '../pagination/Pagination'
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -39,20 +39,18 @@ export default function ProductList({
                                 <Grid
                                     key={product?.id}
                                     item
-                                    md={3}
+                                    lg={2}
+                                    md={matchesToMd ? 3 : 2}
                                     sm={4}
                                     xs={6}
                                 >
-                                    <FoodCard
-                                        isRestaurantDetails={true}
-                                        isShop={true}
-                                        sm={1}
-                                        xs={1}
+                                    <NewFoodCard
                                         product={product}
                                         productImageUrl={
                                             global?.base_urls
                                                 ?.campaign_image_url
                                         }
+                                        campaign={true}
                                     />
                                 </Grid>
                             )
@@ -71,14 +69,12 @@ export default function ProductList({
                                 <Grid
                                     key={product?.id}
                                     item
-                                    md={matchesToMd ? 2.4 : 2.4}
+                                    md={matchesToMd ? 2.4 : 2}
                                     sm={4}
                                     xs={6}
-
                                 >
-                                    <FoodCard
+                                    <NewFoodCard
                                         product={product}
-                                        isRestaurantDetails={true}
                                         productImageUrl={
                                             global?.base_urls?.product_image_url
                                         }

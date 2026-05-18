@@ -1,5 +1,5 @@
-import React, { memo, useState } from 'react'
-import { Box, Grid, Stack, Typography, styled } from '@mui/material'
+import React, { memo, useRef } from 'react'
+import { Box, Grid, Stack, styled } from '@mui/material'
 import fire_image from '../../../../public/static/fire.svg'
 import FoodCard from '../../food-card/FoodCard'
 import 'slick-carousel/slick/slick.css'
@@ -7,16 +7,13 @@ import 'slick-carousel/slick/slick-theme.css'
 import { useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import CustomImageContainer from '../../CustomImageContainer'
-import {
-    CustomStackFullWidth,
-    CustomViewAll,
-} from '@/styled-components/CustomStyles.style'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import FoodCardHorizontalShimmer from '../../food-card/FoodCardHorizontalShimmer'
 import { useRouter } from 'next/router'
 import Slider from 'react-slick'
-import { HandleNext, HandlePrev } from '../../CustomSliderIcon'
+import SliderSectionHeader from '@/components/slider-section-header/SliderSectionHeader'
 
 const SliderCustom1 = styled(Box)(({ theme, nopadding }) => ({
     position: 'relative',
@@ -24,13 +21,16 @@ const SliderCustom1 = styled(Box)(({ theme, nopadding }) => ({
     paddingY: '10px',
     '& .slick-slider': {
         '& .slick-slide': {
-            padding: '6px',
+            padding: '8px 0',
         },
         '& .slick-list': {
             paddingY: nopadding !== 'true' && '8px',
             '& .slick-track': {
                 float: theme.direction === 'ltr' ? 'left' : 'right',
-                gap: '5px',
+                gap: '16px',
+                '&::before, &::after': {
+                    display: 'none',
+                },
             },
         },
     },
@@ -39,7 +39,7 @@ const SliderCustom1 = styled(Box)(({ theme, nopadding }) => ({
 const NearbyPopularFood = ({ isLoading }) => {
     const { t } = useTranslation()
     const router = useRouter()
-    const [hoverOn, setHoverOn] = useState(false)
+    const sliderRef = useRef(null)
     const { global } = useSelector((state) => state.globalSettings)
     const { popularFood } = useSelector((state) => state.storedData)
     const theme = useTheme()
@@ -58,8 +58,7 @@ const NearbyPopularFood = ({ isLoading }) => {
         rows: 2,
         slidesToShow: 3,
         slidesToScroll: 1,
-        prevArrow: hoverOn && <HandlePrev />,
-        nextArrow: hoverOn && <HandleNext />,
+        arrows: false,
         cssEase: 'linear',
         rtl: languageDirection === 'rtl',
         responsive: [
@@ -147,7 +146,7 @@ const NearbyPopularFood = ({ isLoading }) => {
             {
                 breakpoint: 1500,
                 settings: {
-                    slidesToShow: 3,
+                    slidesToShow: 3.6,
                     slidesPerRow: 1,
                     rows: 2,
                     slidesToScroll: 1,
@@ -156,7 +155,7 @@ const NearbyPopularFood = ({ isLoading }) => {
             {
                 breakpoint: 1700,
                 settings: {
-                    slidesToShow: 3.5,
+                    slidesToShow: 4.2,
                     slidesPerRow: 1,
                     rows: 2,
                     slidesToScroll: 1,
@@ -172,46 +171,23 @@ const NearbyPopularFood = ({ isLoading }) => {
                     popularFood.length > 0 && { xs: '0.5rem', sm: '0rem' }
                 }
                 gap={{ xs: '.3rem', sm: '1.4rem' }}
-                onMouseEnter={() => setHoverOn(true)}
-                onMouseLeave={() => setHoverOn(false)}
             >
                 {popularFood.length > 0 && !isLoading && (
                     <Grid item xs={12} md={12} sm={12} lg={12}>
-                        <CustomStackFullWidth
-                            direction="row"
-                            alignItems="center"
-                            justifyContent="space-between"
-                        >
-                            <Stack
-                                direction="row"
-                                spacing={1}
-                                alignItems="center"
-                            >
+                        <SliderSectionHeader
+                            title={t('Popular  Foods Nearby')}
+                            titleIcon={
                                 <CustomImageContainer
                                     src={fire_image.src}
                                     width="26px"
                                     height="26px"
                                 />
-                                <Typography
-                                    fontSize={{ xs: '16px', md: '20px' }}
-                                    fontWeight={{ xs: '500', md: '700' }}
-                                    color={theme.palette.neutral[1000]}
-                                    component="h2"
-                                >
-                                    {t('Popular  Foods Nearby')}
-                                </Typography>
-                            </Stack>
-                            <CustomViewAll
-                                onClick={handleClick}
-                                direction="row"
-                                spacing={1}
-                                alignItems="center"
-                            >
-                                <Typography fontSize="14px" fontWeight="500">
-                                    {t('View all')}
-                                </Typography>
-                            </CustomViewAll>
-                        </CustomStackFullWidth>
+                            }
+                            sliderRef={sliderRef}
+                            itemsCount={Math.ceil(popularFood.length / 2)}
+                            viewAllText={t('View all')}
+                            onViewAll={handleClick}
+                        />
                     </Grid>
                 )}
                 {!isLoading ? (
@@ -220,7 +196,7 @@ const NearbyPopularFood = ({ isLoading }) => {
                         paddingBottom={isSmall ? '10px' : '20px'}
                     >
                       {popularFood?.length > 0 && (  <CustomStackFullWidth>
-                            <Slider {...settings}>
+                            <Slider {...settings} ref={sliderRef}>
                                 {popularFood?.map((product) => {
                                     if (
                                         product?.variations === null ||

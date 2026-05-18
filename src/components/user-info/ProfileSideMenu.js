@@ -15,6 +15,7 @@ import {
 import CustomerInfo from './CustomerInfo'
 import MenuBar from './MenuBar'
 import { RTL } from '../RTL/RTL'
+import { Stack } from '@mui/material'
 export const tabData = [
     {
         id: 1,
@@ -88,7 +89,7 @@ const ProfileSideMenu = ({ onClose, sidedrawer, page, setAttributeId }) => {
                     zIndex: 9,
                 }}
             >
-                <CustomPaperBigCard
+                <Stack
                     padding="1rem"
                     sx={{
                         borderRadius: '5px',
@@ -107,7 +108,7 @@ const ProfileSideMenu = ({ onClose, sidedrawer, page, setAttributeId }) => {
                             page={page}
                         />
                     </CustomStackFullWidth>
-                </CustomPaperBigCard>
+                </Stack>
             </CustomStackFullWidth>
         </RTL>
     )

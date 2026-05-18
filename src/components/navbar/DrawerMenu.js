@@ -1,6 +1,8 @@
 import LockIcon from '@mui/icons-material/Lock'
 import MenuIcon from '@mui/icons-material/Menu'
 import { Button, IconButton, Stack, Typography, alpha } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
+import { useSettings } from '@/contexts/use-settings'
 import Box from '@mui/material/Box'
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
@@ -34,6 +36,7 @@ import { getToken } from '../checkout-page/functions/getGuestUserId'
 import { CustomTypography } from '../custom-tables/Tables.style'
 import { CustomToaster } from '../custom-toaster/CustomToaster'
 import ThemeSwitches from './top-navbar/ThemeSwitches'
+import HomeSidebar from '@/components/home/home-sidebar/HomeSidebar'
 
 const DrawerMenu = ({ zoneid, cartListRefetch }) => {
     const [forSignup, setForSignup] = useState('')
@@ -44,9 +47,13 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
     const { countryCode, language } = useSelector(
         (state) => state.languageChange
     )
+    console.log({countryCode});
+    
     const { t } = useTranslation()
     const router = useRouter()
     const dispatch = useDispatch()
+    const theme = useTheme()
+    const { settings, saveSettings } = useSettings()
     const [openDrawer, setOpenDrawer] = useState(false)
     const token = getToken()
     const [authModalOpen, setOpen] = useState(false)
@@ -54,6 +61,15 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
         setModalFor(page)
         setOpen(true)
         setForSignup(page)
+    }
+
+    const handleThemeChange = () => {
+        const newTheme = theme.palette.mode === 'light' ? 'dark' : 'light'
+        localStorage.setItem('mode', newTheme)
+        saveSettings({
+            ...settings,
+            theme: newTheme,
+        })
     }
 
     const handleCloseAuthModal = () => {
@@ -186,8 +202,10 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                     <List
                         component="nav"
                         aria-labelledby="nested-list-subheader"
+                        sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}
                     >
                         <ListItemButton
+                           onClick={() => handleRoute('/home')}
                             sx={{
                                 marginTop: location ? '20px' : '10px',
                                 borderBottom: location && '1px solid',
@@ -201,55 +219,9 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                                         {t('Home')}
                                     </Typography>
                                 }
-                                onClick={() => handleRoute('/home')}
+                             
                             />
                         </ListItemButton>
-
-
-                        <>
-                            <CollapsableMenu
-                                value={collapsableMenu.cat}
-                                setOpenDrawer={setOpenDrawer}
-                                toggleDrawers={toggleDrawer}
-                                pathName="/categories"
-                            />
-                            <CollapsableMenu
-                                value={collapsableMenu.res}
-                                setOpenDrawer={setOpenDrawer}
-                                toggleDrawers={toggleDrawer}
-                                pathName="/restaurants"
-                            />
-                            <CollapsableMenu
-                                value={collapsableMenu.cuisine}
-                                setOpenDrawer={setOpenDrawer}
-                                toggleDrawers={toggleDrawer}
-                                pathName="/cuisines"
-                            />
-                            <ListItemButton
-                                sx={{
-                                    borderBottom: '1px solid',
-                                    borderBottomColor: (theme) =>
-                                        alpha(
-                                            theme.palette.neutral[300],
-                                            0.3
-                                        ),
-                                    '&:hover': {
-                                        backgroundColor: 'primary.main',
-                                    },
-                                }}
-                            >
-                                <ListItemText
-                                    primary={
-                                        <Typography
-                                            sx={{ fontSize: '12px' }}
-                                        >
-                                            {t('Profile')}
-                                        </Typography>
-                                    }
-                                    onClick={handleRouteToUserInfo}
-                                />
-                            </ListItemButton>
-                        </>
 
 
                         <ListItemButton
@@ -261,7 +233,50 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                                     backgroundColor: 'primary.main',
                                 },
                             }}
+                             onClick={handleRouteToUserInfo}
                         >
+                            <ListItemText
+                                primary={
+                                    <Typography sx={{ fontSize: '12px' }}>
+                                        {t('Profile')}
+                                    </Typography>
+                                }
+                               
+                            />
+                        </ListItemButton>
+
+                        <Box sx={{ px: '4px', py: '6px' }}>
+                            <HomeSidebar
+                                embedded
+                                onItemClick={() => setOpenDrawer(false)}
+                            />
+                        </Box>
+
+                        <CollapsableMenu
+                            value={collapsableMenu.res}
+                            setOpenDrawer={setOpenDrawer}
+                            toggleDrawers={toggleDrawer}
+                            pathName="/restaurants"
+                        />
+                        <CollapsableMenu
+                            value={collapsableMenu.cuisine}
+                            setOpenDrawer={setOpenDrawer}
+                            toggleDrawers={toggleDrawer}
+                            pathName="/cuisines"
+                        />
+
+                        <ListItemButton
+                            sx={{
+                                borderBottom: '1px solid',
+                                borderBottomColor: (theme) =>
+                                    alpha(theme.palette.neutral[300], 0.3),
+                                '&:hover': {
+                                    backgroundColor: 'primary.main',
+                                },
+                            }}
+                            onClick={() => handleRoute('terms-and-conditions')}
+                        >
+
                             <ListItemText
                                 primary={
                                     <Typography sx={{ fontSize: '12px' }}>
@@ -283,6 +298,7 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                                     backgroundColor: 'primary.main',
                                 },
                             }}
+                             onClick={() => handleRoute('privacy-policy')}
                         >
                             <ListItemText
                                 primary={
@@ -290,10 +306,10 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                                         {t('Privacy Policy')}
                                     </Typography>
                                 }
-                                onClick={() => handleRoute('privacy-policy')}
+                               
                             />
                         </ListItemButton>
-                        <ListItemButton>
+                        <ListItemButton onClick={handleThemeChange}>
                             <ListItemText
                                 primary={
                                     <Typography sx={{ fontSize: '12px' }}>
@@ -301,7 +317,9 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                                     </Typography>
                                 }
                             />
-                            <ThemeSwitches noText />
+                            <Box sx={{ pointerEvents: 'none' }}>
+                                <ThemeSwitches noText />
+                            </Box>
                         </ListItemButton>
                         <ListItemButton>
                             <ListItemText
@@ -345,6 +363,7 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                     <List
                         component="nav"
                         aria-labelledby="nested-list-subheader"
+                        sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}
                     >
                         <>
                             <ListItemButton
@@ -366,26 +385,25 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                                     onClick={() => handleRoute('/home')}
                                 />
                             </ListItemButton>
-                            <>
-                                <CollapsableMenu
-                                    value={collapsableMenu.cat}
-                                    setOpenDrawer={setOpenDrawer}
-                                    toggleDrawers={toggleDrawer}
-                                    pathName="/categories"
+                            <Box sx={{ px: '4px', py: '6px' }}>
+                                <HomeSidebar
+                                    embedded
+                                    onItemClick={() => setOpenDrawer(false)}
                                 />
-                                <CollapsableMenu
-                                    value={collapsableMenu.res}
-                                    setOpenDrawer={setOpenDrawer}
-                                    toggleDrawers={toggleDrawer}
-                                    pathName="/restaurants"
-                                />
-                                <CollapsableMenu
-                                    value={collapsableMenu.cuisine}
-                                    setOpenDrawer={setOpenDrawer}
-                                    toggleDrawers={toggleDrawer}
-                                    pathName="/cuisines"
-                                />
-                            </>
+                            </Box>
+
+                            <CollapsableMenu
+                                value={collapsableMenu.res}
+                                setOpenDrawer={setOpenDrawer}
+                                toggleDrawers={toggleDrawer}
+                                pathName="/restaurants"
+                            />
+                            <CollapsableMenu
+                                value={collapsableMenu.cuisine}
+                                setOpenDrawer={setOpenDrawer}
+                                toggleDrawers={toggleDrawer}
+                                pathName="/cuisines"
+                            />
 
                             <ListItemButton
                                 sx={{
@@ -429,7 +447,7 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                                     }
                                 />
                             </ListItemButton>
-                            <ListItemButton>
+                            <ListItemButton onClick={handleThemeChange}>
                                 <ListItemText
                                     primary={
                                         <Typography sx={{ fontSize: '12px' }}>
@@ -437,7 +455,9 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
                                         </Typography>
                                     }
                                 />
-                                <ThemeSwitches noText />
+                                <Box sx={{ pointerEvents: 'none' }}>
+                                    <ThemeSwitches noText />
+                                </Box>
                             </ListItemButton>
                             <ListItemButton>
                                 <ListItemText

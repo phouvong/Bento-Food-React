@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import ClearIcon from '@mui/icons-material/Clear'
-import { Button, IconButton, Paper, Stack, Typography } from '@mui/material'
+import { Button, IconButton, Paper, Portal, Stack, Typography } from '@mui/material'
 import { styled, useTheme } from '@mui/material/styles'
 import {
     CustomColouredTypography,
@@ -20,32 +20,54 @@ import { setSuggestedKeywords } from '@/redux/slices/storedData'
 import { removeSpecialCharacters } from '@/utils/customFunctions'
 
 const CustomPaper = styled(Paper)(({ theme, display }) => ({
-    position: 'absolute',
-    top: '64px',
-    maxWidth: '450px',
-    width: '100%',
     padding: '1rem',
     display: display ? display : 'inherit',
-    zIndex: 999,
-    left: 'unset',
-    borderTopLeftRadius: '0px',
-    borderTopRightRadius: '0px',
-    [theme.breakpoints.down('md')]: {
-        zIndex: 999,
-        maxWidth: '350px',
-        width: '100%',
-        top: '54px',
-    },
+    borderTopLeftRadius: '8px',
+    borderTopRightRadius: '8px',
 }))
 
 const SearchSuggestionsBottom = (props) => {
-    const { routeHandler, handleFocus, inputValue, searchRef } = props
+    const {
+        routeHandler,
+        handleFocus,
+        inputValue,
+        searchRef,
+        setOpenSearchSuggestions,
+        setSelectedValue,
+    } = props
+
+    const handleSelect = (value) => {
+        if (!value) return
+        setSelectedValue?.(value)
+        routeHandler?.(value)
+        setOpenSearchSuggestions?.(false)
+    }
     const dispatch = useDispatch()
     const theme = useTheme()
     const { token } = useSelector((state) => state.userToken)
     const { suggestedKeywords } = useSelector((state) => state.storedData)
     const [list, setList] = useState([])
     const { t } = useTranslation()
+    const placeholderRef = useRef(null)
+    const [paperPos, setPaperPos] = useState(null)
+
+    useLayoutEffect(() => {
+        if (!placeholderRef.current) return
+        const updatePos = () => {
+            const parent = placeholderRef.current?.parentElement
+            if (!parent) return
+            const r = parent.getBoundingClientRect()
+            setPaperPos({ top: r.bottom + 8, left: r.left, width: r.width })
+        }
+        updatePos()
+        window.addEventListener('scroll', updatePos, true)
+        window.addEventListener('resize', updatePos)
+        return () => {
+            window.removeEventListener('scroll', updatePos, true)
+            window.removeEventListener('resize', updatePos)
+        }
+    }, [])
+console.log({list,inputValue});
 
     const handleSearchSuccess = (res) => {
         dispatch(setSuggestedKeywords(res.data))
@@ -71,6 +93,8 @@ const SearchSuggestionsBottom = (props) => {
         }
     }, [inputValue])
 
+    console.log({data});
+    
     useEffect(() => {
         let getItem = JSON.parse(localStorage.getItem('searchedValues'))
             ?.reverse()
@@ -94,6 +118,8 @@ const SearchSuggestionsBottom = (props) => {
         setList([])
         localStorage.setItem('searchedValues', JSON.stringify([]))
     }
+    console.log({});
+    
     const historyHandler = () => {
         return (
             <>
@@ -125,7 +151,7 @@ const SearchSuggestionsBottom = (props) => {
                                             direction="row"
                                             spacing={0.7}
                                             alignItems="center"
-                                            onClick={() => routeHandler(item)}
+                                            onClick={() => handleSelect(item)}
                                         >
                                             <SearchIcon
                                                 style={{
@@ -165,11 +191,21 @@ const SearchSuggestionsBottom = (props) => {
 
     return (
         <>
+            <span ref={placeholderRef} style={{ display: 'none' }} />
+            <Portal>
             <CustomPaper
                 ref={searchRef}
                 elevation={8}
                 onMouseEnter={() => handleFocus()}
-                sx={{ maxHeight: '400px', zIndex: 99999 }}
+                onMouseDown={(e) => e.preventDefault()}
+                sx={{
+                    position: 'fixed',
+                    top: paperPos?.top ?? -9999,
+                    left: paperPos?.left ?? 0,
+                    width: paperPos?.width ?? '100%',
+                    maxHeight: '400px',
+                    zIndex: 99999,
+                }}
             >
                 <CustomStackFullWidth spacing={3}>
                     <Scrollbar style={{ maxHeight: '100%' }}>
@@ -211,7 +247,7 @@ const SearchSuggestionsBottom = (props) => {
                                                                     }
                                                                     alignItems="center"
                                                                     onClick={() =>
-                                                                        routeHandler(
+                                                                        handleSelect(
                                                                             item?.name
                                                                         )
                                                                     }
@@ -223,6 +259,7 @@ const SearchSuggestionsBottom = (props) => {
                                                                         }}
                                                                     />
                                                                     <Typography
+                                                                    fontSize="14px"
                                                                         color={
                                                                             theme
                                                                                 .palette
@@ -281,7 +318,7 @@ const SearchSuggestionsBottom = (props) => {
                                                         spacing={0.7}
                                                         alignItems="center"
                                                         onClick={() =>
-                                                            routeHandler(
+                                                            handleSelect(
                                                                 item?.name
                                                             )
                                                         }
@@ -331,7 +368,7 @@ const SearchSuggestionsBottom = (props) => {
                                                             spacing={0.7}
                                                             alignItems="center"
                                                             onClick={() =>
-                                                                routeHandler(
+                                                                handleSelect(
                                                                     item?.name
                                                                 )
                                                             }
@@ -366,6 +403,7 @@ const SearchSuggestionsBottom = (props) => {
                     </Scrollbar>
                 </CustomStackFullWidth>
             </CustomPaper>
+            </Portal>
         </>
     )
 }

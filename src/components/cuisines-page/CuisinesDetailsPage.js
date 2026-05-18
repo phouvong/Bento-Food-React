@@ -1,7 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
-import { Box, Chip, Grid, NoSsr, Popover, Stack, Typography } from '@mui/material'
+import {
+    Box,
+    Chip,
+    Grid,
+    NoSsr,
+    Popover,
+    Stack,
+    Typography,
+} from '@mui/material'
 import RestaurantBoxCard from '../restaurant-details/RestaurantBoxCard'
+import NewStoreCard from '@/components/new-store-card/NewStoreCard'
 import { useDispatch, useSelector } from 'react-redux'
 import CustomShimmerRestaurant from '../CustomShimmer/CustomShimmerRestaurant'
 import CustomEmptyResult from '../empty-view/CustomEmptyResult'
@@ -24,6 +33,7 @@ import 'simplebar-react/dist/simplebar.min.css'
 import { handleFilterData } from '../category/helper'
 import CustomePagination from '../pagination/Pagination'
 import { useTranslation } from 'react-i18next'
+import CustomPageTitleSubtitle from '../CustomPageTitleSubtitle'
 
 const CuisinesDetailsPage = ({
     data,
@@ -42,10 +52,13 @@ const CuisinesDetailsPage = ({
     const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)
     const [checkedFilterKey, setCheckedFilterKey] = useState(mockData)
-    const [priceAndRatingLocal, setPriceAndRatingLocal] = useState({ price: [], rating: 0 })
+    const [priceAndRatingLocal, setPriceAndRatingLocal] = useState({
+        price: [],
+        rating: 0,
+    })
     const [filterByLocal, setFilterByLocal] = useState([])
     const { cuisines } = useSelector((state) => state.storedData)
-    const matchesToSmall = useMediaQuery('(max-width:400px)')
+    const matchesToSmall = useMediaQuery('(max-width:600px)')
     const theme = useTheme()
     const sliderRef = useRef(null)
     const router = useRouter()
@@ -124,7 +137,9 @@ const CuisinesDetailsPage = ({
     }
 
     const handleReset = () => {
-        setCheckedFilterKey(mockData.map((item) => ({ ...item, isActive: false })))
+        setCheckedFilterKey(
+            mockData.map((item) => ({ ...item, isActive: false }))
+        )
         setFilterByLocal([])
         setPriceAndRatingLocal({ price: [], rating: 0 })
     }
@@ -140,10 +155,38 @@ const CuisinesDetailsPage = ({
         nextArrow: <HandleNext right="-1.6%" />,
         prevArrow: <HandlePrev left="-1.6%" />,
         responsive: [
-            { breakpoint: 1200, settings: { slidesToShow: 5, slidesToScroll: 2, infinite: cuisines?.length > 5 } },
-            { breakpoint: 900, settings: { slidesToShow: 4, slidesToScroll: 2, infinite: cuisines?.length > 4 } },
-            { breakpoint: 700, settings: { slidesToShow: 3, slidesToScroll: 2, infinite: cuisines?.length > 3 } },
-            { breakpoint: 480, settings: { slidesToShow: 3, slidesToScroll: 2, infinite: cuisines?.length > 2 } },
+            {
+                breakpoint: 1200,
+                settings: {
+                    slidesToShow: 5,
+                    slidesToScroll: 2,
+                    infinite: cuisines?.length > 5,
+                },
+            },
+            {
+                breakpoint: 900,
+                settings: {
+                    slidesToShow: 4,
+                    slidesToScroll: 2,
+                    infinite: cuisines?.length > 4,
+                },
+            },
+            {
+                breakpoint: 700,
+                settings: {
+                    slidesToShow: 3,
+                    slidesToScroll: 2,
+                    infinite: cuisines?.length > 3,
+                },
+            },
+            {
+                breakpoint: 480,
+                settings: {
+                    slidesToShow: 3,
+                    slidesToScroll: 1,
+                    infinite: cuisines?.length > 2,
+                },
+            },
         ],
     }
 
@@ -156,10 +199,15 @@ const CuisinesDetailsPage = ({
                         overflow: 'visible',
                         px: { xs: 0, md: 1 },
                         '& .slick-slider': { position: 'relative' },
-                        '& .slick-slide > div': { px: { xs: '6px', sm: '10px' } },
+                        '& .slick-slide > div': {
+                            px: { xs: '6px', sm: '10px' },
+                        },
                         '& .slick-list': {
-                            paddingTop: { xs: '10px !important', sm: '20px !important' },
-                            paddingBottom: { xs: '10px !important', sm: '20px !important' },
+                            paddingTop: {
+                                xs: '10px !important',
+                                sm: '20px !important',
+                            },
+                           
                         },
                     }}
                 >
@@ -178,8 +226,16 @@ const CuisinesDetailsPage = ({
                                         borderRadius: '10px',
                                         backgroundColor: isActiveCuisine
                                             ? isDarkMode
-                                                ? alpha(theme.palette.primary.main, 0.35)
-                                                : alpha(theme.palette.primary.main, 0.3)
+                                                ? alpha(
+                                                      theme.palette.primary
+                                                          .main,
+                                                      0.35
+                                                  )
+                                                : alpha(
+                                                      theme.palette.primary
+                                                          .main,
+                                                      0.3
+                                                  )
                                             : isDarkMode
                                             ? theme.palette.neutral[800]
                                             : theme.palette.neutral[100],
@@ -194,14 +250,20 @@ const CuisinesDetailsPage = ({
                                             : '0px 3px 6px rgb(159 159 159 / 12%)',
                                         px: '16px',
                                         py: '10px',
-                                        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                                        transition:
+                                            'transform 0.2s ease, box-shadow 0.2s ease',
                                         '&:hover': {
                                             transform: 'translateY(-2px)',
-                                            boxShadow: '0px 14px 28px rgba(16,24,40,0.12)',
+                                            boxShadow:
+                                                '0px 14px 28px rgba(16,24,40,0.12)',
                                         },
                                     }}
                                 >
-                                    <Stack spacing={1} alignItems="center" justifyContent="center">
+                                    <Stack
+                                        spacing={1}
+                                        alignItems="center"
+                                        justifyContent="center"
+                                    >
                                         <Box
                                             sx={{
                                                 width: '50px',
@@ -210,7 +272,8 @@ const CuisinesDetailsPage = ({
                                                 overflow: 'hidden',
                                                 backgroundColor: isActiveCuisine
                                                     ? theme.palette.neutral[100]
-                                                    : theme.palette.neutral[200],
+                                                    : theme.palette
+                                                          .neutral[200],
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
@@ -231,7 +294,8 @@ const CuisinesDetailsPage = ({
                                             color={
                                                 isActiveCuisine
                                                     ? theme.palette.primary.main
-                                                    : theme.palette.neutral[1000]
+                                                    : theme.palette
+                                                          .neutral[1000]
                                             }
                                             textAlign="center"
                                             sx={{
@@ -252,17 +316,35 @@ const CuisinesDetailsPage = ({
                 </Box>
             )}
 
-            <Grid container spacing={{ xs: 1, sm: 2, md: 2 }} alignItems="center" justifyContent="center">
+            <Grid
+                container
+                
+               // spacing={{ xs: 1, sm: 2, md: 2 }}
+                alignItems="center"
+                justifyContent="center"
+            >
                 <Grid item md={12} sm={12} xs={12}>
-                    <CustomStackFullWidth direction="row" justifyContent="space-between" alignItems="center">
-                        <Typography variant="h4" color={theme.palette.neutral[1000]} fontSize="20px" fontWeight={600}>
-                            {t('Restaurant List')}
-                        </Typography>
-                        <FilterButton
-                            id="fade-button"
-                            handleClick={handleDropClick}
-                            activeFilters={getSelectedFilter}
-                        />
+                    <CustomStackFullWidth
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="flex-start"
+                        spacing={2}
+                    >
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <CustomPageTitleSubtitle
+                                title={t('Restaurant List')}
+                                subtitle={t(
+                                    'Browse restaurants serving this cuisine — refine with filters to find your favorites.'
+                                )}
+                            />
+                        </Box>
+                        <Box sx={{ flexShrink: 0, pt: { xs: '4px', md: '6px' } }}>
+                            <FilterButton
+                                id="fade-button"
+                                handleClick={handleDropClick}
+                                activeFilters={getSelectedFilter}
+                            />
+                        </Box>
                     </CustomStackFullWidth>
                 </Grid>
 {/* 
@@ -278,7 +360,10 @@ const CuisinesDetailsPage = ({
                                 <Stack
                                     direction="row"
                                     spacing={1}
-                                    justifyContent={{ xs: 'flex-start', md: 'flex-end' }}
+                                    justifyContent={{
+                                        xs: 'flex-start',
+                                        md: 'flex-end',
+                                    }}
                                     alignItems="center"
                                 >
                                     {getSelectedFilter?.map((item) => (
@@ -286,7 +371,8 @@ const CuisinesDetailsPage = ({
                                             key={item?.id}
                                             sx={{
                                                 fontWeight: '400',
-                                                color: theme.palette.neutral[500],
+                                                color: theme.palette
+                                                    .neutral[500],
                                                 fontSize: '12px',
                                                 padding: '0px 5px',
                                                 height: '30px',
@@ -305,35 +391,31 @@ const CuisinesDetailsPage = ({
                     </Grid>
                 )} */}
 
-                <Grid item xs={12} sm={12} md={12} container spacing={{ xs: 1, sm: 2, md: 3 }}>
+                <Grid
+                    item
+                    xs={12}
+                    sm={12}
+                    md={12}
+                    container
+                    spacing={{ xs: 1, sm: 2, md: 2 }}
+                >
                     <NoSsr>
                         {data?.restaurants?.length > 0 &&
                             data?.restaurants?.map((restaurant) => (
                                 <Grid
                                     item
                                     xs={matchesToSmall ? 12 : 6}
-                                    sm={4}
+                                    sm={6}
                                     md={3}
+                                    lg={3}
                                     key={restaurant?.id}
                                 >
-                                    <RestaurantBoxCard
-                                        slug={restaurant?.slug}
-                                        image={restaurant?.cover_photo_full_url}
-                                        name={restaurant?.name}
-                                        rating={restaurant?.avg_rating}
-                                        restaurantImageUrl={
-                                            global?.base_urls?.restaurant_cover_photo_url
-                                        }
-                                        id={restaurant?.id}
-                                        active={restaurant?.active}
-                                        open={restaurant?.open}
-                                        restaurantDiscount={restaurant?.discount}
-                                        freeDelivery={restaurant?.free_delivery}
-                                        delivery_time={restaurant?.delivery_time}
-                                        cuisines={restaurant?.cuisine}
-                                        rating_count={restaurant?.rating_count}
-                                        coupons={restaurant?.coupons}
-                                        opening_time={restaurant?.current_opening_time}
+                                    <NewStoreCard
+                                        restaurant={{
+                                            ...restaurant,
+                                            opening_time:
+                                                restaurant?.current_opening_time,
+                                        }}
                                     />
                                 </Grid>
                             ))}

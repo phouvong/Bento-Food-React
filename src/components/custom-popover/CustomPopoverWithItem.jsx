@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Stack, Typography } from '@mui/material'
+import { Box, Button, Stack, Typography, alpha } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { useTheme } from '@mui/material/styles'
@@ -12,78 +12,119 @@ const CustomPopoverWithItem = ({
     deleteItem,
     confirmButtonText,
     cancelButtonText,
-    isLoading
+    isLoading,
 }) => {
     const [mapImg, setMapImg] = useState()
     const { t } = useTranslation()
-    const theme = useTheme();
+    const theme = useTheme()
+
     useEffect(() => {
         setMapImg(icon)
     }, [])
 
     return (
-        <>
-            {mapImg}
-            <Stack gap="8px">
+        <Stack alignItems="center" spacing={2.25}>
+            {mapImg && (
+                <Box
+                    sx={{
+                        width: 72,
+                        height: 72,
+                        borderRadius: '50%',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: alpha(theme.palette.error.main, 0.1),
+                        color: theme.palette.error.main,
+                    }}
+                >
+                    {mapImg}
+                </Box>
+            )}
+
+            <Stack spacing={0.75} alignItems="center" textAlign="center">
                 <Typography
-                    id="modal-modal-description"
-                    fontSize="16px"
-                    fontWeight={700}
+                    sx={{
+                        fontSize: '16px',
+                        fontWeight: 700,
+                        color: theme.palette.text.primary,
+                    }}
                 >
                     {t(title)}
                 </Typography>
                 <Typography
-                    id="modal-modal-description"
-                    fontSize="12px"
-                    fontWeight={400}
+                    sx={{
+                        fontSize: '13px',
+                        fontWeight: 400,
+                        color: theme.palette.text.secondary,
+                        maxWidth: 280,
+                    }}
                 >
                     {t(subTitle)}
                 </Typography>
-
             </Stack>
-            <Stack flexDirection="row" gap="15px">
+
+            <Stack
+                direction="row"
+                spacing={1.5}
+                width="100%"
+                justifyContent="center"
+            >
                 <Button
+                    onClick={handleClose}
                     sx={{
-                        background: (theme) =>
-                            theme.palette.neutral[300],
-                        color: `${theme.palette.neutral[1000]} !important`,
-                        width: '130px',
-                        fontWeight: 400,
+                        flex: 1,
+                        maxWidth: 150,
+                        py: 1,
+                        borderRadius: '8px',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        backgroundColor: 'transparent',
+                        color: theme.palette.text.primary,
+                        border: `1px solid ${theme.palette.divider}`,
                         '&:hover': {
-                            background: (theme) =>
-                                theme.palette.neutral[500],
+                            backgroundColor: alpha(
+                                theme.palette.text.primary,
+                                0.04
+                            ),
+                            borderColor: theme.palette.text.secondary,
                         },
                     }}
-                    onClick={handleClose}
                 >
                     {t(cancelButtonText)}
                 </Button>
                 <LoadingButton
                     loading={isLoading}
+                    onClick={(e) => deleteItem(e)}
+                    variant="contained"
                     sx={{
-                        background: (theme) =>
+                        flex: 1,
+                        maxWidth: 150,
+                        py: 1,
+                        borderRadius: '8px',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        backgroundColor: theme.palette.error.main,
+                        color: '#fff !important',
+                        boxShadow: `0 4px 12px ${alpha(
                             theme.palette.error.main,
-                        color: (theme) =>
-                            theme.palette.neutral[100],
-                        width: '130px',
+                            0.25
+                        )}`,
                         '&:hover': {
-                            background: (theme) =>
-                                theme.palette.error.dark,
+                            backgroundColor: theme.palette.error.dark,
+                            boxShadow: `0 6px 16px ${alpha(
+                                theme.palette.error.main,
+                                0.32
+                            )}`,
+                        },
+                        '& .MuiLoadingButton-loadingIndicator': {
+                            color: '#fff',
                         },
                     }}
-                    onClick={(e) => deleteItem(e)}
                 >
-                    <Typography
-                        sx={{
-                            color: (theme) =>
-                                theme.palette.neutral[100],
-                        }}
-                    >
-                        {t(confirmButtonText)}
-                    </Typography>
+                    {t(confirmButtonText)}
                 </LoadingButton>
             </Stack>
-        </>
+        </Stack>
     )
 }
 

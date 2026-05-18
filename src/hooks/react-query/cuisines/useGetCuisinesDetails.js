@@ -14,7 +14,8 @@ export const getData = async (params) => {
     } = params
 
     const urlParams = new URLSearchParams()
-    urlParams.set('cuisine', id)
+    const cuisineIds = Array.isArray(id) ? id : [id]
+    cuisineIds.forEach((cuisineId) => urlParams.append('cuisine[]', cuisineId))
     urlParams.set('limit', page_limit)
     urlParams.set('offset', offset)
 

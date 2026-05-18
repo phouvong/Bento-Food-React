@@ -18,7 +18,7 @@ const OtpLogin = ({
     handleClick,
     rememberMeHandleChange,
     fireBaseId, setInitialLoginType,
-                      isRemember
+    isRemember
 }) => {
     const theme = useTheme()
     return (
@@ -37,7 +37,7 @@ const OtpLogin = ({
                     <RememberMe
                         rememberMeHandleChange={rememberMeHandleChange}
                         loginFormik={otpLoginFormik}
-                        isRemember={false}
+                        isRemember={isRemember}
                     />
                     <CustomStackFullWidth sx={{ paddingY: '5px' }}>
                         <CustomColouredTypography

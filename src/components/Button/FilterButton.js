@@ -21,7 +21,7 @@ const FilterButton = ({ handleClick, activeFilters, forSearch, homePage, height,
                 color: (theme) => theme.palette.primary.main,
                 borderColor: (theme) => theme.palette.primary.main,
                 minWidth: '33px',
-                height: height || '100%',
+                height:height?? "35px",
                 '&:hover': {
                     backgroundColor: (theme) => theme.palette.primary.main,
                     color: (theme) => theme.palette.neutral[100],

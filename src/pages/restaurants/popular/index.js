@@ -1,6 +1,6 @@
 import React from 'react'
 import { NoSsr } from '@mui/material'
-import TypeWiseResturant from '../../../components/type-wise-resturant-page/TypeWiseResturant'
+import Restaurant from '../../../components/restaurant-page/Restaurant'
 import { landingPageApi } from '@/components/landingpage/Api'
 import Meta from '../../../components/Meta'
 import { useTranslation } from 'react-i18next'
@@ -19,11 +19,7 @@ const index = ({ configData, landingPageData, pathName }) => {
                     pathName={pathName}
                 />
                 <NoSsr>
-                    <TypeWiseResturant
-                        restaurantType="popular"
-                        title="Popular Restaurant "
-                        description="Popular Restaurant Nearby"
-                    />
+                    <Restaurant />
                 </NoSsr>
             </div>
         </>

@@ -22,8 +22,8 @@ const postData = async (storeData, configData) => {
         vat: storeData.vat,
         min_delivery_time: storeData?.min_delivery_time,
         max_delivery_time: storeData?.max_delivery_time,
-        lat: storeData?.lng,
-        lng: storeData?.lat,
+        lat: storeData?.lat,
+        lng: storeData?.lng,
         fName: storeData?.f_name,
         lName: storeData?.l_name,
         phone: storeData?.phone,
@@ -40,7 +40,7 @@ const postData = async (storeData, configData) => {
         additional_data: JSON.stringify(storeData?.additional_data),
     };
 
-// ✅ Conditionally add TIN-related fields only if they exist
+    // ✅ Conditionally add TIN-related fields only if they exist
     if (storeData?.tin) {
         finalData.tin = storeData.tin;
     }

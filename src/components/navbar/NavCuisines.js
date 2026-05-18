@@ -64,12 +64,10 @@ const NavCuisines = ({ setRestaurantModal, languageDirection }) => {
                 aria-haspopup="true"
                 aria-expanded={opendrop ? 'true' : undefined}
                 underline="none"
-                fontSize="14px"
-                alignItems="center"
             >
-                {t('Cuisines')}{' '}
+                {t('Cuisines')}
                 <KeyboardArrowDownIcon
-                    style={{ width: '16px', marginLeft: '5px' }}
+                    style={{ width: '14px', height: '14px' }}
                 />
             </NavMenuLink>
             <Menu
@@ -91,7 +89,7 @@ const NavCuisines = ({ setRestaurantModal, languageDirection }) => {
                 }}
             >
                 <Stack width="420px">
-                    <Grid container p="1rem" spacing={1}>
+                    <Grid container p="1.5rem" spacing={1}>
                         {cuisines?.length > 12 ? (
                             <>
                                 {cuisines?.slice(0, 12)?.map((item, index) => {
@@ -180,7 +178,9 @@ const NavCuisines = ({ setRestaurantModal, languageDirection }) => {
                             md={12}
                             justifyContent="center"
                             alignItems="center"
-                            p=".8rem"
+                            pt=".4rem"
+                            px=".8rem"
+                            pb="1.5rem"
                         >
                             <Button
                                 sx={{

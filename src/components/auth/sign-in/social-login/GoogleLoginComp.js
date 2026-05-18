@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast'
 import { useVerifyPhone } from '@/hooks/react-query/otp/useVerifyPhone'
 import { onErrorResponse } from '../../../ErrorResponse'
 import { googleClientId } from '@/utils/staticCredentials'
-import { styled, Typography, Stack } from '@mui/material'
+import { styled, Typography, Stack, Box, alpha } from '@mui/material'
 import { t } from 'i18next'
 import CustomImageContainer from '../../../CustomImageContainer'
 import googleLatest from '../../../../../public/static/Google Logo.png'
@@ -14,16 +14,20 @@ import { getGuestId } from '@/components/checkout-page/functions/getGuestUserId'
 
 export const CustomGoogleButton = styled(Stack)(({ theme, width }) => ({
     width: '100%',
-    backgroundColor: theme.palette.neutral[100],
+    backgroundColor: theme.palette.mode === 'dark' ? alpha(theme.palette.neutral[200],.7) : alpha(theme.palette.neutral[300],.7),
     height: '45px',
     justifyContent: 'center',
     borderRadius: '10px',
     padding: '10px',
     color: theme.palette.neutral[600],
-    boxShadow: `0px 2px 3px 0px rgba(0, 0, 0, 0.17), 0px 0px 3px 0px rgba(0, 0, 0, 0.08)`,
+    //boxShadow: `0px 2px 3px 0px rgba(0, 0, 0, 0.17), 0px 0px 3px 0px rgba(0, 0, 0, 0.08)`,
     transition: 'box-shadow 0.3s',
     '&:hover': {
-        boxShadow: `0px 5px 10px 0px rgba(0, 0, 0, 0.3), 0px 2px 5px 0px rgba(0, 0, 0, 0.15)`,
+        backgroundColor: alpha(theme.palette.neutral[400],.2),
+        //boxShadow: `0px 5px 10px 0px rgba(0, 0, 0, 0.3), 0px 2px 5px 0px rgba(0, 0, 0, 0.15)`,
+    },
+    '&:hover .custom-google-text': {
+        fontWeight: 600,
     },
 }))
 
@@ -150,9 +154,22 @@ const GoogleLoginComp = (props) => {
     }
     return (
         <Stack width={'100%'} maxWidth="355px">
-            <div style={{ position: 'relative' }}>
-                <div
-                    style={{
+            <Box
+                sx={(theme) => ({
+                    position: 'relative',
+                    '&:hover .custom-google-button': {
+                        backgroundColor: alpha(
+                            theme.palette.neutral[400],
+                            0.2
+                        ),
+                    },
+                    '&:hover .custom-google-text': {
+                        fontWeight: 600,
+                    },
+                })}
+            >
+                <Box
+                    sx={{
                         position: 'absolute',
                         height: '100%',
                         width: '100%',
@@ -161,9 +178,13 @@ const GoogleLoginComp = (props) => {
                     }}
                 >
                     <div id="signInDiv"></div>
-                </div>
+                </Box>
 
-                <CustomGoogleButton direction="row" spacing={1}>
+                <CustomGoogleButton
+                    className="custom-google-button"
+                    direction="row"
+                    spacing={1}
+                >
                     <CustomImageContainer
                         src={googleLatest.src}
                         alt="facebook"
@@ -172,11 +193,11 @@ const GoogleLoginComp = (props) => {
                         objectFit="cover"
                         borderRadius="50%"
                     />
-                    <Typography fontSize="14px" fontWeight="600">
+                    <Typography className="custom-google-text" fontSize="14px">
                         {t('Continue with Google')}
                     </Typography>
                 </CustomGoogleButton>
-            </div>
+            </Box>
 
             <CustomModal
                 openModal={openOtpModal}

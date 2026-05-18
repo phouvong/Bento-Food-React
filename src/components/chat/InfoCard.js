@@ -55,8 +55,8 @@ const InfoCard = (props) => {
         userList.receiver_type === 'admin'
             ? global?.logo_full_url
             : userList.receiver_type === 'customer'
-            ? userList?.sender?.image_full_url
-            : userList?.receiver?.image_full_url
+                ? userList?.sender?.image_full_url
+                : userList?.receiver?.image_full_url
 
     const { isLoading, data, isError, error, refetch } = useQuery(
         ['profile-info'],
@@ -71,13 +71,19 @@ const InfoCard = (props) => {
             direction="row"
             spacing={2}
             alignItems="center"
-            borderRadius="10px"
+            //borderRadius="10px"
             padding="10px 15px 10px 10px"
             sx={{
                 background:
                     selectedId === currentId || isRead > 0
-                        ? (theme) => alpha(theme.palette.primary.main, 0.1)
+                        ? (theme) => alpha(theme.palette.primary.light, 0.1)
                         : '',
+                borderLeft: '2px solid',
+                borderLeftColor: (theme) =>
+                    selectedId === currentId ? theme.palette.primary.main : 'transparent',
+                '&:hover': {
+                    background: (theme) => alpha(theme.palette.neutral[300], 0.8),
+                },
             }}
         >
             <StyledBadge

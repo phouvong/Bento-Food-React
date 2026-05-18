@@ -12,7 +12,7 @@ const CategoryCard = ({ categoryImage, name, id, reduxImage }) => {
             <CatagoriCardPaper elevation={0}>
 
                 <CatagoriImg>
-                    <img src={image} alt=loyalty />
+                    <img src={image} alt="loyalty" />
                 </CatagoriImg>
                 <Stack sx={{ textAlign: 'center' }}>
                     <Typography variant="h4">{name}</Typography>

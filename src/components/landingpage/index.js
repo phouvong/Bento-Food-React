@@ -100,6 +100,7 @@ const LandingPage = ({ global, landingPageData }) => {
                     restaurant_section={
                         landingPageData?.restaurant_section
                     }
+                    global={global}
                 />
             ) : null}
 

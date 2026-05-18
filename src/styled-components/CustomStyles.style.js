@@ -319,8 +319,9 @@ export const SliderCustom = styled(Stack)(
                         : 'left',
                     gap: gap ? gap : '5px',
                     paddingBottom: paddingBottom || 0,
-                    
-                   
+                    '&::before, &::after': {
+                        display: 'none',
+                    },
                 },
             },
             '& .slick-dots': {
@@ -413,12 +414,12 @@ export const WrapperForSideDrawerFilter = styled(Box)(
         paddingBottom: '2rem',
         paddingLeft: '1rem',
         paddingRight: '1rem',
-        minWidth: '250px',
+        minWidth: '200px',
         maxWidth: '350px',
         width: '350px',
         [theme.breakpoints.down('sm')]: {
             minWidth: smminwith ? smminwith : '180px',
-            width: '300px',
+            width: '250px',
         },
     })
 )

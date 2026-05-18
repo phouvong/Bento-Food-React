@@ -1,12 +1,17 @@
 export const landingFeatureSettings = {
-    speed: 1000,
+    speed: 400,
+    cssEase: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     slidesToShow: 3,
     slidesToScroll: 1,
     initialSlide: 0,
     autoplay: false,
     infinite: false,
-    // nextArrow: hoverOn && <HandleNext />,
-    // prevArrow: hoverOn && <HandlePrev />,
+    swipe: true,
+    swipeToSlide: true,
+    touchMove: true,
+    touchThreshold: 10,
+    useCSS: true,
+    useTransform: true,
     responsive: [
         {
             breakpoint: 3600,
@@ -14,7 +19,6 @@ export const landingFeatureSettings = {
                 slidesToShow: 4.7,
                 slidesToScroll: 1,
                 infinite: false,
-                // dots: false
             },
         },
         {
@@ -23,7 +27,6 @@ export const landingFeatureSettings = {
                 slidesToShow: 4.7,
                 slidesToScroll: 1,
                 infinite: false,
-                // dots: false
             },
         },
         {
@@ -32,7 +35,6 @@ export const landingFeatureSettings = {
                 slidesToShow: 4.7,
                 slidesToScroll: 1,
                 infinite: false,
-                // dots: false
             },
         },
         {
@@ -41,7 +43,6 @@ export const landingFeatureSettings = {
                 slidesToShow: 4.7,
                 slidesToScroll: 1,
                 infinite: false,
-                // dots: false
             },
         },
         {
@@ -50,7 +51,6 @@ export const landingFeatureSettings = {
                 slidesToShow: 3,
                 slidesToScroll: 1,
                 infinite: false,
-                // dots: false
             },
         },
         {
@@ -59,7 +59,6 @@ export const landingFeatureSettings = {
                 slidesToShow: 3,
                 slidesToScroll: 1,
                 infinite: false,
-                // dots: false
             },
         },
         {
@@ -68,7 +67,6 @@ export const landingFeatureSettings = {
                 slidesToShow: 3,
                 slidesToScroll: 1,
                 infinite: false,
-                // dots: false
             },
         },
         {
@@ -77,23 +75,21 @@ export const landingFeatureSettings = {
                 slidesToShow: 2.5,
                 slidesToScroll: 1,
                 infinite: false,
-                // dots: false
             },
         },
         {
             breakpoint: 999,
             settings: {
                 slidesToShow: 2.5,
-                slidesToScroll: 1,
+                slidesToScroll: 3,
                 infinite: false,
-                // dots: false
             },
         },
         {
             breakpoint: 670,
             settings: {
                 slidesToShow: 2.5,
-                slidesToScroll: 1,
+                slidesToScroll: 3,
                 initialSlide: 0,
                 infinite: false,
             },
@@ -102,7 +98,7 @@ export const landingFeatureSettings = {
             breakpoint: 540,
             settings: {
                 slidesToShow: 2,
-                slidesToScroll: 1,
+                slidesToScroll: 3,
                 infinite: false,
             },
         },
@@ -110,9 +106,7 @@ export const landingFeatureSettings = {
             breakpoint: 450,
             settings: {
                 slidesToShow: 1.5,
-                slidesToScroll: 1,
-                speed: 1000,
-                // dots: false
+                slidesToScroll: 2,
                 initialSlide: 0,
                 infinite: true,
             },

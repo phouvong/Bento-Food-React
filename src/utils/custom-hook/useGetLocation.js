@@ -9,10 +9,12 @@ import {
 } from '@/redux/slices/addressData'
 import { onErrorResponse } from '@/components/ErrorResponse'
 
-export const useGetLocation = (coords) => {
+export const useGetLocation = (coords,setInZone) => {
     const dispatch = useDispatch()
     const { global } = useSelector((state) => state.globalSettings)
     const { location } = useSelector((state) => state.addressData)
+    const isNonEmptyObject = (obj) =>
+        obj && typeof obj === 'object' && Object.keys(obj).length > 0
     const [isDisablePickButton, setDisablePickButton] = useState(false)
     const [locationEnabled, setLocationEnabled] = useState(false)
     const [searchKey, setSearchKey] = useState({ description: '' })
@@ -40,21 +42,29 @@ export const useGetLocation = (coords) => {
 
     useEffect(() => {
         if (global?.default_location) {
-            dispatch(setLocation(global?.default_location))
+            const hasLocation = isNonEmptyObject(location)
+            dispatch(setLocation(hasLocation ? location : global?.default_location))
             setLocationEnabled(true)
         }
-    }, [global?.default_location])
+    }, [global?.default_location, location])
 
     const { data: zoneData } = useQuery(
         ['zoneId', location],
         async () => GoogleApi.getZoneId(location),
         {
             enabled: locationEnabled,
-            retry: 1,
+            retry: 0,
+            onSuccess: () => {
+                setInZone?.(true)
+            },
             onError: (error) => {
-                console.log({ error })
-                onErrorResponse(error)
-            }
+                const isOutOfZone =
+                    error?.response?.data?.errors?.[0]?.message ===
+                    'Service not available in this area' || error?.response?.data?.errors?.[0]?.message ==="We are temporarily unavailable in this area"
+                setInZone?.(!isOutOfZone)
+                console.log('error', !isOutOfZone)
+                //onErrorResponse(error)
+            },
         }
     )
     const { data: placeDetails } = useQuery(

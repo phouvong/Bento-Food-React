@@ -1,4 +1,4 @@
-import { List, Stack, Box } from '@mui/material'
+import { List, Stack, Box, Typography } from '@mui/material'
 import {
     CustomListItem,
     CustomStackFullWidth,
@@ -8,12 +8,14 @@ import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
 import Skeleton from '@mui/material/Skeleton'
 import { useSelector } from 'react-redux'
+import { t } from 'i18next'
 
 const ContactLists = ({
     channelList,
     handleChannelOnClick,
     channelLoading,
     selectedId,
+    searchValue,
 }) => {
     const { global } = useSelector((state) => state.globalSettings)
 
@@ -96,7 +98,7 @@ const ContactLists = ({
 
     return (
         <CustomStackFullWidth>
-            {channelList?.length > 0 && (
+            {channelList?.length > 0 ? (
                 <SimpleBar style={{ maxHeight: '60vh' }}>
                     <List disablePadding>
                         {channelList?.map((item, index) => {
@@ -114,6 +116,24 @@ const ContactLists = ({
                         })}
                     </List>
                 </SimpleBar>
+            ) : (
+                <Stack
+                    alignItems="center"
+                    justifyContent="center"
+                    padding="1.5rem"
+                    sx={{ color: (theme) => theme.palette.neutral[500] }}
+                >
+                    <Typography fontSize="14px" fontWeight="500">
+                        {searchValue
+                            ? t('No results found')
+                            : t('No conversations yet')}
+                    </Typography>
+                    <Typography fontSize="12px">
+                        {searchValue
+                            ? t('Try a different name or keyword')
+                            : t('Start a chat to see messages here')}
+                    </Typography>
+                </Stack>
             )}
         </CustomStackFullWidth>
     )

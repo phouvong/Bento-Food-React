@@ -1,4 +1,6 @@
 export const arabic = {
+    'Browse and filter restaurants to match your vibe.':
+        'تصفح وفلتر المطاعم لتناسب مزاجك.',
     'Welcome to React': 'مرحبًا بك في React و React-I18Next',
     'Dont have a cutlery? Restaurant will provide you.':
         'ليس لديك أدوات مائدة؟ المطعم سوف يوفر لك.',
@@ -1902,7 +1904,7 @@ export const arabic = {
     "Positive Review": "Positive Review",
     "Preferable Time": "Preferable Time",
     "Price: Low to High": "Price: Low to High",
-    "Privacy Policy": "Privacy Policy",
+    "Privacy Policy": "سياسة الخصوصية",
     "Promo Code": "Promo Code",
     "Rate the deliveryman": "Rate the deliveryman",
     "Rate the food": "Rate the food",
@@ -1973,11 +1975,11 @@ export const arabic = {
     "Switch Your payment method ": "Switch Your payment method ",
     "Switch to cash on delivery": "Switch to cash on delivery",
     "Take Away": "Take Away",
-    "Terms & Conditions": "Terms & Conditions",
+    "Terms & Conditions": "البنود و الظروف",
     "Terms and Conditions": "Terms and Conditions",
     "Terms and conditions": "Terms and conditions",
     "The Contact Person Info Is Required.": "The Contact Person Info Is Required.",
-    "Theme Mode": "Theme Mode",
+    "Theme Mode": "وضع الموضوع",
     "They create a account on": "They create a account on",
     "This Subscription order cancelled successfully": "This Subscription order cancelled successfully",
     "This Variation needs to be selected in between minimum": "This Variation needs to be selected in between minimum",
@@ -2072,4 +2074,13 @@ export const arabic = {
     "Standard Delivery": "التوصيل القياسي",
     "Express Delivery": "التوصيل السريع",
     "Slightly Delay Delivery": "التوصيل المتأخر قليلاً",
+    "Refer a Friend": "أحل صديقاً",
+    "Your Offers": "عروضك",
+    "Coupons": "كوبونات",
+    "Offers": "العروض",
+    "Instant Access": "الوصول الفوري",
+    "Restaurants Near You": "مطاعم بالقرب منك",
+    "Recommended Store": "المتجر الموصى به",
+    "Your Cravings": "ما تشتهيه",
+    "Recently Ordered": "تم طلبه مؤخراً"
 }

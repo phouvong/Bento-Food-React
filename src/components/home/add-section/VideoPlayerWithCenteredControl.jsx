@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 import ReactPlayer from 'react-player'
-import { Stack, IconButton } from '@mui/material'
+import { Stack, IconButton, useTheme } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import ReplayIcon from '@mui/icons-material/Replay'
@@ -15,12 +15,13 @@ const VideoPlayerWithCenteredControl = ({
     isMargin,
 }) => {
     const playerRef = useRef(null)
+    const theme = useTheme()
     const [muted, setMuted] = useState(true)
 
     const handlePlayPause = (e) => {
         e.stopPropagation()
         if (ended) {
-            playerRef.current.seekTo(0) // Reset video to start
+            playerRef.current.seekTo(0)
             setEnded(false)
         }
         setPlaying(!playing)
@@ -38,19 +39,17 @@ const VideoPlayerWithCenteredControl = ({
     if (video === '') {
         return null
     }
+
     return (
         <Stack
             sx={{
                 position: 'relative',
                 margin: isMargin && '0px 25px -110px',
-                boxShadow: (theme) =>
-                    theme.palette.mode === 'dark'
-                        ? '0px 15px 30px rgba(0, 0, 0, 0.8)'
-                        : '0px 15px 30px rgba(150, 150, 154, 0.40)',
+                boxShadow: '0px 15px 30px rgba(150, 150, 154, 0.40)',
                 borderRadius: '10px',
                 overflow: 'hidden',
                 height: height ?? '200px',
-                backgroundColor: (theme) => theme.palette.neutral[400],
+                backgroundColor: theme.palette.neutral[400],
                 zIndex: 1,
             }}
         >
@@ -85,11 +84,12 @@ const VideoPlayerWithCenteredControl = ({
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
-                    backgroundColor: (theme) => theme.palette.neutral[100],
+                    backgroundColor: theme.palette.neutral[100],
                     '&:hover': {
-                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        backgroundColor: theme.palette.primary.main,
+                        color: theme.palette.neutral[100],
                     },
-                    color: (theme) => theme.palette.neutral[500],
+                    color: theme.palette.neutral[500],
                 }}
             >
                 {ended ? (

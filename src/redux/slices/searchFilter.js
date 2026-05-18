@@ -1,5 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+const getInitialFoodOrRestaurant = () => {
+    if (typeof window !== 'undefined') {
+        return localStorage.getItem('foodOrRestaurant') || 'products'
+    }
+    return 'products'
+}
+
 const initialState = {
     isFilterDrawerOpen: false,
     bannerFood: null,
@@ -11,7 +18,7 @@ const initialState = {
         price: '',
         rating: '',
     },
-    foodOrRestaurant: 'products',
+    foodOrRestaurant: getInitialFoodOrRestaurant(),
 }
 
 export const searchFilterSlice = createSlice({
@@ -82,6 +89,9 @@ export const searchFilterSlice = createSlice({
         },
         setFoodOrRestaurant: (state, action) => {
             state.foodOrRestaurant = action.payload
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('foodOrRestaurant', action.payload)
+            }
         },
     },
 })

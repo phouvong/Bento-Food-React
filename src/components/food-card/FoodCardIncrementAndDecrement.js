@@ -179,7 +179,7 @@ const FoodCardIncrementAndDecrement = ({
                 right: horizontal === 'true' ? '0px' : '10px',
                 left: 'unset',
                 bottom: horizontal === 'true' ? '0px' : '8px',
-                width: { xs: '60%', md: '40%' },
+                width: { xs: '40%', md: '40%' },
                 transformOrigin: 'right',
                 '@keyframes scaleXCustom': {
                     '0%': {

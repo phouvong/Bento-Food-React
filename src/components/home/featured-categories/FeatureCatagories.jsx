@@ -1,5 +1,5 @@
-import React, { memo, useRef, useState } from 'react'
-import { Grid, Typography, Stack } from '@mui/material'
+import React, { memo, useRef } from 'react'
+import { Box, Grid, Skeleton, Stack, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import Slider from 'react-slick'
@@ -7,156 +7,198 @@ import Slider from 'react-slick'
 import FeaturedCategoryCard from '../../featured-category-item/FeaturedCategoryCard'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
-import CustomShimmerCategories from '../../CustomShimmer/CustomShimmerCategories'
 import { useRouter } from 'next/router'
-import { CustomViewAll } from '@/styled-components/CustomStyles.style'
-import useScrollSticky from '../Search-filter-tag/useScrollSticky'
 import Card from '@mui/material/Card'
 import CustomContainer from '../../container'
-import { HandleNext, HandlePrev } from '@/components/CustomSliderIcon'
+import { useQuery } from 'react-query'
+import { CategoryApi } from '@/hooks/react-query/config/categoryApi'
+import { onErrorResponse } from '@/components/ErrorResponse'
+import SliderSectionHeader from '@/components/slider-section-header/SliderSectionHeader'
+
+const FeaturedCategoryShimmer = () => (
+    <Stack
+        alignItems="center"
+        spacing={{ xs: 0.75, md: 1 }}
+        sx={{ width: { xs: '60px', md: '86px' } }}
+    >
+        <Skeleton
+            variant="circular"
+            sx={{
+                height: { xs: '60px', md: '86px' },
+                width: { xs: '60px', md: '86px' },
+            }}
+        />
+        <Skeleton
+            variant="text"
+            sx={{
+                width: { xs: '50px', md: '70px' },
+                fontSize: { xs: '12px', md: '12.5px' },
+            }}
+        />
+    </Stack>
+)
 
 const FeatureCatagories = () => {
     const { t } = useTranslation()
     const router = useRouter()
-    const [hoverOn, setHoverOn] = useState(false)
-    const { catOffsetElementRef } = useScrollSticky()
     const { global } = useSelector((state) => state.globalSettings)
-    const { featuredCategories } = useSelector((state) => state.storedData)
-    const { categoryIsSticky, foodTypeIsSticky } = useSelector(
-        (state) => state.scrollPosition
-    )
     const sliderRef = useRef(null)
+
+    const searchKey = ''
+
+    const { data } = useQuery(
+        ['category', searchKey],
+        () => CategoryApi.categories(searchKey),
+        {
+            staleTime: 1000 * 60 * 8,
+            onError: onErrorResponse,
+            cacheTime: 8 * 60 * 1000,
+        }
+    )
+
+    const totalItems = data?.data?.length ?? 0
+    const shouldAutoplay = totalItems > 9
     const settings = {
         dots: false,
-        infinite: categoryIsSticky
-            ? featuredCategories?.length > 13
-            : featuredCategories?.length > 9,
-        speed: 700,
-        slidesToShow: categoryIsSticky ? 12 : 9,
-        slidesToScroll: 3,
-        autoplay: true,
-        nextArrow: hoverOn && <HandleNext />,
-        prevArrow: hoverOn && <HandlePrev />,
+        infinite: totalItems > 9,
+        speed: 600,
+        slidesToShow: 9,
+        slidesToScroll: 2,
+        autoplay: shouldAutoplay,
+        autoplaySpeed: 3500,
+        pauseOnHover: true,
+        pauseOnFocus: true,
+        arrows: false,
+        swipeToSlide: true,
+        useCSS: true,
+        useTransform: true,
+        touchThreshold: 10,
+        waitForAnimate: false,
+        cssEase: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
         responsive: [
             {
                 breakpoint: 1450,
                 settings: {
                     slidesToShow: 8,
-                    slidesToScroll: 3,
-                    infinite: featuredCategories?.length > 8 && true,
+                    slidesToScroll: 2,
+                    infinite: totalItems > 8,
+                    autoplay: totalItems > 8,
+                },
+            },
+            {
+                breakpoint: 1200,
+                settings: {
+                    slidesToShow: 7,
+                    slidesToScroll: 2,
+                    infinite: totalItems > 7,
+                    autoplay: totalItems > 7,
                 },
             },
             {
                 breakpoint: 1024,
                 settings: {
                     slidesToShow: 6,
-                    slidesToScroll: 3,
-                    infinite: featuredCategories?.length > 6 && true,
+                    slidesToScroll: 2,
+                    infinite: totalItems > 6,
+                    autoplay: totalItems > 6,
                 },
             },
             {
                 breakpoint: 850,
                 settings: {
                     slidesToShow: 5,
-                    slidesToScroll: 3,
-                    infinite: featuredCategories?.length > 5 && true,
+                    slidesToScroll: 1,
+                    infinite: totalItems > 5,
+                    autoplay: totalItems > 5,
+                    speed: 500,
+                    cssEase: 'ease-out',
                 },
             },
-            {
-                breakpoint: 790,
-                settings: {
-                    slidesToShow: 7,
-                    slidesToScroll: 3,
-                    infinite: featuredCategories?.length > 4.5 && true,
-                },
-            },
-
             {
                 breakpoint: 600,
                 settings: {
-                    slidesToShow: 7,
-                    slidesToScroll: 3,
-                    infinite: featuredCategories?.length > 7 && true,
+                    slidesToShow: 4.5,
+                    slidesToScroll: 1,
+                    infinite: false,
+                    autoplay: false,
+                    speed: 450,
+                    cssEase: 'ease-out',
                 },
             },
             {
-                breakpoint: 500,
+                breakpoint: 480,
                 settings: {
-                    slidesToShow: 5,
-                    slidesToScroll: 3,
-                    infinite: featuredCategories?.length > 5 && true,
+                    slidesToShow: 4,
+                    slidesToScroll: 1,
+                    infinite: totalItems > 4,
+                    autoplay: totalItems > 4,
+                    speed: 450,
+                    cssEase: 'ease-out',
+                },
+            },
+            {
+                breakpoint: 380,
+                settings: {
+                    slidesToShow: 3.5,
+                    slidesToScroll: 1,
+                    infinite: false,
+                    autoplay: false,
+                    speed: 450,
+                    cssEase: 'ease-out',
                 },
             },
         ],
     }
 
-    if (!featuredCategories) {
-        return null
-    }
-
     return (
-        <Card
+        <Stack
             sx={{
-                cursor:"pointer",
-                paddingTop: categoryIsSticky && '.5rem',
-                position: 'sticky',
-                top: { xs: '91px', md: '60px' },
-                zIndex: 99,
                 background: (theme) => theme.palette.neutral[1800],
-                boxShadow: categoryIsSticky
-                    ? '0px 1px 1px rgba(100, 116, 139, 0.06), 0px 1px 2px rgba(100, 116, 139, 0.1)'
-                    : 'none',
-
+                boxShadow: 'none',
+                WebkitTapHighlightColor: 'transparent',
+                '& *': {
+                    WebkitTapHighlightColor: 'transparent',
+                },
+                '& .slick-slide, & .slick-list, & .slick-track': {
+                    outline: 'none',
+                    WebkitTapHighlightColor: 'transparent',
+                },
+                '& .slick-slide > div': {
+                    outline: 'none',
+                },
             }}
         >
-            <CustomContainer>
-                <Grid
-                    container
-                    ref={catOffsetElementRef}
-                    gap={{ xs: '.3rem', md: '1rem' }}
-                >
-                    {!categoryIsSticky && featuredCategories?.length > 0 && (
-                        <Grid item xs={12} md={12}>
-                            <Stack
-                                direction="row"
-                                justifyContent="space-between"
-                                width="100%"
-                            >
+            
+                <Grid container gap={{ xs: '.3rem', md: '0rem' }}>
+                    <Grid item xs={12} md={12}>
+                        <SliderSectionHeader
+                            title={t('Whats on Your Mind?')}
+                            subtitle={t(
+                                "Pick a cuisine — we'll bring the feast."
+                            )}
+                            titleIcon={
                                 <Typography
-                                    fontSize={{ xs: '16px', md: '20px' }}
-                                    fontWeight={{ xs: '500', md: '700' }}
-                                    component="h2"
+                                    fontSize={{ xs: '18px', md: '22px' }}
+                                    sx={{ lineHeight: 1 }}
+                                    component="span"
                                 >
-                                    {t('Whats on Your Mind?')}
+                                    🍽️
                                 </Typography>
-                                <CustomViewAll
-                                    onClick={() => router.push('/categories')}
-                                    sx={{ marginInlineEnd: '10px' }}
-                                >
-                                    <Typography
-                                        fontSize="14px"
-                                        fontWeight="500"
-                                    >
-                                        {t('Explore More')}
-                                    </Typography>
-                                </CustomViewAll>
-                            </Stack>
-                        </Grid>
-                    )}
-                    <Grid
-                        item
-                        xs={12}
-                        md={12}
-                        onMouseEnter={() => setHoverOn(true)}
-                        onMouseLeave={() => setHoverOn(false)}
-                    >
-                        {featuredCategories?.length > 0 ? (
+                            }
+                            sliderRef={sliderRef}
+                            itemsCount={totalItems}
+                            viewAllText={t('Explore More')}
+                            onViewAll={() => router.push('/categories')}
+                        />
+                    </Grid>
+                    <Grid item xs={12} md={12}>
+                        {totalItems > 0 ? (
                             <Slider
                                 className="slick__slider"
                                 {...settings}
                                 ref={sliderRef}
                             >
-                                {featuredCategories.map((categoryItem) => (
+                                {data?.data?.map((categoryItem) => (
                                     <FeaturedCategoryCard
                                         key={categoryItem?.id}
                                         id={categoryItem?.id}
@@ -170,15 +212,30 @@ const FeatureCatagories = () => {
                                                 ?.category_image_url
                                         }
                                         height="40px"
-                                        categoryIsSticky={categoryIsSticky}
                                     />
                                 ))}
                             </Slider>
-                        ) : null}
+                        ) : (
+                            <Stack
+                                direction="row"
+                                spacing={{ xs: 1, md: 1.5 }}
+                                sx={{
+                                    overflow: 'hidden',
+                                    width: '100%',
+                                    py: { xs: '4px', md: '8px' },
+                                }}
+                            >
+                                {[...Array(9)].map((_, i) => (
+                                    <Box key={i} sx={{ flexShrink: 0 }}>
+                                        <FeaturedCategoryShimmer />
+                                    </Box>
+                                ))}
+                            </Stack>
+                        )}
                     </Grid>
                 </Grid>
-            </CustomContainer>
-        </Card>
+            
+        </Stack>
     )
 }
 

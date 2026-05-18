@@ -144,7 +144,7 @@ const ReferCodePage = () => {
                                         fontWeight="600"
                                         color={theme.palette.primary.main}
                                     >
-                                        {userData.ref_code}{' '}
+                                        {userData?.ref_code}{' '}
                                     </Typography>
                                     <Stack>
                                         <ClickAwayListener

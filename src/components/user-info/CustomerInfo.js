@@ -1,12 +1,24 @@
 import { Avatar, Typography, useTheme } from '@mui/material'
 import { t } from 'i18next'
 import moment from 'moment'
+import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 
 const CustomerInfo = () => {
     const theme = useTheme()
     const { userData } = useSelector((state) => state.user)
+    const [imageLoadError, setImageLoadError] = useState(false)
+    const profileImage =
+        typeof userData?.image_full_url === 'string'
+            ? userData.image_full_url.trim()
+            : ''
+    const hasImage = Boolean(profileImage) && !imageLoadError
+    const initials = `${userData?.f_name?.[0] || ''}${userData?.l_name?.[0] || ''}`.toUpperCase()
+
+    useEffect(() => {
+        setImageLoadError(false)
+    }, [profileImage])
 
     return (
         <CustomStackFullWidth
@@ -19,14 +31,20 @@ const CustomerInfo = () => {
                 sx={{
                     height: 68,
                     width: 70,
-                    backgroundColor: userData?.image
+                    backgroundColor: hasImage
                         ? (theme) => theme.palette.neutral[100]
                         : (theme) => theme.palette.neutral[400],
+                    color: (theme) => theme.palette.neutral[1000],
                 }}
-                src={userData?.image_full_url}
-            />
+                src={hasImage ? profileImage : undefined}
+                imgProps={{
+                    onError: () => setImageLoadError(true),
+                }}
+            >
+                {!hasImage ? initials || '?' : null}
+            </Avatar>
             <CustomStackFullWidth>
-                <Typography fontSize="1rem" fontWeight="600">
+                <Typography color={theme.palette.neutral[500]} fontSize="1rem" fontWeight="600">
                     {' '}
                     {userData?.f_name?.concat(' ', userData?.l_name)}
                 </Typography>

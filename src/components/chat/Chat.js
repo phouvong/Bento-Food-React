@@ -257,7 +257,10 @@ const Chat = ({ page }) => {
         if (e.currentTarget.scrollTop === 0) {
             if (hasNextPage) {
                 fetchNextPage().then()
-                e.currentTarget.scrollTop = 300
+                e.currentTarget.scrollTo({
+                    top: 300,
+                    behavior: 'smooth',
+                })
                 setScrollBottom(false)
             }
         }
@@ -286,11 +289,14 @@ const Chat = ({ page }) => {
             />
             <CustomPaperBigCard
                 padding={isXSmall ? '1rem' : '30px 40px'}
-                sx={{ minHeight: !isXSmall ? '558px' : '450px' }}
                 nopadding="true"
             >
-                <CustomStackFullWidth direction="row">
-                    <Stack>
+                <CustomStackFullWidth
+                    direction={{ xs: 'column', md: 'row' }}
+                    alignItems="stretch"
+                    sx={{ minHeight: '100%' }}
+                >
+                    <Stack sx={{ width: { xs: '100%', md: 'auto' } }}>
                         <ChatSideBar
                             onClose={handleCloseSidebar}
                             handleToggleSidebar={handleToggleSidebar}
@@ -314,7 +320,7 @@ const Chat = ({ page }) => {
                             isFetched={isFetched}
                         />
                     </Stack>
-                    <CustomStackFullWidth>
+                    <CustomStackFullWidth sx={{ width: '100%' }}>
                         {receiver && channelId && (
                             <ConversationInfoTop
                                 receiver={receiver}

@@ -1,4 +1,4 @@
-import { Box, useTheme } from '@mui/system'
+import { Stack, useTheme } from '@mui/system'
 import React from 'react'
 import { TitleTopSection } from './CustomStylesDeliveryman'
 import { CustomBoxFullWidth } from '@/styled-components/CustomStyles.style'
@@ -11,35 +11,27 @@ const DeliverymanFormWrapper = ({ title, component }) => {
         <>
             <CustomBoxFullWidth
                 sx={{
-                    backgroundColor: (theme) =>
-                        alpha(theme.palette.neutral[200], 0.4),
-                    mb: '30px',
-                    pb: '30px',
-                    pt: '20px',
-                    borderRadius: '10px',
+                    borderRadius: '.625rem',
+                    marginTop: '1rem',
+                    padding: '1rem',
+                    backgroundColor: theme.palette.background.paper,
+                    boxShadow:
+                        '0px 8px 15px rgba(28, 30, 32, 0.03), 0px 0px 2px rgba(28, 30, 32, 0.08)',
                 }}
             >
-                <TitleTopSection
-                    sx={{
-                        borderBottom: `1px solid ${alpha(
-                            theme.palette.neutral[400],
-                            0.1
-                        )}`,
-                        px: '20px',
-                        pb: '11px',
-                    }}
-                >
+                <TitleTopSection>
                     <Typography
                         variant="h4"
                         sx={{
                             fontWeight: '500',
-                            color: (theme) => theme.palette.neutral[1000],
+                            color: theme.palette.neutral[1000],
                         }}
                     >
                         {t(title)}
                     </Typography>
                 </TitleTopSection>
-                <Box sx={{ mt: '20px', mx: '20px' }}>{component}</Box>
+
+                <Stack mt={2}>{component}</Stack>
             </CustomBoxFullWidth>
         </>
     )

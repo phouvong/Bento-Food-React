@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { alpha, Grid, Typography } from '@mui/material'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
-import FoodCard from '../food-card/FoodCard'
+import NewFoodCard from '@/components/new-food-card/NewFoodCard'
 import { Stack } from '@mui/system'
 import CustomImageContainer from '../CustomImageContainer'
 import fire_image from '../../../public/static/fire.svg'
@@ -111,8 +111,10 @@ const CategoriesWiseFood = ({
                                         sm: '.6rem',
                                         md: '.6rem',
                                     },
-                                    background: (theme) =>
-                                        alpha(theme.palette.primary.main, 0.15),
+                                    background: alpha(
+                                        theme.palette.neutral[500],
+                                        0.05
+                                    ),
                                     marginTop: '.5rem',
                                 }}
                             >
@@ -125,9 +127,9 @@ const CategoriesWiseFood = ({
                                         return (
                                             <Grid
                                                 item
-                                                xs={12}
-                                                sm={6}
-                                                md={4}
+                                                xs={6}
+                                                sm={4}
+                                                md={2}
                                                 spacing={2}
                                                 key={food?.id}
                                                 sx={{
@@ -142,16 +144,12 @@ const CategoriesWiseFood = ({
                                                 }}
                                                 padding=".5rem"
                                             >
-                                                <FoodCard
+                                                <NewFoodCard
                                                     product={food}
-                                                    horizontal="true"
-                                                    isRestaurantDetails={true}
-                                                    isShop={true}
                                                     productImageUrl={
                                                         global?.base_urls
                                                             ?.product_image_url
                                                     }
-                                                    hasBackGroundSection="true"
                                                 />
                                             </Grid>
                                         )
@@ -244,7 +242,7 @@ const CategoriesWiseFood = ({
                                                 item
                                                 xs={6}
                                                 sm={4}
-                                                md={2.4}
+                                                md={2}
                                                 align="left"
                                                 pb={{
                                                     xs: '0rem',
@@ -252,11 +250,9 @@ const CategoriesWiseFood = ({
                                                     md: '1.2rem',
                                                 }}
                                             >
-                                                <FoodCard
+                                                <NewFoodCard
                                                     product={food}
                                                     key={food.id}
-                                                    horizontal="false"
-                                                    isRestaurantDetails={true}
                                                     productImageUrl={
                                                         global?.base_urls
                                                             ?.product_image_url

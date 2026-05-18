@@ -70,7 +70,10 @@ const BottomNav = (props) => {
                     bottom: 0,
                     left: 0,
                     right: 0,
+                    width: '100%',
                     zIndex: 999,
+                    WebkitTransform: 'translateZ(0)',
+                    paddingBottom: 'env(safe-area-inset-bottom)',
                 }}
                 elevation={3}
             >

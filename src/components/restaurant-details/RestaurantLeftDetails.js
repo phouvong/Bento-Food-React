@@ -28,7 +28,7 @@ import {
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import moment from 'moment'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from 'react-query'
@@ -87,6 +87,32 @@ const RestaurantLeftDetails = (props) => {
     const [openModal, setOpenModal] = useState(false)
     const [openShareModal, setOpenShareModal] = useState(false)
     const [openReviewModal, setOpenReviewModal] = useState(false)
+    const handleTopRef = useRef(null)
+    const isMobileStickyActive = isSmall && scrollPosition > threshold
+
+    useEffect(() => {
+        const root = document.documentElement
+        if (!isMobileStickyActive || !handleTopRef.current) {
+            root.style.removeProperty('--restaurant-fixed-top-bottom')
+            return
+        }
+        const el = handleTopRef.current
+        const writeVar = () => {
+            const rect = el.getBoundingClientRect()
+            root.style.setProperty(
+                '--restaurant-fixed-top-bottom',
+                `${Math.ceil(rect.bottom)}px`
+            )
+        }
+        writeVar()
+        const ro = new ResizeObserver(writeVar)
+        ro.observe(el)
+        window.addEventListener('resize', writeVar)
+        return () => {
+            ro.disconnect()
+            window.removeEventListener('resize', writeVar)
+        }
+    }, [isMobileStickyActive])
     const { t } = useTranslation()
     let languageDirection = undefined
     if (typeof window !== 'undefined') {
@@ -218,214 +244,110 @@ const RestaurantLeftDetails = (props) => {
     }
 
     const handleTop = () => {
+        const isMobileSticky = isSmall && scrollPosition > threshold
         return (
             <RTL direction={languageDirection}>
-                <Grid
-                    item
-                    xs={12}
-                    sm={12}
-                    md={12}
+                <CustomStackFullWidth
+                    ref={handleTopRef}
+                    alignItems='center'
+                    direction="row"
+                    spacing={1}
                     sx={{
-                        animation: 'fadeIn .9s',
-                        '@keyframes fadeIn ': {
-                            '0%': {
-                                opacity: '0',
-                            },
-                            '100%': {
-                                opacity: '1',
-                            },
+                        padding: {
+                            xs: '5px 5px 5px 5px',
+                            sm: '20px 20px 20px 20px',
+                            md: '25px 25px 30px 25px',
                         },
+
+                        height: '100%',
+                        ...(isMobileSticky && {
+                            position: 'fixed',
+                            top: '55px',
+                            left: 0,
+                            right: 0,
+                            zIndex: 199,
+                            height: 'auto',
+                            padding: '4px 8px',
+                            backgroundColor: theme.palette.neutral[100],
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+                        }),
                     }}
                 >
-                    <CustomStackFullWidth
-                        alignItems={{ xs: 'center', sm: 'center' }}
-                        justiyfContent="center"
-                        direction="row"
-                        spacing={1}
-                        sx={{
-                            padding: {
-                                xs: '5px 5px 5px 5px',
-                                sm: '20px 20px 20px 20px',
-                                md: '25px 25px 30px 25px',
-                            },
-                            height: '100%',
-                        }}
+                    <Stack
+                        position="absolute"
+                        top={
+                            scrollPosition <= threshold
+                                ? '3%'
+                                : isSmall
+                                    ? '15%'
+                                    : '31%'
+                        }
+                        right="2%"
+                        zIndex="999"
+                        gap="10px"
+                        direction={(scrollPosition > threshold || !isSmall) ? "row" : "column"}
+
                     >
                         <Stack
-                            position="absolute"
-                            top={
-                                scrollPosition <= threshold
-                                    ? '3%'
-                                    : isSmall
-                                        ? '15%'
-                                        : '38%'
-                            }
-                            right="2%"
-                            zIndex="999"
-                            gap="10px"
-                            direction={(scrollPosition > threshold || !isSmall) ? "row" : "column"}
-
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                            display={(scrollPosition <= threshold || isSmall) ? 'none' : 'flex'}
                         >
+                            <FoodRating
+                                product_avg_rating={details?.avg_rating}
+                            />
+                        </Stack>
+                        {details?.rating_count ? (
                             <Stack
                                 direction="row"
                                 spacing={1}
                                 alignItems="center"
+                                paddingInlineEnd="20px"
                                 display={(scrollPosition <= threshold || isSmall) ? 'none' : 'flex'}
                             >
-                                <FoodRating
-                                    product_avg_rating={details?.avg_rating}
+                                <Typography
+                                    onClick={() => setOpenReviewModal(true)}
+                                    color={theme.palette.neutral[1000]}
+                                    fontSize="13px"
+                                    sx={{
+                                        textDecoration: 'underline',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    {JSON.stringify(details?.rating_count)}{' '}
+                                    {t('Ratings')}
+                                </Typography>
+
+                                <Divider
+                                    orientation="vertical"
+                                    flexItem
+                                    width="3px"
+                                    height="100%"
+                                    sx={{
+                                        opacity: 1,
+                                        backgroundColor:
+                                            theme.palette.neutral[300],
+                                    }}
                                 />
+
+                                <Typography
+                                    onClick={() => setOpenReviewModal(true)}
+                                    color={theme.palette.neutral[1000]}
+                                    fontSize="13px"
+                                    sx={{
+                                        textDecoration: 'underline',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    {JSON.stringify(
+                                        details?.reviews_comments_count
+                                    )}{' '}
+                                    {t('Reviews')}
+                                </Typography>
                             </Stack>
-                            {details?.rating_count ? (
-                                <Stack
-                                    direction="row"
-                                    spacing={1}
-                                    alignItems="center"
-                                    paddingInlineEnd="20px"
-                                    display={(scrollPosition <= threshold || isSmall) ? 'none' : 'flex'}
-                                >
-                                    <Typography
-                                        onClick={() => setOpenReviewModal(true)}
-                                        color={theme.palette.neutral[1000]}
-                                        fontSize="13px"
-                                        sx={{
-                                            textDecoration: 'underline',
-                                            cursor: 'pointer',
-                                        }}
-                                    >
-                                        {JSON.stringify(details?.rating_count)}{' '}
-                                        {t('Ratings')}
-                                    </Typography>
-
-                                    <Divider
-                                        orientation="vertical"
-                                        flexItem
-                                        width="3px"
-                                        height="100%"
-                                        sx={{
-                                            opacity: 1,
-                                            backgroundColor:
-                                                theme.palette.neutral[300],
-                                        }}
-                                    />
-
-                                    <Typography
-                                        onClick={() => setOpenReviewModal(true)}
-                                        color={theme.palette.neutral[1000]}
-                                        fontSize="13px"
-                                        sx={{
-                                            textDecoration: 'underline',
-                                            cursor: 'pointer',
-                                        }}
-                                    >
-                                        {JSON.stringify(
-                                            details?.reviews_comments_count
-                                        )}{' '}
-                                        {t('Reviews')}
-                                    </Typography>
-                                </Stack>
-                            ) : null}
-                            {!isInList(id) ? (
-                                <IconButton
-                                    sx={{
-                                        borderRadius: '8px',
-                                        border: `1px solid ${theme.palette.primary.main}`,
-                                        background: (theme) =>
-                                            theme.palette.neutral[100],
-                                        padding: {
-                                            xs: '3px',
-                                            sm: '5px',
-                                            md: '7px',
-                                        },
-                                        transition: 'all 0.3s ease-in-out',
-                                        '&:hover': {
-                                            background: (theme) => theme.palette.primary.main,
-                                            '& .MuiSvgIcon-root': {
-                                                color: 'white',
-                                            },
-                                        },
-                                    }}
-                                    onClick={(e) => addToFavorite(e)}
-                                >
-                                    <FavoriteBorderIcon
-                                        color="primary"
-                                        sx={{
-                                            fontSize: {
-                                                xs: '16px',
-                                                sm: '18px',
-                                                md: '20px',
-                                            },
-                                        }}
-                                    />
-                                </IconButton>
-                            ) : (
-                                <IconButton
-                                    sx={{
-                                        borderRadius: '8px',
-                                        border: `1px solid ${theme.palette.primary.main}`,
-                                        background: (theme) =>
-                                            theme.palette.neutral[100],
-                                        padding: {
-                                            xs: '3px',
-                                            sm: '5px',
-                                            md: '7px',
-                                        },
-                                        transition: 'all 0.3s ease-in-out',
-                                        '&:hover': {
-                                            background: (theme) => theme.palette.primary.main,
-                                            '& .MuiSvgIcon-root': {
-                                                color: 'white',
-                                            },
-                                        },
-                                    }}
-                                    onClick={(e) => deleteWishlistRes(id, e)}
-                                >
-                                    <FavoriteIcon
-                                        color="primary"
-                                        sx={{
-                                            fontSize: {
-                                                xs: '16px',
-                                                sm: '18px',
-                                                md: '20px',
-                                            },
-                                        }}
-                                    />
-                                </IconButton>
-                            )}
-
-                            <IconButton
-                                sx={{
-                                    borderRadius: '8px',
-                                    // padding: "5px",
-                                    border: `1px solid ${theme.palette.primary.main}`,
-                                    background: (theme) =>
-                                        theme.palette.neutral[100],
-                                    padding: {
-                                        xs: '3px',
-                                        sm: '5px',
-                                        md: '7px',
-                                    },
-                                    transition: 'all 0.3s ease-in-out',
-                                    '&:hover': {
-                                        background: (theme) => theme.palette.primary.main,
-                                        '& .MuiSvgIcon-root': {
-                                            color: 'white',
-                                        },
-                                    },
-                                }}
-                                onClick={() => setOpenModal(true)}
-                            >
-                                <DirectionsOutlinedIcon
-                                    color="primary"
-                                    sx={{
-                                        fontSize: {
-                                            xs: '16px',
-                                            sm: '18px',
-                                            md: '20px',
-                                        },
-                                    }}
-                                />
-                            </IconButton>
+                        ) : null}
+                        {!isInList(id) ? (
                             <IconButton
                                 sx={{
                                     borderRadius: '8px',
@@ -445,9 +367,9 @@ const RestaurantLeftDetails = (props) => {
                                         },
                                     },
                                 }}
-                                onClick={(e) => setOpenShareModal(true)}
+                                onClick={(e) => addToFavorite(e)}
                             >
-                                <ShareOutlinedIcon
+                                <FavoriteBorderIcon
                                     color="primary"
                                     sx={{
                                         fontSize: {
@@ -458,43 +380,137 @@ const RestaurantLeftDetails = (props) => {
                                     }}
                                 />
                             </IconButton>
-                        </Stack>
-                        <Box
+                        ) : (
+                            <IconButton
+                                sx={{
+                                    borderRadius: '8px',
+                                    border: `1px solid ${theme.palette.primary.main}`,
+                                    background: (theme) =>
+                                        theme.palette.neutral[100],
+                                    padding: {
+                                        xs: '3px',
+                                        sm: '5px',
+                                        md: '7px',
+                                    },
+                                    transition: 'all 0.3s ease-in-out',
+                                    '&:hover': {
+                                        background: (theme) => theme.palette.primary.main,
+                                        '& .MuiSvgIcon-root': {
+                                            color: 'white',
+                                        },
+                                    },
+                                }}
+                                onClick={(e) => deleteWishlistRes(id, e)}
+                            >
+                                <FavoriteIcon
+                                    color="primary"
+                                    sx={{
+                                        fontSize: {
+                                            xs: '16px',
+                                            sm: '18px',
+                                            md: '20px',
+                                        },
+                                    }}
+                                />
+                            </IconButton>
+                        )}
+
+                        <IconButton
                             sx={{
-                                width:
-                                    scrollPosition <= threshold
-                                        ? '100px'
-                                        : isSmall
-                                            ? '74px'
-                                            : '60px',
-                                height:
-                                    scrollPosition <= threshold
-                                        ? '100px'
-                                        : isSmall
-                                            ? '74px'
-                                            : '60px',
-                                borderRadius: '50%',
-                                position: 'relative',
+                                borderRadius: '8px',
+                                // padding: "5px",
+                                border: `1px solid ${theme.palette.primary.main}`,
+                                background: (theme) =>
+                                    theme.palette.neutral[100],
+                                padding: {
+                                    xs: '3px',
+                                    sm: '5px',
+                                    md: '7px',
+                                },
+                                transition: 'all 0.3s ease-in-out',
+                                '&:hover': {
+                                    background: (theme) => theme.palette.primary.main,
+                                    '& .MuiSvgIcon-root': {
+                                        color: 'white',
+                                    },
+                                },
                             }}
+                            onClick={() => setOpenModal(true)}
                         >
-                            {closedNowHandler()}
-                            {isSmall ? (
-                                <Stack
-                                    position="absolute"
-                                    top={scrollPosition <= threshold ? '-35px' : '0px'}
-                                    sx={{ zIndex: 9999 }}
-
-                                >
-                                    <CustomImageContainer
-                                        src={details?.logo_full_url}
-                                        width="100%"
-                                        height="100%"
-                                        borderRadius="50%"
-                                        objectFit="cover"
-                                        aspectRatio="1"
-                                    />
-                                </Stack>
-                            ) : (
+                            <DirectionsOutlinedIcon
+                                color="primary"
+                                sx={{
+                                    fontSize: {
+                                        xs: '16px',
+                                        sm: '18px',
+                                        md: '20px',
+                                    },
+                                }}
+                            />
+                        </IconButton>
+                        <IconButton
+                            sx={{
+                                borderRadius: '8px',
+                                border: `1px solid ${theme.palette.primary.main}`,
+                                background: (theme) =>
+                                    theme.palette.neutral[100],
+                                padding: {
+                                    xs: '3px',
+                                    sm: '5px',
+                                    md: '7px',
+                                },
+                                transition: 'all 0.3s ease-in-out',
+                                '&:hover': {
+                                    background: (theme) => theme.palette.primary.main,
+                                    '& .MuiSvgIcon-root': {
+                                        color: 'white',
+                                    },
+                                },
+                            }}
+                            onClick={(e) => setOpenShareModal(true)}
+                        >
+                            <ShareOutlinedIcon
+                                color="primary"
+                                sx={{
+                                    fontSize: {
+                                        xs: '16px',
+                                        sm: '18px',
+                                        md: '20px',
+                                    },
+                                }}
+                            />
+                        </IconButton>
+                    </Stack>
+                    <Box
+                        sx={{
+                            width:
+                                scrollPosition <= threshold
+                                    ? '100px'
+                                    : isSmall
+                                        ? '74px'
+                                        : '60px',
+                            height:
+                                scrollPosition <= threshold
+                                    ? '100px'
+                                    : isSmall
+                                        ? '74px'
+                                        : '60px',
+                            borderRadius: '50%',
+                            position: 'relative',
+                            overflow: scrollPosition > threshold ? 'hidden' : 'visible',
+                        }}
+                    >
+                        {closedNowHandler()}
+                        {isSmall ? (
+                            <Stack
+                                position="absolute"
+                                top={scrollPosition <= threshold ? '-35px' : '0px'}
+                                sx={{
+                                    zIndex: 99,
+                                    width: '100%',
+                                    height: '100%',
+                                }}
+                            >
                                 <CustomImageContainer
                                     src={details?.logo_full_url}
                                     width="100%"
@@ -503,114 +519,120 @@ const RestaurantLeftDetails = (props) => {
                                     objectFit="cover"
                                     aspectRatio="1"
                                 />
-                            )}
-                        </Box>
-                        <Stack padding="10px" justifyContent="center" gap="8px">
-                            <Typography
-                                color={theme.palette.neutral[1000]}
-                                fontWeight="600"
-                            >
-                                {details?.name}
-                            </Typography>
-                            <Typography
-                                align="left"
-                                fontSize="13px"
-                                color={theme.palette.neutral[600]}
-                                sx={{
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: '1',
-                                    WebkitBoxOrient: 'vertical',
-                                    wordWrap: 'break-word',
-                                    width: {
-                                        xs: '192px',
-                                        sm: '215px',
-                                        md: '215px',
-                                    },
-                                }}
-                            >
-                                {details?.characteristics?.length > 0 &&
-                                    details?.characteristics?.map(
-                                        (item, index) => (
-                                            <>
-                                                {item}{' '}
-                                                {details?.characteristics
-                                                    .length -
-                                                    1 ===
-                                                    index
-                                                    ? ''
-                                                    : ','}
-                                            </>
-                                        )
-                                    )}
-                            </Typography>
+                            </Stack>
+                        ) : (
+                            <CustomImageContainer
+                                src={details?.logo_full_url}
+                                width="100%"
+                                height="100%"
+                                borderRadius="50%"
+                                objectFit="cover"
+                                aspectRatio="1"
+                            />
+                        )}
+                    </Box>
+                    <Stack padding={isMobileSticky ? '2px' : '10px'} justifyContent="center" gap={isMobileSticky ? '2px' : '8px'}>
+                        <Typography
+                            color={theme.palette.neutral[1000]}
+                            fontWeight="600"
+                        >
+                            {details?.name}
+                        </Typography>
+                        <Typography
+                            align="left"
+                            fontSize="13px"
+                            color={theme.palette.neutral[600]}
+                            sx={{
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: '-webkit-box',
+                                WebkitLineClamp: '1',
+                                WebkitBoxOrient: 'vertical',
+                                wordWrap: 'break-word',
+                                width: {
+                                    xs: '192px',
+                                    sm: '215px',
+                                    md: '215px',
+                                },
+                            }}
+                        >
+                            {details?.characteristics?.length > 0 &&
+                                details?.characteristics?.map(
+                                    (item, index) => (
+                                        <>
+                                            {item}{' '}
+                                            {details?.characteristics
+                                                .length -
+                                                1 ===
+                                                index
+                                                ? ''
+                                                : ','}
+                                        </>
+                                    )
+                                )}
+                        </Typography>
 
-                            {(scrollPosition <= threshold || isSmall) && (
-                                <>
-                                    <Stack
-                                        direction="row"
-                                        spacing={1}
-                                        alignItems="center"
-                                    >
-                                        <FoodRating
-                                            product_avg_rating={details?.avg_rating}
-                                        />
-                                    </Stack>
-                                    {details?.rating_count ? (
-                                        <Stack
-                                            direction="row"
-                                            spacing={1}
-                                            alignItems="center"
-                                        >
-                                            <Typography
-                                                onClick={() => setOpenReviewModal(true)}
-                                                color={theme.palette.neutral[1000]}
-                                                fontSize="13px"
-                                                sx={{
-                                                    textDecoration: 'underline',
-                                                    cursor: 'pointer',
-                                                }}
-                                            >
-                                                {JSON.stringify(details?.rating_count)}{' '}
-                                                {t('Ratings')}
-                                            </Typography>
-
-                                            <Divider
-                                                orientation="vertical"
-                                                flexItem
-                                                width="3px"
-                                                height="100%"
-                                                sx={{
-                                                    opacity: 1,
-                                                    backgroundColor:
-                                                        theme.palette.neutral[300],
-                                                }}
-                                            />
-
-                                            <Typography
-                                                onClick={() => setOpenReviewModal(true)}
-                                                color={theme.palette.neutral[1000]}
-                                                fontSize="13px"
-                                                sx={{
-                                                    textDecoration: 'underline',
-                                                    cursor: 'pointer',
-                                                }}
-                                            >
-                                                {JSON.stringify(
-                                                    details?.reviews_comments_count
-                                                )}{' '}
-                                                {t('Reviews')}
-                                            </Typography>
-                                        </Stack>
-                                    ) : null}
-
-                                </>
-                            )}
-
+                        <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                            display={(scrollPosition > threshold && !isSmall) ? 'none' : 'flex'}
+                        >
+                            <FoodRating
+                                product_avg_rating={details?.avg_rating}
+                            />
                         </Stack>
-                    </CustomStackFullWidth>
-                </Grid>
+                        {details?.rating_count ? (
+                            <Stack
+                                direction="row"
+                                spacing={1}
+                                alignItems="center"
+                                display={isMobileSticky || (scrollPosition > threshold && !isSmall) ? 'none' : 'flex'}
+                            >
+                                <Typography
+                                    onClick={() => setOpenReviewModal(true)}
+                                    color={theme.palette.neutral[1000]}
+                                    fontSize="13px"
+                                    sx={{
+                                        textDecoration: 'underline',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    {JSON.stringify(details?.rating_count)}{' '}
+                                    {t('Ratings')}
+                                </Typography>
+
+                                <Divider
+                                    orientation="vertical"
+                                    flexItem
+                                    width="3px"
+                                    height="100%"
+                                    sx={{
+                                        opacity: 1,
+                                        backgroundColor:
+                                            theme.palette.neutral[300],
+                                    }}
+                                />
+
+                                <Typography
+                                    onClick={() => setOpenReviewModal(true)}
+                                    color={theme.palette.neutral[1000]}
+                                    fontSize="13px"
+                                    sx={{
+                                        textDecoration: 'underline',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    {JSON.stringify(
+                                        details?.reviews_comments_count
+                                    )}{' '}
+                                    {t('Reviews')}
+                                </Typography>
+                            </Stack>
+                        ) : null}
+
+                    </Stack>
+                </CustomStackFullWidth>
             </RTL>
         )
     }
@@ -680,37 +702,42 @@ const RestaurantLeftDetails = (props) => {
             </Grid>
         )
     }
+    // On mobile the TopBanner is no longer sticky, so we keep the expanded view
+    // mounted permanently. This stops the cover image from being unmounted/remounted
+    // every time scrollPosition crosses the threshold, which was the source of the flicker.
+    const isExpanded = isSmall || scrollPosition <= threshold
+
     return (
         <CustomStackFullWidth
             sx={{
-                position: scrollPosition <= threshold ? 'inherit' : 'sticky',
-                marginTop: scrollPosition <= threshold ? '0px' : isSmall && '30px',
+                marginTop: isExpanded ? '0px' : isSmall && '30px',
             }}
         >
             <CustomStackFullWidth
                 sx={{
                     position: 'relative',
-                    boxShadow: '0px 2px 30px 2px rgba(0, 0, 0, 0.08)',
-                    zIndex: 9,
+                    backgroundColor: theme.palette.neutral[100],
                 }}
             >
-                <CustomImageContainer
-                    src={details.cover_photo_full_url}
-                    height={scrollPosition <= threshold ? '250px' : '100px'}
-                    smHeight={scrollPosition <= threshold ? '205px' : '140px'}
-                    objectFit="cover"
-                />
+                {isExpanded && (
+                    <CustomImageContainer
+                        src={details.cover_photo_full_url}
+                        height="250px"
+                        smHeight="205px"
+                        objectFit="cover"
+                    />
+                )}
                 <CustomStackFullWidth
                     sx={{
-                        position: 'absolute',
-                        background: isSmall
-                            ? (theme) => alpha(theme.palette.neutral[100], 0.9)
-                            : (theme) => alpha(theme.palette.neutral[100], 0.9),
-                        height: '100%',
+                        position: isExpanded ? 'absolute' : 'static',
+                        background: isExpanded
+                            ? alpha(theme.palette.neutral[100], 0.9)
+                            : theme.palette.neutral[100],
+                        height: isExpanded ? '100%' : 'auto',
                     }}
                 >
-                    {scrollPosition <= threshold && handleTop()}
-                    {scrollPosition <= threshold ? handleBottom() : handleTop()}
+                    {isExpanded && handleTop()}
+                    {isExpanded ? handleBottom() : handleTop()}
                 </CustomStackFullWidth>
             </CustomStackFullWidth>
             <CustomModal
@@ -740,7 +767,8 @@ const RestaurantLeftDetails = (props) => {
                                 right: 5,
                             },
                             '&:hover': {
-                                backgroundColor: (theme) => theme.palette.primary.main,
+                                backgroundColor: (theme) =>
+                                    theme.palette.primary.main,
                                 '& .MuiSvgIcon-root': {
                                     color: 'white',
                                 },
@@ -876,7 +904,8 @@ const RestaurantLeftDetails = (props) => {
                             borderRadius: '50%',
                             transition: 'all 0.3s ease-in-out',
                             '&:hover': {
-                                backgroundColor: (theme) => theme.palette.primary.main,
+                                backgroundColor: (theme) =>
+                                    theme.palette.primary.main,
                                 '& .MuiSvgIcon-root': {
                                     color: 'white',
                                 },
@@ -920,7 +949,8 @@ const RestaurantLeftDetails = (props) => {
                             borderRadius: '50%',
                             transition: 'all 0.3s ease-in-out',
                             '&:hover': {
-                                backgroundColor: (theme) => theme.palette.primary.main,
+                                backgroundColor: (theme) =>
+                                    theme.palette.primary.main,
                                 '& .MuiSvgIcon-root': {
                                     color: 'white',
                                 },

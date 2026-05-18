@@ -56,8 +56,13 @@ const RestaurantScheduleTime = (props) => {
         setScheduleAt,
     } = props
     const currentDate = new Date()
+    const customerOrderDate =
+        (restaurantData?.data?.self_delivery_system !== 1
+            ? global?.customer_order_date
+            : restaurantData?.data?.customer_order_date) || 1
     const maxDate = new Date()
-    maxDate.setDate(currentDate.getDate() + global?.customer_order_date - 1)
+    maxDate.setDate(currentDate.getDate() + customerOrderDate - 1)
+    maxDate.setHours(23, 59, 59, 999)
     const [selectedDate, setSelectedDate] = useState(null)
     const { t } = useTranslation()
     const [time, setTime] = useState('Now')
@@ -143,14 +148,20 @@ const RestaurantScheduleTime = (props) => {
     }
 
     const isDateDisabled = (date) => {
-        const currentDateWithoutTime = moment(currentDate).startOf('day')
-        return (
-            date < currentDateWithoutTime || date > maxDate // Disable dates earlier than the current date or later than 7 days from the current date
-        )
+        const candidateMs = dayjs.isDayjs(date)
+            ? date.startOf('day').valueOf()
+            : moment(date?.$d ?? date).startOf('day').valueOf()
+        const startOfTodayMs = moment(currentDate).startOf('day').valueOf()
+        const endOfMaxMs = moment(maxDate).endOf('day').valueOf()
+        return candidateMs < startOfTodayMs || candidateMs > endOfMaxMs
     }
+    console.log({isDateDisabled});
+    
     const handleDateChange = (date) => {
         setSelectedDate(moment(date?.$d).format('YYYY-MM-DD'))
     }
+    console.log({ restaurantData })
+    const customDateOrderAvailable =restaurantData?.data?.self_delivery_system!==1 ? global?.customer_date_order_sratus : restaurantData?.data?.customer_date_order_sratus
 
     return (
         <>
@@ -193,7 +204,7 @@ const RestaurantScheduleTime = (props) => {
                                     >
                                         {t('Tomorrow')}
                                     </MenuItem>
-                                    {global?.customer_date_order_sratus && (
+                                    {customDateOrderAvailable && (
                                         <MenuItem
                                             value={'Custom Date'}
                                             sx={{
@@ -216,7 +227,7 @@ const RestaurantScheduleTime = (props) => {
                                         {day === 'Today' ? (
                                             <FormControl fullWidth>
                                                 <InputLabel>
-                                                    {t('Schedule')}
+                                                    {t('Schedules')}
                                                 </InputLabel>
                                                 <Select
                                                     label={t('Schedule')}
@@ -236,18 +247,18 @@ const RestaurantScheduleTime = (props) => {
                                                 >
                                                     {restaurantData?.data
                                                         ?.instant_order && (
-                                                        <MenuItem
-                                                            value={'Now'}
-                                                            sx={{
-                                                                '&:hover': {
-                                                                    backgroundColor:
-                                                                        'primary.main',
-                                                                },
-                                                            }}
-                                                        >
-                                                            {t('Now')}
-                                                        </MenuItem>
-                                                    )}
+                                                            <MenuItem
+                                                                value={'Now'}
+                                                                sx={{
+                                                                    '&:hover': {
+                                                                        backgroundColor:
+                                                                            'primary.main',
+                                                                    },
+                                                                }}
+                                                            >
+                                                                {t('Now')}
+                                                            </MenuItem>
+                                                        )}
 
                                                     <MenuItem
                                                         value={'Later'}
@@ -282,7 +293,13 @@ const RestaurantScheduleTime = (props) => {
                                                     >
                                                         <DatePicker
                                                             label="Schedule"
-                                                            value={selectedDate}
+                                                            value={
+                                                                selectedDate
+                                                                    ? dayjs(
+                                                                        selectedDate
+                                                                    )
+                                                                    : null
+                                                            }
                                                             onChange={
                                                                 handleDateChange
                                                             }
@@ -332,7 +349,7 @@ const RestaurantScheduleTime = (props) => {
                                                 value={item?.value}
                                                 onClick={() => handleSlot(item)}
                                             >
-                                                {formatTimeRange(item?.label,global)}
+                                                {formatTimeRange(item?.label, global)}
                                             </TimeSlot>
                                         </Grid>
                                     )
@@ -341,7 +358,8 @@ const RestaurantScheduleTime = (props) => {
                         </SimpleBar>
                     ) : (
                         <>
-                            {day !== 'Today' && (
+                            {(day === 'Tomorrow' ||
+                                (day === 'CustomDate' && selectedDate)) && (
                                 <Stack
                                     direction="row"
                                     paddingTop=".5rem"

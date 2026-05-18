@@ -6,7 +6,7 @@ export const CustomPopoverWrapper = styled(Stack)(
         textAlign: "center",
         alignItems: "center",
         width: width || "100%",
-        maxWidth: maxWidth || "450px",
+        maxWidth: maxWidth || "550px",
         gap: "15px",
         padding: padding || "15px 25px"
     })

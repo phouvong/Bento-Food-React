@@ -1712,3 +1712,18 @@ h5 {
 .rdrDateRangePickerWrapper {
     direction: ltr;
 }
+
+.fadeInTop {
+    animation: fadeInTop 0.25s ease forwards;
+}
+
+@keyframes fadeInTop {
+    from {
+        opacity: 0;
+        transform: translateY(-50%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

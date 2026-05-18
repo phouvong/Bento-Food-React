@@ -33,7 +33,9 @@ const AddressReselect = ({ location, isSticky }) => {
         (state) => state.globalSettings
     )
     const [address, setAddress] = useState(null)
-    const [tooltipOpen, setTooltipOpen] = useState(true)
+    const [tooltipOpen, setTooltipOpen] = useState(false)
+    const [hasHydrated, setHasHydrated] = useState(false)
+    const [displayLocation, setDisplayLocation] = useState(null)
     const { t } = useTranslation()
     const dispatch = useDispatch()
     const anchorRef = useRef(null)
@@ -55,6 +57,21 @@ const AddressReselect = ({ location, isSticky }) => {
         }
     }, [address])
 
+    useEffect(() => {
+        setHasHydrated(true)
+    }, [])
+
+    useEffect(() => {
+        if (location) {
+            setDisplayLocation(location)
+            return
+        }
+        if (typeof window !== 'undefined') {
+            const storedLocation = localStorage.getItem('location')
+            setDisplayLocation(storedLocation || null)
+        }
+    }, [location])
+
     const { coords, isGeolocationAvailable, isGeolocationEnabled } =
         useGeolocated({
             positionOptions: {
@@ -65,30 +82,34 @@ const AddressReselect = ({ location, isSticky }) => {
         })
 
     useEffect(() => {
+        if (!hasHydrated || displayLocation) {
+            setTooltipOpen(false)
+            return
+        }
         // Hide tooltip when isSticky is true, show when false
         setTooltipOpen(!isSticky)
-    }, [isSticky])
+    }, [hasHydrated, displayLocation, isSticky])
 
     useEffect(() => {
         // Show tooltip again when route changes
-        if (!location) {
+        if (hasHydrated && !displayLocation) {
             setTooltipOpen(true)
         }
-    }, [router.pathname, location])
+    }, [router.pathname, hasHydrated, displayLocation])
 
     useEffect(() => {
         // Close tooltip when scrolling down, show when scrolling back to top
         const handleScroll = () => {
             if (window.scrollY > 0) {
                 setTooltipOpen(false)
-            } else if (window.scrollY === 0 && !location && !isSticky) {
+            } else if (window.scrollY === 0 && !displayLocation && !isSticky) {
                 setTooltipOpen(true)
             }
         }
 
         window.addEventListener('scroll', handleScroll)
         return () => window.removeEventListener('scroll', handleScroll)
-    }, [location, isSticky])
+    }, [displayLocation, isSticky])
 
     const handleClosePopover = () => {
         dispatch(setOpenMapDrawer(false))
@@ -116,7 +137,7 @@ const AddressReselect = ({ location, isSticky }) => {
 
     return (
         <>
-            {!location ? (
+            {!displayLocation ? (
                 <ClickAwayListener onClickAway={handleTooltipClose}>
                     <Tooltip
                         title={t("Please setup your location to view available restaurants and foods in your area")}
@@ -193,7 +214,7 @@ const AddressReselect = ({ location, isSticky }) => {
                         style={{ width: '16px', height: '16px' }}
                     />
                     <AddressTypographyGray align="left">
-                        {location}
+                        {displayLocation}
                     </AddressTypographyGray>
                     <KeyboardArrowDownIcon sx={{ minWidth: "10px", fontSize: "1rem" }} />
                 </Stack>

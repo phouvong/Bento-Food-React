@@ -25,7 +25,7 @@ import * as Yup from 'yup'
 import { useTheme } from '@mui/styles'
 
 const DeliveryManComponent = ({ configData }) => {
-    const theme=useTheme()
+    const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const router = useRouter()
     const { t } = useTranslation()
@@ -140,21 +140,37 @@ const DeliveryManComponent = ({ configData }) => {
         phone: Yup.string().required('Phone number is required'),
 
         password: Yup.string()
-            .required('Password is required')
-            .min(8, 'Password must be at least 8 characters')
-            .max(20, "Password can't exceed 20 characters")
-            .matches(
-                /[A-Z]/,
-                'Password must contain at least one uppercase letter'
-            )
-            .matches(
-                /[a-z]/,
-                'Password must contain at least one lowercase letter'
-            )
-            .matches(/[0-9]/, 'Password must contain at least one number')
-            .matches(
-                /[@$!%*?&#]/,
-                'Password must contain at least one special symbol'
+
+            .test(
+                "password-requirements",
+                "Password requirements not met",
+                function (value) {
+                    if (!value) return true; // Handled by required()
+
+                    const errors = [];
+                    if (value.length < 8) {
+                        errors.push(
+                            "Password is too short - should be 8 characters minimum."
+                        );
+                    }
+                    if (!/[0-9]/.test(value)) {
+                        errors.push("one number.");
+                    }
+                    if (!/[A-Z]/.test(value)) {
+                        errors.push("one uppercase letter.");
+                    }
+                    if (!/[a-z]/.test(value)) {
+                        errors.push("one lowercase letter.");
+                    }
+                    if (!/[!@#$%^&*(),.?":{}|<>+_=]/.test(value)) {
+                        errors.push("one special character.");
+                    }
+
+                    if (errors.length > 0) {
+                        return this.createError({ message: errors.join(" ") });
+                    }
+                    return true;
+                }
             ),
 
         confirm_password: Yup.string()
@@ -182,9 +198,12 @@ const DeliveryManComponent = ({ configData }) => {
             .required('Profile image is required')
             .test('fileType', 'Only images are allowed', (value) =>
                 value
-                    ? ['image/jpeg', 'image/png', 'image/jpg'].includes(
-                          value.type
-                      )
+                    ? [
+                        'image/jpeg',
+                        'image/png',
+                        'image/jpg',
+                        'image/webp',
+                    ].includes(value.type)
                     : false
             ),
 
@@ -194,9 +213,12 @@ const DeliveryManComponent = ({ configData }) => {
                     .required('Each identity image is required')
                     .test('fileType', 'Only images are allowed', (value) =>
                         value
-                            ? ['image/jpeg', 'image/png', 'image/jpg'].includes(
-                                  value.type
-                              )
+                            ? [
+                                'image/jpeg',
+                                'image/png',
+                                'image/jpg',
+                                'image/webp',
+                            ].includes(value.type)
                             : false
                     )
             )
@@ -214,12 +236,15 @@ const DeliveryManComponent = ({ configData }) => {
             earning: '',
             zone_id: '',
             vehicle_id: '',
+            shift_ids: [],
             identity_type: '',
             identity_number: '',
             phone: '',
             password: '',
             confirm_password: '',
             additional_data: {},
+            image: '',
+            identity_image: [],
         }
 
         // Loop through the dynamic fields in configData to set initial values for additional_data
@@ -241,7 +266,13 @@ const DeliveryManComponent = ({ configData }) => {
     const deliveryManFormik = useFormik({
         initialValues: initialValues,
         validationSchema: deliveryManValidationSchema,
+        enableReinitialize: true,
+        validationOptions: {
+            abortEarly: false, // ✅ THIS IS THE KEY
+        },
         onSubmit: async (values, helpers) => {
+            console.log({});
+            
             try {
                 const { confirm_password, ...modifiedValues } = values
                 const formData = new FormData()
@@ -312,6 +343,10 @@ const DeliveryManComponent = ({ configData }) => {
                             JSON.stringify(value)
                         )
                     }
+                    // Handle shift_ids as a JSON string (backend expects a string)
+                    else if (key === 'shift_ids' && Array.isArray(value)) {
+                        formData.append('shifts', JSON.stringify(value))
+                    }
                     // Append other fields if they are not undefined or null
                     else if (value !== undefined && value !== null) {
                         formData.append(key, value)
@@ -341,6 +376,7 @@ const DeliveryManComponent = ({ configData }) => {
 
     const handleFieldChange = (field, value) => {
         deliveryManFormik.setFieldValue(field, value)
+        deliveryManFormik.setFieldTouched(field, true)
     }
 
     const handleReset = () => {
@@ -350,15 +386,16 @@ const DeliveryManComponent = ({ configData }) => {
         setIdentityImage('')
         setAdditionalImage('')
     }
+
     return (
         <>
             <TitleTopSection sx={{ textAlign: 'center' }}>
                 <Typography
                     variant="h4"
                     sx={{
-                        mt: { xs: '100px', md: '140px' },
+                        mt: { xs: '60px', md: '140px' },
                         fontWeight: '600',
-                        fontSize: { xs: '17px', md: '22px' },
+                        fontSize: { xs: '18px', sm: '22px' },
                         color: (theme) => theme.palette.neutral[1000],
                         lineHeight: '36px',
                     }}
@@ -368,103 +405,100 @@ const DeliveryManComponent = ({ configData }) => {
             </TitleTopSection>
 
             <form onSubmit={deliveryManFormik.handleSubmit}>
-                <RegistrationCardWrapper>
-                    <FormSection>
-                        <DeliverymanFormWrapper
-                            title={'User Info'}
-                            component={
-                                <UserInfo
-                                    {...{
-                                        deliveryManFormik,
-                                        image,
-                                        setImage,
-                                    }}
-                                    handleFieldChange={handleFieldChange}
-                                />
-                            }
-                        />
-                        <DeliverymanFormWrapper
-                            title={'Identity Info'}
-                            component={
-                                <IdentityInfo
-                                    {...{
-                                        deliveryManFormik,
-                                        identityImage,
-                                        setIdentityImage,
-                                    }}
-                                    handleFieldChange={handleFieldChange}
-                                />
-                            }
-                        />
-
-                        <DeliverymanFormWrapper
-                            title={'Account Info'}
-                            component={
-                                <AccountInfo
-                                    configData={configData}
-                                    {...{
-                                        deliveryManFormik,
-                                    }}
-                                    handleFieldChange={handleFieldChange}
-                                />
-                            }
-                        />
-                        <DeliverymanFormWrapper
-                            key={key}
-                            title={'Additional Information'}
-                            component={
-                                <AdditionalInformation
-                                    {...{
-                                        deliveryManFormik,
-                                        additionalImage,
-                                        setAdditionalImage,
-
-                                        configData,
-                                    }}
-                                    handleFieldChange={handleFieldChange}
-                                />
-                            }
-                        />
-                    </FormSection>
-
-                    <ActonButtonsSection>
-                        <CustomButton
-                            onClick={handleReset}
-                            disabled={isLoading}
-                            sx={{
-                                backgroundColor: (theme) => alpha(theme.palette.neutral[200], 0.3),
-                                color: (theme) => `${theme.palette.primary.dark} !important`,
-                                px: '30px',
-                                borderRadius: '5px',
-                                border: (theme) => `1px solid ${theme.palette.primary.main}`, // ✅ added border
+                <DeliverymanFormWrapper
+                    title={'Deliveryman Info'}
+                    component={
+                        <UserInfo
+                            {...{
+                                deliveryManFormik,
+                                image,
+                                setImage,
                             }}
-                        >
-                            {t('Reset')}
-                        </CustomButton>
-                        <CustomButton
-                            type="submit"
-                            disabled={isLoading}
-                            variant="contained"
-                            sx={{
-                                background: (theme) =>
-                                    theme.palette.primary.main,
-                                color: (theme) =>
-                                    `${theme.palette.neutral[100]}!important`,
-                                px: '30px',
-                                borderRadius: '5px',
-                                fontWeight: '500',
-                                fontSize: '14px',
+                            handleFieldChange={handleFieldChange}
+                            configData={configData}
+                        />
+                    }
+                />
+                <DeliverymanFormWrapper
+                    title={'Identity Info'}
+                    component={
+                        <IdentityInfo
+                            {...{
+                                deliveryManFormik,
+                                identityImage,
+                                setIdentityImage,
                             }}
-                        >
-                            {!isSmall ? (t(
+                            handleFieldChange={handleFieldChange}
+                        />
+                    }
+                />
+
+                <DeliverymanFormWrapper
+                    key={key}
+                    title={'Additional Info'}
+                    component={
+                        <AdditionalInformation
+                            {...{
+                                deliveryManFormik,
+                                additionalImage,
+                                setAdditionalImage,
+
+                                configData,
+                            }}
+                            handleFieldChange={handleFieldChange}
+                        />
+                    }
+                />
+
+                <DeliverymanFormWrapper
+                    title={'Account Info'}
+                    component={
+                        <AccountInfo
+                            configData={configData}
+                            {...{
+                                deliveryManFormik,
+                            }}
+                            handleFieldChange={handleFieldChange}
+                        />
+                    }
+                />
+
+                <ActonButtonsSection sx={{ mt: '1.5rem', mb: '3rem' }}>
+                    <CustomButton
+                        onClick={handleReset}
+                        disabled={isLoading}
+                        sx={{
+                            backgroundColor: theme.palette.neutral[200],
+                            color: `${theme.palette.text.primary} !important`,
+                            px: '30px',
+                            borderRadius: '5px',
+                        }}
+                    >
+                        {t('Reset')}
+                    </CustomButton>
+                    <CustomButton
+                        type="submit"
+                        disabled={isLoading}
+                        variant="contained"
+                        sx={{
+                            background: (theme) => theme.palette.primary.main,
+                            color: (theme) =>
+                                `${theme.palette.neutral[100]}!important`,
+                            px: '30px',
+                            borderRadius: '5px',
+                            fontWeight: '500',
+                            fontSize: '14px',
+                        }}
+                    >
+                        {!isSmall
+                            ? t(
                                 isLoading
                                     ? 'Submitting...'
                                     : 'Submit Information'
-                            )):t("Submit")}
-
-                        </CustomButton>
-                    </ActonButtonsSection>
-                </RegistrationCardWrapper>
+                            )
+                            : t('Submit')}
+                    </CustomButton>
+                </ActonButtonsSection>
             </form>
         </>
     )

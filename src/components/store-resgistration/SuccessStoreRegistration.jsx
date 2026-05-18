@@ -1,6 +1,9 @@
 import React, { useEffect } from 'react'
 import { alpha, Stack, Typography, useTheme } from '@mui/material'
-import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
+import {
+    CustomButton,
+    CustomStackFullWidth,
+} from '@/styled-components/CustomStyles.style'
 import { t } from 'i18next'
 import { useRouter } from 'next/router'
 import { setActiveStep, setAllData } from '@/redux/slices/storeRegistrationData'
@@ -31,10 +34,12 @@ const SuccessStoreRegistration = ({ flag }) => {
     return (
         <CustomStackFullWidth
             sx={{
-                border: `1px solid ${alpha(theme.palette.neutral[400], 0.6)}`,
+                // border: `1px solid ${alpha(theme.palette.neutral[400], 0.6)}`,
+                boxShadow:
+                    '0px 8px 15px rgba(28, 30, 32, 0.03), 0px 0px 2px rgba(28, 30, 32, 0.08)',
                 marginTop: '2rem',
-                borderRadius: '8px',
-                padding: '30px',
+                borderRadius: '1rem',
+                padding: { xs: '1rem', md: '30px' },
                 justifyContent: 'center',
                 alignItems: 'center',
             }}
@@ -45,40 +50,48 @@ const SuccessStoreRegistration = ({ flag }) => {
                     <CustomImageContainer
                         src={successGif.src}
                         alt="my gif"
-                        height={150}
-                        width={150}
+                        height={100}
+                        width={100}
                         objectFit="contain"
                     />
                     <Typography
-                        fontSize="22px"
+                        fontSize="18px"
                         fontWeight="600"
+                        maxWidth={568}
+                        textAlign="center"
                         sx={{ color: theme.palette.neutral[1000] }}
                     >
-                        {t('Congratulations!')}
+                        {t('Registration Submitted Successfully')}!
                     </Typography>
                     <Stack
                         justifyContent="center"
                         alignItems="center"
                         width="100%"
+                        maxWidth={568}
                     >
                         <Typography
-                            fontSize="16px"
+                            // fontSize="16px"
                             textAlign="center"
-                            sx={{ color: theme.palette.neutral[1000] }}
+                            sx={{ color: theme.palette.neutral[500] }}
                         >
                             {t(
-                                'Your Registration Has been Completed Successfully.'
+                                'Your restaurant application has been successfully submitted to Stackfood. Please check your email — once the admin reviews your request, you’ll receive a panel access link to set up your restaurant and start serving hungry customers.'
                             )}
                         </Typography>
-                        <Typography
-                            fontSize="13px"
-                            textAlign="center"
-                            sx={{ color: theme.palette.neutral[1000] }}
+                    </Stack>
+
+                    {/* the button on click go to home page */}
+                    <Stack>
+                        <CustomButton
+                            sx={{
+                                paddingInline: '2.5rem',
+                                marginTop: '1rem !important',
+                            }}
+                            variant="contained"
+                            onClick={() => router.push('/home')}
                         >
-                            {t(
-                                'Admin will confirm your registration request  within 48 hour'
-                            )}
-                        </Typography>
+                            {t('Got it')}
+                        </CustomButton>
                     </Stack>
                 </>
             ) : (

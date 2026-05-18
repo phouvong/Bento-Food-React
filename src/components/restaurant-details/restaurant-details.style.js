@@ -54,7 +54,7 @@ export const RestaurantCommonTypography = styled(Typography)(
 )
 
 export const RestaurantCouponStack = styled(Stack)(({ theme, isSmall }) => ({
-    maxWidth: '373px',
+    maxWidth: isSmall ? '400px' : '373px',
     width: '100%',
     position: !isSmall && 'absolute',
     bottom: '2%',

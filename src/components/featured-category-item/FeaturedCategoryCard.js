@@ -1,5 +1,5 @@
 import { Grid, Typography, Box } from '@mui/material'
-import React from 'react'
+import React, { useRef } from 'react'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
 import CustomImageContainer from '../CustomImageContainer'
@@ -7,6 +7,8 @@ import { FeatureImageBox } from './FeaturedCategory.style'
 import Router, { useRouter } from 'next/router'
 import CustomNextImage from '@/components/CustomNextImage'
 import Image from 'next/image'
+
+const DRAG_THRESHOLD = 6
 
 const FeaturedCategoryCard = ({
     categoryImage,
@@ -20,12 +22,35 @@ const FeaturedCategoryCard = ({
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const image = categoryImage
-    
-    const handleClick = () => {
+
+    const pointerStart = useRef(null)
+    const draggedRef = useRef(false)
+
+    const handlePointerDown = (e) => {
+        pointerStart.current = { x: e.clientX, y: e.clientY }
+        draggedRef.current = false
+    }
+
+    const handlePointerMove = (e) => {
+        if (!pointerStart.current) return
+        const dx = Math.abs(e.clientX - pointerStart.current.x)
+        const dy = Math.abs(e.clientY - pointerStart.current.y)
+        if (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD) {
+            draggedRef.current = true
+        }
+    }
+
+    const handleClick = (e) => {
+        if (draggedRef.current) {
+            e.preventDefault()
+            e.stopPropagation()
+            draggedRef.current = false
+            return
+        }
         Router.push(
             {
                 pathname: `/category/${slug || id}`,
-                query: { name: name },
+                query: { name },
             },
             undefined,
             { shallow: true }
@@ -33,76 +58,96 @@ const FeaturedCategoryCard = ({
     }
     const getSize = () => {
         if (isSmall) {
-            return image ? 55 : 30;
-        } else if (categoryIsSticky) {
-            return image ? 50 : 30;
-        } else {
-            return image ? 100 : 60;
+            return image ? 52 : 28
         }
-    };
+        return image ? 80 : 52
+    }
 
-    const size = getSize();
+    const size = getSize()
     return (
-        <Grid item sx={{ overflow: 'hidden' }} onClick={handleClick}>
+        <Grid
+            item
+            sx={{
+                overflow: 'hidden',
+                cursor: 'pointer',
+                '&:hover .cat-ring': {
+                    transform: 'translateY(-3px)',
+                    boxShadow: '0 12px 24px rgba(15,23,42,.12)',
+                },
+                '&:hover .cat-label': {
+                    color: (theme) => theme.palette.primary.main,
+                    fontWeight: 600,
+                },
+            }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onClickCapture={handleClick}
+        >
             <FeatureImageBox
                 justifyContent="center"
                 alignItems="center"
-                spacing={{ xs: 0.5, md: 1 }}
+                spacing={{ xs: 0.75, md: 1 }}
+                sx={{ borderRadius: '50%' }}
             >
                 <Box
+                    className="cat-ring"
                     sx={{
-
-                        height: {
-                            xs: '55px',
-                            md: categoryIsSticky ? '50px' : '100px',
-                        },
+                        height: { xs: '60px', md: '86px' },
+                        width: { xs: '60px', md: '86px' },
                         display: 'flex',
-                        width: {
-                            xs: '55px',
-                            md: categoryIsSticky ? '50px' : '100px',
-                        },
-                        border: '1px solid',
-                        borderColor: (theme) => theme.palette.neutral[200],
-                        borderRadius: '50%',
-                        transition: `all ease 0.5s`,
-                        '&:hover': {
-                            transform: 'scale(1.03)',
-                        },
-                        animation: 'fadeInRight 2s  1',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        border: (theme) => `3px solid ${theme.palette.neutral[100]}`,
+                        borderColor: (theme) => theme.palette.neutral[100],
+                        backgroundColor: '#FFF4EC',
+                        borderRadius: '50%',
+                        padding: 0,
+                        overflow: 'hidden',
+                        transition:
+                            'border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease',
+                        willChange: 'transform, box-shadow',
+                        boxShadow: '0 8px 18px rgba(15,23,42,.08)',
                     }}
                 >
-                    <CustomNextImage
-                        src={image}
-                        alt={name}
-                        width={size}
-                        height={size}
-                        borderRadius={
-                            router.pathname === '/categories' && isXSmall
-                                ? '16px'
-                                : '50%'
-                        }
-                        objectFit={image ? 'cover':"contain"}
-                    />
+                    <Box
+                        sx={{
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: '50%',
+                            overflow: 'hidden',
+                            backgroundColor: (theme) =>
+                                theme.palette.neutral[100],
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <CustomNextImage
+                            src={image}
+                            alt={name}
+                            width={size}
+                            height={size}
+                            borderRadius="50%"
+                            objectFit={image ? 'cover' : 'contain'}
+                        />
+                    </Box>
                 </Box>
                 <Typography
+                    className="cat-label"
                     sx={{
-                        color: (theme) => theme.palette.neutral[1200],
+                        color: (theme) => theme.palette.neutral[1000],
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         display: '-webkit-box',
                         WebkitLineClamp: '1',
                         WebkitBoxOrient: 'vertical',
-                        transition: "all 0.2s ease", // 👈 smooth transition
-                        "&:hover": {
-                            color: (theme) => theme.palette.primary.main,
-                            //fontWeight: "600",
-                            transform: 'scale(1.06)',
-                        },
+                        transition: 'color 0.2s ease, font-weight 0.2s ease',
+                        textTransform: 'capitalize',
+                        textAlign: 'center',
+                        maxWidth: { xs: '70px', md: '100px' },
                     }}
-                    fontSize={{ xs: '13px', sm: '14px', md: '14px' }}
-                    fontWeight="400"
+                    fontSize={{ xs: '12px', sm: '12.5px', md: '12.5px' }}
+                    fontWeight={700}
                     component="h3"
                 >
                     {name}

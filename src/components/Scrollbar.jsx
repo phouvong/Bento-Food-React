@@ -5,7 +5,7 @@ import { styled } from '@mui/material/styles'
 
 const ScrollbarRoot = styled(SimpleBar)`
     .simplebar-scrollbar::before {
-        width: 100px; /* Set the width of the thumb here */
+        width: 4px;
     }
 `
 

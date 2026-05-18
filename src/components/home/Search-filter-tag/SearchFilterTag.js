@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import FilterTag from './FilterTag'
@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import { useTheme } from '@emotion/react'
 import { useDispatch, useSelector } from 'react-redux'
 import Card from '@mui/material/Card'
+import { alpha } from '@mui/material/styles'
 import CustomContainer from '../../container'
 import { searchMockData } from '../../products-page/SearchMockData'
 import {
@@ -32,6 +33,7 @@ const SearchFilterTag = ({
     const [isMount, setIsMount] = useState(false)
     const router = useRouter()
     const theme = useTheme()
+    const isUpdatingFromClick = useRef(false)
 
     useEffect(() => {
         dispatch(setSearchTagData(storeData))
@@ -40,6 +42,12 @@ const SearchFilterTag = ({
     // Hydrate filter tags and sort_by from URL query params on load/back-forward
     useEffect(() => {
         if (!router.isReady) return
+
+        // Skip hydration if URL change was triggered by our own click handler
+        if (isUpdatingFromClick.current) {
+            isUpdatingFromClick.current = false
+            return
+        }
 
         const filtersParam = router.query.filters
         const sortByParam = router.query.sort_by
@@ -67,7 +75,10 @@ const SearchFilterTag = ({
         }
     }, [router.isReady, router.query.filters, router.query.sort_by])
 
-    const handleClick = (value) => {
+    const handleClick = (value, event) => {
+        if (event && typeof event.stopPropagation === 'function') {
+            event.stopPropagation()
+        }
         if (value !== 'sort_by') {
             let newArr
             if (value === 'veg' || value === 'nonVeg') {
@@ -106,6 +117,7 @@ const SearchFilterTag = ({
     }
     const activeFilters = storeData?.filter((item) => item.isActive === true)
     const handleFilterBy = () => {
+        isUpdatingFromClick.current = true
         dispatch(setFilterbyByDispatch(activeFilters))
         dispatch(setSortbyByDispatch(sort_by))
 
@@ -113,16 +125,26 @@ const SearchFilterTag = ({
             ?.filter((item) => item.value !== 'sort_by')
             .map((item) => item.value)
 
-        // Prepare query parameters
-        const queryParams = {
-            tags: 'search_tag',
-            query: query || '',
-            ...(restaurantType === 'dine-in' && { restaurantType: 'dine-in' }), // Conditionally add restaurantType
-            ...(activeFilterValues?.length > 0 && {
-                filters: activeFilterValues.join(','),
-            }),
-            ...(sort_by && { sort_by }),
-        }
+        const hasContent =
+            Boolean(query) ||
+            activeFilterValues?.length > 0 ||
+            Boolean(sort_by) ||
+            restaurantType === 'dine-in'
+
+        // Prepare query parameters - only include tags when there's actual content
+        const queryParams = hasContent
+            ? {
+                  tags: 'search_tag',
+                  ...(query && { query }),
+                  ...(restaurantType === 'dine-in' && {
+                      restaurantType: 'dine-in',
+                  }),
+                  ...(activeFilterValues?.length > 0 && {
+                      filters: activeFilterValues.join(','),
+                  }),
+                  ...(sort_by && { sort_by }),
+              }
+            : {}
 
         // Perform routing
         if (tags !== 'search_tag') {
@@ -170,13 +192,29 @@ const SearchFilterTag = ({
         <CustomStackFullWidth spacing={2}>
             <Card
                 sx={{
-                   boxShadow: 'none',
-                    paddingBottom: '1rem',
-                    paddingTop: '12px',
-                    background: (theme) => theme.palette.neutral[1800],
+                    boxShadow: 'none',
+                    paddingBottom: '10px',
+                    paddingTop: '10px',
+                    background: (theme) =>
+                        theme.palette.mode === 'dark'
+                            ? alpha(theme.palette.background.paper, 0.92)
+                            : 'rgba(250,250,247,0.92)',
+                    backdropFilter: 'saturate(180%) blur(10px)',
+                    borderBottom: (theme) =>
+                        `1px solid ${
+                            theme.palette.mode === 'dark'
+                                ? 'rgba(255,255,255,0.08)'
+                                : '#E2E8F0'
+                        }`,
+                    borderRadius: 0,
+                    WebkitTapHighlightColor: 'transparent',
+                    //transition: 'all 0.3s ease-in-out',
+                    '& *': {
+                        WebkitTapHighlightColor: 'transparent',
+                    },
                     [theme.breakpoints.down('md')]: {
-                        paddingTop: '.5rem',
-                        paddingBottom: '.5rem',
+                        paddingTop: '8px',
+                        paddingBottom: '8px',
                     },
                 }}
             >

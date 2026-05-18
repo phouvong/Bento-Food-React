@@ -8,6 +8,7 @@ const IMAGE_SUPPORTED_FORMATS = [
     'image/jpeg',
     'image/gif',
     'image/png',
+    'image/webp',
 ]
 
 const ValidationSchemaForRestaurant = (
@@ -25,7 +26,9 @@ const ValidationSchemaForRestaurant = (
         ),
         f_name: Yup.string().required(t('Name is required')),
         l_name: Yup.string().required(t('last name required')),
-        phone: Yup.string().required(t('phone number required')),
+        phone: Yup.string()
+            .required(t('phone number required'))
+            .min(10, t('Phone number must be at least 10 digits')),
 
         min_delivery_time: Yup.string()
             .required(t('Minimum Delivery Time'))
@@ -76,12 +79,8 @@ const ValidationSchemaForRestaurant = (
                 (value) => value && IMAGE_SUPPORTED_FORMATS.includes(value.type)
             ),
         cover_photo: Yup.mixed()
-            .required()
-            .test(
-                'fileSize',
-                'file too large',
-                (value) => value === null || (value && value.size <= FILE_SIZE)
-            )
+            .required(t('Restaurant Cover Photo is a required field'))
+
             .test(
                 'fileFormat',
                 t('Unsupported Format'),
@@ -93,20 +92,39 @@ const ValidationSchemaForRestaurant = (
             .required(t('Email is required')),
 
         password: Yup.string()
-            .required('No password provided.')
-            .min(8, 'Password is too short - should be 8 characters minimum.')
-            .matches(/[0-9]/, 'Password must contain at least one number.')
-            .matches(
-                /[A-Z]/,
-                'Password must contain at least one uppercase letter.'
-            )
-            .matches(
-                /[a-z]/,
-                'Password must contain at least one lowercase letter.'
-            )
-            .matches(
-                /[!@#$%^&*(),.?":{}|<>]/,
-                'Password must contain at least one special character.'
+
+            .test(
+                "password-requirements",
+                "Password requirements not met",
+                function (value) {
+                    const errors = [];
+
+                    // Always check length
+                    if (!value || value.length < 8) {
+                        errors.push(t('8 characters minimum.'))
+                    }
+                    // Check for number
+                    if (!value || !/[0-9]/.test(value)) {
+                        errors.push(t('1 digit'))
+                    }
+                    // Check for uppercase
+                    if (!value || !/[A-Z]/.test(value)) {
+                        errors.push(t('1 capital letter'))
+                    }
+                    // Check for lowercase
+                    if (!value || !/[a-z]/.test(value)) {
+                        errors.push(t('1 small letter'))
+                    }
+                    // Check for special character
+                    if (!value || !/[!@#$%^&*(),.?":{}|<>+_=]/.test(value)) {
+                        errors.push(t('1 special character'))
+                    }
+
+                    if (errors.length > 0) {
+                        return this.createError({ message: errors.join(" ") });
+                    }
+                    return true;
+                }
             ),
         confirm_password: Yup.string()
             .required(t('Confirm Password required'))

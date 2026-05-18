@@ -5,17 +5,32 @@ import BannerForm from '@/components/restaurant-resgistration-landing/BannerForm
 import CustomNextImage from '@/components/CustomNextImage'
 import ImageNotFound from '../../../public/static/no-image-found.png'
 
-
-const RestaurantRegLanBanner = ({hero_image_content_full_url,business_name}) => {
-
+const RestaurantRegLanBanner = ({
+    hero_image_content_full_url,
+    business_name,
+}) => {
     let location
     if (typeof window !== 'undefined') {
         location = localStorage.getItem('location')
     }
     return (
-        <Stack marginTop={location?"3rem":""}>
+        <Stack marginTop={location ? { xs: '-0.5rem', md: '3rem' } : ''}>
             <CustomContainer>
-                <Stack sx={{ "> img": { objectFit: 'cover', position: "absolute", left: 0, top: 0, zIndex: -1, width: "100%", height: "100%" }, position: 'relative', zIndex: 1 }}>
+                <Stack
+                    sx={{
+                        '> img': {
+                            objectFit: 'cover',
+                            position: 'absolute',
+                            left: 0,
+                            top: 0,
+                            zIndex: -1,
+                            width: '100%',
+                            height: '100%',
+                        },
+                        position: 'relative',
+                        zIndex: 1,
+                    }}
+                >
                     <CustomNextImage
                         height={bannerImg?.height}
                         width={bannerImg?.width}
@@ -32,4 +47,4 @@ const RestaurantRegLanBanner = ({hero_image_content_full_url,business_name}) => 
     )
 }
 
-export default RestaurantRegLanBanner;
+export default RestaurantRegLanBanner

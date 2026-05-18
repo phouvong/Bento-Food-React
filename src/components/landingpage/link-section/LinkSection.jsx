@@ -16,7 +16,7 @@ import CustomNextImage from '@/components/CustomNextImage'
 import { t } from 'i18next'
 import QRCodeClient from '@/components/landingpage/QRCodeClient'
 
-const LinkSection = ({ restaurant_section }) => {
+const LinkSection = ({ restaurant_section,global }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const isSm = useMediaQuery(theme.breakpoints.down('sm'))
@@ -28,6 +28,7 @@ const LinkSection = ({ restaurant_section }) => {
         const restaurant_section_link = '/restaurant-registration-landing'
         router.push(`${restaurant_section_link}`)
     }
+console.log({restaurant_section,global});
 
     return (
         <CustomContainer>
@@ -66,7 +67,8 @@ const LinkSection = ({ restaurant_section }) => {
                         }
                     </Typography>
                 </Grid>
-                {restaurant_section?.react_restaurant_section?.status === 1 ? (
+                {restaurant_section?.react_restaurant_section?.status === 1 &&
+                global?.toggle_restaurant_registration ? (
                     <Grid item xs={12} sm={12} md={6}>
                         <CustomCard>
                             <Stack
@@ -173,7 +175,8 @@ const LinkSection = ({ restaurant_section }) => {
                         </CustomCard>
                     </Grid>
                 ) : null}
-                {restaurant_section?.react_delivery_app_download?.status === 1 ? (
+                {restaurant_section?.react_delivery_app_download?.status === 1 &&
+                global?.toggle_dm_registration ? (
                     <Grid item xs={12} sm={12} md={6}>
                         <CustomCard>
                             <Stack

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Stack, Typography } from '@mui/material'
+import { Stack } from '@mui/material'
 import { NavLinkStyle } from '../Navbar.style'
 import NavCatagory from '../NavCatagory'
 import NavResturant from '../NavResturant'
@@ -18,21 +18,21 @@ const NavLinks = ({ zoneid, t, languageDirection }) => {
         dispatch(setHandleHomePage(false))
     }
 
+    const isHomeActive =
+        router?.pathname === '/home' || router?.pathname === '/'
+
     return (
-        <Stack direction="row" spacing={2.5}>
+        <Stack direction="row" spacing="2px" alignItems="center">
 
             <>
                 <NavLinkStyle
                     onClick={handleClick}
                     underline="none"
                     languageDirection={languageDirection}
-                    sx={{
-                        cursor: 'pointer',
-                        paddingInlineEnd:
-                            languageDirection === 'rtl' && '1.5rem',
-                    }}
+                    active={isHomeActive}
+                    sx={{ cursor: 'pointer' }}
                 >
-                    <Typography fontSize="14px">{t('Home')}</Typography>
+                    {t('Home')}
                 </NavLinkStyle>
 
                 <NavCatagory

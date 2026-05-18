@@ -10,8 +10,8 @@ const getData = async () => {
 export default function useGetCashbackList(handleSuccess) {
     return useQuery('cashback', () => getData(), {
         enabled: false,
-        staleTime: 10000,
-        cacheTime: 5000,
+        // staleTime: 10000,
+        // cacheTime: 5000,
         onSuccess: handleSuccess,
         onError: onSingleErrorResponse,
     })

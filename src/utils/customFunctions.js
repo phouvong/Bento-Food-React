@@ -1000,7 +1000,7 @@ export const handleBadge = (
                         discount
                         label={
                             !product.available_date_ends
-                                ? `${product?.discount} %`
+                                ? `${product?.discount}  ${percentOff}`
                                 : ` ${product?.discount} ${percentOff}`
                         }
                         campaign={product.available_date_ends}
@@ -1017,7 +1017,7 @@ export const handleBadge = (
                                     currencySymbolDirection,
                                     currencySymbol,
                                     digitAfterDecimalPoint
-                                )}`
+                                )} ${OFF}`
                                 : ` ${getAmount(
                                     product?.discount,
                                     currencySymbolDirection,

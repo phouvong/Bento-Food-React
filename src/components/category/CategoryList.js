@@ -26,9 +26,7 @@ const CategoryList = ({ matches, data, isLoading }) => {
     return (
         <Box mt="1.5rem">
             <Grid container item spacing={{ xs: 0, md: 2, lg: 2 }}>
-                <Grid item md={12}>
-                    <CustomDivider />
-                </Grid>
+                
                 {data?.data?.map((categoryItem) => (
                     <Grid item md={matches ? 2 : 1.7} sm={3} xs={4} mt=".5rem">
                         <FeaturedCategoryCard
@@ -40,6 +38,7 @@ const CategoryList = ({ matches, data, isLoading }) => {
                                 global?.base_urls?.category_image_url
                             }
                             height="55px"
+                            slug={categoryItem?.slug}
                         />
                     </Grid>
                 ))}

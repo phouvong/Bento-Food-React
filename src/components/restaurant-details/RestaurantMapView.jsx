@@ -199,7 +199,7 @@ const RestaurantMapView = ({ details, restaurantCoverUrl }) => {
                                 <Typography
                                     fontWeight="600"
                                     fontSize={{
-                                        xs: '13px',
+                                        xs: '11px',
                                         sm: '13px',
                                         md: '16px',
                                     }}
@@ -222,7 +222,7 @@ const RestaurantMapView = ({ details, restaurantCoverUrl }) => {
                                         theme.palette.primary.main,
                                     borderColor: (theme) =>
                                         theme.palette.primary.main,
-                                    fontSize: '12px',
+                                    fontSize: '11px',
                                     borderRadius: '6px',
                                 }}
                                 endIcon={
@@ -325,15 +325,30 @@ const RestaurantMapView = ({ details, restaurantCoverUrl }) => {
                     paddingBottom="16px"
                     alignItems="center"
                     justifyContent="space-between"
+                    sx={{ overflow: 'hidden' }}
                 >
-                    <Stack direction="row">
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={1}
+                        sx={{ minWidth: 0, maxWidth: '100%', flex: 1 }}
+                    >
                         <LocationOnIcon
                             sx={{ color: theme.palette.primary.main }}
                         />
                         <Typography
                             fontWeight="600"
-                            fontSize={{ xs: '13px', sm: '13px', md: '16px' }}
+                            fontSize={{ xs: '11px', sm: '13px', md: '16px' }}
                             color={theme.palette.neutral[1000]}
+                            sx={{
+                                flex: 1,
+                                minWidth: 0,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 1,
+                                WebkitBoxOrient: 'vertical',
+                            }}
                         >
                             {details?.address}
                         </Typography>
@@ -362,7 +377,7 @@ const RestaurantMapView = ({ details, restaurantCoverUrl }) => {
                         />
                     </IconButton>
                 </Stack>
-                {userLocation && (
+                {(details?.latitude || details?.longitude) && (
                     <ResMapSection
                         coords={coords}
                         setUserLocation={setUserLocation}

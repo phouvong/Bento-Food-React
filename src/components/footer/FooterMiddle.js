@@ -1,23 +1,19 @@
-import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
-import { alpha } from '@mui/material'
-import { Box, Grid, Stack, Typography, useMediaQuery } from '@mui/material'
+import { Box, Grid, Skeleton, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import Link from 'next/link'
-import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import CustomContainer from '../container'
-import AppLinks from '../landingpage/AppLinks'
 import LogoSide from '../navbar/second-navbar/LogoSide'
-import ContactInfo, { CustomSkelenton } from './ContactInfo'
+import ContactInfo from './ContactInfo'
 import { OtherData } from './OtherData'
 import { QuickLinkData } from './QuickLinkData'
 import { QuickLinkData1 } from './QuickLinkData1'
 import RouteLinks from './RouteLinks'
+import SocialLinks from './SocialLinks'
 
 const FooterMiddle = ({ landingPageData, isLoading }) => {
     const { global } = useSelector((state) => state.globalSettings)
     const { token } = useSelector((state) => state.userToken)
-    const { t } = useTranslation()
     let zoneid = undefined
     if (typeof window !== 'undefined') {
         zoneid = localStorage.getItem('zoneid')
@@ -25,117 +21,144 @@ const FooterMiddle = ({ landingPageData, isLoading }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const businessLogo = global?.logo_full_url
+
     return (
-        <CustomStackFullWidth
-            alignItems="center"
-            pt={{ xs: '1rem', sm: '2rem' }}
-        >
+        <Box sx={{ position: 'relative', zIndex: 1, width: '100%' }}>
             <CustomContainer>
                 <Grid
                     container
                     spacing={{ xs: 3, md: 4 }}
-                    justifyContent="space-between"
+                    sx={{ py: { xs: '2rem', md: '3rem' } }}
                 >
+                    {/* Brand column */}
                     <Grid
                         item
                         xs={12}
                         sm={12}
                         md={4}
-                        align={isSmall || 'center'}
-                    >
-                        <CustomStackFullWidth
-                            spacing={{ xs: 1, sm: 2, md: 4 }}
-                            alignItems={{
+                        sx={{
+                            display: 'flex',
+                            justifyContent: {
                                 xs: 'center',
                                 sm: 'center',
                                 md: 'flex-start',
+                            },
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: {
+                                    xs: 'center',
+                                    sm: 'center',
+                                    md: 'flex-start',
+                                },
+                                textAlign: {
+                                    xs: 'center',
+                                    sm: 'center',
+                                    md: 'left',
+                                },
+                                gap: '16px',
+                                width: '100%',
+                                '& a > div': {
+                                    maxWidth: 'none',
+                                    width: '140px',
+                                    height: '30px',
+                                },
                             }}
-                            justifyContent="flex-start"
                         >
                             {global ? (
                                 <Link href={zoneid ? '/home' : '/'}>
                                     <LogoSide
                                         global={global}
                                         businessLogo={businessLogo}
+                                        width="140px"
+                                        objectFit="contain"
+                                        height="30px"
                                     />
                                 </Link>
                             ) : (
-                                <CustomSkelenton width={200} height={40} />
+                                <Skeleton
+                                    variant="rectangular"
+                                    width={200}
+                                    height={40}
+                                    sx={{ background: 'rgba(255,255,255,0.1)' }}
+                                />
                             )}
+
                             {isLoading ? (
-                                <>
-                                    <Box>
-                                        <CustomSkelenton width={200} />
-                                        <CustomSkelenton width={140} />
-                                    </Box>
-                                </>
+                                <Box>
+                                    <Skeleton
+                                        width={200}
+                                        sx={{
+                                            background: 'rgba(255,255,255,0.1)',
+                                        }}
+                                    />
+                                    <Skeleton
+                                        width={140}
+                                        sx={{
+                                            background: 'rgba(255,255,255,0.1)',
+                                        }}
+                                    />
+                                </Box>
                             ) : (
                                 <Typography
-                                    fontSize="14px"
-                                    color={alpha(
-                                        theme.palette.whiteContainer.main,
-                                        0.8
-                                    )}
+                                    sx={{
+                                        color: '#94A3B8',
+                                        fontSize: '13.5px',
+                                        lineHeight: 1.6,
+                                        maxWidth: '340px',
+                                        textAlign: {
+                                            xs: 'center',
+                                            sm: 'center',
+                                            md: 'left',
+                                        },
+                                    }}
                                 >
                                     {landingPageData?.footer_data}
                                 </Typography>
                             )}
+
                             <ContactInfo global={global} />
-                            {isLoading ? (
-                                <Stack direction="row" gap={1}>
-                                    <CustomSkelenton width={140} height={40} />
-                                    <CustomSkelenton width={140} height={40} />
-                                </Stack>
-                            ) : (
-                                <AppLinks
-                                    isFooter={true}
-                                    global={global}
-                                    width="140px"
-                                    download_app_data={
-                                        landingPageData?.download_app_section
-                                    }
-                                />
-                            )}
-                        </CustomStackFullWidth>
+
+                            <SocialLinks global={global} />
+                        </Box>
                     </Grid>
+
+                    {/* Quick Links */}
                     <Grid
                         item
                         xs={6}
                         sm={4}
                         md={2.6}
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                        }}
+                        sx={{ display: 'flex', justifyContent: 'center' }}
                     >
-                        <Box>
-                            <RouteLinks
-                                token={token}
-                                global={global}
-                                title="Quick Links"
-                                RouteLinksData={QuickLinkData}
-                            />
-                        </Box>
+                        <RouteLinks
+                            token={token}
+                            global={global}
+                            title="Quick Links"
+                            RouteLinksData={QuickLinkData}
+                        />
                     </Grid>
+
+                    {/* Explore */}
                     <Grid
                         item
                         xs={6}
                         sm={4}
                         md={2.6}
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                        }}
+                        sx={{ display: 'flex', justifyContent: 'center' }}
                     >
-                        <Box>
-                            <RouteLinks
-                                token={token}
-                                global={global}
-                                title="Quick Links"
-                                RouteLinksData={QuickLinkData1}
-                            />
-                        </Box>
+                        <RouteLinks
+                            token={token}
+                            global={global}
+                            title="Explore"
+                            RouteLinksData={QuickLinkData1}
+                        />
                     </Grid>
+
+                    {/* Other / Legal */}
                     <Grid
                         item
                         xs={12}
@@ -143,25 +166,25 @@ const FooterMiddle = ({ landingPageData, isLoading }) => {
                         md={2.6}
                         sx={{
                             display: 'flex',
-                            justifyContent: 'center',
+                            justifyContent: {
+                                xs: 'center',
+                                sm: 'center',
+                                md: 'flex-start',
+                            },
                         }}
                     >
-                        <Box alignItems="center" justifyContent="center">
-                            <RouteLinks
-                                token={token}
-                                global={global}
-                                title="Other"
-                                RouteLinksData={OtherData}
-                                isCenter={isSmall && true}
-                            />
-                        </Box>
+                        <RouteLinks
+                            token={token}
+                            global={global}
+                            title="Other"
+                            RouteLinksData={OtherData}
+                            isCenter={isSmall}
+                        />
                     </Grid>
                 </Grid>
             </CustomContainer>
-        </CustomStackFullWidth>
+        </Box>
     )
 }
-
-FooterMiddle.propTypes = {}
 
 export default FooterMiddle

@@ -79,12 +79,50 @@ const ChatMessageAdd = ({ onSend }) => {
     }
 
     const handleFileOnChange = (e) => {
-        setBody({ ...body, file: [...body.file, ...e.target.files] })
+        const MAX_IMAGE_SIZE = 2 * 1024 * 1024 // 2 MB
+        const allowedImageTypes = [
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+            'image/gif',
+            'image/bmp',
+            'image/webp',
+        ]
+
+        const files = Array.from(e.target.files || [])
+
+        const invalidType = files.find(
+            (file) => !allowedImageTypes.includes(file.type)
+        )
+        if (invalidType) {
+            toast.error(t('Only images (jpg, jpeg, png, gif, bmp, webp) are allowed'))
+            fileInputRef.current.value = null
+            return
+        }
+
+        const oversized = files.find((file) => file.size > MAX_IMAGE_SIZE)
+        if (oversized) {
+            toast.error(t('Each image must be less than 2 MB'))
+            fileInputRef.current.value = null
+            return
+        }
+
+        setBody({ ...body, file: [...body.file, ...files] })
         fileInputRef.current.value = null // Reset the input value
     }
 
     const handleChangeAttachment = (e) => {
-        setBody({ ...body, file: [...body.file, ...e.target.files] })
+        const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2 MB
+        const files = Array.from(e.target.files)
+        const oversized = files.find((file) => file.size > MAX_FILE_SIZE)
+
+        if (oversized) {
+            toast.error(t('File size must be less than 2 MB'))
+            attachmentInputRef.current.value = null
+            return
+        }
+
+        setBody({ ...body, file: [...body.file, ...files] })
         attachmentInputRef.current.value = null // Reset the input value
     }
 

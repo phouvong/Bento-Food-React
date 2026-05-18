@@ -59,7 +59,9 @@ const MultiSelectTypedInput = ({
     return (
         <div>
             <CustomTextFieldStyle
-                placeholder={placeholder}
+                placeholder={
+                    selectedValues?.length === 0 ? placeholder : ''
+                }
                 height={height}
                 borderRadius={borderRadius}
                 disabled={disabled}
@@ -81,39 +83,54 @@ const MultiSelectTypedInput = ({
                 //     inputProps: { min: 0 },
                 // }}
                 InputProps={{
-                    startAdornment: startIcon,
-                    inputProps: { min: 0 },
+                    startAdornment: (
+                        <>
+                            {startIcon}
+                            {selectedValues?.map((option, index) => (
+                                <Chip
+                                    key={index}
+                                    label={option}
+                                    onDelete={() => handleDeleteTag(option)}
+                                    size="small"
+                                    style={{
+                                        marginRight: 5,
+                                        marginTop: 5,
+                                        backgroundColor: '#ddd',
+                                        color: '#333',
+                                        fontSize: '14px',
+                                    }}
+                                />
+                            ))}
+                        </>
+                    ),
+                    inputProps: {
+                        min: 0,
+                        style: {
+                            minWidth: '100px',
+                            flexGrow: 1,
+                            width: 'auto',
+                        },
+                    },
                     style: {
                         borderRadius: borderRadius,
-                        height: '45px', // Set your desired height value here
+                        minHeight: '45px',
+                        height: 'auto',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        //padding: '5px',
+                        //paddingTop: selectedValues?.length > 2 ? '0px' : '5px',
                     },
-
                 }}
                 sx={{
-'& .MuiOutlinedInput-root': {
-            '& fieldset>legend': {
-                fontSize: '8px', //or whatever works for you
-            },
-        },
+                    '& .MuiOutlinedInput-root': {
+                        '& fieldset>legend': {
+                            fontSize: '8px', //or whatever works for you
+                        },
+                    },
                 }}
                 {...fieldProps}
             />
-            <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                {selectedValues?.map((option, index) => (
-                    <Chip
-                        key={index}
-                        label={option}
-                        onDelete={() => handleDeleteTag(option)}
-                        style={{
-                            marginRight: 5,
-                            marginTop: 5,
-                            backgroundColor: '#ddd',
-                            color: '#333',
-                            fontSize: '14px',
-                        }}
-                    />
-                ))}
-            </div>
+
         </div>
     )
 }

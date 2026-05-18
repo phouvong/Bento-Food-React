@@ -17,13 +17,13 @@ const PageSearchWithTitle = ({ title, handleSearchResult, label, action }) => {
             spacing={2.5}
             direction={{ xs: 'column', sm: 'row' }}
         >
-            <CustomPageTitle title={title} textAlign="center" />
+            {title && <CustomPageTitle title={title} textAlign="center" />}
             <Stack
                 direction="row"
                 alignItems="stretch"
                 spacing={1}
                 width="100%"
-                maxWidth="520px"
+                maxWidth={title ? '520px' : '100%'}
             >
                 <Stack flex="1 1 auto">
                     <CustomSearch

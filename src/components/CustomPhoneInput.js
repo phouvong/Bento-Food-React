@@ -55,9 +55,8 @@ const useStyles = makeStyles((theme) => ({
             borderRight: 'none',
             padding:
                 languageDirection === 'rtl' ? '0 25px 0 11px' : ' 0 0px 0 11px',
-            borderRadius: `${borderradius ?? '3px'} 0px 0px ${
-                borderradius ?? '3px'
-            }`,
+            borderRadius: `${borderradius ?? '3px'} 0px 0px ${borderradius ?? '3px'
+                }`,
         },
         '&.react-tel-input .selected-flag .arrow': {
             left: languageDirection === 'rtl' ? '13px' : '29px',
@@ -109,14 +108,12 @@ const CustomPhoneInput = ({
     }, [])
 
     const changeHandler = (e) => {
-      
+
         onHandleChange(e)
     }
-   const handleBlur = () => {
-    if(value?.length < 10 && value?.length > 2){
-        toast.error(t('Please enter a valid phone number'))
+    const handleBlur = () => {
+        setFocus(false)
     }
-   }
 
     return (
         <CustomStackFullWidth alignItems="flex-start" spacing={0.8}>

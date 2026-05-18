@@ -1,8 +1,7 @@
-import React, { useRef } from "react";
+import React from "react";
 import CloseIcon from '@mui/icons-material/Close'
 import CustomImageContainer from '../CustomImageContainer'
 import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style"
-import { useTheme } from "@mui/styles";
 import Slider from 'react-slick'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
@@ -38,19 +37,32 @@ export const HandleNextImagePrv = ({ onClick, className }) => (
 )
 
 const ImagePreviewOnModal = (props) => {
-    const sliderRef=useRef(null)
-    const theme=useTheme()
-    const { modalImage, handleModalClose,AllImages } = props
+    const { modalImage, handleModalClose, AllImages = [] } = props
+    const getImageSrc = (image) =>
+        typeof image === 'string'
+            ? image
+            : image?.file_full_url || image?.url || image?.path || ''
+
+    const selectedImage = getImageSrc(modalImage)
+    const uniqueImages = Array.from(
+        new Set([selectedImage, ...AllImages.map(getImageSrc).filter(Boolean)])
+    )
+    const imagesToShow = selectedImage
+        ? [selectedImage, ...uniqueImages.filter((image) => image !== selectedImage)]
+        : uniqueImages
+    const hasMultipleImages = imagesToShow.length > 1
+
     const settings = {
         speed: 500,
         slidesToShow: 1,
         slidesToScroll: 1,
         initialSlide: 0,
-        nextArrow:  <HandleNextImagePrv  />,
-        prevArrow:  <HandlePrevImagePrv />,
-
+        infinite: hasMultipleImages,
+        arrows: hasMultipleImages,
+        swipe: hasMultipleImages,
+        nextArrow: <HandleNextImagePrv />,
+        prevArrow: <HandlePrevImagePrv />,
     }
-    const imagesToShow = [modalImage, ...AllImages.filter(image => image !== modalImage)];
     return (
         <CustomStackFullWidth
             sx={{
@@ -81,12 +93,18 @@ const ImagePreviewOnModal = (props) => {
             >
                 <CloseIcon sx={{ fontSize: '16px' }} />
             </button>
-            <Slider {...settings} ref={sliderRef} className="slick__slider">
-                {imagesToShow?.map((image,index)=>{
-                    return(
-                        <CustomImageContainer  src={image} width="100%" height="400px" smHeight="250px" mdHeight='350px'   objectFit="cover" />
-                    )
-                })}
+            <Slider {...settings} className="slick__slider">
+                {imagesToShow?.map((image, index) => (
+                    <CustomImageContainer
+                        key={`${image}-${index}`}
+                        src={image}
+                        width="100%"
+                        height="400px"
+                        smHeight="250px"
+                        mdHeight="350px"
+                        objectFit="cover"
+                    />
+                ))}
             </Slider>
 
         </CustomStackFullWidth>

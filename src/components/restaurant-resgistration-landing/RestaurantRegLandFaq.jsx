@@ -63,7 +63,7 @@ const RestaurantRegLandFaq = ({faqs}) => {
                                     <Typography fontSize={{
                                         xs:"15px",
                                         md:"20px"
-                                    }} fontWeight="500" variant="h4">{item?.question}</Typography>
+                                    }} fontWeight="500">{item?.question}</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails sx={{fontSize:"14px"}}>
                                     {item?.answer}

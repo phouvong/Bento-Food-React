@@ -1,346 +1,401 @@
 import { CustomChip } from '@/components/home/Search-filter-tag/FilterTag'
 import { AllRestaurantFilterData } from '@/components/home/restaurant/AllRestaurantFilterData'
-import { useGetRestaurant } from '@/hooks/react-query/restaurants/useGetRestaurant'
+import { useRestaurantInfiniteList } from '@/hooks/react-query/restaurants/useRestaurantInfiniteList'
 import { removeDuplicates } from '@/utils/customFunctions'
-import { Box, Stack, Typography, useMediaQuery } from '@mui/material'
+import { Box, Stack, Typography, alpha } from '@mui/material'
 import Grid from '@mui/material/Grid'
-import { useTheme } from '@mui/material/styles'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useInView } from 'react-intersection-observer'
-import { useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
+import { setRestaurantIsSticky } from '@/redux/slices/scrollPosition'
+import useHideOnScroll from '@/hooks/custom-hooks/useHideOnScroll'
 import noData from '../../../public/static/resturants.png'
-import restaurantIcon from '../../../public/static/result_count.svg'
-import CustomImageContainer from '../CustomImageContainer'
 import { RTL } from '../RTL/RTL'
 import CustomEmptyResult from '../empty-view/CustomEmptyResult'
-import RestaurantBoxCard from '../restaurant-details/RestaurantBoxCard'
+import NewStoreCard from '@/components/new-store-card/NewStoreCard'
 import { mockData } from './mockData'
 import DotSpin from './restaurant/DotSpin'
 import RestaurantTab from './restaurant/RestaurantTab'
 
+const STICKY_THRESHOLD = 120
+const PAGE_LIMIT = 6
+const SEARCH_KEY = ' '
+const MIN_SCROLL_BETWEEN_FETCHES = 120
+
+const noop = () => {}
+
 const Restaurant = () => {
-  const theme = useTheme()
-  const { t } = useTranslation()
-  const { global } = useSelector((state) => state.globalSettings)
-  const [filterType, setFilterType] = useState('all')
-  const [searchKey, setSearchKey] = useState(' ')
-  const [offset, setOffSet] = useState(1)
-  const [page_limit, setPage_Limit] = useState(12)
-  const [resData, setResData] = useState([])
-  const matchesToMd = useMediaQuery('(min-width:740px)')
-  const matchesToScroll = useMediaQuery('(min-width:828px)')
-  const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
-  const [filterByData, setFilterByData] = useState({})
-  const [forFilter, setForFilter] = useState(false)
-  const { ref, inView } = useInView()
-  const [isFilterTrue, setIsFilterTrue] = useState(false)
-  const [checkedFilterKey, setCheckedFilterKey] = useState(
-      AllRestaurantFilterData
-  )
-  const tabMenurefs = useRef(null)
+    const { t } = useTranslation()
+    const dispatch = useDispatch()
+    const isNavHidden = useHideOnScroll({ threshold: 50 })
 
-  const responsiveTop = isSmall ? 2000 : matchesToScroll ? 3100 : 3950
+    const [filterType, setFilterType] = useState('all')
+    const [filterByData, setFilterByData] = useState({})
+    const [checkedFilterKey, setCheckedFilterKey] = useState(
+        AllRestaurantFilterData
+    )
+    const [forFilter, setForFilter] = useState(false)
 
-  const { data, fetchNextPage, isFetchingNextPage, isLoading, refetch } =
-      useGetRestaurant({
+    const topSentinelRef = useRef(null)
+    const gridRef = useRef(null)
+    const bottomSentinelRef = useRef(null)
+
+    const {
+        data,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+        isLoading,
+    } = useRestaurantInfiniteList({
         filterByData,
-        offset,
-        page_limit,
         filterType,
-        searchKey,
-      })
-  const successHandler = (res) => {
-    if (res?.restaurants?.length > 0) {
-      if (offset === 2 || offset === 1) {
-        setResData((prev) =>
-            removeDuplicates([...new Set([...res?.restaurants])], 'id')
+        searchKey: SEARCH_KEY,
+        pageLimit: PAGE_LIMIT,
+    })
+
+    const fetchNextPageRef = useRef(fetchNextPage)
+    fetchNextPageRef.current = fetchNextPage
+    const isFetchingNextPageRef = useRef(isFetchingNextPage)
+    isFetchingNextPageRef.current = isFetchingNextPage
+    const hasNextPageRef = useRef(hasNextPage)
+    hasNextPageRef.current = hasNextPage
+    const lastFetchScrollYRef = useRef(0)
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+
+        const sentinelInView = (node) => {
+            const rect = node.getBoundingClientRect()
+            return rect.top <= window.innerHeight && rect.bottom >= 0
+        }
+
+        const tryFetchNext = () => {
+            if (!hasNextPageRef.current) return
+            if (isFetchingNextPageRef.current) return
+            const node = bottomSentinelRef.current
+            if (!node || !sentinelInView(node)) return
+            const canScroll =
+                document.documentElement.scrollHeight > window.innerHeight
+            if (
+                canScroll &&
+                window.scrollY <
+                    lastFetchScrollYRef.current + MIN_SCROLL_BETWEEN_FETCHES
+            ) {
+                return
+            }
+            lastFetchScrollYRef.current = window.scrollY
+            fetchNextPageRef.current()
+        }
+
+        let raf = 0
+        const onScroll = () => {
+            if (raf) return
+            raf = window.requestAnimationFrame(() => {
+                raf = 0
+                tryFetchNext()
+            })
+        }
+        window.addEventListener('scroll', onScroll, { passive: true })
+        return () => {
+            window.removeEventListener('scroll', onScroll)
+            if (raf) window.cancelAnimationFrame(raf)
+        }
+    }, [])
+
+    useEffect(() => {
+        lastFetchScrollYRef.current = 0
+    }, [filterType, filterByData])
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+        if (!hasNextPage || isFetchingNextPage) return
+        const node = bottomSentinelRef.current
+        if (!node) return
+        if (document.documentElement.scrollHeight > window.innerHeight) return
+        const rect = node.getBoundingClientRect()
+        if (rect.top > window.innerHeight) return
+        fetchNextPageRef.current()
+    }, [data, hasNextPage, isFetchingNextPage])
+
+    useEffect(() => {
+        let isCurrentlySticky = false
+        const handleScroll = () => {
+            const el = topSentinelRef.current
+            if (!el) return
+            const top = el.getBoundingClientRect().top
+            const nextSticky = top <= STICKY_THRESHOLD
+            if (nextSticky !== isCurrentlySticky) {
+                isCurrentlySticky = nextSticky
+                dispatch(setRestaurantIsSticky(nextSticky))
+            }
+        }
+        handleScroll()
+        window.addEventListener('scroll', handleScroll, { passive: true })
+        return () => {
+            window.removeEventListener('scroll', handleScroll)
+            dispatch(setRestaurantIsSticky(false))
+        }
+    }, [dispatch])
+
+    const totalSize = data?.pages?.[0]?.total_size ?? 0
+
+    const restaurants = useMemo(() => {
+        const flat = (data?.pages ?? []).flatMap(
+            (page) => page?.restaurants ?? []
         )
-      } else {
-        setResData((prev) =>
-            removeDuplicates(
-                [...new Set([...prev, ...res?.restaurants])],
-                'id'
+        return removeDuplicates(flat, 'id')
+    }, [data])
+
+    const activeFilters = useMemo(
+        () => checkedFilterKey?.filter((item) => item?.isActive) ?? [],
+        [checkedFilterKey]
+    )
+
+    const scrollToSection5 = () => {
+        if (!gridRef.current) return
+        if ((data?.pages?.length ?? 0) > 1) {
+            window.scrollTo({
+                top: gridRef.current.offsetTop - 500,
+                behavior: 'smooth',
+            })
+        }
+    }
+
+    const handleChange = (_event, newValue) => {
+        setFilterType(newValue)
+        setForFilter(true)
+        scrollToSection5()
+    }
+
+    const handleDelete = (itemId) => {
+        setCheckedFilterKey((prev) =>
+            prev.map((item) =>
+                item?.id === itemId ? { ...item, isActive: false } : item
             )
         )
-      }
-    } else {
-      if (offset === 1) {
-        setResData(res?.restaurants)
-      }
     }
-  }
-  const handleStoreData = () => {
-    if (data && data?.pages?.length > 0) {
-      data?.pages?.forEach((item) => {
-        successHandler(item)
-      })
-    }
-  }
-  useEffect(() => {
-    handleStoreData()
-  }, [data, forFilter, filterByData, filterType])
 
-  const scrollToSection5 = () => {
-    if (tabMenurefs.current) {
-      const section5Top = tabMenurefs.current.offsetTop
-      if (offset > 1) {
-        window.scrollTo({
-          top: section5Top - 500,
-          behavior: 'smooth',
-        })
-      }
-    }
-  }
+    const languageDirection =
+        typeof window !== 'undefined'
+            ? window.localStorage.getItem('direction')
+            : null
 
-  const handleChange = (event, newValue) => {
-    setFilterType(newValue)
-    setOffSet(1)
-    setForFilter(true)
-    scrollToSection5()
-    setIsFilterTrue(true)
-  }
-  useEffect(() => {
-    setForFilter(false)
-  }, [])
+    const showEmpty =
+        !isLoading &&
+        !isFetchingNextPage &&
+        restaurants.length === 0 &&
+        totalSize === 0
 
-  useEffect(() => {
+    return (
+        <RTL direction={languageDirection}>
+            <Grid container rowGap="1rem">
+                <Box id="all-restaurant-tabs" ref={topSentinelRef} />
 
-    if (inView) {
-      fetchNextPage()
-      setOffSet((prevState) => prevState + 1)
-    }
-  }, [inView])
+                <Grid item xs={12}>
+                    <Stack spacing={0.5}>
+                        <Stack
+                            direction="row"
+                            alignItems="center"
+                            spacing={1}
+                        >
+                            <Typography
+                                component="h2"
+                                sx={{
+                                    fontSize: { xs: 16, md: 22 },
+                                    fontWeight: { xs: 700, md: 800 },
+                                    lineHeight: 1.2,
+                                    color: (th) => th.palette.text.primary,
+                                    textAlign: 'left',
+                                }}
+                            >
+                                {t('Restaurants')}
+                                {totalSize ? (
+                                    <Typography
+                                        component="span"
+                                        sx={{
+                                            ml: 1,
+                                            fontSize: { xs: 13, md: 15 },
+                                            fontWeight: 600,
+                                            color: (th) =>
+                                                th.palette.text.secondary,
+                                        }}
+                                    >
+                                        ({totalSize})
+                                    </Typography>
+                                ) : null}
+                            </Typography>
+                        </Stack>
+                        <Typography
+                            sx={{
+                                fontSize: { xs: 12, md: 13.5 },
+                                color: (th) => th.palette.text.secondary,
+                            }}
+                        >
+                            {t(
+                                'Browse and filter restaurants to match your vibe.'
+                            )}
+                        </Typography>
+                    </Stack>
+                </Grid>
 
-  useEffect(() => {
-    if (forFilter) {
-      const apiRefetch = async () => {
-        setOffSet(1)
-        await refetch()
-      }
-
-      apiRefetch()
-    }
-  }, [forFilter, filterByData, filterType])
-  const languageDirection = localStorage.getItem('direction')
-  const handleDelete = (itemId) => {
-    const tempData = checkedFilterKey.map((items) =>
-        items?.id === itemId ? { ...items, isActive: false } : items
-    )
-    setCheckedFilterKey(tempData)
-  }
-  const getActiveFilter = checkedFilterKey?.filter((item) => item?.isActive)
-  return (
-      <RTL direction={languageDirection}>
-        <Grid
-            container
-            sx={{
-              paddingBlockStart: { xs: '0px', sm: '0rem' },
-              paddingBlockEnd: '2rem',
-            }}
-            rowGap="1rem"
-        >
-          <Box id="all-restaurant-tabs" />
-          <Grid
-              item
-              container
-              xs={12}
-              sm={12}
-              md={12}
-              justifyContent="space-between"
-              alignItems="center"
-              sx={{
-                borderBottom: `1px solid ${theme.palette.borderBottomBg}`,
-                position: 'sticky',
-                top: { xs: '93px', md: '60px' },
-                padding: '15px 10px 0px 0px',
-                zIndex: 1300,
-                background: theme.palette.neutral[1800],
-              }}
-          >
-            <Grid item xs={12} sm={12} md={4}>
-              <Stack direction="row" spacing={1}>
-                <CustomImageContainer
-                    src={restaurantIcon.src}
-                    width="26px"
-                    height="26px"
-                />
-                <Typography
-                    variant="h3"
-                    color={theme.palette.neutral[1000]}
-                    fontWeight="500"
-                    component="h2"
+                <Grid
+                    item
+                    xs={12}
+                    sx={{
+                        position: 'sticky',
+                        top: {
+                            xs: '57px',
+                            md: isNavHidden ? '58px' : '99px',
+                        },
+                        transition: 'top 0.25s ease',
+                        zIndex: 100,
+                        backgroundColor: (th) =>
+                            alpha(th.palette.background.default, 0.85),
+                        backdropFilter: 'saturate(180%) blur(10px)',
+                        WebkitBackdropFilter: 'saturate(180%) blur(10px)',
+                        borderBottom: (th) =>
+                            `1px solid ${th.palette.divider}`,
+                        paddingY: '10px',
+                    }}
                 >
-                  {data?.pages[0]?.total_size} {t('Restaurants')}
-                </Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} sm={12} md={8}>
-              <RestaurantTab
-                  filterByData={filterByData}
-                  setFilterByData={setFilterByData}
-                  filterType={filterType}
-                  handleChange={handleChange}
-                  mockData={mockData}
-                  setOffSet={setOffSet}
-                  setForFilter={setForFilter}
-                  responsiveTop={responsiveTop}
-                  forFilter={forFilter}
-                  setResData={setResData}
-                  scrollToSection5={scrollToSection5}
-                  offset={offset}
-                  isFilterTrue={isFilterTrue}
-                  checkedFilterKey={checkedFilterKey}
-                  setCheckedFilterKey={setCheckedFilterKey}
-              />
-            </Grid>
-          </Grid>
-          {getActiveFilter?.length > 0 && (
-              <Grid item xs={12} sm={12} md={12}>
-                {getActiveFilter?.map((item, i) => {
-                  return (
-                      <CustomChip
-                          label={item?.name}
-                          variant="outlined"
-                          onDelete={() => handleDelete(item?.id)}
-                          sx={{
-                            marginRight: '1rem',
-                            '&:hover': {
-                              color: (theme) =>
-                                  theme.palette.neutral[1000],
-                            },
-                            '& .MuiChip-deleteIcon': {
-                              // Styling the delete icon
-                              marginRight: '0px', // Example color
-                              marginLeft: '4px',
-                              color: '#a7a7a7 !important',
-                            },
-                          }}
-                      />
-                  )
-                })}
-              </Grid>
-          )}
+                    <RestaurantTab
+                        filterType={filterType}
+                        handleChange={handleChange}
+                        mockData={mockData}
+                        setFilterByData={setFilterByData}
+                        setOffSet={noop}
+                        setForFilter={setForFilter}
+                        forFilter={forFilter}
+                        scrollToSection5={scrollToSection5}
+                        checkedFilterKey={checkedFilterKey}
+                        setCheckedFilterKey={setCheckedFilterKey}
+                    />
+                </Grid>
 
-          <Grid
-              item
-              xs={12}
-              sm={12}
-              md={12}
-              container
-              spacing={2}
-              ref={tabMenurefs}
-          >
-            {data && (
-                <>
-                  {resData?.map((restaurantData) => (
-                      <Grid
-                          key={restaurantData?.id}
-                          item
-                          md={3}
-                          sm={matchesToMd ? 4 : 6}
-                          xs={12}
-                      >
-                        <RestaurantBoxCard
+                {activeFilters.length > 0 && (
+                    <Grid item xs={12} sm={12} md={12}>
+                        {activeFilters.map((item, i) => (
+                            <CustomChip
+                                key={`${item?.name}-${i}`}
+                                label={item?.name}
+                                variant="outlined"
+                                onDelete={() => handleDelete(item?.id)}
+                                sx={{
+                                    marginRight: '1rem',
+                                    '&:hover': {
+                                        color: (theme) =>
+                                            theme.palette.neutral[1000],
+                                    },
+                                    '& .MuiChip-deleteIcon': {
+                                        marginRight: '0px',
+                                        marginLeft: '4px',
+                                        color: '#a7a7a7 !important',
+                                    },
+                                }}
+                            />
+                        ))}
+                    </Grid>
+                )}
+
+                <Grid
+                    item
+                    xs={12}
+                    sm={12}
+                    md={12}
+                    container
+                    spacing={{ xs: 1.5, sm: 2, md: 2.5 }}
+                    ref={gridRef}
+                    sx={{
+                        minHeight: { xs: '20vh', md: '20vh' },
+                        width: '100%',
+                        marginInline: 0,
+                        '& > .MuiGrid-item': { maxWidth: '100%' },
+                    }}
+                >
+                    {restaurants.map((restaurantData) => (
+                        <Grid
                             key={restaurantData?.id}
-                            id={restaurantData.id}
-                            image={
-                              restaurantData?.cover_photo_full_url
-                            }
-                            name={restaurantData?.name}
-                            rating={restaurantData?.avg_rating}
-                            restaurantImageUrl={
-                              global?.base_urls
-                                  ?.restaurant_cover_photo_url
-                            }
-                            restaurantDiscount={
-                                restaurantData.discount &&
-                                restaurantData.discount
-                            }
-                            freeDelivery={
-                              restaurantData.free_delivery
-                            }
-                            open={restaurantData?.open}
-                            active={restaurantData?.active}
-                            delivery_time={
-                              restaurantData?.delivery_time
-                            }
-                            cuisines={restaurantData?.cuisine}
-                            coupons={restaurantData?.coupons}
-                            slug={restaurantData?.slug}
-                            zone_id={restaurantData?.zone_id}
-                            rating_count={
-                              restaurantData?.rating_count
-                            }
-                            opening_time={
-                              restaurantData?.current_opening_time
-                            }
-                            characteristics={
-                              restaurantData?.characteristics
-                            }
-                        />
-                      </Grid>
-                  ))}
-                </>
-            )}
-            <Stack ref={ref}></Stack>
-            {!isLoading && !isFetchingNextPage && (
-                <>
-                  {resData.length === 0 && (
-                      <Grid
-                          item
-                          xs={12}
-                          sm={12}
-                          md={12}
-                          sx={{
+                            item
+                            lg={4}
+                            md={4}
+                            sm={6}
+                            xs={12}
+                        >
+                            <NewStoreCard
+                                restaurant={{
+                                    ...restaurantData,
+                                    opening_time:
+                                        restaurantData?.current_opening_time,
+                                }}
+                            />
+                        </Grid>
+                    ))}
+
+                    <Box
+                        ref={bottomSentinelRef}
+                        aria-hidden
+                        sx={{
+                            gridColumn: '1 / -1',
+                            width: '100%',
+                            height: '1px',
+                        }}
+                    />
+
+                    {showEmpty && (
+                        <Grid
+                            item
+                            xs={12}
+                            sm={12}
+                            md={12}
+                            sx={{
+                                paddingBlockEnd: '30px',
+                                paddingBlockStart: '30px',
+                            }}
+                        >
+                            <CustomEmptyResult
+                                image={noData}
+                                label="No restaurant found"
+                            />
+                        </Grid>
+                    )}
+                </Grid>
+
+                {isFetchingNextPage && (
+                    <Grid
+                        item
+                        xs={12}
+                        sm={12}
+                        md={12}
+                        sx={{
                             paddingBlockEnd: '30px',
                             paddingBlockStart: '30px',
-                          }}
-                      >
-                        <CustomEmptyResult
-                            image={noData}
-                            label="No restaurant found"
-                        />
-                      </Grid>
-                  )}
-                </>
-            )}
-          </Grid>
-          {isFetchingNextPage && (
-              <Grid
-                  item
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  sx={{
-                    paddingBlockEnd: '30px',
-                    paddingBlockStart: '30px',
-                  }}
-              >
-                <Stack sx={{ minHeight: '30vh' }}>
-                  <DotSpin />
-                </Stack>
-              </Grid>
-          )}
-          {isLoading && !isFetchingNextPage && (
-              <Grid
-                  item
-                  xs={12}
-                  sm={12}
-                  md={12}
-                  sx={{
-                    paddingBlockEnd: '30px',
-                    paddingBlockStart: '30px',
-                  }}
-              >
-                <Stack sx={{ minHeight: '40vh' }}>
-                  <DotSpin />
-                </Stack>
-              </Grid>
-          )}
-        </Grid>
-      </RTL>
-  )
+                        }}
+                    >
+                        <Stack sx={{ minHeight: { xs: '20vh', md: '30vh' } }}>
+                            <DotSpin />
+                        </Stack>
+                    </Grid>
+                )}
+
+                {isLoading && !isFetchingNextPage && (
+                    <Grid
+                        item
+                        xs={12}
+                        sm={12}
+                        md={12}
+                        sx={{
+                            paddingBlockEnd: '30px',
+                            paddingBlockStart: '30px',
+                        }}
+                    >
+                        <Stack sx={{ minHeight: { xs: '20vh', md: '30vh' } }}>
+                            <DotSpin />
+                        </Stack>
+                    </Grid>
+                )}
+            </Grid>
+        </RTL>
+    )
 }
 
 export default Restaurant

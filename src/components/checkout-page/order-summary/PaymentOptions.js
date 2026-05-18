@@ -197,6 +197,7 @@ const PaymentOptions = (props) => {
                         setModalOpen={setOpenModal}
                         maxWidth="640px"
                         bgColor={theme.palette.customColor.ten}
+                        closeButton
                     >
                         <AllPaymentMethod
                             handleClose={() => setOpenModal(false)}

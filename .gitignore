@@ -38,3 +38,7 @@ yarn-.log*
 /.idea/
 /.idea
 .idea
+
+# Claude Code
+CLAUDE.md
+.claude/

@@ -48,6 +48,13 @@ export const RestaurantsApi = {
         }
     },
     typeWiseRestaurantList: ({ restaurantType, type, filterData }) => {
+        if (restaurantType === 'nearby') {
+            return MainApi.get(
+                `/api/v1/restaurants/get-restaurants/all?filter_data=near_by_restaurants
+
+`
+            )
+        }
         const cuisineId = filterData?.filterByCuisine?.map((item) => item?.id)
         return MainApi.get(
             `/api/v1/restaurants/${restaurantType}?type=${type}&discounted=${

@@ -37,6 +37,11 @@ const footerMiddleBg = '#343c4d'
 const divider = '#2D3748'
 const newsletterBG = '#2287FD'
 const nonVeg = '#EE7878'
+const offerChip = {
+    bg: 'rgba(236, 72, 153, 0.15)',
+    text: '#F472B6',
+    icon: '#F472B6',
+}
 const sectionBg = '#F5F6F80D'
 const cardBackground1 = '#1C1919'
 const cardBackground2 = 'rgba(255, 255, 255, 0.05)'
@@ -279,6 +284,7 @@ export const darkThemeOptions = {
         whiteText,
         footerTopBgColor,
         nonVeg,
+        offerChip,
         sectionBg,
         cardBackground1,
         cardBackground2,

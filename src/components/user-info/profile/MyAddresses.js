@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
@@ -18,6 +18,7 @@ import { noAddressFound } from '@/utils/LocalImages'
 
 const MyAddresses = () => {
     const theme = useTheme()
+    const [isDefault, setIsDefault] = useState(0)
     const isXs = useMediaQuery(theme.breakpoints.down('sm'))
     const { data, refetch, isFetching } = useQuery(
         ['address-list'],
@@ -59,31 +60,33 @@ const MyAddresses = () => {
                     <Grid container spacing={1.5}>
                         {data?.data?.addresses.length > 0
                             ? data?.data?.addresses.map((address) => (
-                                  <Grid item xs={12} md={6} key={address?.id}>
-                                      <AddressCard
-                                          address={address}
-                                          refetch={refetch}
-                                      />
-                                  </Grid>
-                              ))
+                                <Grid item xs={12} md={6} key={address?.id}>
+                                    <AddressCard
+                                        address={address}
+                                        refetch={refetch}
+                                        isDefault={isDefault}
+                                        setIsDefault={setIsDefault}
+                                    />
+                                </Grid>
+                            ))
                             : isFetching && (
-                                  <>
-                                      <Grid item xs={12} md={6}>
-                                          <Skeleton
-                                              variant="rounded"
-                                              width="100%"
-                                              height={150}
-                                          />
-                                      </Grid>
-                                      <Grid item xs={12} md={6}>
-                                          <Skeleton
-                                              variant="rounded"
-                                              width="100%"
-                                              height={150}
-                                          />
-                                      </Grid>
-                                  </>
-                              )}
+                                <>
+                                    <Grid item xs={12} md={6}>
+                                        <Skeleton
+                                            variant="rounded"
+                                            width="100%"
+                                            height={150}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <Skeleton
+                                            variant="rounded"
+                                            width="100%"
+                                            height={150}
+                                        />
+                                    </Grid>
+                                </>
+                            )}
                     </Grid>
                 )}
             </CustomStackFullWidth>

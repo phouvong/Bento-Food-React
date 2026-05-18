@@ -32,6 +32,11 @@ const footerTopBgColor = '#00000050'
 const footerCenterBg = '#2f3645'
 const footerMiddleBg = '#343c4d'
 const nonVeg = '#EE7878'
+const offerChip = {
+    bg: '#FDE7EF',
+    text: '#BE185D',
+    icon: '#EC4899',
+}
 const cardBackground1 = '#FFFFFF'
 const cardBackground2 = '#FFFFFF'
 
@@ -315,6 +320,7 @@ export const lightThemeOptions = {
         whiteText,
         footerTopBgColor,
         nonVeg,
+        offerChip,
         sectionBg,
         cardBackground1,
         cardBackground2,

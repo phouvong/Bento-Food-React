@@ -21,7 +21,9 @@ const FoodModalTopSection = ({
     isInList,
     addToFavorite,
     deleteWishlistItem,
+    global
 }) => {
+    console.log({ global })
     const router = useRouter()
     let languageDirection = undefined
     if (typeof window !== 'undefined') {
@@ -52,7 +54,7 @@ const FoodModalTopSection = ({
                     right: 4,
                     backgroundColor: 'rgba(255, 255, 255, 0.7)',
                     borderRadius: '50%',
-                    padding:"6px",
+                    padding: "6px",
                     '&:hover': {
                         backgroundColor: alpha('rgba(255, 255, 255, 0.7)', 0.5),
                     },
@@ -65,20 +67,12 @@ const FoodModalTopSection = ({
                 width="475"
                 height="167"
                 borderRadius="5px"
-                objectFit={image?"cover":"contain"}
+                objectFit={image ? "cover" : "contain"}
             />
-            <CustomStackForFoodModal width="100%" spacing={2}>
-                <Stack
-                    spacing={1.4}
-                    alignItems={languageDirection === 'rtl' ? 'end' : 'start'}
-                >
-                    {!product?.available_date_ends && (
-                        <FoodRating product_avg_rating={product?.avg_rating} />
-                    )}
-                    <Stack
+              <Stack
                         position="absolute"
-                        bottom="20%"
-                        left="28%"
+                        top="2%"
+                        left=""
                         zIndex="999"
                     >
                         {handleBadge(
@@ -89,6 +83,15 @@ const FoodModalTopSection = ({
 
                         )}
                     </Stack>
+            <CustomStackForFoodModal width="100%" spacing={2}>
+                <Stack
+                    spacing={1.4}
+                    alignItems={languageDirection === 'rtl' ? 'end' : 'start'}
+                >
+                    {!product?.available_date_ends && (
+                        <FoodRating product_avg_rating={product?.avg_rating} />
+                    )}
+                  
 
                     {router.pathname !== `/restaurants/[id]` ? (
                         <Typography
@@ -143,7 +146,7 @@ const FoodModalTopSection = ({
                     </>
                 )}
             </CustomStackForFoodModal>
-        </CustomStackFullWidth>
+        </CustomStackFullWidth >
     )
 }
 

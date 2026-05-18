@@ -23,11 +23,13 @@ import Navigation from '@/components/navbar'
 import ScrollToTop from '@/components/scroll-top/ScrollToTop'
 import DynamicFavicon from '@/components/favicon/DynamicFavicon'
 import FloatingCardManagement from '@/components/floating-cart/FloatingCardManagement'
+import useScrollToTop from '@/hooks/custom-hooks/useScrollToTop'
 
 import '@/language/i18n'
 import i18n, { t } from 'i18next'
 import '@/styles/global.css'
 import '@/styles/nprogress.css'
+import SubscribeServices from '@/components/home/subscribe-services/SubscribeServices'
 
 const Footer = dynamic(() => import('@/components/footer/Footer'), { ssr: false })
 
@@ -43,6 +45,8 @@ const App = ({ Component, pageProps, emotionCache = clientSideEmotionCache }) =>
   const router = useRouter()
   const [zoneid, setZoneid] = useState(undefined)
   const [viewFooter, setViewFooter] = useState(false)
+
+  useScrollToTop()
 
   const getLayout = Component.getLayout ?? ((page) => page)
   // Language & zoneid logic
@@ -69,6 +73,8 @@ const App = ({ Component, pageProps, emotionCache = clientSideEmotionCache }) =>
   }, [router])
 
   return (
+    <>
+    {useScrollToTop()}
     <CacheProvider value={emotionCache}>
       <QueryClientProvider client={queryClient}>
         <Provider store={store}>
@@ -99,11 +105,11 @@ const App = ({ Component, pageProps, emotionCache = clientSideEmotionCache }) =>
                       sx={{
                         minHeight: '60vh',
                         mt: {
-                          xs: router.pathname === '/home' ? '2.5rem' : '3.5rem',
+                          xs: router.pathname === '/home' ? '2.5rem' : '4.5rem',
                           md: router.pathname === '/'
                             ? zoneid
                               ? '120px'
-                              : '64px'
+                              : '74px'
                             : '4rem',
                         },
                       }}
@@ -117,7 +123,10 @@ const App = ({ Component, pageProps, emotionCache = clientSideEmotionCache }) =>
                     </Box>
 
                     {viewFooter && router.pathname !== '/maintenance' && (
-                      <Footer languageDirection={settings.direction} />
+                      <>
+                       
+                        <Footer languageDirection={settings.direction} />
+                      </>
                     )}
                   </WrapperForApp>
                 </ThemeProvider>
@@ -129,6 +138,7 @@ const App = ({ Component, pageProps, emotionCache = clientSideEmotionCache }) =>
         <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
       </QueryClientProvider>
     </CacheProvider>
+    </>
   )
 }
 

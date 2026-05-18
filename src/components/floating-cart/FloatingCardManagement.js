@@ -15,9 +15,9 @@ const FloatingCardManagement = ({ zoneid }) => {
                 sideDrawerOpen={sideDrawerOpen}
                 setSideDrawerOpen={setSideDrawerOpen}
             />
-            {showBottomNav && (
+            
                 <BottomNav setSideDrawerOpen={setSideDrawerOpen} />
-            )}
+            
         </>
     )
 }

@@ -4,9 +4,10 @@ import { onErrorResponse } from '@/components/ErrorResponse'
 import { useEffect } from 'react'
 
 export const useGetAllCategories = (searchKey) => {
+    const normalizedSearchKey = searchKey ?? ''
     const { data, refetch } = useQuery(
-        ['category'],
-        () => CategoryApi.categories(searchKey),
+        ['category', normalizedSearchKey],
+        () => CategoryApi.categories(normalizedSearchKey),
         {
             onError: onErrorResponse,
         }

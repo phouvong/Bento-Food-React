@@ -142,6 +142,12 @@ const RestaurantDetails = ({ restaurantData }) => {
     const { ref, inView } = useInView()
     const isHidden = useHideOnScroll({ threshold: 50 })
     const [removeStickyBanner, setRemoveStickyBanner] = useState(false)
+    // Detect when the category bar is about to start sticking, so TopBanner can
+    // wait and become fixed at the same scroll position (no early jump).
+    const { ref: stickyTriggerRef, inView: stickyTriggerInView } = useInView({
+        rootMargin: `-${isHidden ? 162 : 203}px 0px 0px 0px`,
+    })
+    const isCategoryBarSticky = !stickyTriggerInView
     const handleOnSuccess = (res) => {
         setAllFoods(res?.data?.products)
     }
@@ -194,6 +200,13 @@ const RestaurantDetails = ({ restaurantData }) => {
     useEffect(() => {
         setSearchKey('')
         setSelectedId(null)
+        setCheckedFilterKey(
+            restaurantFoodMockData.map((item) => ({
+                ...item,
+                isActive: false,
+            }))
+        )
+        setPriceAndRating({ price: [], rating: 0 })
     }, [restaurantId])
 
     useEffect(() => {
@@ -293,11 +306,15 @@ const RestaurantDetails = ({ restaurantData }) => {
                         details={restaurantData}
                         isHidden={isHidden}
                         removeStickyBanner={removeStickyBanner}
+                        isCategoryBarSticky={isCategoryBarSticky}
                     />
                 )}
                 <CustomStackFullWidth>
                     {!isFirstRender && (
                         <>
+                            {/* Sentinel: when this 1px node scrolls above the sticky-top
+                                threshold, the category bar is about to stick → TopBanner becomes fixed */}
+                          
                             <RestaurantCategoryBar
                                 data={data}
                                 selectedId={selectedId}

@@ -1,262 +1,276 @@
-import React, { useState } from 'react'
-import { alpha, Button, Grid, Stack, Typography } from '@mui/material'
-import LocalShippingIcon from '@mui/icons-material/LocalShipping'
-import { TrackButton } from './OrderHistory.style'
-import { getAmount } from '@/utils/customFunctions'
-import { useDispatch, useSelector } from 'react-redux'
-import { useTranslation } from 'react-i18next'
-import { useRouter } from 'next/router'
-import CustomFormatedDateTime from '../date/CustomFormatedDateTime'
-import CustomImageContainer from '../CustomImageContainer'
-import { setDeliveryManInfoByDispatch } from '@/redux/slices/searchFilter'
+import React, { useState } from "react";
 import {
-    CustomColouredTypography,
-    CustomStackFullWidth,
-} from '@/styled-components/CustomStyles.style'
-import startReview from '../../../public/static/star-review.png'
-import Card from '@mui/material/Card'
-import { useTheme } from '@mui/material/styles'
-import useMediaQuery from '@mui/material/useMediaQuery'
-import ReviewSideDrawer from '@/components/order-details/ReviewSideDrawer'
-import CustomNextImage from '@/components/CustomNextImage'
+  alpha,
+  Button,
+  Card,
+  Stack,
+  Typography,
+} from "@mui/material";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+import { useRouter } from "next/router";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
-const OrderCard = ({ order, index, offset, limit, refetch }) => {
-    const { t } = useTranslation()
-    const router = useRouter()
-    const theme = useTheme()
-    const [openReviewModal, setOpenReviewModal] = useState(false)
-    const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
-    const { global } = useSelector((state) => state.globalSettings)
-    let currencySymbol
-    let currencySymbolDirection
-    let digitAfterDecimalPoint
+import { getAmount } from "@/utils/customFunctions";
+import CustomFormatedDateTime from "../date/CustomFormatedDateTime";
+import CustomNextImage from "@/components/CustomNextImage";
+import ReviewSideDrawer from "@/components/order-details/ReviewSideDrawer";
+import { setDeliveryManInfoByDispatch } from "@/redux/slices/searchFilter";
 
-    if (global) {
-        currencySymbol = global.currency_symbol
-        currencySymbolDirection = global.currency_symbol_direction
-        digitAfterDecimalPoint = global.digit_after_decimal_point
+const OrderCard = ({ order, refetch }) => {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const theme = useTheme();
+  const dispatch = useDispatch();
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [openReviewModal, setOpenReviewModal] = useState(false);
+
+  const { global } = useSelector((state) => state.globalSettings);
+
+  const currencySymbol = global?.currency_symbol;
+  const currencySymbolDirection = global?.currency_symbol_direction;
+  const digitAfterDecimalPoint = global?.digit_after_decimal_point;
+
+  const handleClick = () => {
+    if (order?.delivery_man) {
+      dispatch(setDeliveryManInfoByDispatch(order.delivery_man));
     }
-    const dispatch = useDispatch()
-    const handleClick = () => {
-        if (order?.delivery_man) {
-            dispatch(setDeliveryManInfoByDispatch(order?.delivery_man))
-        }
-        router.push(
-            { pathname: '/info', query: { page: 'order', orderId: order?.id } },
-            undefined,
-            { shallow: true }
-        )
+    router.push({
+      pathname: "/info",
+      query: { page: "order", orderId: order?.id },
+    });
+  };
+
+  const handleTrackOrder = () => {
+    if (order?.delivery_man) {
+      dispatch(setDeliveryManInfoByDispatch(order.delivery_man));
     }
-    const serialNumber = (offset - 1) * limit + index + 1
-    const handleClickTrackOrder = () => {
-        if (order?.delivery_man) {
-            dispatch(setDeliveryManInfoByDispatch(order?.delivery_man))
-        }
-        router.push({
-            pathname: '/info',
-            query: {
-                page: 'order',
-                orderId: order?.id,
-                isTrackOrder: true,
-            },
-        })
+    router.push({
+      pathname: "/info",
+      query: {
+        page: "order",
+        orderId: order?.id,
+        isTrackOrder: true,
+      },
+    });
+  };
+
+  const handleReviewClick = () => {
+    dispatch(setDeliveryManInfoByDispatch(order?.delivery_man));
+    setOpenReviewModal(true);
+  };
+
+  const getStatusColor = () => {
+    switch (order?.order_status) {
+      case "pending":
+        return theme.palette.warning.main;
+      case "confirmed":
+        return theme.palette.info.main;
+      case "processing":
+        return theme.palette.info.main;
+      case "out_for_delivery":
+        return theme.palette.primary.main;
+      case "delivered":
+        return theme.palette.success.main;
+      case "canceled":
+      case "failed":
+        return theme.palette.error.main;
+      default:
+        return theme.palette.text.secondary;
     }
-    const handleRateButtonClick = () => {
-        dispatch(setDeliveryManInfoByDispatch(order?.delivery_man))
-        setOpenReviewModal(true)
-    }
-    const deliveredInformation = () => (
-        <>
-            {!order?.is_reviewed && (
-                <Stack
-                    flexDirection="row"
-                    gap="20px"
-                    justifyContent="flex-end"
-                    pt={{ xs: '10px', sm: '0px', md: '0px' }}
-                >
-                    <Button
-                        onClick={() => handleRateButtonClick()}
-                        variant="outlined"
-                        sx={{
-                            p: {
-                                xs: '5px',
-                                sm: '5px',
-                                md: '6px',
-                            },
-                        }}
-                    >
-                        <Stack
-                            alignItems="center"
-                            justifyContent="space-between"
-                            direction="row"
-                            gap={{ xs: '5px', sm: '6px', md: '10px' }}
-                            flexWrap="wrap"
-                        >
-                            <CustomNextImage
-                                src={startReview.src}
-                                width={isXSmall?'15':'20'}
-                                height={isXSmall?'15':'20'}
-                            />
-                            <CustomColouredTypography
-                                color="primary"
-                                fontWeight={600}
-                                fontSize="14px"
-                                smallFont="12px"
-                            >
-                                {t('Give Review')}
-                            </CustomColouredTypography>
-                        </Stack>
-                    </Button>
-                </Stack>
-            )}
-        </>
-    )
-    const notDeliveredInformation = () => (
-        <Stack spacing={1} alignItems="flex-end">
-            {order?.order_status !== 'delivered' &&
-                order?.order_status !== 'failed' &&
-                order?.order_status !== 'canceled' &&
-                order?.order_status !== 'refund_requested' &&
-                order?.order_status !== 'refunded' &&
-                order?.order_type !== 'dine_in' &&
-                order?.order_type !== 'take_away' && (
-                    <Stack flexWrap="wrap">
-                        <TrackButton
-                            size="small"
-                            onClick={() => handleClickTrackOrder()}
-                            sx={{ padding: { xs: '7px 7px' }, height: '30px' }}
-                        >
-                            <LocalShippingIcon sx={{ fontSize: '14px' }} />
-                            {t('Track Order')}
-                        </TrackButton>
-                    </Stack>
-                )}
-        </Stack>
-    )
-    const themeColor = theme.palette.success.main
-    return (
-        <>
-            <Card
-                padding="1rem"
-                sx={{
-                    backgroundColor:
-                        theme.palette.mode === 'dark'
-                            ? (theme) => theme.palette.cardBackground1
-                            : isXSmall
-                            ? 'white'
-                            : (theme) => alpha(theme.palette.neutral[200], 0.6),
-                    padding: '1rem',
-                    width: '100%',
-                    borderRadius: '5px',
-                    marginBottom: '10px',
-                    cursor: 'pointer',
-                }}
+  };
+
+  return (
+    <>
+      <Card
+        onClick={handleClick}
+        sx={{
+          p: { xs: 1.25, sm: 2 },
+          borderRadius: 1,
+          cursor: "pointer",
+          backgroundColor: alpha(theme.palette.neutral[200], 0.5),
+          boxShadow: 1,
+        }}
+      >
+        <Stack spacing={{ xs: 1, sm: 1.2 }}>
+          {/* TOP ROW */}
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="flex-start"
+            spacing={1}
+          >
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              sx={{ minWidth: 0, flex: 1 }}
             >
-                <Grid
-                    container
-                    alignItems={{ xs: 'flex-start', md: 'center' }}
-                    spacing={1}
+              {/* Restaurant Logo */}
+              <CustomNextImage
+                src={order?.restaurant?.logo_full_url}
+                width={isMobile ? 36 : 40}
+                height={isMobile ? 36 : 40}
+                borderRadius="50%"
+              />
+
+              <Stack sx={{ minWidth: 0, flex: 1 }}>
+                <Stack
+                  direction="row"
+                  spacing={0.75}
+                  alignItems="center"
+                  flexWrap="wrap"
+                  rowGap={0.5}
                 >
-                    {!isXSmall && (
-                        <Grid item xs={2} sm={1} md={1} textAlign="center">
-                            {serialNumber}
-                        </Grid>
-                    )}
+                  <Typography
+                    fontWeight={600}
+                    fontSize={{ xs: 13, sm: 14 }}
+                    noWrap
+                  >
+                    Order #{order?.id}
+                  </Typography>
 
-                    <Grid item xs={9} sm={4.5} md={4}>
-                        <CustomStackFullWidth
-                            direction="row"
-                            spacing={2}
-                            onClick={handleClick}
-                        >
-                            <CustomNextImage
-                                src={order?.restaurant?.logo_full_url}
-                                width="60"
-                                height="60"
-                                borderRadius="5px"
-                                objectFit="cover"
-                            />
-                            <Stack>
-                                <Typography
-                                    fontSize={{ xs: '13px', md: '14px' }}
-                                    fontWeight="600"
-                                >
-                                    {order?.restaurant?.name}
-                                </Typography>
-                                <CustomColouredTypography
-                                    fontSize="12px"
-                                    fontWeight="400"
-                                    sx={{
-                                        textTransform: ' capitalize',
-                                        color:
-                                            order?.order_status ===
-                                                'delivered' && themeColor,
-                                    }}
-                                >
-                                    {order?.order_type === 'dine_in' &&
-                                    order?.order_status === 'delivered'
-                                        ? t('Served')
-                                        : order?.order_type === 'dine_in' &&
-                                          order?.order_status === 'handover'
-                                        ? t('Ready to serve')
-                                        : order?.order_status === 'failed'
-                                        ? t('Payment Failed')
-                                        : t(order?.order_status).replaceAll(
-                                              '_',
-                                              ' '
-                                          )}
-                                </CustomColouredTypography>
-                                <Typography
-                                    fontSize="12px"
-                                    fontWeight="400"
-                                    color={theme.palette.neutral[400]}
-                                >
-                                    {order?.order_status === 'delivered' ? (
-                                        <CustomFormatedDateTime
-                                            date={order?.delivered}
-                                        />
-                                    ) : (
-                                        <CustomFormatedDateTime
-                                            date={order?.created_at}
-                                        />
-                                    )}
-                                </Typography>
-                            </Stack>
-                        </CustomStackFullWidth>
-                    </Grid>
-                    <Grid item xs={3} sm={2} md={2.5}>
-                        <Typography
-                            fontSize={isXSmall ? '13px' : '16px'}
-                            fontWeight="500"
-                            textAlign={isXSmall ? 'left' : 'center'}
-                        >
-                            {getAmount(
-                                order?.order_amount,
-                                currencySymbolDirection,
-                                currencySymbol,
-                                digitAfterDecimalPoint
-                            )}
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={4.5} md={4.5} align="right">
-                        {(order?.order_status === 'delivered' &&
-                            !order?.is_reviewed) ||
-                        (order?.order_status === 'delivered' &&
-                            !order?.is_reviewed &&
-                            !order?.is_dm_reviewed)
-                            ? deliveredInformation()
-                            : notDeliveredInformation()}
-                    </Grid>
-                </Grid>
-                <ReviewSideDrawer
-                    open={openReviewModal}
-                    onClose={() => setOpenReviewModal(false)}
-                    orderId={order?.id}
-                    refetch={refetch}
-                />
-            </Card>
-        </>
-    )
-}
+                  {/* Status Badge */}
+                  <Typography
+                    sx={{
+                      px: 1,
+                      py: "2px",
+                      borderRadius: 1,
+                      fontSize: { xs: 10.5, sm: 12 },
+                      fontWeight: 500,
+                      bgcolor: alpha(getStatusColor(), 0.15),
+                      color: getStatusColor(),
+                      textTransform: "capitalize",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {t(order?.order_status).replaceAll("_", " ")}
+                  </Typography>
+                </Stack>
+                <Typography
+                  fontSize={{ xs: 11, sm: 12 }}
+                  color="text.secondary"
+                >
+                  <CustomFormatedDateTime date={order?.created_at} />
+                </Typography>
+              </Stack>
+            </Stack>
 
-export default OrderCard
+            {/* Amount */}
+            <Typography
+              fontWeight={700}
+              fontSize={{ xs: 14, sm: 16 }}
+              sx={{ whiteSpace: "nowrap", flexShrink: 0 }}
+            >
+              {getAmount(
+                order?.order_amount,
+                currencySymbolDirection,
+                currencySymbol,
+                digitAfterDecimalPoint
+              )}
+            </Typography>
+          </Stack>
+
+          {/* ITEMS + ORDER TYPE */}
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            justifyContent="space-between"
+            alignItems={{ xs: "stretch", sm: "center" }}
+            spacing={{ xs: 1, sm: 0 }}
+            sx={{
+              backgroundColor: theme.palette.neutral[100],
+              p: 1,
+              borderRadius: 1,
+            }}
+          >
+            <Typography fontSize={{ xs: 12, sm: 13 }} color="text.secondary">
+              {order?.details_count ?? order?.details?.length ?? 0}{" "}
+              {t("Items")}
+              &nbsp; | &nbsp;
+              <span
+                style={{
+                  textTransform: "capitalize",
+                  color:
+                    order?.order_type === "delivery"
+                      ? "#4CAF50"
+                      : order?.order_type === "take_away"
+                      ? "#2196F3"
+                      : order?.order_type === "dine_in"
+                      ? "#FF9800"
+                      : "inherit",
+                }}
+              >
+                {t(order?.order_type?.replace("_", " "))}
+              </span>
+            </Typography>
+
+            {/* ACTION BUTTONS */}
+            {order?.order_status === "delivered" && !order?.is_reviewed ? (
+              <Button
+                size="small"
+                variant="outlined"
+                fullWidth={isMobile}
+                onPointerDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReviewClick();
+                }}
+                sx={{
+                  borderRadius: 2,
+                  textTransform: "none",
+                  color: "#FF9800",
+                  fontSize: { xs: 12, sm: 13 },
+                }}
+              >
+                ⭐ {t("Give Review")}
+              </Button>
+            ) : order?.order_status !== "delivered" &&
+              order?.order_status !== "canceled" &&
+              order?.order_status !== "failed" ? (
+              <Button
+                size="small"
+                variant="contained"
+                fullWidth={isMobile}
+                startIcon={<LocalShippingIcon />}
+                onPointerDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleTrackOrder();
+                }}
+                sx={{
+                  borderRadius: 1,
+                  textTransform: "none",
+                  px: 2,
+                  fontSize: { xs: 12, sm: 13 },
+                  backgroundColor: "#ff7a00",
+                  "&:hover": {
+                    backgroundColor: "#e56d00",
+                  },
+                }}
+              >
+                {t("Track Order")}
+              </Button>
+            ) : null}
+          </Stack>
+        </Stack>
+      </Card>
+
+      {/* REVIEW DRAWER */}
+      <ReviewSideDrawer
+        open={openReviewModal}
+        onClose={() => setOpenReviewModal(false)}
+        orderId={order?.id}
+        refetch={refetch}
+      />
+    </>
+  );
+};
+
+export default OrderCard;

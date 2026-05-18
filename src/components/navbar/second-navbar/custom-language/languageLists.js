@@ -4,25 +4,25 @@ import banFlag from '../../../../../public/static/country-flag/bangladesh (1).pn
 import spanFlag from '../../../../../public/static/country-flag/spain.png'
 export const languageLists = [
     {
-        languageName: 'Arabic',
+        languageName: 'Arabic (عربي)',
         languageCode: 'ar',
         countryCode: 'SA',
         countryFlag: arFlag.src,
     },
     {
-        languageName: 'English',
+        languageName: 'English (English)',
         languageCode: 'en',
         countryCode: 'US',
         countryFlag: usFlag.src,
     },
     {
-        languageName: 'Spanish',
+        languageName: 'Spanish (español)',
         languageCode: 'es',
         countryCode: 'es',
         countryFlag: spanFlag.src,
     },
     {
-        languageName: 'Bengali',
+        languageName: 'Bangla (বাংলা)',
         languageCode: 'bn',
         countryCode: 'BN',
         countryFlag: banFlag.src,

@@ -96,6 +96,7 @@ const BasicInformationForm = ({
                                 width: '147px',
                                 borderRadius: '50%',
                                 marginLeft: { xs: 0, md: '-25px' },
+                                
                             }}
                         >
                             <ImageUploaderWithPreview
@@ -106,7 +107,7 @@ const BasicInformationForm = ({
                                 isIcon
                                 onChange={singleFileUploadHandlerForImage}
                                 imageOnChange={imageOnchangeHandlerForImage}
-                                width="10.75rem"
+                                        width="200px"
                                 imageUrl={customerImageUrl}
                                 borderRadius="20px"
                             />

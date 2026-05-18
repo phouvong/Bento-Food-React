@@ -1,4 +1,5 @@
 import { ACTIONS } from '@/components/auth/states'
+import { CustomToaster } from '../custom-toaster/CustomToaster'
 
 export const getActiveLoginStatus = (state, setForWidth, loginDispatch) => {
     const { otp, manual, social } = state.activeLoginType
@@ -59,6 +60,7 @@ export const getLoginUserCheck = (
     if (isPhoneVerified && isEmailVerified) {
         handleTokenAfter(response?.data)
     } else {
+        CustomToaster('success', 'Registration successful.Please verify your OTP.')
         if (!isPhoneVerified && !isEmailVerified) {
             setOtpData({
                 ...response?.data,

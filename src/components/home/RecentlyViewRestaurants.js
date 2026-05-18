@@ -1,12 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import CustomShimmerCategories from '../CustomShimmer/CustomShimmerCategories'
 import { Grid } from '@mui/material'
-import {
-    CustomStackFullWidth,
-    CustomViewAll,
-    SliderCustom,
-} from '@/styled-components/CustomStyles.style'
-import { CustomTypography } from '../custom-tables/Tables.style'
+import { SliderCustom } from '@/styled-components/CustomStyles.style'
 import { t } from 'i18next'
 import Slider from 'react-slick'
 import { useRouter } from 'next/router'
@@ -14,6 +9,7 @@ import { useRecentlyViewRestaurants } from '@/hooks/react-query/recently-view-re
 import RestaurantBoxCard from '../restaurant-details/RestaurantBoxCard'
 import { useSelector } from 'react-redux'
 import { recentlySettings } from './recentlySettings'
+import SliderSectionHeader from '@/components/slider-section-header/SliderSectionHeader'
 
 const RecentlyViewRestaurants = () => {
     const router = useRouter()
@@ -36,30 +32,23 @@ const RecentlyViewRestaurants = () => {
             {data?.length > 0 && token && (
                 <Grid container sx={{ paddingTop: '20px' }}>
                     <Grid item xs={12} md={12}>
-                        <CustomStackFullWidth
-                            direction="row"
-                            alignItems="center"
-                            justifyContent="space-between"
-                            padding="0px 10px"
-                        >
-                            <CustomTypography variant="h3" fontWeight="700">
-                                {t('Your Restaurants')}
-                            </CustomTypography>
-                            <CustomViewAll
-                                variant="text"
-                                onClick={() =>
-                                    router.push('/recently-view-restaurant')
-                                }
-                            >
-                                {t('View all')}
-                            </CustomViewAll>
-                        </CustomStackFullWidth>
+                        <SliderSectionHeader
+                            title={t('Your Restaurants')}
+                            sliderRef={sliderRef}
+                            itemsCount={data?.length}
+                            viewAllText={t('View all')}
+                            onViewAll={() =>
+                                router.push('/recently-view-restaurant')
+                            }
+                            sx={{ px: '10px' }}
+                        />
                     </Grid>
                     {data && data?.length > 0 && (
                         <Grid item xs={12} md={12}>
-                            <SliderCustom gap="10px">
+                            <SliderCustom gap="16px">
                                 <Slider
                                     {...recentlySettings}
+                                    arrows={false}
                                     ref={sliderRef}
                                     className="slick__slider"
                                 >

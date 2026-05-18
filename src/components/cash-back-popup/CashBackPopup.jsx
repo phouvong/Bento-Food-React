@@ -22,7 +22,7 @@ const CashBackPopup = () => {
     const { global } = useSelector((state) => state.globalSettings)
 
     useEffect(() => {
-        if (!cashbackList) refetch()
+       refetch()
     }, [])
 
     const handleScrolling = () => {
@@ -182,8 +182,30 @@ const CustomPopupBox = styled(Box)(({ theme }) => ({
     insetInlineEnd: '23px',
     zIndex: '1000000',
     overflowY: 'auto',
+    overflowX: 'hidden',
+    scrollbarGutter: 'stable',
+    scrollbarWidth: 'thin',
+    scrollbarColor: `${alpha(theme.palette.neutral[400], 0.85)} ${alpha(
+        theme.palette.neutral[200],
+        0.55
+    )}`,
+    '&::-webkit-scrollbar': {
+        width: '4px',
+    },
+    '&::-webkit-scrollbar-track': {
+        backgroundColor: alpha(theme.palette.neutral[200], 0.55),
+        borderRadius: '10px',
+    },
+    '&::-webkit-scrollbar-thumb': {
+        backgroundColor: alpha(theme.palette.neutral[400], 0.85),
+        borderRadius: '10px',
+        minHeight: '20px',
+    },
+    '&::-webkit-scrollbar-thumb:hover': {
+        backgroundColor: alpha(theme.palette.neutral[400], 0.95),
+    },
     width: '293px',
-    maxHeight: 'calc(100dvh - 260px)',
+    maxHeight: 'calc(100dvh - 460px)',
     [theme.breakpoints.down('lg')]: {
         bottom: '130px',
     },

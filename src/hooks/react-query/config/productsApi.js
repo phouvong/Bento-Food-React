@@ -164,6 +164,8 @@ export const ProductsApi = {
         filterData,
         restaurantType
     ) => {
+        console.log({filterData});
+        
         const cuisineId = filterData?.filterByCuisine?.map((item) => item?.id)
         const type = filterData?.filterBy?.veg
             ? 'veg'
@@ -175,7 +177,7 @@ export const ProductsApi = {
             return MainApi.get(
                 `/api/v1/${search_type}/search?name=${
                     value === undefined ? null : value
-                }&offset=${offset}&limit=${page_limit}&type=${type}&new=${
+                }&offset=${offset}&limit=${search_type==="products" ? page_limit : 20}&type=${type}&new=${
                     filterData?.filterBy?.new ? 1 : 0
                 }&popular=${
                     filterData?.filterBy?.popular ? 1 : 0

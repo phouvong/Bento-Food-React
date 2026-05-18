@@ -7,19 +7,20 @@ const FoodCardShimmer = (props) => {
     const { cardWidth = '100%', cardHeight = '100%' } = props
 
     return (
-        <CustomFoodCardNew width="375px" height={cardHeight}>
-            <Stack spacing={1.5} width={cardWidth}>
+        <CustomFoodCardNew width={cardWidth} height={cardHeight}>
+            <Stack spacing={1.5} width="100%">
                 <Skeleton
                     width="100%"
                     height="170px"
                     variant="rectangular"
                     animation="wave"
+                    sx={{ borderRadius: '12px' }}
                 />
                 <Skeleton width="50px" height="20px" variant="text" />
                 <Skeleton width="100px" height="20px" variant="text" />
                 <Stack direction="row" justifyContent="space-between">
                     <Skeleton width="150px" height="20px" />
-                    <Skeleton width="30px" height="50px" />
+                    <Skeleton width="30px" height="20px" />
                 </Stack>
             </Stack>
         </CustomFoodCardNew>

@@ -26,7 +26,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
     flexDirection: 'column',
     flexGrow: 1,
     // overflow: 'hidden',
-    minHeight: '60vh',
+    minHeight: '50vh',
     height: '100%',
     justifyContent: 'space-between',
 }))
@@ -53,12 +53,11 @@ const ChatView = ({
     const classes = useStyles()
     return (
         <StyledBox>
-        
             <Box
                 sx={{
-                    overflowY: 'scroll',
-                    height: '60vh',
-                    maxHeight: '60vh',
+                    overflowY: 'auto',
+                    height: { xs: '60vh', md: '60vh' },
+                    scrollBehavior: 'smooth',
                 }}
                 onScroll={handleScroll}
                 className={classes.root}
@@ -70,7 +69,7 @@ const ChatView = ({
                     />
                 )}
                 {messageIsLoading && <LoadingBox />}
-            
+
             </Box>
 
             <ChatMessageAdd onSend={handleChatMessageSend} />

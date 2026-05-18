@@ -1,4 +1,5 @@
 import React from 'react'
+import CheckIcon from '@mui/icons-material/Check'
 import PropTypes from 'prop-types'
 import { CustomBoxFullWidth } from '@/styled-components/CustomStyles.style'
 import {
@@ -27,13 +28,20 @@ const CustomSelectWithFormik = (props) => {
         height,
         borderRadius,
         background,
+        backgroundColor,
+        bgColor,
         startIcon,
         fieldSetGap, // Will add this to InputLabel
+        placeholder,
     } = props
 
     const [age, setAge] = React.useState(value)
     const theme = useTheme()
     const { t } = useTranslation()
+    const isRtl =
+        typeof window !== 'undefined'
+            ? localStorage.getItem('direction') === 'rtl'
+            : false
 
     const handleChange = (event) => {
         passSelectedValue(event.target.value)
@@ -68,6 +76,7 @@ const CustomSelectWithFormik = (props) => {
                         {inputLabel}
                     </InputLabel>
                     <Select
+                        displayEmpty
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         value={age}
@@ -78,23 +87,66 @@ const CustomSelectWithFormik = (props) => {
                         sx={{
                             height: height ?? 'inherit',
                             borderRadius: borderRadius ?? '5px',
-                            background: background,
+                            background: backgroundColor || bgColor || background,
+                            '& .MuiSelect-icon': {
+                                right: isRtl ? 'auto !important' : '12px !important',
+                                left: isRtl ? '12px !important' : 'auto !important',
+                            },
                             '& .MuiOutlinedInput-root': {
-                                fontSize:"12px",
+                                fontSize: '12px',
                                 '& fieldset>legend': {
                                     fontSize: '2px', //or whatever works for you
                                 },
-
+                            },
+                            '& .MuiSelect-select': {
+                                paddingInlineStart: isRtl
+                                    ? '36px !important'
+                                    : '14px',
+                                paddingInlineEnd: isRtl
+                                    ? '42px !important'
+                                    : '36px !important',
                             },
                             '& .MuiInputBase-input': {
                                 fontSize: '13px',
                                 color: theme.palette.neutral[1000],
-                                fontWeight:"400"
+                                fontWeight: '400',
                             },
+                        }}
+                        renderValue={(selected) => {
+                            if (
+                                (!selected || selected.length === 0) &&
+                                placeholder
+                            ) {
+                                return (
+                                    <span
+                                        style={{
+                                            color: theme.palette.neutral[400],
+                                            fontSize: '13px',
+                                        }}
+                                    >
+                                        {t(placeholder)}
+                                    </span>
+                                )
+                            }
+                            const selectedOption = selectFieldData?.find(
+                                (item) => item.value === selected
+                            )
+                            return selectedOption
+                                ? t(selectedOption.label)
+                                : selected
                         }}
                         input={
                             <OutlinedInput
-                                sx={{}}
+                                sx={{
+                                    '& .MuiInputAdornment-positionStart': {
+                                        marginInlineStart: 0,
+                                        marginInlineEnd: '8px',
+                                    },
+                                    '& .MuiInputAdornment-positionEnd': {
+                                        marginInlineStart: '8px',
+                                        marginInlineEnd: 0,
+                                    },
+                                }}
                                 label={inputLabel} // Ensu
                                 startAdornment={
                                     startIcon && (
@@ -113,16 +165,34 @@ const CustomSelectWithFormik = (props) => {
                                     value={item.value}
                                     sx={{
                                         maxWidth: '100%',
-                                        fontSize: '13px',
+                                        fontSize: '14px',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        textTransform: 'capitalize',
                                         '&:hover': {
                                             backgroundColor: alpha(
                                                 theme.palette.primary.main,
                                                 0.6
                                             ),
                                         },
+                                        // '&:not(.Mui-selected):hover': {
+                                        //     backgroundColor: 'primary.main',
+                                        //     color: '#fff',
+                                        // },
+                                        '&:not(.Mui-selected) > svg': {
+                                            display: 'none',
+                                        },
                                     }}
                                 >
                                     {t(item.label)}
+                                    <CheckIcon
+                                        sx={{
+                                            color: theme.palette.primary.main,
+                                            fontSize: '20px',
+                                            ml: 1,
+                                        }}
+                                    />
                                 </MenuItem>
                             ))}
                     </Select>
@@ -142,6 +212,9 @@ CustomSelectWithFormik.propTypes = {
     selectFieldData: PropTypes.array.isRequired,
     passSelectedValue: PropTypes.func.isRequired,
     startIcon: PropTypes.node, // Icon to display in InputLabel
+    placeholder: PropTypes.string,
+    backgroundColor: PropTypes.string,
+    bgColor: PropTypes.string,
 }
 
 export default CustomSelectWithFormik

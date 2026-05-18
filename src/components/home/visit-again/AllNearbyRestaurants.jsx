@@ -1,6 +1,6 @@
-import LatestRestaurantCard from '@/components/restaurant-details/LatestRestaurantCard'
+import NewStoreCard from '@/components/new-store-card/NewStoreCard'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
-import { CircularProgress, Stack, useMediaQuery, useTheme } from '@mui/material'
+import { Box, CircularProgress, Stack, useMediaQuery, useTheme } from '@mui/material'
 import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import SimpleBar from 'simplebar-react'
@@ -21,18 +21,20 @@ const AllNearbyRestaurants = ({
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const { global } = useSelector((state) => state.globalSettings)
     useEffect(() => {
-        if (hoveredMarkerId && seletedRestaurentRef.current) {
-            const cardElement = document.getElementById(
-                `restaurent-${hoveredMarkerId}`
-            )
-            if (cardElement) {
-                cardElement.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start',
-                    inline: 'nearest',
-                })
-            }
-        }
+        if (!hoveredMarkerId || !seletedRestaurentRef.current) return
+        const elementId = String(hoveredMarkerId).startsWith('restaurent-')
+            ? hoveredMarkerId
+            : `restaurent-${hoveredMarkerId}`
+        const cardElement = document.getElementById(elementId)
+        if (!cardElement) return
+        const scrollTimer = setTimeout(() => {
+            cardElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'nearest',
+            })
+        }, 200)
+        return () => clearTimeout(scrollTimer)
     }, [hoveredMarkerId, seletedRestaurentRef])
 
     const forSmallDevice = {
@@ -87,38 +89,31 @@ const AllNearbyRestaurants = ({
                         ) : (
                             <>
                                 {restaurants?.map((restaurantData) => (
-                                    <LatestRestaurantCard
+                                    <Box
                                         key={restaurantData?.id}
                                         id={`restaurent-${restaurantData.id}`}
-                                        image={
-                                            restaurantData?.cover_photo_full_url
-                                        }
-                                        logo={restaurantData?.logo_full_url}
-                                        name={restaurantData?.name}
-                                        restaurantImageUrl={global?.base_urls}
-                                        restaurantDiscount={
-                                            restaurantData.discount &&
-                                            restaurantData.discount
-                                        }
-                                        delivery_fee={
-                                            restaurantData?.delivery_fee
-                                        }
-                                        open={restaurantData?.open}
-                                        active={restaurantData?.active}
-                                        delivery_time={
-                                            restaurantData?.delivery_time
-                                        }
-                                        discount={restaurantData?.discount}
-                                        cuisines={restaurantData?.cuisine}
-                                        coupons={restaurantData?.coupons}
-                                        slug={restaurantData?.slug}
-                                        zone_id={restaurantData?.zone_id}
-                                        distance={restaurantData?.distance}
-                                        foods_count={
-                                            restaurantData?.foods_count
-                                        }
-                                        hoveredMarkerId={hoveredMarkerId}
-                                    />
+                                        sx={{
+                                            outline:
+                                                hoveredMarkerId ===
+                                                `restaurent-${restaurantData?.id}`
+                                                    ? (theme) =>
+                                                          `2px solid ${theme.palette.primary.main}`
+                                                    : 'none',
+                                            borderRadius: '12px',
+                                            transition:
+                                                'outline 0.2s ease',
+                                            minWidth: { xs: '260px', sm: 0 },
+                                            paddingInlineEnd:"1rem"
+                                        }}
+                                    >
+                                        <NewStoreCard
+                                            restaurant={{
+                                                ...restaurantData,
+                                                opening_time:
+                                                    restaurantData?.current_opening_time,
+                                            }}
+                                        />
+                                    </Box>
                                 ))}
                             </>
                         )}

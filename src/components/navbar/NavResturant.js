@@ -11,7 +11,7 @@ import {
 } from '@mui/material'
 import { makeStyles } from '@mui/styles'
 import Link from 'next/link'
-import Router from 'next/router'
+import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
@@ -24,6 +24,7 @@ import CustomEmptyResult from '../empty-view/CustomEmptyResult'
 import { onErrorResponse } from '../ErrorResponse'
 import { RTL } from '../RTL/RTL'
 import { NavMenuLink } from './Navbar.style'
+import { handleRestaurantRedirect } from '@/utils/customFunctions'
 const useStyles = makeStyles((theme) => ({
     popover: {
         pointerEvents: 'none',
@@ -68,8 +69,9 @@ const NavResturant = ({ zoneid }) => {
     const handleResdropClose = () => {
         setResdropdown(null)
     }
+    const router = useRouter()
     const viewAll = () => {
-        Router.push(
+        router.push(
             {
                 pathname: '/restaurants',
             },
@@ -78,7 +80,7 @@ const NavResturant = ({ zoneid }) => {
         )
     }
     const languageDirection = typeof window !== 'undefined' ? localStorage.getItem('direction') : 'ltr'
-    console.log({popularRestaurant})
+    console.log({ popularRestaurant })
     return (
         <div
             onMouseEnter={(e) => handleresdropClick(e)}
@@ -90,12 +92,10 @@ const NavResturant = ({ zoneid }) => {
                 aria-haspopup="true"
                 aria-expanded={openresdrop ? 'true' : undefined}
                 underline="none"
-                fontSize="14px"
-                alignItems="center"
             >
-                {t('Restaurants')}{' '}
+                {t('Restaurants')}
                 <KeyboardArrowDownIcon
-                    style={{ width: '16px', marginLeft: '5px' }}
+                    style={{ width: '14px', height: '14px' }}
                 />
             </NavMenuLink>
             <RTL direction={languageDirection}>
@@ -119,9 +119,9 @@ const NavResturant = ({ zoneid }) => {
                         paper: classes.paper,
                     }}
                 >
-                    <Grid container spacing={3} p="1rem" width="750px">
+                    <Grid container spacing={1} p="18px 10px" width="780px">
                         {popularRestaurants && (
-                            <Grid item container md={8} spacing={1}>
+                            <Grid item container md={8} spacing={0.5}>
                                 {popularRestaurants
                                     ?.slice(0, 8)
                                     ?.map((restaurant, index) => {
@@ -137,148 +137,146 @@ const NavResturant = ({ zoneid }) => {
                                                         md={6}
                                                         key={restaurant.id}
                                                     >
-                                                        <Link
-                                                            href={{
-                                                                pathname: `/restaurants/${restaurant?.slug || restaurant?.id}`,
-                                                                query: {
-                                                                    restaurant_zone_id: restaurant?.zone_id,
-                                                                },
-                                                            }}
-                                                            passHref
-                                                            prefetch={false}
-                                                            style={{ textDecoration: 'none' }}
-                                                        >
-                                                            <MenuItem
-                                                                onClick={
-                                                                    handleResdropClose
+                                                        <MenuItem
+                                                            onClick={
+                                                                (e) => {
+                                                                    handleResdropClose()
+                                                                    handleRestaurantRedirect(
+                                                                        router,
+                                                                        restaurant?.slug,
+                                                                        restaurant?.id,
+
+                                                                    )
                                                                 }
-                                                                sx={{
-                                                                    alignItems:
-                                                                        'center',
-                                                                    borderRadius:
-                                                                        '5px',
-                                                                    '&:hover': {
-                                                                        backgroundColor:
-                                                                            (
-                                                                                theme
-                                                                            ) =>
-                                                                                alpha(
-                                                                                    theme
-                                                                                        .palette
-                                                                                        .primary
-                                                                                        .main,
-                                                                                    0.3
-                                                                                ),
-                                                                    },
-                                                                }}
-                                                            >
-                                                                <Stack
-                                                                    spacing={
-                                                                        2.5
-                                                                    }
-                                                                    direction="row"
-                                                                    alignItems="center"
-                                                                >
-                                                                    <CustomImageContainer
-                                                                        src={
-                                                                            restaurant.logo_full_url
-                                                                        }
-                                                                        width="40px"
-                                                                        height="40px"
-                                                                        borderRadius=".4rem"
-                                                                        loading="lazy"
-                                                                        objectFit="cover"
-                                                                    />
-                                                                    <Typography
-                                                                        variant="h5"
-                                                                        fontWeight="400"
-                                                                        color={(
+                                                            }
+                                                            sx={{
+                                                                alignItems:
+                                                                    'center',
+                                                                borderRadius:
+                                                                    '5px',
+                                                                '&:hover': {
+                                                                    backgroundColor:
+                                                                        (
                                                                             theme
                                                                         ) =>
-                                                                            theme
-                                                                                .palette
-                                                                                .neutral[1000]
-                                                                        }
-                                                                    >
-                                                                        {
-                                                                            restaurant.name
-                                                                        }
-                                                                    </Typography>
-                                                                </Stack>
-                                                            </MenuItem>
-                                                        </Link>
-                                                    </Grid>
+                                                                            alpha(
+                                                                                theme
+                                                                                    .palette
+                                                                                    .primary
+                                                                                    .main,
+                                                                                0.3
+                                                                            ),
+                                                                },
+                                                            }}
+                                                        >
+                                                            <Stack
+                                                                spacing={
+                                                                    2
+                                                                }
+                                                                direction="row"
+                                                                alignItems="center"
+                                                            >
+                                                                <CustomImageContainer
+                                                                    src={
+                                                                        restaurant.logo_full_url
+                                                                    }
+                                                                    width="40px"
+                                                                    height="40px"
+                                                                    borderRadius="50%"
+                                                                    loading="lazy"
+                                                                    objectFit="cover"
+                                                                />
+                                                                <Typography
+                                                                    fontSize="13px"
+                                                                    variant="h5"
+                                                                    fontWeight="600"
+                                                                    color={(
+                                                                        theme
+                                                                    ) =>
+                                                                        theme
+                                                                            .palette
+                                                                            .neutral[1000]
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        restaurant.name
+                                                                    }
+                                                                </Typography>
+                                                            </Stack>
+                                                        </MenuItem>
+                                                    </Grid >
                                                 ) : (
                                                     <Grid
                                                         item
                                                         md={6}
                                                         key={restaurant.id}
                                                     >
-                                                        <Link
-                                                            href={`/restaurants/${restaurant?.slug || restaurant?.id}`}
-                                                            passHref
-                                                            prefetch={false}
-                                                            style={{ textDecoration: 'none' }}
-                                                        >
-                                                            <MenuItem
-                                                                onClick={
-                                                                    handleResdropClose
+                                                        <MenuItem
+                                                            onClick={
+                                                                (e) => {
+                                                                    handleResdropClose()
+                                                                    handleRestaurantRedirect(
+                                                                        router,
+                                                                        restaurant?.slug,
+                                                                        restaurant?.id,
+                                                                    )
                                                                 }
-                                                                sx={{
-                                                                    alignItems:
-                                                                        'center',
-                                                                    borderRadius:
-                                                                        '5px',
-                                                                    '&:hover': {
-                                                                        backgroundColor:
-                                                                            (
-                                                                                theme
-                                                                            ) =>
-                                                                                alpha(
-                                                                                    theme
-                                                                                        .palette
-                                                                                        .primary
-                                                                                        .main,
-                                                                                    0.3
-                                                                                ),
-                                                                    },
-                                                                }}
-                                                            >
-                                                                <Stack
-                                                                    spacing={
-                                                                        2.5
-                                                                    }
-                                                                    direction="row"
-                                                                    alignItems="center"
-                                                                >
-                                                                    <CustomImageContainer
-                                                                        src={
-                                                                            restaurant.logo_full_url
-                                                                        }
-                                                                        width="40px"
-                                                                        height="40px"
-                                                                        borderRadius=".4rem"
-                                                                        loading="lazy"
-                                                                        objectFit="cover"
-                                                                    />
-                                                                    <Typography
-                                                                        variant="h5"
-                                                                        fontWeight="400"
-                                                                        color={(
+                                                            }
+                                                            sx={{
+                                                                alignItems:
+                                                                    'center',
+                                                                borderRadius:
+                                                                    '5px',
+                                                                '&:hover': {
+                                                                    backgroundColor:
+                                                                        (
                                                                             theme
                                                                         ) =>
-                                                                            theme
-                                                                                .palette
-                                                                                .neutral[1000]
-                                                                        }
-                                                                    >
-                                                                        {
-                                                                            restaurant.name
-                                                                        }
-                                                                    </Typography>
-                                                                </Stack>
-                                                            </MenuItem>
-                                                        </Link>
+                                                                            alpha(
+                                                                                theme
+                                                                                    .palette
+                                                                                    .primary
+                                                                                    .main,
+                                                                                0.3
+                                                                            ),
+                                                                },
+                                                            }}
+                                                        >
+                                                            <Stack
+                                                                spacing={
+                                                                    2.5
+                                                                }
+                                                                direction="row"
+                                                                alignItems="center"
+                                                            >
+                                                                <CustomImageContainer
+                                                                    src={
+                                                                        restaurant.logo_full_url
+                                                                    }
+                                                                    width="40px"
+                                                                    height="40px"
+                                                                    borderRadius="50%"
+                                                                    loading="lazy"
+                                                                    objectFit="cover"
+                                                                />
+                                                                <Typography
+                                                                    fontSize="13px"
+                                                                    variant="h5"
+                                                                    fontWeight="600"
+                                                                    color={(
+                                                                        theme
+                                                                    ) =>
+                                                                        theme
+                                                                            .palette
+                                                                            .neutral[1000]
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        restaurant.name
+                                                                    }
+                                                                </Typography>
+                                                            </Stack>
+                                                        </MenuItem>
                                                     </Grid>
                                                 )}
                                             </>
@@ -294,18 +292,29 @@ const NavResturant = ({ zoneid }) => {
                             </Grid>
                         )}
 
-                        <Grid item md={4}>
+                        <Grid
+                            item
+                            md={4}
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                position: 'relative',
+                                paddingLeft: '16px',
+                                paddingRight: '16px',
+                            }}
+                        >
                             {popularRestaurants?.length !== 0 && (
                                 <Button
                                     sx={{
                                         zIndex: 1,
                                         position: 'absolute',
-                                        bottom: '20%',
+                                        bottom: '15%',
                                         background: (theme) =>
                                             theme.palette.primary.main,
                                         color: (theme) =>
                                             `${theme.palette.neutral[100]} !important`,
-                                        right: '11%',
+                                        //right: '11%',
                                         padding: '9px 25px',
                                         borderRadius: '5px',
                                         '&:hover': {
@@ -324,14 +333,14 @@ const NavResturant = ({ zoneid }) => {
                                 src={ResOffer?.src}
                                 alt="restaurant-image"
                                 borderRadius=".6rem"
-                                height="202px"
-                                width="225px"
+                                height="220px"
+                                width="220px"
                             />
                         </Grid>
                     </Grid>
                 </Popover>
             </RTL>
-        </div>
+        </div >
     )
 }
 

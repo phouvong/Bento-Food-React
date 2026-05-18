@@ -124,7 +124,7 @@ const SignUpPage = ({ handleClose, setModalFor, verificationId, sendOTP }) => {
             if (typeof window !== 'undefined') {
                 localStorage.setItem('token', response?.token)
             }
-            CustomToaster('success', 'Signup successfully.')
+            CustomToaster('success', 'Thank you for registering.')
             dispatch(setToken(response?.token))
             handleClose?.()
             router.push('/interest', {
@@ -146,6 +146,7 @@ const SignUpPage = ({ handleClose, setModalFor, verificationId, sendOTP }) => {
         setLoginValue(signUpData)
         mutate(signUpData, {
             onSuccess: async (response) => {
+            
                 getLoginUserCheck(
                     response,
                     signUpData,
@@ -262,12 +263,22 @@ const SignUpPage = ({ handleClose, setModalFor, verificationId, sendOTP }) => {
                                         autoComplete="name"
                                         value={signUpFormik.values.name}
                                         onChange={signUpFormik.handleChange}
+                                        onBlur={(e) => {
+                                            signUpFormik.handleBlur(e)
+                                            signUpFormik.setFieldTouched(
+                                                'name',
+                                                true,
+                                                true
+                                            )
+                                        }}
                                         error={
-                                            signUpFormik.touched.name &&
+                                            (signUpFormik.touched.name ||
+                                                signUpFormik.submitCount > 0) &&
                                             Boolean(signUpFormik.errors.name)
                                         }
                                         helperText={
-                                            signUpFormik.touched.name &&
+                                            (signUpFormik.touched.name ||
+                                                signUpFormik.submitCount > 0) &&
                                             signUpFormik.errors.name
                                         }
                                         touched={signUpFormik.touched.name}

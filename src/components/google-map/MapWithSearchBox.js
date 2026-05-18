@@ -4,9 +4,10 @@ import CustomMapSearch from '../join-restaurant/CustomMapSearch'
 import GoogleMapComponent from '../landingpage/google-map/GoogleMapComponent'
 import { useDispatch, useSelector } from 'react-redux'
 import { useTheme } from '@mui/styles'
-import { Box, useMediaQuery } from '@mui/material'
+import { Box, Typography, useMediaQuery } from '@mui/material'
 import { useGetLocation } from '@/utils/custom-hook/useGetLocation'
 import useGetCheckZone from '@/hooks/react-query/zone-list/useGetCheckZone'
+import { setLocation } from '@/redux/slices/addressData'
 import toast from 'react-hot-toast'
 
 const MapWithSearch = ({
@@ -25,13 +26,17 @@ const MapWithSearch = ({
     zoneId,
     handleAgreeLocation,
     locationFrom,
+    setShowZoneWarning,
+    fromStoreRegistration,
+    locationCreated,
+    inZone
 }) => {
     const theme = useTheme()
+    const dispatch = useDispatch()
 
     const { location, formatted_address } = useSelector(
         (state) => state.addressData
     )
-
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const {
         setDisablePickButton,
@@ -49,32 +54,68 @@ const MapWithSearch = ({
         setLocations,
         isLoadingPlacesApi,
         currentLocationValue,
-    } = useGetLocation(coords)
+        setCurrentLactionValue,
+    } = useGetLocation(coords,setInZone)
     let currentLocation = undefined
     if (typeof window !== 'undefined') {
         currentLocation = JSON.parse(localStorage.getItem('currentLatLng'))
         //hostname = window.location.hostnam
     }
+ let locationAddress = undefined
+    if (typeof window !== 'undefined') {
+        locationAddress = localStorage.getItem('location')
+    }
+    useEffect(() => {
+        if (locationCreated?.lat && locationCreated?.lng) {
+            setLocations({ lat: locationCreated.lat, lng: locationCreated.lng })
+        }
+    }, [locationCreated?.lat, locationCreated?.lng])
+
+    // Sync Redux location with currentLocation from localStorage so the
+    // useGetLocation hook geocodes the right coordinates and the search
+    // box shows the formatted address for the current location.
+    useEffect(() => {
+        if (currentLocation?.lat && currentLocation?.lng) {
+            const sameLocation =
+                location?.lat === currentLocation.lat &&
+                location?.lng === currentLocation.lng
+            if (!sameLocation) {
+                dispatch(setLocation(currentLocation))
+            }
+        }
+    }, [currentLocation?.lat, currentLocation?.lng])
+
+    useEffect(() => {
+        if (formatted_address) {
+            setCurrentLactionValue({ description: formatted_address })
+            setSearchKey({ description: formatted_address })
+        }
+    }, [formatted_address])
 
     useEffect(() => {
         if (polygonPaths?.length > 0) {
             restaurantAddressHandler(currentLocationValue?.description)
         }
 
-        handleLocation?.(locationFrom || location)
+        handleLocation?.(location, true)
     }, [currentLocationValue])
 
     const successHandler = (res) => {
         setInZone(res)
-        if (!res) {
-            toast.error('Out Of The Zone')
+        if (!res && res !== undefined) {
+            setShowZoneWarning?.(true)
+        } else {
+            setShowZoneWarning?.(false)
         }
     }
-    const { data: checkedData } = useGetCheckZone(
+    const { data: checkedData, refetch: refetchZone } = useGetCheckZone(
         location,
         zoneId,
         successHandler
     )
+
+console.log({locationAddress});
+
 
     return (
         <CustomStackFullWidth spacing={1} gap="12px">
@@ -92,50 +133,17 @@ const MapWithSearch = ({
                             searchKey={searchKey}
                             placeDescription={placeDescription}
                             isLoadingPlacesApi={isLoadingPlacesApi}
-                            currentLocationValue={currentLocationValue}
+                            currentLocationValue={  currentLocationValue}
                         />
                     )}
                 </>
             )}
             {!!location && orderType !== 'take_away' && (
                 <Box sx={{ position: 'relative' }}>
-                    {searchBoxInside && (
-                        <Box
-                            sx={{
-                                position: 'absolute',
-                                width: '100%',
-                                mt: 2,
-                                zIndex: 1000,
-                                pl: {
-                                    xs: '10px',
-                                    md: '230px',
-                                },
-                                pr: '10px',
-                            }}
-                        >
-                            {orderType !== 'take_away' && (
-                                <CustomMapSearch
-                                    setSearchKey={setSearchKey}
-                                    setEnabled={setEnabled}
-                                    predictions={predictions}
-                                    setPlaceId={setPlaceId}
-                                    setPlaceDetailsEnabled={
-                                        setPlaceDetailsEnabled
-                                    }
-                                    setPlaceDescription={setPlaceDescription}
-                                    border={theme.palette.primary.main}
-                                    searchKey={searchKey}
-                                    placeDescription={placeDescription}
-                                    isLoadingPlacesApi={isLoadingPlacesApi}
-                                    currentLocationValue={currentLocationValue}
-                                />
-                            )}
-                        </Box>
-                    )}
                     <GoogleMapComponent
-                        key={rerenderMap}
+                        fromStoreRegistration={fromStoreRegistration}
                         setLocation={setLocations}
-                        location={locationFrom ||location}
+                        location={location}
                         setPlaceDetailsEnabled={setPlaceDetailsEnabled}
                         placeDetailsEnabled={placeDetailsEnabled}
                         locationEnabled={locationEnabled}
@@ -146,12 +154,31 @@ const MapWithSearch = ({
                             isSmall
                                 ? mapHeight
                                 : heightFromStore
-                                ? heightFromStore
-                                : '448px'
+                                    ? heightFromStore
+                                    : '448px'
                         }
                         isGps={isGps}
                         polygonPaths={polygonPaths}
                         handleAgreeLocation={handleAgreeLocation}
+                        inZone={inZone}
+                        searchBoxInside={searchBoxInside}
+                        searchSlot={
+                            orderType !== 'take_away' ? (
+                                <CustomMapSearch
+                                    setSearchKey={setSearchKey}
+                                    setEnabled={setEnabled}
+                                    predictions={predictions}
+                                    setPlaceId={setPlaceId}
+                                    setPlaceDetailsEnabled={setPlaceDetailsEnabled}
+                                    setPlaceDescription={setPlaceDescription}
+                                    border={theme.palette.primary.main}
+                                    searchKey={searchKey}
+                                    placeDescription={placeDescription}
+                                    isLoadingPlacesApi={isLoadingPlacesApi}
+                                    currentLocationValue={currentLocationValue}
+                                />
+                            ) : null
+                        }
                     />
                 </Box>
             )}

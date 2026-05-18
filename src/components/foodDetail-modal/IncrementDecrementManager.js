@@ -10,14 +10,14 @@ const IncrementDecrementManager = (props) => {
             direction="row"
             spacing={1}
             alignItems="center"
-            justifyContent="flex-start"
+            justifyContent={{ xs: 'flex-start', md: 'flex-start' }}
         >
             <CustomFab
                 onClick={decrementPrice}
                 color="primary"
                 aria-label="remove"
                 disabled={totalPrice === 0 || quantity <= 1}
-                sx={{ minHeight: '30px' }}
+                sx={{ minHeight: 32, minWidth: 32 }}
             >
                 <RemoveIcon
                     size="small"
@@ -27,12 +27,14 @@ const IncrementDecrementManager = (props) => {
                     }}
                 />
             </CustomFab>
-            <Typography variant="h5">{quantity}</Typography>
+            <Typography variant="h5" sx={{ minWidth: 28, textAlign: 'center' }}>
+                {quantity}
+            </Typography>
             <CustomFab
                 color="primary"
                 aria-label="add"
                 onClick={incrementPrice}
-                sx={{ minHeight: '30px' }}
+                sx={{ minHeight: 32, minWidth: 32 }}
             >
                 <AddIcon
                     size="small"

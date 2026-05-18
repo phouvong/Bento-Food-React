@@ -38,6 +38,8 @@ const DineInPreferableTime = ({
             : 'Today'
     )
     const [selectedDateTime, setSelectedDateTime] = useState(null)
+    console.log({selectedDateTime});
+    
 
     const [slotList, setSlotList] = useState(null)
     const slotDurationTime =
@@ -157,13 +159,11 @@ const DineInPreferableTime = ({
             const isSelectedTimeInsideRange = (selectedDateTime) => {
                 return slotList.some((slot) => {
                     const slotStart = dayjs(
-                        `${dayjs(selectedDateTime?.$d).format('YYYY-MM-DD')} ${
-                            slot.start
+                        `${dayjs(selectedDateTime?.$d).format('YYYY-MM-DD')} ${slot.start
                         }`
                     )
                     const slotEnd = dayjs(
-                        `${dayjs(selectedDateTime?.$d).format('YYYY-MM-DD')} ${
-                            slot.end
+                        `${dayjs(selectedDateTime?.$d).format('YYYY-MM-DD')} ${slot.end
                         }`
                     )
 
@@ -261,30 +261,14 @@ const DineInPreferableTime = ({
                                     viewRenderers={{
                                         hours: renderTimeViewClock,
                                         minutes: renderTimeViewClock,
-                                        seconds: renderTimeViewClock,
                                     }}
                                     value={selectedDateTime}
                                     onChange={(dateTime) => {
-                                        // Ensure the selected date-time is valid
                                         if (
                                             dateTime &&
                                             dayjs(dateTime).isValid()
                                         ) {
-                                            const selectedHour =
-                                                dayjs(dateTime).hour()
-                                            const selectedMinute =
-                                                dayjs(dateTime).minute()
-
-                                            if (
-                                                selectedHour !== 0 &&
-                                                selectedMinute !== 0
-                                            ) {
-                                                handleDateChange(dateTime)
-                                            } else {
-                                                console.log(
-                                                    'Hour and minute must be selected'
-                                                )
-                                            }
+                                            handleDateChange(dateTime)
                                         }
                                     }}
                                     minDate={

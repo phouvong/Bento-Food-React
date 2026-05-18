@@ -4,7 +4,7 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import React from "react";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
-export const HandleNext = ({ onClick, className ,overLay}) => (
+export const HandleNext = ({ onClick, className ,overLay,right}) => (
     <>
         {overLay ? <CustomSideOverLay
             left="unset"
@@ -12,7 +12,7 @@ export const HandleNext = ({ onClick, className ,overLay}) => (
             isdisabled={className?.includes('slick-disabled')}
         >
             <RightArrowStyle
-                right="-1%"
+                right={right?right:"-1%"}
                 // languageDirection={languageDirection}
                 isdisabled={className?.includes('slick-disabled')}
             >
@@ -24,7 +24,7 @@ export const HandleNext = ({ onClick, className ,overLay}) => (
         </CustomSideOverLay>:
 
             <RightArrowStyle
-                right="1%"
+                right={right?right:"1%"}
                 // languageDirection={languageDirection}
                 isdisabled={className?.includes('slick-disabled')}
             >
@@ -37,11 +37,11 @@ export const HandleNext = ({ onClick, className ,overLay}) => (
 
     </>
 )
- export const HandlePrev = ({ onClick, className }) => (
+ export const HandlePrev = ({ onClick, className, left }) => (
     <>
         <LeftArrowStyle
             // languageDirection={languageDirection}
-            left="1%"
+            left={left?left:"1%"}
             isdisabled={className?.includes('slick-disabled')}
         >
             <CustomIconButton onClick={onClick}>

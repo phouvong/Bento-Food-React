@@ -45,16 +45,25 @@ import MapIcon from '@mui/icons-material/Map';
 
 export function FacebookCircularProgress(props) {
     return (
-        <Box sx={{ position: 'relative' }}>
+        <Box
+            sx={{
+                position: 'relative',
+                display: 'inline-flex',
+                width: 24,
+                height: 24,
+                flexShrink: 0,
+                lineHeight: 0,
+            }}
+        >
             <CircularProgress
                 variant="determinate"
                 sx={{
                     color: (theme) =>
                         theme.palette.grey[
-                            theme.palette.mode === 'light' ? 200 : 800
+                        theme.palette.mode === 'light' ? 200 : 800
                         ],
                 }}
-                size={25}
+                size={24}
                 thickness={4}
                 {...props}
                 value={100}
@@ -71,7 +80,7 @@ export function FacebookCircularProgress(props) {
                         strokeLinecap: 'round',
                     },
                 }}
-                size={25}
+                size={24}
                 thickness={4}
                 {...props}
             />
@@ -79,7 +88,7 @@ export function FacebookCircularProgress(props) {
     )
 }
 
-const HeroLocationForm = ({ mobileview, fromHero, handleModalClose, getLocation, height,place_holder_search_text }) => {
+const HeroLocationForm = ({ isStoreCreate, mobileview, fromHero, handleModalClose, getLocation, height, place_holder_search_text, placeholderColor }) => {
     const { t } = useTranslation()
     const [open, setOpen] = useState(false)
     const router = useRouter()
@@ -117,7 +126,7 @@ const HeroLocationForm = ({ mobileview, fromHero, handleModalClose, getLocation,
 
     useEffect(() => {
         if (getLocation) {
-           // setShowCurrentLocation(false)
+            // setShowCurrentLocation(false)
             getLocation(location)
             setGeoLocationEnable(false)
         }
@@ -201,16 +210,16 @@ const HeroLocationForm = ({ mobileview, fromHero, handleModalClose, getLocation,
         if (placeDetails) {
             setLocation({
                 lat: placeDetails?.data?.location?.latitude,
-                    lng: placeDetails?.data?.location?.longitude,
-                })
+                lng: placeDetails?.data?.location?.longitude,
+            })
         }
     }, [placeDetails])
 
     useEffect(() => {
         if (places) {
-            const tempData= places?.data?.suggestions?.map((item) => ({
+            const tempData = places?.data?.suggestions?.map((item) => ({
                 place_id: item?.placePrediction?.placeId,
-                description: `${item?.placePrediction?.structuredFormat?.mainText?.text}, ${item?.placePrediction?.structuredFormat?.secondaryText?.text|| ""}`
+                description: `${item?.placePrediction?.structuredFormat?.mainText?.text}, ${item?.placePrediction?.structuredFormat?.secondaryText?.text || ""}`
             }))
             setPredictions(tempData)
         }
@@ -235,7 +244,7 @@ const HeroLocationForm = ({ mobileview, fromHero, handleModalClose, getLocation,
     }
 
     const setLocationEnable = () => {
-        
+
         if (!currentLocation) {
             toast.error(t('Location is required.'), {
                 id: 'id',
@@ -243,7 +252,7 @@ const HeroLocationForm = ({ mobileview, fromHero, handleModalClose, getLocation,
             return null
         }
         setGeoLocationEnable(true)
-         setZoneIdEnabled(true)
+        setZoneIdEnabled(true)
 
         if (currentLocation && location) {
             localStorage.setItem('location', currentLocation)
@@ -263,7 +272,7 @@ const HeroLocationForm = ({ mobileview, fromHero, handleModalClose, getLocation,
                     !fromHero && !isXSmall && alpha(theme.palette.neutral[400], 0.2)
                 }
                 borderRadius={isXSmall ? '0px' : '10px'}
-                marginTop={getLocation ? '' : fromHero ? (isXSmall ? '5px' : '20px') : '20px'}
+                marginTop={getLocation ? '' : fromHero ? '0px' : '20px'}
                 sx={{
                     padding: getLocation || fromHero ? '' : (isXSmall ? 0 : '1rem'),
                     "> form": {
@@ -287,15 +296,38 @@ const HeroLocationForm = ({ mobileview, fromHero, handleModalClose, getLocation,
                             direction="row"
                             alignItems="center"
                             justifyContent="center"
-                            gap={fromHero ? (isXSmall ? '4px' : '10px') : 0}
+                            gap={fromHero ? (isXSmall ? '4px' : '8px') : 0}
                         >
                             <CustomSearchField
                                 variant="outlined"
                                 height={height}
+                                sx={fromHero ? {
+                                    flex: 1,
+                                    minWidth: 0,
+                                    borderRadius: '999px !important',
+                                    border: `1px solid ${alpha(theme.palette.text.primary, 0.12)}`,
+                                    boxShadow: 'none',
+                                    padding: { xs: '2px 4px 2px 8px', sm: '3px 5px 3px 14px' },
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    height: 'auto',
+                                    backgroundColor: theme.palette.background.paper,
+                                    transition: 'border-color .2s ease, box-shadow .2s ease',
+                                    '&:focus-within': {
+                                        borderColor: theme.palette.primary.main,
+                                        boxShadow: `0 0 0 4px ${alpha(theme.palette.primary.main, 0.14)}`,
+                                    },
+                                } : undefined}
                             >
                                 {!showCurrentLocation ? (
                                     <Autocomplete
                                         sx={{
+                                            ...(fromHero && {
+                                                width: '100%',
+                                                '& .MuiAutocomplete-endAdornment': {
+                                                    right: '4px',
+                                                },
+                                            }),
                                             '& .MuiAutocomplete-inputRoot': {
                                                 paddingRight: '26px !important',
                                                 paddingTop: getLocation
@@ -305,9 +337,9 @@ const HeroLocationForm = ({ mobileview, fromHero, handleModalClose, getLocation,
                                         }}
                                         loading={isFetching}
                                         fullWidth
-                                        options={predictions}
+                                        options={predictions || []}
                                         getOptionLabel={(option) =>
-                                            option.description
+                                            option?.description
                                         }
                                         onChange={(event, value) => {
                                             if (value) {
@@ -320,119 +352,200 @@ const HeroLocationForm = ({ mobileview, fromHero, handleModalClose, getLocation,
                                             }
                                             setPlaceDetailsEnabled(true)
                                         }}
-                                        renderInput={(params) => (
-                                            <CssTextField
-                                                mobileview={mobileview}
-                                                getLocation={getLocation}
-                                                languageDirection={
-                                                    languageDirection
-                                                }
-                                                id="outlined-basic"
-                                                {...params}
-                                                placeholder={place_holder_search_text || t(
-                                                    'Enter your location here....'
-                                                )}
-                                                onChange={(event) => {
-                                                    setSearchKey(
-                                                        event.target.value
-                                                    )
-                                                    if (event.target.value) {
-                                                        setEnabled(true)
-                                                        setGeoLocationEnable(
-                                                            true
-                                                        )
-                                                    } else {
-                                                        setEnabled(false)
-                                                    }
-                                                }}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') {
-                                                        e.preventDefault()
-                                                    }
-                                                }}
-                                                InputProps={{
-                                                    ...params.InputProps,
-                                                    sx: {
-                                                        '&::placeholder': {
-                                                            fontSize: '14px', // 👈 change placeholder font size
-                                                            color: '#9e9e9e', // optional
-                                                            opacity: 1, // ensure it's visible
-                                                            fontWeight: '400',
-                                                        },
-                                                        input: {
-                                                            '&::placeholder': {
-                                                                fontSize:
-                                                                    '14px',
-                                                                color: '#9e9e9e',
-                                                                opacity: 1,
-                                                                fontWeight:
-                                                                    '400',
-                                                            },
-                                                        },
-                                                    },
-                                                    startAdornment: (
-                                                        <Box
-                                                            sx={{
-                                                                display: 'flex',
-                                                                alignItems:
-                                                                    'center',
-                                                            }}
-                                                        >
-                                                            <RoomIcon
-                                                                sx={{
-                                                                    fontSize:
-                                                                        '20px',
-                                                                }}
-                                                                color="black"
-                                                            />{' '}
-                                                            {/* Replace with any icon */}
-                                                        </Box>
-                                                    ),
-                                                    endAdornment: (
-                                                        <IconButton
-                                                            sx={{
-                                                                mr: '-20px',
-                                                            }}
-                                                            onClick={() =>
-                                                                handleAgreeLocation()
+                                        renderInput={(params) => {
+                                            const hasRequiredAsterisk = place_holder_search_text?.includes('*');
+                                            const displayText = hasRequiredAsterisk ? place_holder_search_text.replace('*', '') : (place_holder_search_text || t('Enter your location here....'));
+                                            const isValueEmpty = !params.inputProps.value;
+
+                                            return (
+                                                <Box sx={{ position: 'relative', width: '100%' }}>
+                                                    <CssTextField
+                                                        mobileview={mobileview}
+                                                        getLocation={getLocation}
+                                                        languageDirection={languageDirection}
+                                                        id="outlined-basic"
+                                                        {...params}
+                                                        placeholder={hasRequiredAsterisk ? "" : displayText}
+                                                        onChange={(event) => {
+                                                            setSearchKey(
+                                                                event.target.value
+                                                            )
+                                                            if (event.target.value) {
+                                                                setEnabled(true)
+                                                                setGeoLocationEnable(
+                                                                    true
+                                                                )
+                                                            } else {
+                                                                setEnabled(false)
                                                             }
-                                                        >
-                                                            <GpsFixedIcon color="primary" />
-                                                        </IconButton>
-                                                    ),
-                                                }}
-                                                required={true}
-                                            />
-                                        )}
-                                        PaperComponent={({ children }) => (
-                                            <Paper>
-                                                {children}
-                                                <Box textAlign="center" p={1}>
-                                                    <Button
-                                                        variant="text"
-                                                        size="small"
-                                                        onMouseDown={(e) => {
-                                                            e.stopPropagation();
-                                                            e.preventDefault();
-                                                            handleOpen();
                                                         }}
-                                                        sx={{
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') {
+                                                                e.preventDefault()
+                                                            }
+                                                        }}
+                                                        sx={fromHero ? {
                                                             width: '100%',
-                                                            backgroundColor: theme.palette.neutral[300],
-                                                            display: "flex",
-                                                            gap: 1,
+                                                            '& .MuiOutlinedInput-root': {
+                                                                padding: '0 !important',
+                                                                backgroundColor: 'transparent',
+                                                                '& fieldset': { border: 'none !important' },
+                                                                '&:hover fieldset': { border: 'none !important' },
+                                                                '&.Mui-focused fieldset': { border: 'none !important' },
+                                                            },
+                                                            '& .MuiOutlinedInput-notchedOutline': { border: 'none !important' },
+                                                            '& .MuiOutlinedInput-input': {
+                                                                padding: { xs: '8px 0 !important', sm: '10px 0 !important' },
+                                                                fontSize: '14px',
+                                                                color: theme.palette.text.primary,
+                                                            },
+                                                        } : undefined}
+                                                        InputProps={{
+                                                            ...params.InputProps,
+                                                            sx: {
+                                                                '&::placeholder': {
+                                                                    fontSize:{xs:"11px",md: '14px'},
+                                                                    color: placeholderColor || '#9e9e9e',
+                                                                    opacity: 1,
+                                                                    fontWeight: '400',
+                                                                },
+                                                                input: {
+                                                                    '&::placeholder': {
+                                                                        fontSize:
+                                                                           {xs:"11px",md: '14px'},
+                                                                        color: placeholderColor || '#9e9e9e',
+                                                                        opacity: 1,
+                                                                        fontWeight:
+                                                                            '400',
+                                                                    },
+                                                                },
+                                                            },
+                                                            startAdornment: (
+                                                                <Box
+                                                                    sx={{
+                                                                        display: 'flex',
+                                                                        alignItems:
+                                                                            'center',
+                                                                        color: fromHero
+                                                                            ? theme.palette.primary.main
+                                                                            : theme.palette.neutral[500],
+                                                                        mr: fromHero ? { xs: 0.5, sm: 1 } : 0,
+                                                                        flexShrink: 0,
+                                                                    }}
+                                                                >
+                                                                    <RoomIcon
+                                                                        sx={{
+                                                                            fontSize: fromHero ? { xs: '18px', sm: '20px' } : '20px',
+                                                                        }}
+                                                                    />{' '}
+                                                                    {/* Replace with any icon */}
+                                                                </Box>
+                                                            ),
+                                                            endAdornment: (
+                                                                <IconButton
+                                                                    sx={fromHero ? {
+                                                                        width: { xs: 28, sm: 32 },
+                                                                        height: { xs: 28, sm: 32 },
+                                                                        borderRadius: '50%',
+                                                                        backgroundColor: alpha(theme.palette.primary.main, 0.12),
+                                                                        color: theme.palette.primary.main,
+                                                                        flexShrink: 0,
+                                                                        padding: { xs: '4px', sm: '8px' },
+                                                                        '&:hover': {
+                                                                            backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                                                                        },
+                                                                    } : {
+                                                                        mr: '-20px',
+                                                                    }}
+                                                                    onClick={() =>
+                                                                        handleAgreeLocation()
+                                                                    }
+                                                                >
+                                                                    <GpsFixedIcon color="primary" sx={fromHero ? { fontSize: { xs: '14px', sm: '16px' } } : undefined} />
+                                                                </IconButton>
+                                                            ),
                                                         }}
-                                                    >
-                                                        <MapIcon />
-                                                        <Typography variant="body1" color={theme.palette.text.main}>{t("Set from map")}</Typography>
-                                                    </Button>
+                                                        required={true}
+                                                    />
+                                                    {hasRequiredAsterisk && isValueEmpty && (
+                                                        <Typography
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                top: '50%',
+                                                                left: languageDirection === 'rtl' ? 'unset' : '48px',
+                                                                right: languageDirection === 'rtl' ? '48px' : 'unset',
+                                                                transform: 'translateY(-50%)',
+                                                                pointerEvents: 'none',
+                                                                fontSize: '14px',
+                                                                color: placeholderColor || '#9e9e9e',
+                                                                fontWeight: '400',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                zIndex: 1,
+                                                            }}
+                                                        >
+                                                            {displayText}
+                                                            <span style={{ color: 'red', marginLeft: '2px' }}>*</span>
+                                                        </Typography>
+                                                    )}
                                                 </Box>
-                                            </Paper>
-                                        )}
+                                            )
+                                        }}
+                                        PaperComponent={({ children }) => {
+
+
+                                            return (
+                                                <Paper>
+                                                    {children}
+                                                    <Box textAlign="center" p={1}>
+                                                        {isStoreCreate ? null :
+                                                            (
+                                                                <Button
+                                                                    variant="text"
+                                                                    size="small"
+                                                                    onMouseDown={(e) => {
+                                                                        e.stopPropagation()
+                                                                        e.preventDefault()
+                                                                        handleOpen()
+                                                                    }}
+                                                                    sx={{
+                                                                        width: '100%',
+                                                                        backgroundColor: theme.palette.neutral[300],
+                                                                        display: 'flex',
+                                                                        gap: 1,
+                                                                    }}
+                                                                >
+                                                                    <MapIcon />
+                                                                    <Typography variant="body1" color={theme.palette.text.main}>
+                                                                        {t('Set from map')}
+                                                                    </Typography>
+                                                                </Button>
+                                                            )
+                                                        }
+
+                                                    </Box>
+                                                </Paper>
+                                            )
+                                        }}
                                     />
                                 ) : (
                                     <CssTextField
-                                        sx={{
+                                        sx={fromHero ? {
+                                            width: '100%',
+                                            '& .MuiOutlinedInput-root': {
+                                                padding: '0 !important',
+                                                backgroundColor: 'transparent',
+                                                '& fieldset': { border: 'none !important' },
+                                                '&:hover fieldset': { border: 'none !important' },
+                                                '&.Mui-focused fieldset': { border: 'none !important' },
+                                            },
+                                            '& .MuiOutlinedInput-notchedOutline': { border: 'none !important' },
+                                            '& .MuiOutlinedInput-input': {
+                                                padding: { xs: '10px 0 !important', sm: '10px 0 !important' },
+                                                fontSize: '14.5px',
+                                                color: theme.palette.text.primary,
+                                            },
+                                        } : {
                                             // paddingTop: getLocation ? '' : '3px',
                                             width: '100%',
                                         }}
@@ -495,17 +608,30 @@ const HeroLocationForm = ({ mobileview, fromHero, handleModalClose, getLocation,
                                     {fromHero ? (
                                         <CustomButtonPrimary
                                             radiuschange="true"
-                                            paddingTop="10px"
-                                            paddingBottom="10px"
-                                            sx={{borderRadius: '4px',
-                                                width: {
-                                                    xs: '80px',
-                                                    sm: '90px',
-                                                    md: '264px',
-                                                },
+                                            paddingTop="8px"
+                                            paddingBottom="8px"
+                                            sx={{
+                                                borderRadius: '999px !important',
+                                                padding: { xs: '6px 12px', sm: '9px 22px' },
+                                                minWidth: { xs: '44px', sm: '170px', md: '180px' },
+                                                width: { xs: '44px', sm: '170px', md: '180px' },
+                                                height: { xs: '36px', sm: '42px' },
+                                                whiteSpace: 'nowrap',
+                                                flexShrink: 0,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
                                             }}
                                         >
-                                            <Stack py="5px">
+                                            <Stack
+                                                py="5px"
+                                                alignItems="center"
+                                                justifyContent="center"
+                                                sx={{
+                                                    transform: 'scale(0.6)',
+                                                    transformOrigin: 'center',
+                                                }}
+                                            >
                                                 <AnimationDots size="0px" />
                                             </Stack>
                                         </CustomButtonPrimary>
@@ -520,7 +646,7 @@ const HeroLocationForm = ({ mobileview, fromHero, handleModalClose, getLocation,
                                                 },
                                             }}
                                         >
-                                            <Stack py="5px">
+                                            <Stack py="5px" >
                                                 <AnimationDots size="0px" />
                                             </Stack>
                                         </StyledButton>
@@ -539,9 +665,18 @@ const HeroLocationForm = ({ mobileview, fromHero, handleModalClose, getLocation,
                                             paddingBottom="8px"
                                             disabled={!location}
                                             sx={{
-                                                fontWeight: '500',
-                                                maxWidth: isXSmall ? '60px !important' : '150px',
-                                                borderRadius: '4px',
+                                                fontWeight: 700,
+                                                fontSize: { xs: '13px', sm: '13.5px' },
+                                                borderRadius: '999px !important',
+                                                padding: { xs: '6px 12px', sm: '9px 22px' },
+                                                minWidth: { xs: '44px', sm: '170px', md: '180px' },
+                                                width: { xs: '44px', sm: '170px', md: '180px' },
+                                                height: { xs: '36px', sm: '42px' },
+                                                whiteSpace: 'nowrap',
+                                                flexShrink: 0,
+                                                '& .MuiSvgIcon-root': {
+                                                    fontSize: { xs: '18px', sm: '20px' },
+                                                },
                                             }}
                                         >
                                             {isXSmall ? <EastIcon /> : t('Find Restaurant')}
