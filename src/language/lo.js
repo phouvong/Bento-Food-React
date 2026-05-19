@@ -1,4 +1,4 @@
-export const english = {
+export const lao = {
 "  Start exploring the best services around you.": "  ເລີ່ມສຳຫຼວດບໍລິການທີ່ດີທີ່ສຸດອ້ອມຕົວທ່ານ.",
   " Delivery Time Type": " ປະເພດເວລາຈັດສົ່ງ",
   " Refer an Friend": " ແນະນຳໝູ່",

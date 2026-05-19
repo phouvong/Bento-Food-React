@@ -6,33 +6,33 @@ import spanFlag from '../../../../../public/static/country-flag/spain.png'
 export const languageLists = [
     
 	{
-        languageName: 'ພາສາລາວ (ພາສາລາວ)',
+        languageName: 'Lao (ພາສາລາວ)',
         languageCode: 'lo',
         countryCode: 'LA',
         countryFlag: loFlag.src,
     },
-	{
-        languageName: 'Arabic (عربي)',
-        languageCode: 'ar',
-        countryCode: 'SA',
-        countryFlag: arFlag.src,
-    },
+	//{
+      //  languageName: 'Arabic (عربي)',
+        //languageCode: 'ar',
+     //   countryCode: 'SA',
+       // countryFlag: arFlag.src,
+    //},
     {
         languageName: 'English (English)',
         languageCode: 'en',
         countryCode: 'US',
         countryFlag: usFlag.src,
     },
-    {
-        languageName: 'Spanish (español)',
-        languageCode: 'es',
-        countryCode: 'es',
-        countryFlag: spanFlag.src,
-    },
-    {
-        languageName: 'Bangla (বাংলা)',
-        languageCode: 'bn',
-        countryCode: 'BN',
-        countryFlag: banFlag.src,
-    },
+    //{
+     //   languageName: 'Spanish (español)',
+     //   languageCode: 'es',
+     //   countryCode: 'es',
+     //   countryFlag: spanFlag.src,
+    //},
+   // {
+   //     languageName: 'Bangla (বাংলা)',
+   //     languageCode: 'bn',
+   //     countryCode: 'BN',
+   //     countryFlag: banFlag.src,
+   // },
 ]
