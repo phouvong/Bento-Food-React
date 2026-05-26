@@ -105,6 +105,5 @@
         "eslint": "^8.18.0",
         "i18next-scanner": "^4.6.0",
         "prettier": "2.5.1"
-    },
-    "packageManager": "yarn@1.22.19"
+    }
 }
