@@ -2,10 +2,16 @@ const config = {
   default: {
     build: {
       buildCommand: "npx @opennextjs/cloudflare@latest build",
-    }, // 1. ปิด block ของ 'build' ให้ถูกต้องตรงนี้ก่อนขึ้น 'bundler'
+    },
     
     bundler: {
-      external: ['@emotion/styled', '@emotion/react', '@emotion/cache'],
+      // 1. ย้ายค่ายยักษ์ใหญ่ที่มีปัญหาเข้ามาอยู่ในกลุ่มมัดรวม (Inline)
+      inline: [
+        '@emotion/styled', 
+        '@emotion/react', 
+        '@emotion/cache',
+        '@emotion/server'
+      ],
     }, 
     
     runtime: "edge",
@@ -18,7 +24,7 @@ const config = {
       tagCache: "dummy",
       queue: "dummy",
     },
-  }, // 2. ปิด block ของ 'default' ตรงนี้
+  },
 
   edgeExternals: ["node:crypto"], 
   
