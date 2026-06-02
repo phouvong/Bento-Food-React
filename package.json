@@ -76,11 +76,12 @@
     },
     "scripts": {
         "dev": "concurrently \"npm run i18n:watch\" \"next dev\"",
-        "build": "next build",
         "start": "next start",
         "i18n:extract": "i18next-scanner",
         "i18n:watch": "node i18n-watch.js",
-        "build": "opennextjs-cloudflare"
+        "dev": "next dev",
+        "build": "opennextjs-cloudflare",
+        "deploy": "opennextjs-cloudflare build && wrangler pages deploy"
     },
     "browserslist": {
         "production": [
