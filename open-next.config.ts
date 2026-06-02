@@ -10,6 +10,8 @@ const config = {
       queue: "dummy",
     },
   },
+  // เพิ่มบรรทัดนี้เข้ามาเพื่อแก้ปัญหาล็อกของระบบตรวจจับสเปกครับ 👇
+  edgeExternals: ["node:crypto"], 
   middleware: {
     external: true,
     override: {
