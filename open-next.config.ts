@@ -1,14 +1,25 @@
-import cache from "@opennextjs/cloudflare/kv-cache";
-
 const config = {
   default: {
     runtime: "edge",
+    override: {
+      wrapper: "cloudflare-node",
+      converter: "edge",
+      proxyExternalRequest: "fetch",
+      incrementalCache: "dummy",
+      tagCache: "dummy",
+      queue: "dummy",
+    },
   },
   middleware: {
-    runtime: "edge",
-  },
-  build: {
-    minify: true,
+    external: true,
+    override: {
+      wrapper: "cloudflare-edge",
+      converter: "edge",
+      proxyExternalRequest: "fetch",
+      incrementalCache: "dummy",
+      tagCache: "dummy",
+      queue: "dummy",
+    },
   },
 };
 
