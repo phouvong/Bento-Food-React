@@ -2,11 +2,14 @@ const config = {
   default: {
     build: {
       buildCommand: "npx @opennextjs/cloudflare@latest build",
-    // ไฮไลต์หลักอยู่ตรงนี้: กำหนดให้แพ็กเกจที่มีปัญหากลายเป็น external
+    }, // 1. ปิด block ของ 'build' ให้ถูกต้องตรงนี้ก่อนขึ้น 'bundler'
+    
     bundler: {
       external: ['@emotion/styled', '@emotion/react', '@emotion/cache'],
-    }, // ปิด build ให้ถูกต้องตรงนี้
+    }, 
+    
     runtime: "edge",
+    
     override: {
       wrapper: "cloudflare-node",
       converter: "edge",
@@ -15,9 +18,8 @@ const config = {
       tagCache: "dummy",
       queue: "dummy",
     },
-  }, // ปิด default ให้ถูกต้องตรงนี้
-  
-  // เพิ่มบรรทัดนี้เข้ามาเพื่อแก้ปัญหาล็อกของระบบตรวจจับสเปกครับ 👇
+  }, // 2. ปิด block ของ 'default' ตรงนี้
+
   edgeExternals: ["node:crypto"], 
   
   middleware: {
