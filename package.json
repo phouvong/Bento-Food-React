@@ -111,8 +111,11 @@
     "prettier": "2.5.1"
   },
   "resolutions": {
-    "**/*/@emotion/react": "11.13.3",
-    "**/*/@emotion/styled": "11.13.0",
-    "**/*/@emotion/cache": "11.13.0"
+    "*/@emotion/react": "11.13.3",
+    "*/@emotion/styled": "11.13.0",
+    "*/@emotion/cache": "11.13.0",
+    "@emotion/react": "11.13.3",
+    "@emotion/styled": "11.13.0",
+    "@emotion/cache": "11.13.0"
   }
 }
