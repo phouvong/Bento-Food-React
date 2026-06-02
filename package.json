@@ -80,7 +80,7 @@
         "i18n:extract": "i18next-scanner",
         "i18n:watch": "node i18n-watch.js",
         "dev": "next dev",
-        "build": "opennextjs-cloudflare",
+        "build": "opennextjs-cloudflare build",
         "deploy": "opennextjs-cloudflare build && wrangler pages deploy"
     },
     "browserslist": {
