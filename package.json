@@ -3,6 +3,8 @@
     "version": "3.0.0",
     "private": true,
     "dependencies": {
+        "@opennextjs/cloudflare": "^1.19.11",
+        "wrangler": "^4.96.0",
         "@emotion/cache": "^11.14.0",
         "@emotion/react": "^11.14.0",
         "@emotion/server": "^11.11.0",
@@ -77,7 +79,8 @@
         "build": "next build",
         "start": "next start",
         "i18n:extract": "i18next-scanner",
-        "i18n:watch": "node i18n-watch.js"
+        "i18n:watch": "node i18n-watch.js",
+        "build": "opennextjs-cloudflare"
     },
     "browserslist": {
         "production": [
