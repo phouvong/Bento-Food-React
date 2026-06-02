@@ -1,5 +1,7 @@
 const config = {
   default: {
+    build: {
+      external: ['@emotion/styled', '@emotion/react', '@emotion/cache'],
     runtime: "edge",
     override: {
       wrapper: "cloudflare-node",
