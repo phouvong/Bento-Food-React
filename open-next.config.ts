@@ -1,23 +1,19 @@
 const config = {
   default: {
     build: {
-      buildCommand: "npx @opennextjs/cloudflare@latest build",
+      // บังคับให้ใช้ Yarn ในการ Build เพื่อให้ resolutions ใน package.json ทำงานได้ 100%
+      buildCommand: "yarn run opennextjs-cloudflare build",
     },
     
-    // เปลี่ยนจาก inline มาเป็นการทำมาร์กหรือตัดปัญหาโครงสร้างไฟล์
+    // หลังจากที่เราล็อกเวอร์ชันผ่าน resolutions เป็น 11.13.x ใน package.json แล้ว
+    // ตัวไฟล์ .edge-light.cjs.mjs จะมีอยู่จริงบนระบบ ดังนั้นไม่จำเป็นต้องทำ alias หรือ external อีกต่อไป
     bundler: {
-      // แนะนำชี้เป้าแก้บั๊กของ emotion 11.14 โดยบังคับให้ esbuild เรียกไฟล์หลักแทนไฟล์ edge ที่หายไป
-      alias: {
-        '@emotion/styled': '@emotion/styled/dist/emotion-styled.cjs.js',
-        '@emotion/react': '@emotion/react/dist/emotion-react.cjs.js',
-      },
-      // หรือหากใช้ alias แล้วยังมีปัญหา ให้เปลี่ยนบรรทัด alias ด้านบนเป็นภายนอก (external) แทน ดังนี้:
-      // external: ['@emotion/styled', '@emotion/react', '@emotion/cache', '@emotion/server']
+      alias: {},
+      external: [],
     }, 
     
-    // นำ runtime: "edge" ออก เพื่อให้ฝั่ง Node-compat ของ cloudflare-node ทำงานได้เต็มที่
     override: {
-      wrapper: "cloudflare-node", // รองรับ Node compatibility ได้ดีกว่าสำหรับแอปที่มี MUI/Emotion
+      wrapper: "cloudflare-node", // ถูกต้องแล้วครับ รองรับ Node compatibility ได้ดีที่สุดสำหรับ MUI
       converter: "edge",
       proxyExternalRequest: "fetch",
       incrementalCache: "dummy",
