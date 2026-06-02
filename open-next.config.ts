@@ -1,6 +1,9 @@
 const config = {
   default: {
     build: {
+      buildCommand: "npx @opennextjs/cloudflare@latest build",
+    // ไฮไลต์หลักอยู่ตรงนี้: กำหนดให้แพ็กเกจที่มีปัญหากลายเป็น external
+    bundler: {
       external: ['@emotion/styled', '@emotion/react', '@emotion/cache'],
     }, // ปิด build ให้ถูกต้องตรงนี้
     runtime: "edge",
