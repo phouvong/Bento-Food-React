@@ -1,4 +1,6 @@
-const config = {
+import { defineConfig } from "@opennextjs/cloudflare";
+
+export default defineConfig({
   default: {
     runtime: "edge",
     override: {
@@ -21,6 +23,4 @@ const config = {
       queue: "dummy",
     },
   },
-};
-
-export default config;
+});
