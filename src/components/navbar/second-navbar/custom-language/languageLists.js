@@ -1,5 +1,5 @@
-const loFlag = '/static/country-flag/lao.png'
-const englishFlag = '/static/country-flag/english.png'
+import loFlag from '../../../../../public/static/country-flag/lao.png'
+import usFlag from '../../../../../public/static/country-flag/english.png'
 import arFlag from '../../../../../public/static/country-flag/arabic-flag-svg.svg'
 import banFlag from '../../../../../public/static/country-flag/bangladesh (1).png'
 import spanFlag from '../../../../../public/static/country-flag/spain.png'
