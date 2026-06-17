@@ -3,6 +3,10 @@ import { getIndexFromArrayByComparision } from '@/utils/customFunctions'
 const initialState = {
     cartItem: null,
     cartList: [],
+    // Grouped cart payload used by FloatingCart on the home / non-restaurant
+    // routes: an array of { restaurant: { id, name, logo_full_url,
+    // item_count, item_images } } entries returned by the cart-list API.
+    cartGroups: [],
     campFoodList: [],
     type: 'regular',
     totalAmount: null,
@@ -176,9 +180,18 @@ export const cartSlice = createSlice({
                 )
                 state.cartList = newData
             }
+            state.cartGroups = (state.cartGroups || [])
+                .map((g) => ({
+                    ...g,
+                    carts: (g?.carts || []).filter(
+                        (c) => c?.item?.id !== action.payload.id
+                    ),
+                }))
+                .filter((g) => (g?.carts || []).length > 0)
         },
         setClearCart: (state = initialState, action) => {
             state.cartList = []
+            state.cartGroups = []
         },
         setCartItemByDispatch: (state, action) => {
             state.cartItem = action.payload
@@ -198,6 +211,17 @@ export const cartSlice = createSlice({
         setCouponAmount: (state, action) => {
             state.couponAmount = action.payload
         },
+        setCartGroups: (state, action) => {
+            state.cartGroups = action.payload
+        },
+        removeCartGroupByRestaurantId: (state, action) => {
+            state.cartGroups = state.cartGroups.filter(
+                (g) => String(g?.restaurant?.id) !== String(action.payload)
+            )
+            state.cartList = (state.cartList || []).filter(
+                (i) => String(i?.restaurant_id) !== String(action.payload)
+            )
+        },
     },
 })
 
@@ -216,6 +240,8 @@ export const {
     setCartItemByDispatch,
     setTotalAmount,
     setWalletAmount,
-    setCouponAmount
+    setCouponAmount,
+    setCartGroups,
+    removeCartGroupByRestaurantId,
 } = cartSlice.actions
 export default cartSlice.reducer

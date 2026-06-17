@@ -145,6 +145,30 @@ const CouponCard = ({
                     justifyContent="center"
                     alignItems="center"
                 >
+                    {coupon?.coupon_type === 'pro_customer' ? (
+                        <Stack
+                            direction="row"
+                            alignItems="center"
+                            sx={{
+                                px: 1,
+                                py: 0.25,
+                                borderRadius: '4px',
+                                background:
+                                    'linear-gradient(90deg, #A78BFA 0%, #8B5CF6 100%)',
+                            }}
+                        >
+                            <Typography
+                                sx={{
+                                    fontSize: '10px',
+                                    fontWeight: 600,
+                                    color: '#fff',
+                                    letterSpacing: '0.3px',
+                                }}
+                            >
+                                {t('Pro Customer')}
+                            </Typography>
+                        </Stack>
+                    ) : null}
                     {coupon?.restaurant ? (
                         <Typography fontSize="14px" color={theme.palette.primary.main}>{coupon?.restaurant?.name}</Typography>
                     ):null}

@@ -10,6 +10,8 @@ import { useTheme } from '@mui/material/styles'
 const MenuBar = ({ tabData, onClose, sidedrawer, page, setAttributeId }) => {
     const theme =useTheme()
     const { global } = useSelector((state) => state.globalSettings)
+    const { userData } = useSelector((state) => state.user)
+    const isProCustomer =  global?.pro_member_status
     const handleClick = (item) => {
         setAttributeId('')
         Router.push(
@@ -28,7 +30,8 @@ const MenuBar = ({ tabData, onClose, sidedrawer, page, setAttributeId }) => {
                 if (
                     (global?.customer_wallet_status === 0 && item.id === 5) ||
                     (global?.loyalty_point_status === 0 && item.id === 6) ||
-                    (global?.ref_earning_status === 0 && item.id === 7)
+                    (global?.ref_earning_status === 0 && item.id === 7) ||
+                    (item.id === 6 && !isProCustomer)
                 ) {
                     return null
                 } else {

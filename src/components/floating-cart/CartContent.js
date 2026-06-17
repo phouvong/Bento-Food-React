@@ -193,6 +193,7 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
         const cartIdAndGuestId = {
             cart_id: item?.cartItemId,
             guestId: getGuestId(),
+            restaurant_id: item?.restaurant_id,
         }
         itemRemove(cartIdAndGuestId, {
             onSuccess: () => handleSuccess(item),
@@ -302,8 +303,8 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
                     borderRadius="1rem"
                 />
             </Grid>
-            <Grid item md={9} xs={9} sx={{ paddingInlineStart: '.7rem' }}>
-                <Grid container md={12} sm={12} xs={12} spacing={{ xs: 1 }}>
+            <Grid item md={9} xs={9} sx={{ paddingInlineStart: '.7rem', paddingInlineEnd: '.3rem' }}>
+                <Grid container md={12} sm={12} xs={12}>
                     <Grid item md={12} sm={12} xs={12}>
                         <Stack
                             direction="row"
@@ -319,7 +320,6 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
                                 }}
-                                //onClick={() => handleProductUpdateModal(item)}
                             >
                                 {item.name}
                             </OrderFoodName>
@@ -341,11 +341,187 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
                                 t={t}
                             />
                         )}
-                        {item?.selectedAddons?.length > 0 && (
+                    </Grid>
+                    <Grid item md={12} sm={12} xs={12} sx={{ mt: 0.5 }}>
+                        <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            alignItems="center"
+                        >
+                            <OrderFoodAmount
+                                sx={{
+                                    color: (theme) =>
+                                        theme.palette.primary.main,
+                                    fontWeight: 700,
+                                }}
+                            >
+                                {getAmount(
+                                    handleTotalAmountWithAddonsFF(
+                                        item.totalPrice,
+                                        item?.selectedAddons
+                                    ),
+                                    currencySymbolDirection,
+                                    currencySymbol,
+                                    digitAfterDecimalPoint
+                                )}
+                            </OrderFoodAmount>
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={0.75}
+                            >
+                                {item?.quantity === 1 ? (
+                                    <IconButton
+                                        aria-label="delete"
+                                        size="small"
+                                        color="error"
+                                        disabled={removeIsLoading}
+                                    >
+                                        <DeleteIcon
+                                            onClick={() => handleRemove(item)}
+                                            fontSize="inherit"
+                                        />
+                                    </IconButton>
+                                ) : (
+                                    <IconButton
+                                        disabled={updatedLoading}
+                                        aria-label="decrement"
+                                        size="small"
+                                        sx={{
+                                            width: '24px',
+                                            height: '24px',
+                                            background: (theme) =>
+                                                theme.palette.neutral[200],
+                                            borderRadius: '11px',
+                                        }}
+                                    >
+                                        <RemoveIcon
+                                            size="small"
+                                            sx={{
+                                                color: (theme) =>
+                                                    theme.palette.neutral[1000],
+                                                padding: '3px',
+                                            }}
+                                            onClick={() => handleDecrement(item)}
+                                        />
+                                    </IconButton>
+                                )}
+                                {updatedLoading ? (
+                                    <CircularLoader size="14px" />
+                                ) : editingQuantity ? (
+                                    <TextField
+                                        size="small"
+                                        type="number"
+                                        value={tempQuantity}
+                                        onChange={handleQuantityChange}
+                                        onBlur={handleQuantitySubmit}
+                                        onKeyDown={handleQuantityKeyPress}
+                                        onInput={(e) => {
+                                            if (e.target.value < 0) {
+                                                e.target.value = 0
+                                            }
+                                        }}
+                                        autoFocus
+                                        inputProps={{
+                                            min: 1,
+                                            style: {
+                                                textAlign: 'center',
+                                                padding: '7px 7px',
+                                                width: '50px',
+                                            },
+                                        }}
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                height: '24px',
+                                                minWidth: '20px',
+                                                '& fieldset': {
+                                                    borderRadius: '4px',
+                                                    border: '1px solid ',
+                                                    borderColor: (theme) =>
+                                                        theme.palette
+                                                            .neutral[400],
+                                                },
+                                                '&:hover fieldset': {
+                                                    borderRadius: '4px',
+                                                    border: '1px solid',
+                                                    borderColor: (theme) =>
+                                                        theme.palette
+                                                            .neutral[400],
+                                                },
+                                                '&.Mui-focused fieldset': {
+                                                    borderRadius: '4px',
+                                                    border: '1px solid',
+                                                    borderColor: (theme) =>
+                                                        theme.palette
+                                                            .neutral[400],
+                                                },
+                                            },
+                                            '& input[type=number]': {
+                                                '-moz-appearance': 'textfield',
+                                            },
+                                            '& input[type=number]::-webkit-outer-spin-button':
+                                            {
+                                                '-webkit-appearance': 'none',
+                                                margin: 0,
+                                            },
+                                            '& input[type=number]::-webkit-inner-spin-button':
+                                            {
+                                                '-webkit-appearance': 'none',
+                                                margin: 0,
+                                            },
+                                        }}
+                                    />
+                                ) : (
+                                    <Typography
+                                        onClick={handleQuantityEdit}
+                                        sx={{
+                                            cursor: 'pointer',
+                                            userSelect: 'none',
+                                            minWidth: '32px',
+                                            textAlign: 'center',
+                                            border: '1px solid',
+                                            borderColor: (theme) =>
+                                                theme.palette.neutral[400],
+                                            borderRadius: '4px',
+                                            py: '2px',
+                                            px: '8px',
+                                            fontSize: '14px',
+                                        }}
+                                    >
+                                        {item?.quantity}
+                                    </Typography>
+                                )}
+                                <IconButton
+                                    disabled={updatedLoading}
+                                    aria-label="increment"
+                                    size="small"
+                                    sx={{
+                                        width: '24px',
+                                        height: '24px',
+                                        background: (theme) =>
+                                            theme.palette.primary.main,
+                                        borderRadius: '11px',
+                                    }}
+                                >
+                                    <AddIcon
+                                        sx={{
+                                            color: '#fff',
+                                            padding: '3px',
+                                        }}
+                                        size="small"
+                                        onClick={() => handleIncrement(item)}
+                                    />
+                                </IconButton>
+                            </Stack>
+                        </Stack>
+                    </Grid>
+                    {item?.selectedAddons?.length > 0 && (
+                        <Grid item md={12} sm={12} xs={12} sx={{ mt: 0.5 }}>
                             <Stack
                                 direction="row"
                                 alignItems="center"
                                 spacing={0.5}
+                                flexWrap="wrap"
                             >
                                 <OrderFoodSubtitle>
                                     {t('Addon')}
@@ -355,166 +531,8 @@ const CartContent = ({ item, handleProductUpdateModal, productBaseUrl, t }) => {
                                     {getSelectedAddOn(item?.selectedAddons)}
                                 </OrderFoodSubtitle>
                             </Stack>
-                        )}
-                    </Grid>
-                    <Grid item md={6} xs={6} sm={6}>
-                        <OrderFoodAmount>
-                            {getAmount(
-                                handleTotalAmountWithAddonsFF(
-                                    item.totalPrice,
-                                    item?.selectedAddons
-                                ),
-                                currencySymbolDirection,
-                                currencySymbol,
-                                digitAfterDecimalPoint
-                            )}
-                        </OrderFoodAmount>
-                    </Grid>
-                    <Grid md={6} xs={6} sm={6} pt="6px">
-                        <Stack direction="row" alignItems="center" spacing={2}>
-                            {item?.quantity === 1 ? (
-                                <IconButton
-                                    aria-label="delete"
-                                    size="small"
-                                    color="error"
-                                    disabled={removeIsLoading}
-                                >
-                                    <DeleteIcon
-                                        onClick={() => handleRemove(item)}
-                                        fontSize="inherit"
-                                    />
-                                </IconButton>
-                            ) : (
-                                <IconButton
-                                    disabled={updatedLoading}
-                                    aria-label="delete"
-                                    size="small"
-                                    sx={{
-                                        width: '24px',
-                                        height: '24px',
-                                        background: (theme) =>
-                                            theme.palette.neutral[200],
-                                        borderRadius: '11px',
-                                    }}
-                                >
-                                    <RemoveIcon
-                                        size="small"
-                                        sx={{
-                                            color: (theme) =>
-                                                theme.palette.neutral[1000],
-                                            padding: '3px',
-                                        }}
-                                        onClick={() => handleDecrement(item)}
-                                    //onClick={decrementPrice}
-                                    />
-                                </IconButton>
-                            )}
-
-                            {updatedLoading ? (
-                                <CircularLoader size="14px" />
-                            ) : editingQuantity ? (
-                                <TextField
-                                    size="small"
-                                    type="number"
-                                    value={tempQuantity}
-                                    onChange={handleQuantityChange}
-                                    onBlur={handleQuantitySubmit}
-                                    onKeyDown={handleQuantityKeyPress}
-                                    onInput={(e) => {
-                                        // Prevent negative values from being typed
-                                        if (e.target.value < 0) {
-                                            e.target.value = 0
-                                        }
-                                    }}
-                                    autoFocus
-                                    inputProps={{
-                                        min: 1,
-                                        style: {
-                                            textAlign: 'center',
-                                            padding: '7px 7px',
-                                            width: '50px',
-                                        },
-                                    }}
-                                    sx={{
-                                        '& .MuiOutlinedInput-root': {
-                                            height: '24px',
-                                            minWidth: '20px',
-                                            '& fieldset': {
-                                                borderRadius: '4px',
-                                                border: '1px solid ',
-                                                borderColor: (theme) =>
-                                                    theme.palette.neutral[400],
-                                            },
-                                            '&:hover fieldset': {
-                                                borderRadius: '4px',
-                                                border: '1px solid',
-                                                borderColor: (theme) =>
-                                                    theme.palette.neutral[400],
-                                            },
-                                            '&.Mui-focused fieldset': {
-                                                borderRadius: '4px',
-                                                border: '1px solid',
-                                                borderColor: (theme) =>
-                                                    theme.palette.neutral[400],
-                                            },
-                                        },
-                                        // Hide number input arrows
-                                        '& input[type=number]': {
-                                            '-moz-appearance': 'textfield',
-                                        },
-                                        '& input[type=number]::-webkit-outer-spin-button':
-                                        {
-                                            '-webkit-appearance': 'none',
-                                            margin: 0,
-                                        },
-                                        '& input[type=number]::-webkit-inner-spin-button':
-                                        {
-                                            '-webkit-appearance': 'none',
-                                            margin: 0,
-                                        },
-                                    }}
-                                />
-                            ) : (
-                                <Typography
-                                    width="14px"
-                                    onClick={handleQuantityEdit}
-                                    sx={{
-                                        cursor: 'pointer',
-                                        userSelect: 'none',
-                                        '&:hover': {
-                                            backgroundColor:
-                                                'rgba(0, 0, 0, 0.04)',
-                                            borderRadius: '4px',
-                                        },
-                                    }}
-                                >
-                                    {item?.quantity}
-                                </Typography>
-                            )}
-                            <IconButton
-                                disabled={updatedLoading}
-                                aria-label="delete"
-                                size="small"
-                                sx={{
-                                    width: '24px',
-                                    height: '24px',
-                                    background: (theme) =>
-                                        theme.palette.neutral[200],
-                                    borderRadius: '11px',
-                                }}
-                            >
-                                <AddIcon
-                                    sx={{
-                                        color: (theme) =>
-                                            theme.palette.neutral[1000],
-                                        padding: '3px',
-                                    }}
-                                    size="small"
-                                    onClick={() => handleIncrement(item)}
-                                />
-                            </IconButton>
-                        </Stack>
-                    </Grid>
+                        </Grid>
+                    )}
                 </Grid>
             </Grid>
         </Grid>

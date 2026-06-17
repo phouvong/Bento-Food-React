@@ -4,7 +4,7 @@ import CustomSideDrawer from '../side-drawer/CustomSideDrawer'
 import { useTheme } from '@mui/material/styles'
 import ProfileSideMenu from './ProfileSideMenu'
 import { t } from 'i18next'
-import MobileMenu from '../../assets/images/icons/MobileMenu'
+import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import { useDispatch, useSelector } from 'react-redux'
@@ -49,50 +49,94 @@ const SideDrawer = ({ page, setAttributeId }) => {
     return (
         <>
             {languageDirection && (
-                <CustomStackFullWidth paddingBlock="13px 0px">
+                <CustomStackFullWidth>
+                    {/* App-bar style mobile header. Layout: back-button slot
+                        (left, fixed width) / centered title / menu button
+                        (right, fixed width). Equal-width side slots keep
+                        the title visually centered even when the back arrow
+                        isn't rendered. Subtle bottom border anchors it as a
+                        distinct section header. */}
                     <Stack
-                        sx={{ position: 'absolute', top: '58px', left: '15px' }}
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        sx={{
+                            px: '12px',
+                            // Tight top spacing — sits flush below the
+                            // location bar / app header rather than floating
+                            // with extra room above the title.
+                            py: '4px',
+                            minHeight: 44,
+                            width: '100%',
+                            borderBottom: (theme) =>
+                                `1px solid ${theme.palette.divider}`,
+                            backgroundColor: (theme) =>
+                                theme.palette.background.paper,
+                        }}
                     >
-                        {isSmall && isEditProfile === true && (
+                        {/* Menu (hamburger) on the LEFT — standard mobile
+                            pattern. Back arrow (edit profile) takes the
+                            right slot. */}
+                        <Stack
+                            direction="row"
+                            sx={{ width: 40, justifyContent: 'flex-start' }}
+                        >
                             <IconButton
-                                onClick={() => dispatch(setEditProfile(false))}
+                                onClick={() => setOpen(true)}
+                                size="small"
+                                aria-label={t('Open menu')}
                                 sx={{
-                                    width: '30px',
-                                    height: '30px',
+                                    width: 36,
+                                    height: 36,
                                     color: (theme) =>
                                         theme.palette.primary.main,
                                 }}
                             >
-                                <ArrowBackIosNewIcon
-                                    sx={{ fontSize: '10px' }}
-                                />
+                                {/* MenuOpenIcon (hamburger + chevron) is
+                                    visually distinct from the plain
+                                    `MenuIcon` used in the global app
+                                    header — keeps the two affordances
+                                    from looking identical. */}
+                                <MenuOpenIcon sx={{ fontSize: 24 }} />
                             </IconButton>
-                        )}
-                    </Stack>
-                    <Stack alignItems="center">
+                        </Stack>
                         <Typography
-                            variant="h3"
+                            variant="h6"
+                            fontWeight={600}
                             color={theme.palette.neutral[900]}
                             align="center"
+                            sx={{
+                                flex: 1,
+                                fontSize: { xs: '16px', sm: '18px' },
+                                lineHeight: 1.2,
+                                textTransform: 'capitalize',
+                            }}
                         >
                             {t(pageTitle)}
                         </Typography>
-                    </Stack>
-                    <Stack
-                        sx={{
-                            position: 'absolute',
-                            top: '55px',
-                            right: '15px',
-                        }}
-                    >
-                        <IconButton
-                            onClick={() => setOpen(true)}
-                            sx={{
-                                color: (theme) => theme.palette.primary.main,
-                            }}
+                        <Stack
+                            direction="row"
+                            sx={{ width: 40, justifyContent: 'flex-end' }}
                         >
-                            <MobileMenu />
-                        </IconButton>
+                            {isSmall && isEditProfile === true && (
+                                <IconButton
+                                    onClick={() =>
+                                        dispatch(setEditProfile(false))
+                                    }
+                                    size="small"
+                                    sx={{
+                                        width: 36,
+                                        height: 36,
+                                        color: (theme) =>
+                                            theme.palette.primary.main,
+                                    }}
+                                >
+                                    <ArrowBackIosNewIcon
+                                        sx={{ fontSize: 16 }}
+                                    />
+                                </IconButton>
+                            )}
+                        </Stack>
                     </Stack>
                     <RTL direction={languageDirection}>
                         <CustomSideDrawer

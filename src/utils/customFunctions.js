@@ -37,7 +37,7 @@ export const getAmount = (
     currency_symbol,
     digitAfterDecimalPoint
 ) => {
-    let newAmount = truncate(amount?.toString(), digitAfterDecimalPoint)
+    let newAmount = truncate((amount == null || isNaN(amount) ? 0 : amount).toString(), digitAfterDecimalPoint)
     if (newAmount > 10000) {
         if (newAmount >= 1000000000) {
             // Billion
@@ -70,7 +70,7 @@ export const getAmount = (
 }
 const handleVariationValuesSum = (productVariations) => {
     let sum = 0
-    if (productVariations.length > 0) {
+    if (productVariations?.length > 0) {
         productVariations?.forEach((pVal) => {
             pVal?.values?.forEach((cVal) => {
                 if (cVal?.isSelected) {
@@ -82,16 +82,16 @@ const handleVariationValuesSum = (productVariations) => {
     return sum
 }
 export const getItemTotalWithoutDiscount = (item) => {
-    return item?.price + handleVariationValuesSum(item.variations)
+    return item?.price + handleVariationValuesSum(item?.variations)
 }
 export const getSubTotalPrice = (cartList) => {
-    let ad = cartList.reduce(
+    let ad = (cartList ?? []).reduce(
         (total, product) =>
-            (product.variations.length > 0
+            (product?.variations?.length > 0
                 ? getItemTotalWithoutDiscount(product)
-                : product.price) *
-            product.quantity +
-            selectedAddonsTotal(product.selectedAddons) +
+                : product?.price ?? 0) *
+            (product?.quantity ?? 0) +
+            selectedAddonsTotal(product?.selectedAddons) +
             total,
         0
     )
@@ -577,16 +577,18 @@ export const getConvertDiscount = (
     quantity
 ) => {
     let q = quantity ? quantity : 1
-    if (restaurantDiscount === 0) {
+    const safePrice = Number(price) || 0
+    const safeDis = Number(dis) || 0
+    const safeRestaurantDiscount = Number(restaurantDiscount) || 0
+    if (safeRestaurantDiscount === 0) {
         if (disType === 'amount') {
-            price = price - dis * q
+            return safePrice - safeDis * q
         } else if (disType === 'percent') {
-            price = price - (dis / 100) * price
+            return safePrice - (safeDis / 100) * safePrice
         }
-        return price
-    } else {
-        return price - (price * restaurantDiscount) / 100
+        return safePrice
     }
+    return safePrice - (safePrice * safeRestaurantDiscount) / 100
 }
 export const getCouponDiscount = (couponDiscount, restaurantData, cartList) => {
     if (couponDiscount) {
@@ -674,6 +676,7 @@ export const getCouponDiscount = (couponDiscount, restaurantData, cartList) => {
                     break
                 case 'free_delivery':
                     return 0
+                case 'pro_customer':
                 case 'default':
                     if (
                         couponDiscount &&
@@ -705,6 +708,7 @@ export const getCouponDiscount = (couponDiscount, restaurantData, cartList) => {
         } else {
             return 0
         }
+        return 0
     }
 }
 export const isAvailable = (start, end) => {

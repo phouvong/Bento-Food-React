@@ -11,10 +11,8 @@ const FooterBottom = () => {
     const legalLinks = [
         { label: 'Privacy', href: '/privacy-policy' },
         { label: 'Terms', href: '/terms-and-conditions' },
-        { label: 'Sitemap', href: '/' },
+       // { label: 'Sitemap', href: '/' },
     ]
-
-    const paymentMethods = ['VISA', 'MC', 'AMEX', 'PAY', 'GPAY']
 
     return (
         <Box
@@ -85,36 +83,6 @@ const FooterBottom = () => {
                                 >
                                     {t(link.label)}
                                 </Box>
-                            </Box>
-                        ))}
-                    </Box>
-
-                    {/* Payment methods */}
-                    <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        {paymentMethods.map((pm) => (
-                            <Box
-                                key={pm}
-                                sx={{
-                                    height: '24px',
-                                    px: '8px',
-                                    borderRadius: '5px',
-                                    background: 'rgba(255,255,255,.06)',
-                                    border: '1px solid rgba(255,255,255,.08)',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: '#E2E8F0',
-                                    fontSize: '10.5px',
-                                    fontWeight: 800,
-                                    letterSpacing: '.04em',
-                                    transition: 'background .15s ease, border-color .15s ease',
-                                    '&:hover': {
-                                        background: 'rgba(255,255,255,.1)',
-                                        borderColor: 'rgba(255,255,255,.14)',
-                                    },
-                                }}
-                            >
-                                {pm}
                             </Box>
                         ))}
                     </Box>

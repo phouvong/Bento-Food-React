@@ -13,7 +13,7 @@ const UserInfo = ({ page, orderId, setAttributeId }) => {
     const isXs = useMediaQuery(theme.breakpoints.down('sm'))
 
     return (
-        <CustomStackFullWidth sx={{ paddingTop: { xs: '1.1rem', md: '66px' } }}>
+        <CustomStackFullWidth sx={{ paddingTop: { xs: 0, md: '66px' } }}>
             <Grid container spacing={2}>
                 <Grid
                     container

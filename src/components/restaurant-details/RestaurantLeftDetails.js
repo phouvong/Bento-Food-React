@@ -61,6 +61,7 @@ import { RTL } from '../RTL/RTL'
 import CustomModal from '../custom-modal/CustomModal'
 import FoodRating from '../food-card/FoodRating'
 import ClosedNowOverlay from './HeadingBannerSection/ClosedNowOverlay'
+import VerifiedBadge from '@/components/verified-badge/VerifiedBadge'
 import { RestaurantCommonTypography } from './restaurant-details.style'
 import { shareSettings } from './shareSettings'
 
@@ -532,12 +533,15 @@ const RestaurantLeftDetails = (props) => {
                         )}
                     </Box>
                     <Stack padding={isMobileSticky ? '2px' : '10px'} justifyContent="center" gap={isMobileSticky ? '2px' : '8px'}>
-                        <Typography
-                            color={theme.palette.neutral[1000]}
-                            fontWeight="600"
-                        >
-                            {details?.name}
-                        </Typography>
+                        <Stack direction="row" alignItems="center" gap="4px">
+                            <Typography
+                                color={theme.palette.neutral[1000]}
+                                fontWeight="600"
+                            >
+                                {details?.name}
+                            </Typography>
+                            <VerifiedBadge verified={details?.verified_seller} sx={{ mb: '1px' }} />
+                        </Stack>
                         <Typography
                             align="left"
                             fontSize="13px"

@@ -23,6 +23,8 @@ const CustomImageContainer = ({
     boxShadow,
     loading,
     fetchPriority='auto',
+    errorWidth,
+    errorHeight,
 }) => {
     // const [imageFile, setState] = useState(null)
     // const [newObjectFit, setNewObjectFit] = useState(objectFit)
@@ -45,6 +47,16 @@ const CustomImageContainer = ({
     }, [fetchPriority])
 
 
+    const showFallback = !src
+    const fallbackImgStyle =
+        showFallback && (errorWidth || errorHeight)
+            ? {
+                  width: errorWidth,
+                  height: errorHeight,
+                  margin: 'auto',
+              }
+            : undefined
+
     return (
         <CustomImageContainerStyled
             height={height}
@@ -62,6 +74,14 @@ const CustomImageContainer = ({
             cursor={cursor}
             aspectRatio={aspectRatio}
             boxShadow={boxShadow}
+            sx={
+                showFallback && (errorWidth || errorHeight)
+                    ? {
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                      }
+                    : undefined
+            }
         >
             <img
                 ref={imgRef}
@@ -75,6 +95,7 @@ const CustomImageContainer = ({
                     // e.target.style.margin = 'auto'
                 }}
                 loading={loading || 'lazy'}
+                style={fallbackImgStyle}
             />
         </CustomImageContainerStyled>
     )

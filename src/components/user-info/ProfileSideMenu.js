@@ -8,6 +8,7 @@ import refer from '../../../public/static/refer_code.png'
 import settings from '../../../public/static/profile/settings.svg'
 import wish from '../../../public/static/profile/wish.svg'
 import inboxIcon from '../../../public/static/profile/inbox-icon.png'
+import crown from '../../../public/static/profile/crown.svg'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
@@ -49,25 +50,31 @@ export const tabData = [
     },
     {
         id: 6,
+        label: 'Subscription Plan',
+        value: 'subscription',
+        img: crown,
+    },
+    {
+        id: 7,
         label: 'Loyalty Points',
         value: 'loyalty',
         img: loyalty,
     },
     {
-        id: 7,
+        id: 8,
         label: 'Referral Code',
         value: 'referral',
         img: refer,
     },
     {
-        id: 8,
+        id: 9,
         label: 'Inbox',
         value: 'inbox',
         img: inboxIcon,
     },
 
     {
-        id: 9,
+        id: 10,
         label: 'Settings',
         value: 'settings',
         img: settings,

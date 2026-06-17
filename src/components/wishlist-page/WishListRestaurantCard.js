@@ -9,7 +9,7 @@ import {
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import StarRoundedIcon from '@mui/icons-material/StarRounded'
-import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded'
+import VerifiedBadge from '@/components/verified-badge/VerifiedBadge'
 import TwoWheelerOutlinedIcon from '@mui/icons-material/TwoWheelerOutlined'
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined'
 import PercentRoundedIcon from '@mui/icons-material/PercentRounded'
@@ -58,7 +58,7 @@ const WishListRestaurantCard = ({ restaurant, deleteWishlistRes }) => {
         discount,
         restaurant_discount,
         coupons,
-        verified,
+        verified_seller,
     } = restaurant
 
     const handleClick = () => {
@@ -183,15 +183,10 @@ const WishListRestaurantCard = ({ restaurant, deleteWishlistRes }) => {
                                 >
                                     {name}
                                 </Typography>
-                                {verified && (
-                                    <VerifiedRoundedIcon
-                                        sx={{
-                                            fontSize: 14,
-                                            color: theme.palette.info.main,
-                                            flexShrink: 0,
-                                        }}
-                                    />
-                                )}
+                                <VerifiedBadge
+                                    verified={verified_seller}
+                                    sx={{ mb: '1px' }}
+                                />
                             </Stack>
 
                             {cuisineNames.length > 0 ? (

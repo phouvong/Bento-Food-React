@@ -8,6 +8,10 @@ import CustomNextImage from '@/components/CustomNextImage'
 const BannerCard = ({ banner, handleBannerClick, onlyShimmer }) => {
     const bannerImage = banner?.image_full_url
     const isSmall = window.innerWidth < 600
+    const bannerAspectRatio =
+        banner?.width && banner?.height
+            ? `${banner.width} / ${banner.height}`
+            : null
     return (
         <>
             {onlyShimmer ? (
@@ -18,7 +22,11 @@ const BannerCard = ({ banner, handleBannerClick, onlyShimmer }) => {
                         variant="rounded"
                         sx={{
                             borderRadius: '16px',
-                            aspectRatio: { xs: '2 / 0.77', md: '2 / 1' },
+                            aspectRatio:
+                                bannerAspectRatio ?? {
+                                    xs: '2 / 0.77',
+                                    md: '2 / 1',
+                                },
                         }}
                     />
                 </CustomStackFullWidth>
@@ -29,6 +37,13 @@ const BannerCard = ({ banner, handleBannerClick, onlyShimmer }) => {
                         cursor: 'pointer',
                         overflow: 'hidden',
                         transition: 'transform 0.3s ease',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        aspectRatio:
+                            bannerAspectRatio ?? {
+                                xs: '2 / 0.77',
+                                md: '2 / 1',
+                            },
                         // boxShadow: '0px 10px 30px rgba(0, 0, 0, 0)',
                         '&:hover': {
                             transform: 'scale(1.02)',
@@ -39,8 +54,10 @@ const BannerCard = ({ banner, handleBannerClick, onlyShimmer }) => {
                 >
                     <CustomNextImage
                         src={bannerImage}
-                        width={370}
+                        width={500}
                         height={isSmall ? 142 : 185}
+                        errorWidth={80}
+                        errorHeight={80}
                         alt="banner"
                         priority
                         borderRadius="16px"

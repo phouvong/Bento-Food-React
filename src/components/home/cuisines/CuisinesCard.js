@@ -8,7 +8,9 @@ const Tile = styled(Box)(({ theme }) => ({
     aspectRatio: '1 / 1',
     borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: theme.palette.common.black,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     transition: 'transform .18s ease, box-shadow .18s ease',
     cursor: 'pointer',
     '& .cuisine-img': {
@@ -67,6 +69,8 @@ const CuisinesCard = ({ item }) => {
                         alt={item?.name}
                         width="162"
                         height="162"
+                        errorWidth={60}
+                        errorHeight={60}
                         objectFit="cover"
                     />
                     <Name component="h3">{item?.name}</Name>

@@ -27,7 +27,11 @@ const index = ({ configData, landingPageData, pathName, metaData }) => {
                     <TypeWiseResturant
                         restaurantType="nearby"
                         title={`${t('Nearby Restaurants')} on ${configData?.business_name}`}
-                        description={`${t('Nearby Restaurants')} on ${configData?.business_name}`}
+                        description={`${t(
+                            'Order from restaurants closest to you on'
+                        )} ${configData?.business_name} — ${t(
+                            'faster delivery, hotter food, and your neighborhood favorites.'
+                        )}`}
                     />
                 </NoSsr>
             </div>

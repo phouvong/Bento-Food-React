@@ -30,6 +30,7 @@ import i18n, { t } from 'i18next'
 import '@/styles/global.css'
 import '@/styles/nprogress.css'
 import SubscribeServices from '@/components/home/subscribe-services/SubscribeServices'
+import ExpiredSubscriptionPrompt from '@/components/home/ExpiredSubscriptionPrompt'
 
 const Footer = dynamic(() => import('@/components/footer/Footer'), { ssr: false })
 
@@ -91,6 +92,9 @@ const App = ({ Component, pageProps, emotionCache = clientSideEmotionCache }) =>
                 >
                   <CssBaseline />
                   <Toaster />
+                  <NoSsr>
+                    <ExpiredSubscriptionPrompt />
+                  </NoSsr>
                   <Head>
                     <title>{t('Loading...')}</title>
                   </Head>

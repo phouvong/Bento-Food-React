@@ -1,79 +1,48 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Box, Stack } from '@mui/material'
+import React, { useEffect, useRef, useState } from 'react'
+import {
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    Stack,
+    Typography,
+} from '@mui/material'
+import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded'
+import CancelRoundedIcon from '@mui/icons-material/CancelRounded'
+import { useRouter } from 'next/router'
 import TopBanner from './HeadingBannerSection/TopBanner'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import CustomContainer from '../container'
 import RestaurantCategoryBar from './RestaurantCategoryBar'
-import { useGetAllCategories } from '@/hooks/custom-hooks/useGetAllCategories'
-import { useQuery } from 'react-query'
-import { ProductsApi } from '@/hooks/react-query/config/productsApi'
+import { useQuery, useQueryClient } from 'react-query'
 import CategoriesWiseFood from './CategoriesWiseFood'
-import { restaurantDiscountTag } from '@/utils/customFunctions'
+import { getAmount, restaurantDiscountTag } from '@/utils/customFunctions'
+import { smoothScrollTo } from '@/utils/smoothScrollTo'
 import RestaurentDetailsShimmer from './RestaurantShimmer/RestaurentDetailsShimmer'
 import { useGetRecommendProducts } from '@/hooks/react-query/config/useGetRecommendProduct'
+import { useRestaurantCategoriesFoods } from '@/hooks/react-query/restaurants/useRestaurantCategoriesFoods'
 import { debounce } from 'lodash'
-import CustomSearch from '../custom-search/CustomSearch'
 import { t } from 'i18next'
-import { useRestaurentFoodSearch } from '@/hooks/custom-hooks/useRestaurentFoodSearch'
-import { usePopularFoods } from '@/hooks/react-query/restaurants/usePopularFoods'
 import { useInView } from 'react-intersection-observer'
 import FloatingDiscountTag from '@/components/restaurant-details/FloatingDiscountTag'
 import useHideOnScroll from '@/hooks/custom-hooks/useHideOnScroll'
-
-const getCombinedCategoriesAndProducts = (
-    all_categories,
-    all_products,
-    restaurantCategoryIds,
-    recommendProducts
-    // popularProducts
-) => {
-    const allCategories = all_categories
-    const allProducts = all_products
-
-    const recommend = {
-        id: 1233,
-        name: t('Recommend Products'),
-        products: recommendProducts?.products,
-        isBgColor: true,
-    }
-
-    if (allCategories?.length > 0 && allProducts?.length > 0) {
-        const seenIds = new Set()
-        const uniqueProducts = allProducts.filter((product) => {
-            if (!product?.id || seenIds.has(product.id)) return false
-            seenIds.add(product.id)
-            return true
-        })
-        const data = allCategories?.map((item) => {
-            const categoryItems = uniqueProducts?.filter(
-                (product) => product?.category_ids?.some(
-                    (cat) => Number(cat?.id) === Number(item?.id)
-                )
-            )
-            if (categoryItems.length > 0) {
-                return {
-                    ...item,
-                    products: categoryItems,
-                }
-            } else {
-                return {
-                    products: [],
-                }
-            }
-        })
-        if (recommendProducts?.products?.length > 0) {
-            return [recommend, ...data]
-        } else if (recommendProducts?.products?.length > 0) {
-            return [recommend, ...data]
-        } else {
-            return data
-        }
-    } else {
-        return []
-    }
-}
+import { useDispatch, useSelector } from 'react-redux'
+import toast from 'react-hot-toast'
+import { setUser } from '@/redux/slices/customer'
+import { setWalletAmount } from '@/redux/slices/cart'
+import ProPlanTopBanner from './ProPlanTopBanner'
+import useGetProActiveOffer from '@/hooks/react-query/pro-plans/useGetProActiveOffer'
+import LastOrderSection from '@/components/home/last-order/LastOrderSection'
+import ProPlanSubscriptionModal from '@/components/floating-cart/restaurant-cart/ProPlanSubscriptionModal'
+import CustomModal from '@/components/custom-modal/CustomModal'
+import AllPaymentMethod from '@/components/checkout-page/AllPaymentMethod'
+import useSubscribeProPlan from '@/hooks/react-query/pro-plans/useSubscribeProPlan'
+import { ProfileApi } from '@/hooks/react-query/config/profileApi'
+import { onSingleErrorResponse } from '@/components/ErrorResponse'
+import { getToken } from '@/components/checkout-page/functions/getGuestUserId'
 
 const restaurantFoodMockData = [
     { id: 0, name: 'Veg', value: 'veg', isActive: false },
@@ -88,26 +57,34 @@ const restaurantFoodMockData = [
     { id: 13, name: 'Rating 1+', value: 'rating1', isActive: false },
     { id: 14, name: 'Discounted', value: 'discounted', isActive: false },
     { id: 15, name: 'New Arrivals', value: 'new_arrivals', isActive: false },
-    { id: 16, name: 'Currently Available', value: 'currently_available', isActive: false },
+    {
+        id: 16,
+        name: 'Currently Available',
+        value: 'currently_available',
+        isActive: false,
+    },
     { id: 17, name: 'Halal', value: 'halal', isActive: false },
 ]
 
-const RestaurantDetails = ({ restaurantData }) => {
+const RestaurantDetails = ({ restaurantData, configData }) => {
     const [data, setData] = useState([])
-    const [allFoods, setAllFoods] = useState([])
-    const [page_limit, setPageLimit] = useState(50)
-    const [offset, SetOffSet] = useState(1)
     const [selectedId, setSelectedId] = useState(null)
     const [isFirstRender, setIsFirstRender] = useState(true)
     const [showComponent, setShowComponent] = useState(true)
-    const [checkedFilterKey, setCheckedFilterKey] = useState(restaurantFoodMockData)
+    const [checkedFilterKey, setCheckedFilterKey] = useState(
+        restaurantFoodMockData
+    )
 
-    const [priceAndRating, setPriceAndRating] = useState({ price: [], rating: 0 })
+    const [priceAndRating, setPriceAndRating] = useState({
+        price: [],
+        rating: 0,
+    })
     const [searchKey, setSearchKey] = useState('')
     const restaurantId = restaurantData?.id
     const activeFilters = checkedFilterKey?.filter((item) => item?.isActive)
 
-    const has = (val) => checkedFilterKey.some(item => item.isActive && item.value === val)
+    const has = (val) =>
+        checkedFilterKey.some((item) => item.isActive && item.value === val)
     const filterByData = {
         veg: has('veg'),
         non_veg: has('nonVeg'),
@@ -117,86 +94,271 @@ const RestaurantDetails = ({ restaurantData }) => {
         new: has('new_arrivals'),
         halal: has('halal'),
         currently_available: has('currently_available'),
-        sort_by: has('fast_delivery') ? 'fast_delivery' : has('a_to_z') ? 'a_to_z' : has('z_to_a') ? 'z_to_a' : '',
-        rating: has('rating4') ? 4 : has('rating3') ? 3 : has('rating2') ? 2 : has('rating1') ? 1 : (priceAndRating?.rating || 0),
+        sort_by: has('fast_delivery')
+            ? 'fast_delivery'
+            : has('a_to_z')
+            ? 'a_to_z'
+            : has('z_to_a')
+            ? 'z_to_a'
+            : '',
+        rating: has('rating4')
+            ? 4
+            : has('rating3')
+            ? 3
+            : has('rating2')
+            ? 2
+            : has('rating1')
+            ? 1
+            : priceAndRating?.rating || 0,
     }
-    console.log({checkedFilterKey,filterByData});
-    
 
-    const { data: productsQueryData, isFetching: isQueryFetching } = useQuery(
-        ['restaurant-foods', restaurantId, JSON.stringify(filterByData), priceAndRating?.price?.join('-')],
-        () => ProductsApi.products('latest', 1, 1000, 'all', {
-            restaurant_id: restaurantId,
-            filterByData,
-            price: priceAndRating?.price,
-        }),
-        { enabled: !!restaurantId, keepPreviousData: true }
-    )
+    const { data: categoriesFoodsData } = useRestaurantCategoriesFoods({
+        restaurantId,
+        searchKey,
+        filterByData,
+        price: priceAndRating?.price,
+    })
+
     const highestPrice = 8000
-    const allCategories = useGetAllCategories()
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
+
+    // Pro Plan subscription flow (mirrors FloatingCart). Banner is shown to
+    // non-Pro users only; clicking Subscribe opens the plan modal, then
+    // AllPaymentMethod handles the payment step.
+    const { global } = useSelector((state) => state.globalSettings)
+    const { token } = useSelector((state) => state.userToken)
+    const { walletAmount: walletAmountRaw } = useSelector((state) => state.cart)
+    const walletAmount = Number(walletAmountRaw) || 0
+    const { data: customerData } = useQuery(
+        ['profile-info'],
+        ProfileApi.profileInfo,
+        {
+            enabled: Boolean(token),
+            onError: onSingleErrorResponse,
+        }
+    )
+    const proStatus =
+        Boolean(token) && Number(customerData?.data?.pro_status) === 1
+
+    const { data: proActiveOffer } = useGetProActiveOffer({
+        
+    })
+    const benefit = proActiveOffer?.benefit
+    const benefitType = benefit?.type
+    const offerType = benefit?.offer_type
+    const benefitPercentage = Number(benefit?.percentage) || 0
+    const benefitMaxAmount = Number(benefit?.max_amount) || 0
+    const chargeDiscountPct = Number(benefit?.charge_discount_percentage) || 0
+    const benefitMinOrderStatus = Number(benefit?.min_order_status) === 1
+    const benefitMinOrderAmount = Number(benefit?.min_order_amount) || 0
+    const offerActive = proStatus && proActiveOffer?.status === true
+
+    const currencySymbol = global?.currency_symbol
+    const currencySymbolDirection = global?.currency_symbol_direction
+    const digitAfterDecimalPoint = global?.digit_after_decimal_point
+
+    const minOrderSuffix =
+        benefitMinOrderStatus && benefitMinOrderAmount > 0
+            ? ` (${t('on orders above')} ${getAmount(
+                  benefitMinOrderAmount,
+                  currencySymbolDirection,
+                  currencySymbol,
+                  digitAfterDecimalPoint
+              )})`
+            : ''
+    let activeOfferMessage = ''
+    if (offerActive) {
+        if (benefitType === 'discount' && benefitPercentage > 0) {
+            const capPart =
+                benefitMaxAmount > 0
+                    ? ` (${t('up to')} ${getAmount(
+                          benefitMaxAmount,
+                          currencySymbolDirection,
+                          currencySymbol,
+                          digitAfterDecimalPoint
+                      )})`
+                    : ''
+            activeOfferMessage = `${benefitPercentage}% ${t(
+                'off as a Pro member'
+            )}${capPart}${minOrderSuffix}`
+        } else if (benefitType === 'delivery_fee') {
+            if (offerType === 'full_free') {
+                activeOfferMessage = `${t('Free delivery as a Pro member')}${minOrderSuffix}`
+            } else if (offerType === 'partial_free' && chargeDiscountPct > 0) {
+                activeOfferMessage = `${chargeDiscountPct}% ${t(
+                    'off delivery as a Pro member'
+                )}${minOrderSuffix}`
+            }
+        } else if (benefitType === 'coupon') {
+            activeOfferMessage = `${t('Pro coupon benefit unlocked')}${minOrderSuffix}`
+        }
+    }
+    const hasActiveOfferMessage = Boolean(activeOfferMessage)
+    const showProBanner =
+        global?.pro_member_status === 1 
+
+    const [proPlanModalOpen, setProPlanModalOpen] = useState(false)
+
+    const handleSubscribeClick = () => {
+        if (!getToken()) {
+            toast.error(t('Please login to subscribe'))
+            return
+        }
+        setProPlanModalOpen(true)
+    }
+
+    const [proPlanSelected, setProPlanSelected] = useState(null)
+    const [proPlanPaymentOpen, setProPlanPaymentOpen] = useState(false)
+    const [paymenMethod, setPaymenMethod] = useState('')
+    const [selected, setSelected] = useState(null)
+    const [paymentMethodDetails] = useState(null)
+    const [switchToWallet, setSwitchToWallet] = useState(false)
+    const [isCheckedOffline, setIsCheckedOffline] = useState(false)
+    const [changeAmount, setChangeAmount] = useState('')
+
+    // Pro plan subscription result modal — mirrors the SubscriptionPlanPage
+    // flow. Payment gateway redirects to the current page with ?flag=success
+    // | cancel | fail; the effect below opens the dialog once per landing.
+    const router = useRouter()
+    const queryClient = useQueryClient()
+    const dispatch = useDispatch()
+    const [resultShown, setResultShown] = useState(false)
+    // Single source of truth — collapsing `open` and `variant` into one
+    // object means a single render flips both atomically.
+    const [resultState, setResultState] = useState({
+        open: false,
+        variant: null,
+    })
+    const resultModal = resultState.variant
+    const resultModalOpen = resultState.open
+    // Dedupe guard against double-invocation (StrictMode dev, chained
+    // close/open animations). Drops any second open call within 1s.
+    const lastResultOpenAt = useRef(0)
+    const openResultModal = (variant) => {
+        const now = Date.now()
+        if (now - lastResultOpenAt.current < 1000) return
+        lastResultOpenAt.current = now
+        setResultState({ open: true, variant })
+    }
+
+    // Mirror FloatingCart: profile-info owns wallet_balance, but
+    // state.cart.walletAmount is the slot AllPaymentMethod reads. Without this
+    // sync, walletAmount stays null and the wallet option is hidden in the
+    // Pro Plan payment modal.
+    useEffect(() => {
+        const balance = customerData?.data?.wallet_balance
+        if (balance !== undefined && balance !== null) {
+            dispatch(setWalletAmount(balance))
+        }
+    }, [customerData?.data?.wallet_balance, dispatch])
+
+    // Refresh redux `userData` after subscribe so ProBadge / Pro-gated UI
+    // updates immediately. Mirrors SubscriptionPlanPage.refreshUserProfile.
+    const refreshUserProfile = async () => {
+        try {
+            const res = await ProfileApi.profileInfo()
+            const payload = res?.data?.data ?? res?.data
+            if (payload) dispatch(setUser(payload))
+        } catch {
+            // Errors surface through global handlers.
+        }
+    }
+
+    useEffect(() => {
+        if (resultShown) return
+        const flag = router.query?.flag
+        if (flag === 'success') {
+            openResultModal('success')
+            setResultShown(true)
+            queryClient.invalidateQueries('pro-customer-active-offer')
+            queryClient.invalidateQueries(['profile-info'])
+            refreshUserProfile()
+        } else if (flag === 'cancel') {
+            openResultModal('cancel')
+            setResultShown(true)
+        } else if (flag === 'fail') {
+            openResultModal('fail')
+            setResultShown(true)
+        }
+    }, [router.query?.flag, resultShown, queryClient])
+
+    // Strip gateway-callback params (flag, token) so back-nav / reload
+    // doesn't reopen the dialog and the URL is clean. Using
+    // window.history.replaceState avoids Next.js dynamic-route quirks.
+    const handleResultClose = () => {
+        // Reset the dedupe window so the next genuine open isn't ignored.
+        lastResultOpenAt.current = 0
+        // Flip `open=false` only — `variant` survives so the body keeps
+        // rendering the right copy through the exit animation; onExited
+        // nulls it out after the Dialog has fully closed.
+        setResultState((s) => ({ ...s, open: false }))
+        if (typeof window !== 'undefined') {
+            const url = new URL(window.location.href)
+            const removed = ['flag', 'token'].some((k) => {
+                if (url.searchParams.has(k)) {
+                    url.searchParams.delete(k)
+                    return true
+                }
+                return false
+            })
+            if (removed) {
+                window.history.replaceState(
+                    {},
+                    '',
+                    url.pathname +
+                        (url.search ? url.search : '') +
+                        url.hash
+                )
+            }
+        }
+    }
+
+    const proPlanSubscriptionStates = {
+        order: '0',
+        type: '',
+        startDate: '',
+        endDate: '',
+        days: '',
+    }
+    const { mutate: subscribeProPlan, isLoading: subscribing } =
+        useSubscribeProPlan()
     const refs = useRef([])
-    const restaurantCategoryIds = restaurantData?.category_ids;
+    const scrollCancelRef = useRef(null)
     const [scrollingByClick, setScrollingByClick] = useState(false)
     const { ref, inView } = useInView()
     const isHidden = useHideOnScroll({ threshold: 50 })
     const [removeStickyBanner, setRemoveStickyBanner] = useState(false)
-    // Detect when the category bar is about to start sticking, so TopBanner can
-    // wait and become fixed at the same scroll position (no early jump).
-    const { ref: stickyTriggerRef, inView: stickyTriggerInView } = useInView({
-        rootMargin: `-${isHidden ? 162 : 203}px 0px 0px 0px`,
-    })
-    const isCategoryBarSticky = !stickyTriggerInView
-    const handleOnSuccess = (res) => {
-        setAllFoods(res?.data?.products)
-    }
-
-    const searchFood = useRestaurentFoodSearch(
-        restaurantId,
-        searchKey,
-        handleOnSuccess
-    )
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowComponent(false)
         }, 15000)
         return () => clearTimeout(timer)
     }, [])
-    useEffect(() => {
-        if (searchKey === '' && productsQueryData?.data?.products !== undefined) {
-            setAllFoods(productsQueryData?.data?.products)
-        }
-    }, [productsQueryData, searchKey])
 
     const clickedOnCategoryRef = useRef(false)
 
     ///RECOMMEND PRODUCTS API
-    const {
-        data: recommendProducts,
-        refetch: refetchRecommend,
-        isRefetching,
-        isLoading,
-    } = useGetRecommendProducts({
-        restaurantId,
-        page_limit,
-        offset,
-        searchKey,
-        filterByData,
-        price: priceAndRating?.price,
-    })
-    const { data: popularProducts, refetch: refetchPopular } = usePopularFoods({
-        restaurantId,
-        page_limit,
-        offset,
-        searchKey,
-    })
+    const { data: recommendProducts, refetch: refetchRecommend } =
+        useGetRecommendProducts({
+            restaurantId,
+            page_limit: 25,
+            offset: 1,
+            searchKey,
+            filterByData,
+            price: priceAndRating?.price,
+        })
     useEffect(() => {
         if (restaurantId) {
             refetchRecommend()
-            refetchPopular()
         }
-    }, [restaurantId, searchKey, JSON.stringify(filterByData), priceAndRating?.price?.join('-')])
+    }, [
+        restaurantId,
+        searchKey,
+        JSON.stringify(filterByData),
+        priceAndRating?.price?.join('-'),
+    ])
+
     useEffect(() => {
         setSearchKey('')
         setSelectedId(null)
@@ -210,61 +372,66 @@ const RestaurantDetails = ({ restaurantData }) => {
     }, [restaurantId])
 
     useEffect(() => {
-        const applyPrice = (items) => {
-            const [min, max] = priceAndRating?.price || []
-            if (min === undefined || max === undefined) return items
-            return items?.filter((f) => { const p = Number(f?.price) || 0; return p >= min && p <= max })
+        const categories = categoriesFoodsData?.categories || []
+        const categoryWiseFoods = categoriesFoodsData?.category_wise_foods || {}
+
+        const recommend = {
+            id: 1233,
+            name: t('Recommend Products'),
+            products: recommendProducts?.products,
+            isBgColor: true,
         }
-        const filteredFoods = applyPrice(allFoods)
-        const filteredRecommend = recommendProducts
-            ? { ...recommendProducts, products: applyPrice(recommendProducts?.products) }
-            : recommendProducts
-        const combined = getCombinedCategoriesAndProducts(
-            allCategories,
-            filteredFoods,
-            restaurantCategoryIds,
-            filteredRecommend
-        )
-        const hasProducts = combined?.filter(
-            (item) => item?.products?.length > 0
-        )
-        setData(hasProducts)
+
+        // Backend already groups foods per category in `category_wise_foods`,
+        // so we just attach the matching array to each category entry.
+        const grouped = categories
+            .map((cat) => ({
+                ...cat,
+                products: categoryWiseFoods?.[cat?.id] || [],
+            }))
+            .filter((cat) => cat?.products?.length > 0)
+
+        const final =
+            recommendProducts?.products?.length > 0
+                ? [recommend, ...grouped]
+                : grouped
+
+        setData(final)
         setIsFirstRender(false)
-    }, [allFoods, allCategories, recommendProducts, priceAndRating?.price])
+    }, [categoriesFoodsData, recommendProducts])
 
     const handleFocusedSection = debounce((val) => {
         if (!clickedOnCategoryRef.current) {
-            setSelectedId(val?.id);
+            setSelectedId(val?.id)
         }
-        clickedOnCategoryRef.current = false;
-    }, 300);
+        clickedOnCategoryRef.current = false
+    }, 300)
 
     const handleClick = (val) => {
-        clickedOnCategoryRef.current = true;
-        setScrollingByClick(true); // <--- NEW
-        setSelectedId(val);
-    };
-
-
+        clickedOnCategoryRef.current = true
+        setScrollingByClick(true)
+        setSelectedId(val)
+    }
 
     useEffect(() => {
-        if (!selectedId) return;
-        if (!scrollingByClick) return; // <-- Only scroll when clicking
+        if (!selectedId) return
+        if (!scrollingByClick) return
 
-        const node = refs.current[selectedId];
-        if (node) {
-            const timeout = setTimeout(() => {
-                node.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start',
-                    inline: 'nearest',
-                });
-                setScrollingByClick(false); // After scroll once, reset
-            }, 100);
+        const node = refs.current[selectedId]
+        if (!node) return
 
-            return () => clearTimeout(timeout);
+        // Abort any in-flight scroll from a previous click so back-to-back
+        // category clicks chain correctly. The cancel handle is kept in a ref
+        // (not returned as cleanup) so the normal re-render triggered by
+        // setScrollingByClick(false) below doesn't kill the animation.
+        if (scrollCancelRef.current) {
+            scrollCancelRef.current()
         }
-    }, [selectedId, data, scrollingByClick]); // depend on scrollingByClick
+
+        const targetY = node.getBoundingClientRect().top + window.pageYOffset
+        scrollCancelRef.current = smoothScrollTo(targetY, 500)
+        setScrollingByClick(false)
+    }, [selectedId, data, scrollingByClick])
 
     const handlePrice = (value) => {
         setPriceAndRating((prev) => ({ ...prev, price: value }))
@@ -275,7 +442,9 @@ const RestaurantDetails = ({ restaurantData }) => {
     }
 
     const handleReset = () => {
-        setCheckedFilterKey(restaurantFoodMockData.map((item) => ({ ...item, isActive: false })))
+        setCheckedFilterKey(
+            restaurantFoodMockData.map((item) => ({ ...item, isActive: false }))
+        )
         setPriceAndRating({ price: [], rating: 0 })
     }
 
@@ -283,17 +452,15 @@ const RestaurantDetails = ({ restaurantData }) => {
     const handleSearchResult = async (values) => {
         if (values === '') {
             setSearchKey('')
-            //setIsSearch('')
         } else {
             setSearchKey(values)
-            //  setIsSearch('search')
         }
     }
     const restaurantDiscount = restaurantDiscountTag(
         restaurantData?.discount,
         restaurantData?.free_delivery
     )
-    
+
 
     return (
         <CustomContainer sx={{ mb: { xs: '7px', md: '0' } }}>
@@ -306,15 +473,39 @@ const RestaurantDetails = ({ restaurantData }) => {
                         details={restaurantData}
                         isHidden={isHidden}
                         removeStickyBanner={removeStickyBanner}
-                        isCategoryBarSticky={isCategoryBarSticky}
                     />
                 )}
+                {showProBanner ? (
+                    <Box sx={{ mt: 1.5 }}>
+                        {proStatus ? (
+                            <ProPlanTopBanner
+                                t={t}
+                                messageKey="Order now to enjoy exclusive offer with your"
+                                message={activeOfferMessage}
+                            />
+                        ) : (
+                            <ProPlanTopBanner
+                                t={t}
+                                onSubscribe={handleSubscribeClick}
+                            />
+                        )}
+                    </Box>
+                ) : null}
+
                 <CustomStackFullWidth>
                     {!isFirstRender && (
                         <>
-                            {/* Sentinel: when this 1px node scrolls above the sticky-top
-                                threshold, the category bar is about to stick → TopBanner becomes fixed */}
-                          
+                            {restaurantData?.id &&
+                            configData?.repeat_order_option &&
+                            token ? (
+                                <Box sx={{ mt: { xs: '1rem', sm: '1.5rem' } }}>
+                                    <LastOrderSection
+                                        restaurantId={restaurantData.id}
+                                        isStoreDetails
+                                    />
+                                </Box>
+                            ) : null}
+
                             <RestaurantCategoryBar
                                 data={data}
                                 selectedId={selectedId}
@@ -335,12 +526,12 @@ const RestaurantDetails = ({ restaurantData }) => {
                                 priceAndRating={priceAndRating}
                                 activeFilters={activeFilters}
                             />
-                           
+
                             {data?.map((item, index) => {
                                 return (
                                     <Box
                                         sx={{ position: 'relative' }}
-                                        key={index}
+                                        key={item?.id ?? `cat-${index}`}
                                     >
                                         <Box
                                             sx={{
@@ -368,9 +559,9 @@ const RestaurantDetails = ({ restaurantData }) => {
                                     </Box>
                                 )
                             })}
-                            {(isQueryFetching || isRefetching || data?.length === 0) && (
+                            {data?.length === 0 && (
                                 <RestaurentDetailsShimmer
-                                    showComponent={isQueryFetching || isRefetching || showComponent}
+                                    showComponent={showComponent}
                                 />
                             )}
                         </>
@@ -384,6 +575,234 @@ const RestaurantDetails = ({ restaurantData }) => {
                     )}
                 </CustomStackFullWidth>
             </CustomStackFullWidth>
+            <ProPlanSubscriptionModal
+                open={proPlanModalOpen}
+                onClose={() => setProPlanModalOpen(false)}
+                onSubscribe={(plan) => {
+                    setProPlanSelected(plan)
+                    setProPlanModalOpen(false)
+                    setProPlanPaymentOpen(true)
+                }}
+                t={t}
+            />
+            {proPlanPaymentOpen && proPlanSelected && (
+                <CustomModal
+                    openModal={proPlanPaymentOpen}
+                    handleClose={() => setProPlanPaymentOpen(false)}
+                    setModalOpen={setProPlanPaymentOpen}
+                    maxWidth="640px"
+                    bgColor={theme.palette.customColor?.ten ?? '#FAFAFA'}
+                    closeButton
+                >
+                    <AllPaymentMethod
+                        handleClose={() => setProPlanPaymentOpen(false)}
+                        paymenMethod={paymenMethod}
+                        usePartialPayment={false}
+                        global={global}
+                        hideWallet={
+                            proPlanSelected
+                                ? proPlanSelected.price > walletAmount
+                                : false
+                        }
+                        setPaymenMethod={setPaymenMethod}
+                        getPaymentMethod={(item) => {
+                            setSelected(item)
+                            setSwitchToWallet(false)
+                        }}
+                        setSelected={setSelected}
+                        selected={selected}
+                        handleSubmit={() => {
+                            if (!proPlanSelected || !selected) {
+                                toast.error(t('Select a payment method'))
+                                return
+                            }
+                             const payment_platform = 'web'
+                            let payment_type = 'digital_payment'
+                            let payment_method = selected?.name
+                            if (selected?.method === 'offline_payment') {
+                                payment_type = 'offline_payment'
+                                payment_method =
+                                    selected?.method_name ?? selected?.name
+                            } else if (selected?.name === 'wallet') {
+                                payment_type = 'wallet'
+                                payment_method = 'wallet'
+                            } else if (selected?.name === 'cash_on_delivery') {
+                                payment_type = 'cash_on_delivery'
+                                payment_method = 'cash_on_delivery'
+                            }
+                            const callbackUrl =
+                                typeof window !== 'undefined'
+                                    ? window.location.href
+                                    : ''
+                            subscribeProPlan(
+                                {
+                                    plan_id: proPlanSelected.id,
+                                    payment_type,
+                                    payment_method,
+                                    payment_platform,
+                                    callback: callbackUrl,
+                                    
+                                },
+                                {
+                                    onSuccess: (resp) => {
+                                        const redirectLink = resp?.redirect_link
+                                        if (
+                                            typeof redirectLink === 'string' &&
+                                            redirectLink.length > 0
+                                        ) {
+                                            window.location.href = redirectLink
+                                            return
+                                        }
+                                        setProPlanPaymentOpen(false)
+                                        setProPlanSelected(null)
+                                        queryClient.invalidateQueries(
+                                            'pro-customer-active-offer'
+                                        )
+                                        queryClient.invalidateQueries([
+                                            'profile-info',
+                                        ])
+                                        refreshUserProfile()
+                                        // Defer the success Dialog open so
+                                        // AllPaymentMethod's close animation
+                                        // starts cleanly first — otherwise
+                                        // both modals animate in the same
+                                        // React batch and the success Dialog
+                                        // visibly flickers as the backdrops
+                                        // resolve stacking order.
+                                        setResultShown(true)
+                                        setTimeout(
+                                            () => openResultModal('success'),
+                                            300
+                                        )
+                                    },
+                                    onError: (err) => {
+                                        toast.error(
+                                            err?.response?.data?.message ??
+                                                t('Subscription failed')
+                                        )
+                                        setResultShown(true)
+                                        setTimeout(
+                                            () => openResultModal('fail'),
+                                            300
+                                        )
+                                    },
+                                }
+                            )
+                        }}
+                        subscriptionStates={proPlanSubscriptionStates}
+                        offlinePaymentOptions={undefined}
+                        setIsCheckedOffline={setIsCheckedOffline}
+                        isCheckedOffline={isCheckedOffline}
+                        offLineWithPartial={false}
+                        paymentMethodDetails={paymentMethodDetails}
+                        walletAmount={walletAmount}
+                        totalAmount={proPlanSelected?.price ?? 0}
+                        handlePartialPayment={() => {
+                            // Mirrors FloatingCart's Pro Plan flow: applying
+                            // the wallet promotes it to the active payment
+                            // method, flips switchToWallet so AllPaymentMethod
+                            // renders the full-wallet UI, and stores a
+                            // `{ name: 'wallet' }` selection so the submit
+                            // branch below takes the wallet path.
+                            setPaymenMethod('wallet')
+                            setSwitchToWallet(true)
+                            setSelected({ name: 'wallet' })
+                        }}
+                        removePartialPayment={() => {
+                            setPaymenMethod('')
+                            setSwitchToWallet(false)
+                            setSelected(null)
+                        }}
+                        switchToWallet={switchToWallet}
+                        setChangeAmount={setChangeAmount}
+                        changeAmount={changeAmount}
+                        openModal={proPlanPaymentOpen}
+                        orderType={'subscription'}
+                        submitLabel={subscribing ? 'Subscribing…' : 'Proceed'}
+                        hideCashOnDelivery={true}
+                    />
+                </CustomModal>
+            )}
+
+            <Dialog
+                open={resultModalOpen}
+                onClose={handleResultClose}
+                keepMounted
+                TransitionProps={{
+                    onExited: () =>
+                        setResultState({ open: false, variant: null }),
+                }}
+                PaperProps={{
+                    sx: {
+                        borderRadius: '16px',
+                        p: 1,
+                        width: { xs: '90%', sm: '400px' },
+                    },
+                }}
+            >
+                <DialogContent>
+                    <Stack alignItems="center" spacing={1.5} sx={{ py: 1 }}>
+                        {resultModal === 'success' ? (
+                            <CheckCircleRoundedIcon
+                                sx={{ fontSize: 64, color: '#22C55E' }}
+                            />
+                        ) : (
+                            <CancelRoundedIcon
+                                sx={{ fontSize: 64, color: '#EF4444' }}
+                            />
+                        )}
+                        <Typography
+                            fontSize="20px"
+                            fontWeight={700}
+                            color="text.primary"
+                            textAlign="center"
+                        >
+                            {resultModal === 'success'
+                                ? t('Subscription Successful')
+                                : t('Subscription Failed')}
+                        </Typography>
+                        <Typography
+                            fontSize="14px"
+                            color="text.secondary"
+                            textAlign="center"
+                        >
+                            {resultModal === 'success'
+                                ? t(
+                                      'Your Pro subscription is now active. Enjoy your benefits!'
+                                  )
+                                : t(
+                                      'Your subscription payment did not go through. Please try again.'
+                                  )}
+                        </Typography>
+                    </Stack>
+                </DialogContent>
+                <DialogActions
+                    sx={{ px: 3, pb: 2, justifyContent: 'center' }}
+                >
+                    <Button
+                        onClick={handleResultClose}
+                        variant="contained"
+                        sx={{
+                            backgroundColor:
+                                resultModal === 'success'
+                                    ? '#22C55E'
+                                    : '#EF4444',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            px: 4,
+                            borderRadius: '8px',
+                            '&:hover': {
+                                backgroundColor:
+                                    resultModal === 'success'
+                                        ? '#16A34A'
+                                        : '#DC2626',
+                            },
+                        }}
+                    >
+                        {t('OK')}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </CustomContainer>
     )
 }

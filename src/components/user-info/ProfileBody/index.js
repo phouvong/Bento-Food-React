@@ -10,12 +10,15 @@ import Chat from '../../chat/Chat'
 import WishlistPage from '../../wishlist-page/WishlistPage'
 import { RTL } from '../../RTL/RTL'
 import OrderDetail from '../../order-details/OrderDetail'
+import SubscriptionPlanPage from '../subscription/SubscriptionPlanPage'
 
 const ProfileBody = ({ page, orderId }) => {
     let languageDirection = undefined
     if (typeof window !== 'undefined') {
         languageDirection = localStorage.getItem('direction')
     }
+    console.log({page});
+    
     const activeComponent = () => {
         if (page === 'profile') {
             return <ProfilePage />
@@ -55,6 +58,9 @@ const ProfileBody = ({ page, orderId }) => {
         }
         if (page === 'wishlist') {
             return <WishlistPage />
+        }
+        if (page === 'subscription' || page === 'subscription?flag=success' || page === 'subscription?flag=cancel' || page === 'subscription?flag=fail') {
+            return <SubscriptionPlanPage page={page} />
         }
     }
 

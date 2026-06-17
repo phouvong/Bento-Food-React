@@ -15,8 +15,14 @@ const WalletFundBonus = ({ walleBonus, isLoading }) => {
 
     const settings = {
         dots: false,
+        arrows: false,
+        infinite: false,
+        initialSlide: 0,
+        centerMode: false,
+        centerPadding: '0px',
         slidesToShow: 1,
-        slidesToScroll: 2,
+        slidesToScroll: 1,
+        swipeToSlide: true,
         responsive: [
             {
                 breakpoint: 2000,
@@ -24,6 +30,9 @@ const WalletFundBonus = ({ walleBonus, isLoading }) => {
                     slidesToShow: 1.4,
                     slidesToScroll: 1,
                     infinite: false,
+                    initialSlide: 0,
+                    centerMode: false,
+                    centerPadding: '0px',
                 },
             },
             {
@@ -32,6 +41,9 @@ const WalletFundBonus = ({ walleBonus, isLoading }) => {
                     slidesToShow: 1.4,
                     slidesToScroll: 1,
                     infinite: false,
+                    initialSlide: 0,
+                    centerMode: false,
+                    centerPadding: '0px',
                 },
             },
             {
@@ -40,7 +52,9 @@ const WalletFundBonus = ({ walleBonus, isLoading }) => {
                     slidesToShow: 1,
                     slidesToScroll: 1,
                     infinite: false,
-                    initialSlide: 1,
+                    initialSlide: 0,
+                    centerMode: false,
+                    centerPadding: '0px',
                 },
             },
         ],
@@ -51,7 +65,23 @@ const WalletFundBonus = ({ walleBonus, isLoading }) => {
     const fund_to_get_max_of = t('fund to get max of')
 
     return !isLoading ? (
-        <Stack height="100%" justifyContent="center">
+        <Stack
+            height="100%"
+            justifyContent="center"
+            sx={{
+                // Force the slick track to anchor at the left edge of the
+                // container. Without these overrides, slick's internal
+                // padding/transform can leave a visible gap before the
+                // first slide — especially with fractional slidesToShow.
+                '& .slick-list': { padding: '0 !important' },
+                '& .slick-track': {
+                    marginLeft: 0,
+                    marginRight: 'auto',
+                    display: 'flex',
+                },
+                '& .slick-slide': { float: 'none' },
+            }}
+        >
             <Slider {...settings}>
                 {walleBonus?.map((item, i) => (
                     <Box key={i} pr={1.4}>

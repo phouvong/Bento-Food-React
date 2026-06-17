@@ -18,6 +18,7 @@ import { RestaurantDiscountStack } from '../food-card/FoodCard.style'
 import FoodRating from '../food-card/FoodRating'
 import { HomeTextTypography } from '../home/HomeStyle'
 import CustomNextImage from '@/components/CustomNextImage'
+import VerifiedBadge from '@/components/verified-badge/VerifiedBadge'
 // import 'react-multi-carousel/lib/styles.css'
 
 export const SliderStack = styled(Stack)(
@@ -61,6 +62,7 @@ const RestaurantBoxCard = (props) => {
         characteristics,
         minWidth,
         dine_in,
+        is_verified,
     } = props
     const { t } = useTranslation()
     const router = useRouter()
@@ -292,25 +294,36 @@ const RestaurantBoxCard = (props) => {
                             justifyContent="space-between"
                             sx={{ position: 'relative' }}
                         >
-                            <HomeTextTypography
-                                component="h3"
-                                sx={{
-                                    transition: theme.transitions.create(
-                                        ['color'],
-                                        {
-                                            duration:
-                                                theme.transitions.duration
-                                                    .short,
-                                        }
-                                    ),
-                                    '&:hover': {
-                                        color: theme.palette.primary.main,
-                                        transform: 'scale(1.02)',
-                                    },
-                                }}
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                gap="4px"
+                                sx={{ minWidth: 0 }}
                             >
-                                {name}
-                            </HomeTextTypography>
+                                <HomeTextTypography
+                                    component="h3"
+                                    sx={{
+                                        transition: theme.transitions.create(
+                                            ['color'],
+                                            {
+                                                duration:
+                                                    theme.transitions.duration
+                                                        .short,
+                                            }
+                                        ),
+                                        '&:hover': {
+                                            color: theme.palette.primary.main,
+                                            transform: 'scale(1.02)',
+                                        },
+                                    }}
+                                >
+                                    {name}
+                                </HomeTextTypography>
+                                <VerifiedBadge
+                                    verified={is_verified}
+                                    sx={{ mb: '1px' }}
+                                />
+                            </Stack>
                             <Stack flexDirection="row" gap="5px">
                                 {rating_count > 0 && (
                                     <Typography

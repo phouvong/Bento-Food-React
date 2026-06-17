@@ -25,7 +25,7 @@ const CheckoutLayout = ({ configdata }) => {
                 <CustomContainer>
                     <CustomStackFullWidth sx={{ marginTop: '5rem' }}>
                         <Meta
-                            title={`Checkout on ${global?.business_name}`}
+                            title={global?.business_name ? `Checkout on ${global.business_name}` : 'Checkout'}
                             description=""
                             keywords=""
                         />

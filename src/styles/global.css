@@ -818,7 +818,7 @@ img {
 }
 
 .footer-menu-title {
-    text-transform: uppercase;
+    text-transform: uppercase
 }
 
 .footer-menu-title,
@@ -829,6 +829,9 @@ img {
 .bottom-navigation-wrap {
     border-bottom-left-radius: 0 !important;
     border-bottom-right-radius: 0 !important;
+    bottom: 0 !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    background-clip: padding-box;
 }
 
 /* map and mobile view nav bar css  */
@@ -1035,6 +1038,17 @@ img {
 
 .slick-slider {
     width: 100% !important;
+    touch-action: pan-y;
+}
+
+.slick-slider .slick-list,
+.slick-slider .slick-track {
+    touch-action: pan-y;
+}
+
+.slick-slider,
+.slick-list {
+    overscroll-behavior-x: contain;
 }
 
 .catagori___img img {

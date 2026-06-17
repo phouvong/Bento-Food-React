@@ -16,6 +16,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import StarIcon from '@mui/icons-material/Star'
 import {
     alpha,
+    Box,
     Button,
     Grid,
     IconButton,
@@ -43,6 +44,7 @@ import Meta from '../Meta'
 import { getGuestId, getToken } from '../checkout-page/functions/getGuestUserId'
 import CustomModal from '../custom-modal/CustomModal'
 import CustomFormatedDateTime from '../date/CustomFormatedDateTime'
+import ProBadge from '@/components/pro-badge/ProBadge'
 import RefundModal from '../order-history/RefundModal'
 import DeliveryTimeInfoVisibility from './DeliveryTimeInfoVisibility'
 import GifShimmer from './GifShimmer'
@@ -76,12 +78,14 @@ import { setDeliveryManInfoByDispatch } from '@/redux/slices/searchFilter'
 import InfoIcon from '@mui/icons-material/Info'
 import startReview from '../../../public/static/star-review.png'
 import TrackingPage from '../order-tracking/TrackingPage'
+import ProSavingsBanner from '@/components/floating-cart/restaurant-cart/ProSavingsBanner'
 
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
 import LocationIcon from '@/components/order-details/assets/LocationIcon'
 import ContactAddressMap from '@/components/help-page/ContactAddressMap'
 import DIneInOrderTimeInfo from '@/components/order-details/DIneInOrderTimeInfo'
 import CustomNextImage from '@/components/CustomNextImage'
+import VerifiedBadge from '@/components/verified-badge/VerifiedBadge'
 
 const CustomTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -132,7 +136,9 @@ const OrderDetails = ({ OrderIdDigital }) => {
     const { t } = useTranslation()
     const { orderId, phone, isTrackOrder, token } = router.query
     const { global } = useSelector((state) => state.globalSettings)
+    const { userData } = useSelector((state) => state.user)
     const { orderDetailsModal } = useSelector((state) => state.offlinePayment)
+    const isProUser = Number(userData?.pro_status) === 1
     const [openOfflineModal, setOpenOfflineModal] = useState(orderDetailsModal)
     const [openModal, setOpenModal] = useState(false)
     const [openReviewModal, setOpenReviewModal] = useState(false)
@@ -193,6 +199,38 @@ const OrderDetails = ({ OrderIdDigital }) => {
     } = useQuery([`category-tracking`, tempOrderId], () =>
         OrderApi.orderTracking(tempOrderId, userPhone, guestId)
     )
+
+    const proBenefitType = trackData?.data?.benefit_type
+    const proDeliveryOfferType = trackData?.data?.delivery_offer_type
+    const proDeliveryReductionAmount =
+        Number(trackData?.data?.delivery_fee_reduction_amount) || 0
+    let proSavingsMessage = ''
+    if (proBenefitType === 'delivery_fee') {
+        if (proDeliveryOfferType === 'partial_free') {
+            proSavingsMessage = `${t(
+                'You saved'
+            )} ${getAmount(
+                proDeliveryReductionAmount,
+                currencySymbolDirection,
+                currencySymbol,
+                digitAfterDecimalPoint
+            )} ${t('on delivery as a Pro member')}`
+        } else {
+            proSavingsMessage = t('Free delivery as a Pro member')
+        }
+    } else if (proBenefitType === 'coupon') {
+        const proCouponDiscount =
+            Number(trackData?.data?.coupon_discount_amount) || 0
+        proSavingsMessage =
+            proCouponDiscount > 0
+                ? `${t('You saved')} ${getAmount(
+                      proCouponDiscount,
+                      currencySymbolDirection,
+                      currencySymbol,
+                      digitAfterDecimalPoint
+                  )} ${t('with your Pro coupon')}`
+                : t('Pro coupon benefit unlocked')
+    }
 
     if (isLoading) {
         return <OrderDetailsShimmer />
@@ -1180,11 +1218,24 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                 }}
                                             >
                                                 <InfoTypography
-                                                    sx={{ fontWeight: '500' }}
+                                                    sx={{
+                                                        fontWeight: '500',
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: '4px',
+                                                    }}
                                                 >
                                                     {trackData &&
                                                         trackData?.data
                                                             ?.restaurant?.name}
+                                                    <VerifiedBadge
+                                                        verified={
+                                                            trackData?.data
+                                                                ?.restaurant
+                                                                ?.verified_seller
+                                                        }
+                                                        size={14}
+                                                    />
                                                 </InfoTypography>
                                                 <InfoTypography
                                                     sx={{
@@ -1918,6 +1969,29 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                         <Grid item md={8} xs={8}>
                                             <InfoTypography>
                                                 {t('Coupon Discount')}
+                                                {proBenefitType === 'coupon' && (
+                                                    <Box
+                                                        component="span"
+                                                        sx={{
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            ml: 0.75,
+                                                            px: 0.75,
+                                                            py: 0.25,
+                                                            borderRadius: '999px',
+                                                            backgroundColor:
+                                                                'rgba(181, 142, 255, 0.15)',
+                                                            color: '#7C3AED',
+                                                            fontSize: '11px',
+                                                            fontWeight: 600,
+                                                            lineHeight: 1,
+                                                            gap: 0.25,
+                                                        }}
+                                                    >
+                                                        <ProBadge size={12} />
+                                                        {t('Pro')}
+                                                    </Box>
+                                                )}
                                             </InfoTypography>
                                         </Grid>
                                         <Grid item md={4} xs={4}>
@@ -2122,7 +2196,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                         <Grid item md={8} xs={8}>
                                             <InfoTypography>
                                                 {t('Delivery fee')}
-                                               
+
                                             </InfoTypography>
                                         </Grid>
                                         <Grid item md={4} xs={4}>
@@ -2136,22 +2210,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                     )}
                                             </InfoTypography>
                                         </Grid>
-                                        <Grid item md={8} xs={8}>
-                                            <InfoTypography>
-                                                {t('Delivery fee')}
-                                            </InfoTypography>
-                                        </Grid>
-                                        <Grid item md={4} xs={4}>
-                                            <InfoTypography align="right">
-                                                {trackData &&
-                                                    getAmount(
-                                                        deliveryFeeWithTypeCharge,
-                                                        currencySymbolDirection,
-                                                        currencySymbol,
-                                                        digitAfterDecimalPoint
-                                                    )}
-                                            </InfoTypography>
-                                        </Grid>
+
                                         {normalizedDeliveryType &&
                                             normalizedDeliveryType !== 'standard' &&
                                             deliveryTypeCharge > 0 && (
@@ -2184,6 +2243,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                             }}
                                         ></Stack>
                                     </Grid>
+
                                     <TotalGrid container md={12} xs={12}>
                                         <Grid item md={8} xs={8}>
                                             <Typography
@@ -2227,6 +2287,28 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                     )}
                                             </Typography>
                                         </Grid>
+                                        {global?.pro_member_status && isProUser && proBenefitType ? (
+                                            <Grid item md={12} xs={12}>
+                                                <ProSavingsBanner
+                                                    amount={
+                                                        trackData?.data
+                                                            ?.pro_discount
+                                                    }
+                                                    message={proSavingsMessage}
+                                                    currencySymbol={
+                                                        currencySymbol
+                                                    }
+                                                    currencySymbolDirection={
+                                                        currencySymbolDirection
+                                                    }
+                                                    digitAfterDecimalPoint={
+                                                        digitAfterDecimalPoint
+                                                    }
+                                                    t={t}
+                                                    sx={{ mx: 0 }}
+                                                />
+                                            </Grid>
+                                        ) : null}
                                         {trackData?.data?.subscription !==
                                             null && (
                                                 <>
@@ -2242,12 +2324,29 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                             alignItems="center"
                                                         >
                                                             <InfoTypography>
-                                                                {`${t(
+                                                                {t(
                                                                     'Total Delivered'
-                                                                )} (${trackData?.data
-                                                                    ?.subscription
-                                                                    ?.delivered_count
-                                                                    })`}
+                                                                )}{' '}
+                                                                (
+                                                                {trackOrderLoading ? (
+                                                                    <Skeleton
+                                                                        variant="text"
+                                                                        width={18}
+                                                                        sx={{
+                                                                            display:
+                                                                                'inline-block',
+                                                                            verticalAlign:
+                                                                                'middle',
+                                                                        }}
+                                                                    />
+                                                                ) : (
+                                                                    trackData
+                                                                        ?.data
+                                                                        ?.subscription
+                                                                        ?.delivered_count ??
+                                                                    0
+                                                                )}
+                                                                )
                                                             </InfoTypography>
                                                             <CustomTooltip
                                                                 title={`${trackData?.data?.subscription?.delivered_count} ${tip_text} ${trackData?.data?.subscription?.quantity}`}

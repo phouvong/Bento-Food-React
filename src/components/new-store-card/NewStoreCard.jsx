@@ -16,7 +16,7 @@ import {
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import StarRoundedIcon from '@mui/icons-material/StarRounded'
-import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded'
+import VerifiedBadge from '@/components/verified-badge/VerifiedBadge'
 import TwoWheelerOutlinedIcon from '@mui/icons-material/TwoWheelerOutlined'
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined'
 import BoltRoundedIcon from '@mui/icons-material/BoltRounded'
@@ -202,11 +202,6 @@ const OfferChip = styled(Stack)(({ theme }) => ({
     '& svg': { fontSize: 12, color: theme.palette.offerChip.icon },
 }))
 
-const VerifiedTick = styled(VerifiedRoundedIcon)(({ theme }) => ({
-    fontSize: 14,
-    color: theme.palette.info.main,
-    flexShrink: 0,
-}))
 
 const NewStoreCard = ({ restaurant }) => {
     const { t } = useTranslation()
@@ -239,7 +234,7 @@ const NewStoreCard = ({ restaurant }) => {
         discount,
         restaurant_discount,
         coupons,
-        verified,
+       verified_seller,
         is_express,
     } = restaurant
 
@@ -338,6 +333,8 @@ const NewStoreCard = ({ restaurant }) => {
                     height="100%"
                     objectFit="cover"
                     borderRadius="10px"
+                    errorWidth={80}
+                    errorHeight={80}
                 />
                 <FavBtn
                     className="new-store-fav"
@@ -369,7 +366,7 @@ const NewStoreCard = ({ restaurant }) => {
                 )}
                 <NameText component="h4">
                     {name}
-                    {verified && <VerifiedTick />}
+                    <VerifiedBadge verified={verified_seller} sx={{ mb: '1px' }} />
                 </NameText>
                 {avg_rating > 0 && (
                     <RatingBox>

@@ -31,6 +31,10 @@ class CustomDocument extends Document {
             async
           />
             <meta name="theme-color" content="#111827" />
+            <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1, viewport-fit=cover"
+            />
 
             {/* ✅ Analytics scripts */}
             {analyticsConfig.google_tag_manager && (

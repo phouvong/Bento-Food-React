@@ -13,6 +13,7 @@ import { useRouter } from 'next/router'
 import CustomNextImage from '@/components/CustomNextImage'
 import React from 'react'
 import { handleBadge } from '@/utils/customFunctions'
+import VerifiedBadge from '@/components/verified-badge/VerifiedBadge'
 
 const FoodModalTopSection = ({
     product,
@@ -23,7 +24,7 @@ const FoodModalTopSection = ({
     deleteWishlistItem,
     global
 }) => {
-    console.log({ global })
+    console.log({ product })
     const router = useRouter()
     let languageDirection = undefined
     if (typeof window !== 'undefined') {
@@ -44,7 +45,14 @@ const FoodModalTopSection = ({
         digitAfterDecimalPoint = global.digit_after_decimal_point
     }
     return (
-        <CustomStackFullWidth sx={{ position: 'relative' }}>
+        <CustomStackFullWidth
+            sx={{
+                position: 'relative',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: 167,
+            }}
+        >
             <IconButton
                 onClick={handleModalClose}
                 sx={{
@@ -68,6 +76,9 @@ const FoodModalTopSection = ({
                 height="167"
                 borderRadius="5px"
                 objectFit={image ? "cover" : "contain"}
+                errorWidth={80}
+                errorHeight={80}
+                alt="Food Image"
             />
               <Stack
                         position="absolute"
@@ -93,32 +104,65 @@ const FoodModalTopSection = ({
                     )}
                   
 
-                    {router.pathname !== `/restaurants/[id]` ? (
-                        <Typography
-                            sx={{
-                                cursor: 'pointer',
-                                transition: 'background 1s, color 1s',
-                                '&:hover': {
-                                    color: (theme) =>
-                                        theme.palette.primary.main,
-                                },
-                            }}
-                            fontSize="14px"
-                            fontWeight="400"
-                            color={theme.palette.whiteContainer.main}
-                            onClick={handleClick}
-                        >
-                            {product?.restaurant_name}
-                        </Typography>
-                    ) : (
-                        <Typography
-                            fontSize="14px"
-                            fontWeight="400"
-                            color={theme.palette.whiteContainer.main}
-                        >
-                            {product?.restaurant_name}
-                        </Typography>
-                    )}
+                    {(() => {
+                        // Field name varies by API endpoint; check the
+                        // common variants like ReorderCard.tsx does.
+                        const isVerified =
+                            product?.restaurant_verified ??
+                            product?.verified_seller ??
+                            product?.is_verified
+                        return router.pathname !== `/restaurants/[id]` ? (
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={0.5}
+                            >
+                                <Typography
+                                    sx={{
+                                        cursor: 'pointer',
+                                        transition:
+                                            'background 1s, color 1s',
+                                        '&:hover': {
+                                            color: (theme) =>
+                                                theme.palette.primary.main,
+                                        },
+                                    }}
+                                    fontSize="14px"
+                                    fontWeight="400"
+                                    color={
+                                        theme.palette.whiteContainer.main
+                                    }
+                                    onClick={handleClick}
+                                >
+                                    {product?.restaurant_name}
+                                </Typography>
+                                <VerifiedBadge
+                                    verified={isVerified}
+                                    sx={{ mb: '1px' }}
+                                />
+                            </Stack>
+                        ) : (
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={0.5}
+                            >
+                                <Typography
+                                    fontSize="14px"
+                                    fontWeight="400"
+                                    color={
+                                        theme.palette.whiteContainer.main
+                                    }
+                                >
+                                    {product?.restaurant_name}
+                                </Typography>
+                                <VerifiedBadge
+                                    verified={isVerified}
+                                    sx={{ mb: '1px' }}
+                                />
+                            </Stack>
+                        )
+                    })()}
                 </Stack>
                 {!product?.available_date_ends && (
                     <>

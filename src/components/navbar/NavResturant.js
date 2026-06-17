@@ -25,6 +25,7 @@ import { onErrorResponse } from '../ErrorResponse'
 import { RTL } from '../RTL/RTL'
 import { NavMenuLink } from './Navbar.style'
 import { handleRestaurantRedirect } from '@/utils/customFunctions'
+import VerifiedBadge from '@/components/verified-badge/VerifiedBadge'
 const useStyles = makeStyles((theme) => ({
     popover: {
         pointerEvents: 'none',
@@ -197,10 +198,19 @@ const NavResturant = ({ zoneid }) => {
                                                                             .palette
                                                                             .neutral[1000]
                                                                     }
+                                                                    sx={{
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px',
+                                                                    }}
                                                                 >
                                                                     {
                                                                         restaurant.name
                                                                     }
+                                                                    <VerifiedBadge
+                                                                        verified={restaurant?.verified_seller}
+                                                                        size={14}
+                                                                    />
                                                                 </Typography>
                                                             </Stack>
                                                         </MenuItem>
@@ -270,10 +280,19 @@ const NavResturant = ({ zoneid }) => {
                                                                             .palette
                                                                             .neutral[1000]
                                                                     }
+                                                                    sx={{
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px',
+                                                                    }}
                                                                 >
                                                                     {
                                                                         restaurant.name
                                                                     }
+                                                                    <VerifiedBadge
+                                                                        verified={restaurant?.verified_seller}
+                                                                        size={14}
+                                                                    />
                                                                 </Typography>
                                                             </Stack>
                                                         </MenuItem>

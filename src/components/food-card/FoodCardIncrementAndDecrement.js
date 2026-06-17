@@ -161,6 +161,7 @@ const FoodCardIncrementAndDecrement = ({
         const cartIdAndGuestId = {
             cart_id: isInCart?.cartItemId,
             guestId: getGuestId(),
+            restaurant_id: isInCart?.restaurant_id,
         }
         itemRemove(cartIdAndGuestId, {
             onSuccess: handleSuccess,

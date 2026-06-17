@@ -1,4 +1,5 @@
 import { alpha, Box, Grid, Stack } from '@mui/material'
+import VerifiedBadge from '@/components/verified-badge/VerifiedBadge'
 import React, { useState } from 'react'
 import location from '../../../assets/images/icons/location.png'
 import { getAmount, isAvailable } from '@/utils/customFunctions'
@@ -39,6 +40,7 @@ const RestaurantTopDetail = ({
     open,
     schedules,
     cuisine,
+    is_verified,
 }) => {
     const { t } = useTranslation()
     const theme = useTheme()
@@ -178,7 +180,10 @@ const RestaurantTopDetail = ({
                 </Grid>
                 <Grid item xs={6} sm={8} md={matches ? 8 : 9}>
                     <Stack>
-                        <CustomTypography variant="p">{name}</CustomTypography>
+                        <Stack direction="row" alignItems="center" gap="4px">
+                            <CustomTypography variant="p">{name}</CustomTypography>
+                            <VerifiedBadge verified={is_verified} sx={{ mb: '1px' }} />
+                        </Stack>
                         <Stack
                             direction="row"
                             spacing={0.5}

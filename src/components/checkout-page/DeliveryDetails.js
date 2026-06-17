@@ -39,7 +39,12 @@ const DeliveryDetails = (props) => {
         zoneData,
         setSelectedDeliveryOption,
         deliveryFee,
-        couponDiscount
+        couponDiscount,
+        // True when the customer's active Pro offer is `delivery_fee` +
+        // `full_free` AND it's actively saving on this order. Used to hide
+        // the "Save time / Express delivery" speed selector — paying extra
+        // for express doesn't make sense when delivery is already free.
+        isProFullFreeDelivery,
     } = props
 
     const { t } = useTranslation()
@@ -519,7 +524,8 @@ const handleSelectDeliverySpeed = (option) => {
                                 restaurantData?.data?.delivery &&
                                 restaurantChargeInfo?.additional_delivery_option_status &&
                                 canShowDeliverySpeedOptions &&
-                                deliverySpeedOptions.length > 0  &&  (
+                                deliverySpeedOptions.length > 0 &&
+                                !isProFullFreeDelivery && (
                                     <Box
                                         sx={{
                                             mt: 0.9,

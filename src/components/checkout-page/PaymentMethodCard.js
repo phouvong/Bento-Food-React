@@ -30,6 +30,8 @@ const PaymentMethodCard = (props) => {
                    // maxWidth="70px"
                     width="70"
                     height="32"
+                    errorWidth="32"
+                    errorHeight="32"
                     objectFit="contain"
                     src={image}
                 />

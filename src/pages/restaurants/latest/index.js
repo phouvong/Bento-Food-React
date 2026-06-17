@@ -29,7 +29,11 @@ const index = ({ configData, landingPageData, pathName ,metaData}) => {
                     <TypeWiseResturant
                         restaurantType="latest"
                         title={`${t('Latest Restaurants')} on ${configData?.business_name}`}
-                        description={`${t('Latest Restaurants')} on ${configData?.business_name}`}
+                        description={`${t(
+                            'Discover the newest restaurants just added to'
+                        )} ${configData?.business_name} — ${t(
+                            'fresh menus, new flavors, and exciting places to try.'
+                        )}`}
                     />
                 </NoSsr>
             </div>

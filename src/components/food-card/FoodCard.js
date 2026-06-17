@@ -4,7 +4,7 @@ import { useWishListDelete } from '@/hooks/react-query/config/wish-list/useWishL
 import { setCart, setClearCart } from '@/redux/slices/cart'
 import { addWishList, removeWishListFood } from '@/redux/slices/wishList'
 import { getConvertDiscount, handleBadge } from '@/utils/customFunctions'
-import React, { memo, useEffect, useState } from 'react'
+import React, { memo, useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from 'react-query'
@@ -14,11 +14,9 @@ import { onErrorResponse } from '../ErrorResponse'
 import { RTL } from '../RTL/RTL'
 import { getGuestId } from '../checkout-page/functions/getGuestUserId'
 import CustomModal from '../custom-modal/CustomModal'
-import CartClearModal from '../foodDetail-modal/CartClearModal'
 import FoodVerticalCard from './FoodVerticalCard'
 import HorizontalFoodCard from './HorizontalFoodCard'
 import LocationModalAlert from './LocationModalAlert'
-import useDeleteAllCartItem from '@/hooks/react-query/add-cart/useDeleteAllCartItem'
 import dynamic from 'next/dynamic'
 const FoodDetailModal = dynamic(() =>
     import('../foodDetail-modal/FoodDetailModal')
@@ -50,16 +48,17 @@ const FoodCard = ({
     if (typeof window !== 'undefined') {
         location = localStorage.getItem('location')
     }
-    const [clearCartModal, setClearCartModal] = React.useState(false)
-    const handleClearCartModalOpen = () => setClearCartModal(true)
     const { wishLists } = useSelector((state) => state.wishList)
-    const { cartList } = useSelector((state) => state.cart)
+    const { cartList, cartGroups = [] } = useSelector((state) => state.cart)
+
+    console.log({cartGroups,cartList});
+    
     const { mutate: addToCartMutate, isLoading: addToCartLoading } =
         useAddCartItem()
-    const { mutate: deleteCartItemMutate } = useDeleteAllCartItem()
     let currencySymbol
     let currencySymbolDirection
     let digitAfterDecimalPoint
+console.log({cartList});
 
     if (global) {
         currencySymbol = global.currency_symbol
@@ -119,7 +118,30 @@ const FoodCard = ({
     const isInList = (id) => {
         return !!wishLists?.food?.find((wishFood) => wishFood.id === id)
     }
-    const isInCart = cartList?.find((things) => things.id === product?.id)
+
+    // Same merge pattern as NewFoodCard: cartList is scoped to the
+    // last-visited restaurant once that restaurant's API returns, so items
+    // from other restaurants must be picked up from cartGroups to keep the
+    // "in cart" badge accurate across the multi-restaurant cart. cartList
+    // wins on id conflicts because it reflects pending local +/- updates.
+    const effectiveCart = useMemo(() => {
+        const fromGroups = (cartGroups || [])
+            .flatMap((g) => g?.carts || [])
+            .map((c) => ({
+                ...c?.item,
+                cartItemId: c?.id,
+                totalPrice: c?.price,
+                quantity: c?.quantity,
+                restaurant_id: c?.restaurant_id,
+            }))
+        const cartListIds = new Set((cartList || []).map((i) => i.id))
+        return [
+            ...(cartList || []),
+            ...fromGroups.filter((g) => !cartListIds.has(g.id)),
+        ]
+    }, [cartList, cartGroups])
+
+    const isInCart = effectiveCart?.find((things) => things.id === product?.id)
 
     useEffect(() => {
         if (product) {
@@ -152,10 +174,10 @@ const FoodCard = ({
             })
             dispatch(setCart(product))
             toast.success(t('Item added to cart'))
-            setClearCartModal(false)
         }
     }
     const addToCartHandler = () => {
+        if (isInCart) return
         const itemObject = {
             guest_id: getGuestId(),
             model: modalData[0]?.available_date_starts
@@ -167,29 +189,12 @@ const FoodCard = ({
             price: modalData[0]?.price,
             quantity: modalData[0]?.quantity ?? 1,
             variations: [],
+            restaurant_id: modalData[0]?.restaurant_id,
         }
-        if (cartList.length > 0) {
-            const isRestaurantExist = cartList.find(
-                (item) => item.restaurant_id === product.restaurant_id
-            )
-            if (isRestaurantExist) {
-                addToCartMutate(itemObject, {
-                    onSuccess: handleSuccess,
-                    onError: onErrorResponse,
-                })
-            } else {
-                if (cartList.length !== 0) {
-                    handleClearCartModalOpen()
-                }
-            }
-        } else {
-            if (!isInCart) {
-                addToCartMutate(itemObject, {
-                    onSuccess: handleSuccess,
-                    onError: onErrorResponse,
-                })
-            }
-        }
+        addToCartMutate(itemObject, {
+            onSuccess: handleSuccess,
+            onError: onErrorResponse,
+        })
     }
 
     const addToCart = (e) => {
@@ -219,7 +224,7 @@ const FoodCard = ({
         }
     }
     const getQuantity = (id) => {
-        const product = cartList.filter((cartItem) => cartItem.id === id)
+        const product = effectiveCart.filter((cartItem) => cartItem.id === id)
 
         if (product?.length > 1) {
             return product && product?.reduce((acc, curr) => acc + curr.quantity, 0)
@@ -249,37 +254,6 @@ const FoodCard = ({
         }
 
 
-    }
-    const clearCartAlert = () => {
-        const itemObject = {
-            guest_id: getGuestId(),
-            model: modalData[0]?.available_date_starts
-                ? 'ItemCampaign'
-                : 'Food',
-            add_on_ids: [],
-            add_on_qtys: [],
-            item_id: modalData[0]?.id,
-            price: modalData[0]?.price,
-            quantity: modalData[0]?.quantity ?? 1,
-            variations: [],
-        }
-        deleteCartItemMutate(getGuestId(), {
-            onError: onErrorResponse,
-        })
-        dispatch(setClearCart())
-        addToCartMutate(itemObject, {
-            onSuccess: handleSuccess,
-            onError: onErrorResponse,
-        })
-
-        toast.success(
-            t(
-                'Previously added restaurant foods have been removed from cart and the selected one added'
-            ),
-            {
-                duration: 6000,
-            }
-        )
     }
 
     return (
@@ -363,12 +337,6 @@ const FoodCard = ({
                     />
                 </CustomModal>
             }
-            <CartClearModal
-                clearCartModal={clearCartModal}
-                setClearCartModal={setClearCartModal}
-                clearCartAlert={clearCartAlert}
-                addToCard={addToCart}
-            />
         </>
     )
 }

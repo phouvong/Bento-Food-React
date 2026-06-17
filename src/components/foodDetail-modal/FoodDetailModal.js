@@ -1,9 +1,17 @@
-import { Grid, Modal, Tooltip, Typography, Stack } from '@mui/material'
-import React, { useEffect, useState, useRef, useCallback } from 'react'
+import { Grid, Modal, Tooltip, Typography, Stack, Box, Button, alpha } from '@mui/material'
+import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied'
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ProductsApi } from '@/hooks/react-query/config/productsApi'
 import { useWishListDelete } from '@/hooks/react-query/config/wish-list/useWishListDelete'
-import { cart, setCampCart, setCart, setClearCart } from '@/redux/slices/cart'
+import MainApi from '@/api/MainApi'
+import {
+    cart,
+    setCampCart,
+    setCart,
+    setCartGroups,
+    setClearCart,
+} from '@/redux/slices/cart'
 import { addWishList, removeWishListFood } from '@/redux/slices/wishList'
 import {
     calculateItemBasePrice,
@@ -20,7 +28,6 @@ import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
 import AuthModal from '../auth'
 import { FoodDetailModalStyle } from '../home/HomeStyle'
-import CartClearModal from './CartClearModal'
 import StartPriceView from './StartPriceView'
 import AddOnsManager from './AddOnsManager'
 import AddOrderToCart from './AddOrderToCart'
@@ -37,7 +44,6 @@ import IconButton from '@mui/material/IconButton'
 import Skeleton from '@mui/material/Skeleton'
 import useAddCartItem from '../../hooks/react-query/add-cart/useAddCartItem'
 import useCartItemUpdate from '../../hooks/react-query/add-cart/useCartItemUpdate'
-import useDeleteAllCartItem from '../../hooks/react-query/add-cart/useDeleteAllCartItem'
 import { onErrorResponse } from '../ErrorResponse'
 import { handleValuesFromCartItems } from '../checkout-page/CheckoutPage'
 import { getGuestId, getToken } from '../checkout-page/functions/getGuestUserId'
@@ -64,6 +70,8 @@ const FoodDetailModal = ({
     productUpdate,
     handleBadge,
     campaign,
+    paperSx,
+    reelId,
 }) => {
     console.log({ product })
     const router = useRouter()
@@ -77,28 +85,55 @@ const FoodDetailModal = ({
     const [modalFor, setModalFor] = useState('sign-in')
     const [variationInCart, setVariationInCart] = useState(false)
     const [add_on, setAddOns] = useState([])
-    const { cartList } = useSelector((state) => state.cart)
+    const { cartList, cartGroups = [] } = useSelector((state) => state.cart)
+    // Merge cartList (scoped to the last-visited restaurant after its API
+    // returns a flat list) with cartGroups (the grouped multi-restaurant
+    // payload). Items added at one restaurant otherwise disappear from this
+    // modal's "in cart" checks once a different restaurant is visited.
+    // cartList wins on id conflict because it carries pending local edits.
+    const effectiveCart = useMemo(() => {
+        const fromGroups = (cartGroups || [])
+            .flatMap((g) => g?.carts || [])
+            .map((c) => ({
+                ...c?.item,
+                cartItemId: c?.id,
+                totalPrice: c?.price,
+                quantity: c?.quantity,
+                restaurant_id: c?.restaurant_id,
+                selectedAddons: getSelectedAddons(c?.item?.addons),
+                selectedOptions: getSelectedVariations(c?.item?.variations),
+            }))
+        const cartListIds = new Set((cartList || []).map((i) => i.id))
+        return [
+            ...(cartList || []),
+            ...fromGroups.filter((g) => !cartListIds.has(g.id)),
+        ]
+    }, [cartList, cartGroups])
     const [quantity, setQuantity] = useState(1)
-    const [clearCartModal, setClearCartModal] = useState(false)
-    const handleClearCartModalOpen = () => setClearCartModal(true)
     const { token } = useSelector((state) => state.userToken)
     const { wishLists } = useSelector((state) => state.wishList)
     const [modalData, setModalData] = useState([])
     const { mutate: addToCartMutate, isLoading: addToCartLoading } =
         useAddCartItem()
-    const { mutate: updateMutate } = useCartItemUpdate()
-    const { mutate: deleteCartItemMutate } = useDeleteAllCartItem()
+    const { mutate: updateMutate, isLoading: updateToCartLoading } =
+        useCartItemUpdate()
     const itemSuccess = (res) => { }
     const {
         data: foodDetails,
         refetch,
         isLoading: itemIsLoading,
         isRefetching,
+        error: itemError,
     } = useGetFoodDetails(
         { id: product?.id, campaign },
         itemSuccess,
         productUpdate
     )
+    console.log({itemError});
+    
+    const itemNotFound =
+        itemError?.response?.status === 404 ||
+        itemError?.code === 'ERR_NETWORK'
     console.log({ foodDetails })
     useEffect(() => {
         if (foodDetails) {
@@ -117,14 +152,14 @@ const FoodDetailModal = ({
         }
     }, [foodDetails])
     const isInCartWithVari = useCallback(() => {
-        if (!cartList?.length || !foodDetails?.id) {
+        if (!effectiveCart?.length || !foodDetails?.id) {
             setVariationInCart(false);
             setQuantity(1);
             setTotalPrice(foodDetails?.price || 0);
             return;
         }
 
-        const matchedItems = cartList.filter(item => item.id === foodDetails.id);
+        const matchedItems = effectiveCart.filter(item => item.id === foodDetails.id);
         if (!matchedItems.length) {
             setVariationInCart(false);
             setQuantity(1);
@@ -161,7 +196,7 @@ const FoodDetailModal = ({
             setQuantity(1);
             setTotalPrice(foodDetails?.price || 0);
         }
-    }, [cartList, foodDetails, selectedOptions]);
+    }, [effectiveCart, foodDetails, selectedOptions]);
 
 
     useEffect(() => {
@@ -177,7 +212,7 @@ const FoodDetailModal = ({
                 setTotalPrice(foodDetails?.price || 0);
             }
         }
-    }, [selectedOptions, cartList, productUpdate]);
+    }, [selectedOptions, effectiveCart, productUpdate]);
     useEffect(() => {
         if (productUpdate) {
             handleInitialTotalPriceVarPriceQuantitySet(
@@ -255,6 +290,17 @@ const FoodDetailModal = ({
                 }
             })
             dispatch(setCart(product))
+            // Refresh cartGroups directly from the grouped endpoint —
+            // FloatingCart only mounts one useGetAllCartList mode per page,
+            // so on a restaurant page the grouped query has no observer and
+            // queryClient invalidation alone would not refresh cartGroups.
+            const guestId = getGuestId()
+            const params = !token && guestId ? `?guest_id=${guestId}` : ''
+            MainApi.get(`api/v1/customer/cart/get-all${params}`)
+                .then(({ data }) => {
+                    if (Array.isArray(data)) dispatch(setCartGroups(data))
+                })
+                .catch(onErrorResponse)
             CustomToaster('success', 'Item added to cart')
             handleClose()
         }
@@ -300,13 +346,14 @@ const FoodDetailModal = ({
     const handleAddUpdate = () => {
         if (productUpdate || variationInCart) {
             console.log({ product })
-            const product = cartList.find((item) => item.id === modalData[0]?.id)
+            const product = effectiveCart.find((item) => item.id === modalData[0]?.id)
 
             //for updating
             let totalQty = 0
             const itemObject = {
                 cart_id: product?.cartItemId,
                 guest_id: getGuestId(),
+                restaurant_id: product?.restaurant_id,
                 model: product?.available_date_starts ? 'ItemCampaign' : 'Food',
                 add_on_ids:
                     add_on?.length > 0
@@ -346,6 +393,7 @@ const FoodDetailModal = ({
                             }
                         })
                         : [],
+                ...(reelId != null && { reel_id: reelId }),
             }
 
             updateMutate(itemObject, {
@@ -363,6 +411,7 @@ const FoodDetailModal = ({
             let totalQty = 0
             const itemObject = {
                 guest_id: getGuestId(),
+                restaurant_id: modalData[0]?.restaurant_id,
                 model: modalData[0]?.available_date_starts
                     ? 'ItemCampaign'
                     : 'Food',
@@ -404,6 +453,7 @@ const FoodDetailModal = ({
                 variation_options: selectedOptions?.map(
                     (item) => item.option_id
                 ),
+                ...(reelId != null && { reel_id: reelId }),
             }
             addToCartMutate(itemObject, {
                 onSuccess: handleSuccess,
@@ -420,21 +470,7 @@ const FoodDetailModal = ({
     }
 
     const addOrUpdateToCartByDispatch = () => {
-        if (cartList?.length > 0) {
-            //checking same restaurants items already exist or not
-            const isRestaurantExist = cartList?.find(
-                (item) => item.restaurant_id === modalData[0].restaurant_id
-            )
-            if (isRestaurantExist) {
-                handleAddUpdate()
-            } else {
-                if (cartList.length !== 0) {
-                    handleClearCartModalOpen()
-                }
-            }
-        } else {
-            handleAddUpdate()
-        }
+        handleAddUpdate()
     }
     const handleCampaignOrder = () => {
         dispatch(
@@ -653,23 +689,6 @@ const FoodDetailModal = ({
             setIsLocation(true)
         }
     }
-    const clearCartAlert = () => {
-        deleteCartItemMutate(getGuestId(), {
-            onError: onErrorResponse,
-        })
-        dispatch(setClearCart())
-
-        //setClearCartModal(false)
-        toast.success(
-            t(
-                'Previously added restaurant foods have been removed from cart and the selected one added'
-            ),
-            {
-                duration: 6000,
-            }
-        )
-        handleAddUpdate?.()
-    }
     const handleClose = () => setOpen(false)
 
     const changeChoices = (
@@ -873,8 +892,8 @@ const FoodDetailModal = ({
     }
 
     const incrementPrice = () => {
-        console.log("mmm",modalData[0]);
-        
+        console.log("mmm", modalData[0]);
+
         const isLimitedOrDaily = modalData[0]?.stock_type !== 'unlimited'
         const maxCartQuantity = modalData[0]?.maximum_cart_quantity
         // Helper function to check stock limits and update quantity
@@ -957,8 +976,7 @@ const FoodDetailModal = ({
         })
     }
     const isInCart = (id) => {
-        console.log("vvvvvv", id, cartList)
-        const isInCart = cartList.filter((item) => item.id === id)
+        const isInCart = effectiveCart.filter((item) => item.id === id)
         return isInCart.length > 0
     }
 
@@ -1028,6 +1046,8 @@ const FoodDetailModal = ({
 
     const text1 = t('only')
     const text2 = t('items available')
+    console.log({itemNotFound});
+    
 
     return (
         <>
@@ -1038,8 +1058,94 @@ const FoodDetailModal = ({
                 aria-describedby="modal-modal-description"
                 disableAutoFocus={true}
             >
-                <FoodDetailModalStyle sx={{ bgcolor: 'background.paper' }}>
-                    {!itemIsLoading && modalData[0] ? (
+                <FoodDetailModalStyle sx={{ bgcolor: 'background.paper', ...paperSx }}>
+                    {itemNotFound ? (
+                        <Stack
+                            alignItems="center"
+                            justifyContent="center"
+                            spacing={2.5}
+                            sx={{
+                                minHeight: { xs: '50vh', md: '45vh' },
+                                px: { xs: 3, md: 6 },
+                                py: { xs: 4, md: 6 },
+                                textAlign: 'center',
+                            }}
+                        >
+                            <Box
+                                sx={{
+                                    width: 120,
+                                    height: 120,
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    background: (theme) =>
+                                        `linear-gradient(135deg, ${alpha(
+                                            theme.palette.primary.main,
+                                            0.14
+                                        )} 0%, ${alpha(
+                                            theme.palette.primary.main,
+                                            0.04
+                                        )} 100%)`,
+                                }}
+                            >
+                                <SentimentDissatisfiedIcon
+                                    sx={{
+                                        fontSize: 64,
+                                        color: 'primary.main',
+                                        opacity: 0.85,
+                                    }}
+                                />
+                            </Box>
+                            <Stack spacing={0.75} alignItems="center">
+                                <Typography
+                                    variant="h5"
+                                    fontWeight={700}
+                                    color="text.primary"
+                                >
+                                    {t('Food not found')}
+                                </Typography>
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ maxWidth: 360 }}
+                                >
+                                    {t(
+                                        'We could not load this item. It may have been removed or is temporarily unavailable.'
+                                    )}
+                                </Typography>
+                            </Stack>
+                            {/* <Stack
+                                direction="row"
+                                spacing={1.5}
+                                sx={{ mt: 1 }}
+                            >
+                                <Button
+                                    variant="outlined"
+                                    onClick={handleModalClose}
+                                    sx={{
+                                        minWidth: 120,
+                                        textTransform: 'none',
+                                        borderRadius: 2,
+                                    }}
+                                >
+                                    {t('Close')}
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    onClick={() => refetch()}
+                                    sx={{
+                                        minWidth: 120,
+                                        textTransform: 'none',
+                                        borderRadius: 2,
+                                        boxShadow: 'none',
+                                    }}
+                                >
+                                    {t('Try Again')}
+                                </Button>
+                            </Stack> */}
+                        </Stack>
+                    ) : !itemIsLoading && modalData[0] ? (
                         <>
                             {isLocation ? (
                                 <LocationModalAlert
@@ -1327,7 +1433,7 @@ const FoodDetailModal = ({
                                                         setAddOns={setAddOns}
                                                         add_on={add_on}
                                                         quantity={quantity}
-                                                        cartList={cartList}
+                                                        cartList={effectiveCart}
                                                         itemIsLoading={
                                                             isRefetching
                                                         }
@@ -1419,7 +1525,11 @@ const FoodDetailModal = ({
                                                         {(foodDetails?.variations?.length > 0 || product?.variations?.length > 0) ? (
                                                             // 🟦 Case 1: Food has variations
                                                             (variationInCart || productUpdate) ? (
-                                                                <UpdateToCartUi addToCard={addToCard} t={t} />
+                                                                <UpdateToCartUi
+    addToCard={addToCard}
+    t={t}
+    isLoading={updateToCartLoading}
+/>
                                                             ) : (
                                                                 <AddOrderToCart
                                                                     addToCartLoading={addToCartLoading}
@@ -1433,7 +1543,11 @@ const FoodDetailModal = ({
                                                         ) : (
                                                             // 🟩 Case 2: Food has NO variations
                                                             (isInCart(modalData[0]?.id)) ? (
-                                                                <UpdateToCartUi addToCard={addToCard} t={t} />
+                                                                <UpdateToCartUi
+    addToCard={addToCard}
+    t={t}
+    isLoading={updateToCartLoading}
+/>
                                                             ) : (
                                                                 <AddOrderToCart
                                                                     addToCartLoading={addToCartLoading}
@@ -1535,12 +1649,6 @@ const FoodDetailModal = ({
                     )}
                 </FoodDetailModalStyle>
             </Modal>
-            <CartClearModal
-                clearCartModal={clearCartModal}
-                setClearCartModal={setClearCartModal}
-                clearCartAlert={clearCartAlert}
-                addToCard={addToCard}
-            />
             {authModalOpen && (
                 <AuthModal
                     open={authModalOpen}

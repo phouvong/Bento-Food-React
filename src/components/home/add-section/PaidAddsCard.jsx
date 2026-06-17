@@ -40,6 +40,9 @@ const HiMedia = styled(Box)(({ theme }) => ({
     position: 'relative',
     aspectRatio: '16 / 10',
     overflow: 'hidden',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: theme.palette.neutral[100],
     '& img, & video': {
         width: '100%',
@@ -317,6 +320,8 @@ const PaidAddsCard = ({
                                 src={item?.cover_image_full_url}
                                 width="400"
                                 height="250"
+                                errorWidth={80}
+                                errorHeight={80}
                                 objectFit={
                                     item?.cover_image_full_url
                                         ? 'cover'

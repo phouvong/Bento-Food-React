@@ -673,6 +673,8 @@ export const bengali = {
         'আপনার নিজস্ব ভার্চুয়াল রেস্টুরেন্ট খুলুন',
     'Are you sure you want to  logout?': 'আপনি কি নিশ্চিত আপনি লগআউট করতে চান?',
     'Clear Cart': 'ক্লিয়ার কার্ট',
+    'Clear Cart & Reorder?': 'কার্ট খালি করে পুনরায় অর্ডার করবেন?',
+    'Yes, Reorder': 'হ্যাঁ, পুনরায় অর্ডার করুন',
     'Recommend Products': 'রিকমেন্ডেড প্রডাক্ট',
     'Add fund': 'ফান্ড এড করুন',
     'Order Now': 'এখনই অর্ডার করুন',
@@ -879,9 +881,13 @@ export const bengali = {
     'Order scheduled': 'অর্ডার নির্ধারিত',
     'Current orders can not be reordered as some changes occurred to the items.':
         'আইটেমগুলিতে কিছু পরিবর্তন হয়েছে বলে বর্তমান অর্ডারগুলি পুনরায় সাজানো যাবে না৷',
+    "This order can't be reordered — one or more items are unavailable.":
+        'এই অর্ডারটি পুনরায় দেওয়া সম্ভব নয় — এক বা একাধিক আইটেম এখন পাওয়া যাচ্ছে না।',
     'No logs found': 'কোন লগ পাওয়া যায়নি',
-    'Reorder-able items added to the cart successfully.':
+    'Reorderable items added to the cart successfully.':
         'পুনরায় অর্ডার করতে সক্ষম আইটেমগুলি কার্টে সফলভাবে যোগ করা হয়েছে৷',
+    'Your existing cart will be cleared. Do you want to reorder?':
+        'আপনার বিদ্যমান কার্ট মুছে যাবে। আপনি কি পুনরায় অর্ডার করতে চান?',
     'Additional Information': 'এক্সট্রা ইনফো',
     'Street number': 'রাস্তার নাম্বার',
     'House number': 'বাড়ির নাম্বার',
@@ -1069,5 +1075,5 @@ export const bengali = {
         'আমাদের জনপ্রিয় ফুড & রেস্টুরেন্ট দেখুন',
     'Currently Open': 'বর্তমানে খোলা',
     'View From Map': 'মানচিত্র থেকে দেখুন',
-    'Refer a Friend': 'বন্ধুকে রেফার করুন'
+    'Refer a Friend': 'বন্ধুকে রেফার করুন',
 }

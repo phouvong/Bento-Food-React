@@ -23,13 +23,13 @@ const RestaurantDetailsPage = ({ restaurantData, configData }) => {
         }
     }, [configData, router])
 
-
     // Process metadata from restaurantData
     const pageTitle = restaurantData?.meta_title
         ? `${restaurantData.meta_title} - ${configData?.business_name}`
         : `${restaurantData?.name} - ${configData?.business_name}`
     const pageDescription = restaurantData?.meta_description || ''
-    const pageImage = restaurantData?.meta_image_full_url ||
+    const pageImage =
+        restaurantData?.meta_image_full_url ||
         `${configData?.base_urls?.restaurant_image_url}/${restaurantData?.meta_image}`
 
     return (
@@ -41,7 +41,10 @@ const RestaurantDetailsPage = ({ restaurantData, configData }) => {
                 robotsMeta={restaurantData?.meta_data}
             />
             <NoSsr>
-                <RestaurantDetails restaurantData={restaurantData} />
+                <RestaurantDetails
+                    restaurantData={restaurantData}
+                    configData={configData}
+                />
             </NoSsr>
         </>
     )
@@ -51,19 +54,23 @@ export default RestaurantDetailsPage
 
 export async function getStaticPaths() {
     try {
-        const popularRestaurants = await MainApi.get('/api/v1/restaurants/popular')
-        const paths = popularRestaurants.data.slice(0, 10).map(restaurant => ({
-            params: { slug: restaurant.slug, id: restaurant.id.toString() }
-        }))
+        const popularRestaurants = await MainApi.get(
+            '/api/v1/restaurants/popular'
+        )
+        const paths = popularRestaurants.data
+            .slice(0, 10)
+            .map((restaurant) => ({
+                params: { slug: restaurant.slug, id: restaurant.id.toString() },
+            }))
 
         return {
             paths,
-            fallback: 'blocking'
+            fallback: 'blocking',
         }
     } catch (error) {
         return {
             paths: [],
-            fallback: 'blocking'
+            fallback: 'blocking',
         }
     }
 }
@@ -105,4 +112,3 @@ export async function getStaticProps(context) {
         }
     }
 }
-

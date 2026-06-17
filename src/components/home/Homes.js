@@ -49,6 +49,8 @@ import CustomModal from '../custom-modal/CustomModal'
 import ProductSearchPage from '../products-page/ProductSearchPage'
 import Banner from './Banner'
 import TrendingFoodTabs from './trending-food-tabs/TrendingFoodTabs'
+import TrendingBites from './trending-bites/TrendingBites'
+import LastOrderSection from './last-order/LastOrderSection'
 import NewRestaurant from './NewRestaurant'
 import PromotionalBanner from './PromotionalBanner'
 import Restaurant from './Restaurant'
@@ -94,8 +96,12 @@ const Homes = ({ configData, landingPageData: landingPageDataProp }) => {
     const landingPageData = landingPageApiData || landingPageDataProp
 
     const playStoreLink =
-        landingPageData?.download_app_section?.react_download_apps_play_store_link || 'https://play.google.com/store/apps'
-    const appStoreLink =  landingPageData?.download_app_section?.react_download_apps_link || 'https://apps.apple.com'
+        landingPageData?.download_app_section
+            ?.react_download_apps_play_store_link ||
+        'https://play.google.com/store/apps'
+    const appStoreLink =
+        landingPageData?.download_app_section?.react_download_apps_link ||
+        'https://apps.apple.com'
     const downloadAppData =
         landingPageData?.download_app_section || landingPageData
 
@@ -109,7 +115,9 @@ const Homes = ({ configData, landingPageData: landingPageDataProp }) => {
     const { searchTagData, cuisineData } = useSelector(
         (state) => state.searchTags
     )
-    const activeFilters = searchTagData?.filter((item) => item.isActive === true)
+    const activeFilters = searchTagData?.filter(
+        (item) => item.isActive === true
+    )
     const router = useRouter()
     const { query, page, restaurantType, tags } = router.query
     const {
@@ -121,6 +129,7 @@ const Homes = ({ configData, landingPageData: landingPageDataProp }) => {
     } = useSelector((state) => state.storedData)
 
     const { welcomeModal, isNeedLoad } = useSelector((state) => state.utilsData)
+    const { token } = useSelector((state) => state.userToken)
     const restaurantIsSticky = useSelector(
         (state) => state.scrollPosition.restaurantIsSticky
     )
@@ -272,7 +281,9 @@ const Homes = ({ configData, landingPageData: landingPageDataProp }) => {
     const toggleDrawer = () => () => {
         setOpenDrawer(!openDrawer)
     }
-console.log("bbbb",query,page,restaurantType,tags);
+    console.log('bbbb', query, page, restaurantType, tags)
+
+    console.log({ configData })
 
     return (
         <PushNotificationLayout>
@@ -287,7 +298,8 @@ console.log("bbbb",query,page,restaurantType,tags);
                     transition:
                         'top 0.25s ease, transform 0.25s ease, opacity 0.2s ease',
                     zIndex: 99,
-                    backgroundColor: (theme) => theme.palette.background.default,
+                    backgroundColor: (theme) =>
+                        theme.palette.background.default,
                     transform: restaurantIsSticky
                         ? 'translateY(-100%)'
                         : 'translateY(0)',
@@ -309,15 +321,10 @@ console.log("bbbb",query,page,restaurantType,tags);
                     sx={{
                         mt: SECTION_GAP,
                         direction: 'row',
-                        display:
-                            restaurantType === 'dine-in' ? 'flex' : 'none',
+                        display: restaurantType === 'dine-in' ? 'flex' : 'none',
                     }}
                 >
-                    <Stack
-                        direction="row"
-                        width="100%"
-                        
-                    >
+                    <Stack direction="row" width="100%">
                         <Stack spacing={0.5}>
                             <Typography
                                 fontSize={{ xs: '18px', md: '22px' }}
@@ -400,11 +407,18 @@ console.log("bbbb",query,page,restaurantType,tags);
                         >
                             <HomeSidebar />
                         </Box>
-                        <Box sx={{ minWidth: 0 ,marginTop:{xs:"1.5rem",md:"1.5rem"} }}>
+                        <Box
+                            sx={{
+                                minWidth: 0,
+                                marginTop: { xs: '1.5rem', md: '1.5rem' },
+                            }}
+                        >
                             <CustomPageTitleSubtitle
                                 title={
                                     query
-                                        ? `${t('Search results for')} "${query}"`
+                                        ? `${t(
+                                              'Search results for'
+                                          )} "${query}"`
                                         : restaurantType === 'dine-in'
                                         ? t('Dine-in Restaurants')
                                         : tags
@@ -457,8 +471,12 @@ console.log("bbbb",query,page,restaurantType,tags);
                                     playStoreLink={playStoreLink}
                                     appStoreLink={appStoreLink}
                                 />
-                                {configData?.data?.dine_in_order_option === 1 ? (
+                                {configData?.data?.dine_in_order_option ===
+                                1 ? (
                                     <DineIn />
+                                ) : null}
+                                {configData?.repeat_order_option && token ? (
+                                    <LastOrderSection />
                                 ) : null}
                                 <TrendingFoodTabs
                                     campaignIsLoading={campaignIsloading}
@@ -467,6 +485,7 @@ console.log("bbbb",query,page,restaurantType,tags);
                                     }
                                     bestReviewedIsLoading={isLoading}
                                 />
+                                <TrendingBites />
                                 <NewRestaurant />
                                 {configData && <Cuisines />}
                                 {configData?.banner_data
@@ -476,7 +495,6 @@ console.log("bbbb",query,page,restaurantType,tags);
                                 <Restaurant />
                             </Stack>
                         </Box>
-                       
                     </Stack>
                 </CustomContainer>
             )}
@@ -522,10 +540,10 @@ console.log("bbbb",query,page,restaurantType,tags);
                         >
                             {userData?.is_valid_for_discount
                                 ? t(
-                                    `Get ready for a special welcome gift, enjoy a special discount on your first order within `
-                                ) +
-                                userData?.validity +
-                                '.'
+                                      `Get ready for a special welcome gift, enjoy a special discount on your first order within `
+                                  ) +
+                                  userData?.validity +
+                                  '.'
                                 : ''}
                             {'  '}
                             {t(

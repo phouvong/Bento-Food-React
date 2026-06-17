@@ -13,6 +13,7 @@ import {
     Typography,
 } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
+import { useQueryClient } from 'react-query'
 
 import { setWelcomeModal } from '@/redux/slices/utils'
 import { useEffect, useState } from 'react'
@@ -23,6 +24,7 @@ import order from '../../../public/static/profile/order.svg'
 import profile from '../../../public/static/profile/profileIcon.svg'
 import settings from '../../../public/static/profile/settings.svg'
 import wallet from '../../../public/static/profile/wallet.svg'
+import crown from '../../../public/static/profile/crown.svg'
 import wish from '../../../public/static/profile/wish.svg'
 import refer from '../../../public/static/refer_code.png'
 import { removeToken } from '@/redux/slices/userToken'
@@ -53,6 +55,15 @@ export const menuData = [
         label: 'Wallets',
         value: 'wallets',
         img: wallet,
+    },
+    // id 10 is intentionally out of sequence so the wallet/loyalty/referral
+    // visibility filter below (which matches on menu.id === 4/5/6) keeps
+    // working unchanged.
+    {
+        id: 10,
+        label: 'Subscription Plan',
+        value: 'subscription',
+        img: crown,
     },
     {
         id: 5,
@@ -86,10 +97,14 @@ export const AccountPopover = (props) => {
     const [isLogoutLoading, setIsLogoutLoading] = useState(false)
     const [languageDirection, setLanguageDirection] = useState('ltr')
     const { global } = useSelector((state) => state.globalSettings)
+    const { userData } = useSelector((state) => state.user)
+    const isProCustomer =
+        global?.pro_member_status
     const router = useRouter()
     const { t } = useTranslation()
     const { cartListRefetch, anchorEl, onClose, open, ...other } = props
     const dispatch = useDispatch()
+    const queryClient = useQueryClient()
     const handleLogout = async () => {
         setIsLogoutLoading(true)
         try {
@@ -100,6 +115,8 @@ export const AccountPopover = (props) => {
                 let a = []
                 dispatch(clearWishList(a))
                 cartListRefetch()
+                queryClient.invalidateQueries('cart-item')
+                queryClient.invalidateQueries('cart-item-restaurant')
                 onClose?.()
                 if (router.pathname === '/') {
                     router.push('/')
@@ -135,13 +152,18 @@ export const AccountPopover = (props) => {
                 anchorEl={anchorEl}
                 anchorOrigin={{
                     vertical: 'bottom',
-                    horizontal: 'center',
+                    horizontal: 'right',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
                 }}
                 keepMounted
                 onClose={onClose}
                 open={open}
                 PaperProps={{ sx: { width: 300 } }}
                 transitionDuration={5}
+                disableScrollLock
                 {...other}
             >
                 <Box
@@ -159,7 +181,8 @@ export const AccountPopover = (props) => {
                                 (global?.loyalty_point_status === 0 &&
                                     menu.id === 5) ||
                                 (global?.ref_earning_status === 0 &&
-                                    menu.id === 6)
+                                    menu.id === 6) ||
+                                (menu.id === 10 && !isProCustomer)
                             ) {
                                 return null
                             } else {

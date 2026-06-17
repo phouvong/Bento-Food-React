@@ -30,10 +30,18 @@ const RegularOrders = ({ orderType }) => {
         digitAfterDecimalPoint = global.digit_after_decimal_point
     }
     const languageDirection = localStorage.getItem('direction')
+    const visibleCartItems = (cartList ?? []).filter((item) => {
+        if (!item) return false
+        const hasId = item.id !== undefined && item.id !== null
+        const hasName = typeof item.name === 'string' && item.name.length > 0
+        return hasId || hasName
+    })
+
+    console.log('visibleCartItems', cartList)
     return (
         <>
-            {cartList.length > 0 ? (
-                cartList.map((item, index) => (
+            {visibleCartItems.length > 0 ? (
+                visibleCartItems.map((item, index) => (
                     <CustomStackFullWidth
                         key={index}
                         direction="row"
@@ -99,7 +107,12 @@ const RegularOrders = ({ orderType }) => {
                                     </OrderFoodSubtitle>
                                     <OrderFoodSubtitle>:</OrderFoodSubtitle>
                                     <OrderFoodSubtitle>
-                                        {getSelectedAddOn(item?.selectedAddons)}
+                                        {item.selectedAddons
+                                            .map(
+                                                (a) =>
+                                                    `${a?.name} × ${a?.quantity}`
+                                            )
+                                            .join(', ')}
                                     </OrderFoodSubtitle>
                                 </Stack>
                             )}

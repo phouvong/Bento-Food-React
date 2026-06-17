@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import {
     Stack,
@@ -210,10 +210,21 @@ const AllPaymentMethod = ({
     changeAmount,
     openModal,
     orderType,
+    // Bottom button label. Defaults to 'Select' so existing checkout usage is
+    // unchanged; callers can override (e.g. 'Proceed' for the subscription flow).
+    submitLabel = 'Select',
+    // When true, the Cash-on-Delivery option is hidden everywhere it would
+    // normally render. Default false to keep existing checkout behavior.
+    hideCashOnDelivery = false,
+    // When true, the wallet / partial-payment option is hidden. Subscription
+    // flow uses this to suppress wallet when the plan price exceeds the
+    // user's wallet balance (a non-recoverable case for that flow).
+    hideWallet = false,
 }) => {
     const theme = useTheme()
     const [expanded, setExpanded] = useState(false)
     const [openOfflineOptions, setOpenOfflineOptions] = useState(false)
+    const offlineSectionRef = useRef(null)
     useEffect(() => {
         if (selected?.name === 'cash_on_delivery') {
             setExpanded(true)
@@ -239,6 +250,18 @@ const AllPaymentMethod = ({
         const next = !openOfflineOptions
         setOpenOfflineOptions(next)
         setIsCheckedOffline(next)
+        if (next) {
+            const firstOption = offlinePaymentOptions?.[0]
+            if (firstOption) {
+                handleClickOfflineItem(firstOption)
+            }
+            requestAnimationFrame(() => {
+                offlineSectionRef.current?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                })
+            })
+        }
     }
 
     const handleClickOfflineItem = (item) => {
@@ -334,10 +357,12 @@ const AllPaymentMethod = ({
                                     },
                                 }}
                             >
-                                {subscriptionStates.order !== '1' &&
+                                {!hideWallet &&
+                                    subscriptionStates.order !== '1' &&
                                     global?.customer_wallet_status === 1 &&
                                     walletAmount > 0 &&
-                                    global?.partial_payment_status === 1 && (
+                                    (global?.partial_payment_status === 1 ||
+                                        walletAmount >= totalAmount) && (
                                         <PartialPayment
                                             offLineWithPartial={
                                                 offLineWithPartial
@@ -477,7 +502,7 @@ const AllPaymentMethod = ({
                             >
                                 {usePartialPayment ? (
                                     <>
-                                        {global?.cash_on_delivery &&
+                                        {!hideCashOnDelivery && global?.cash_on_delivery &&
                                             (global?.partial_payment_method?.includes('cash_on_delivery')) ? (
                                             <PayButton
                                                 value="cash_on_delivery"
@@ -550,7 +575,7 @@ const AllPaymentMethod = ({
                                     </>
                                 ) : (
                                     <>
-                                        {global?.cash_on_delivery ? (
+                                        {!hideCashOnDelivery && global?.cash_on_delivery ? (
                                             <PayButton
                                                 value="cash_on_delivery"
                                                 paymentMethod={selected?.name}
@@ -694,10 +719,12 @@ const AllPaymentMethod = ({
                                 padding: '0px 10px',
                             }}
                         >
-                            {subscriptionStates.order !== '1' &&
+                            {!hideWallet &&
+                                subscriptionStates.order !== '1' &&
                                 global?.customer_wallet_status === 1 &&
                                 walletAmount > 0 &&
-                                global?.partial_payment_status === 1 && (
+                                (global?.partial_payment_status === 1 ||
+                                    walletAmount >= totalAmount) && (
                                     <Box
                                         sx={{
                                             flex: {
@@ -799,7 +826,7 @@ const AllPaymentMethod = ({
                                     },
                                 }}
                             >
-                                {global?.cash_on_delivery ? (
+                                {!hideCashOnDelivery && global?.cash_on_delivery ? (
                                     <PayButton
                                         value="cash_on_delivery"
                                         paymentMethod={selected?.name}
@@ -951,6 +978,7 @@ const AllPaymentMethod = ({
                     subscriptionStates.order !== '1' &&
                     (usePartialPayment ? (global?.partial_payment_method?.includes('offline_payment')) : true) && (
                         <CustomStackFullWidth
+                            ref={offlineSectionRef}
                             sx={{
                                 padding: '10px 10px 10px 15px',
                                 borderRadius: '10px',
@@ -1095,7 +1123,7 @@ const AllPaymentMethod = ({
             </SimpleBar>
             <Stack paddingTop="30px">
                 <PrimaryButton variant="contained" onClick={handleSubmit}>
-                    {t('Select')}
+                    {t(submitLabel)}
                 </PrimaryButton>
             </Stack>
         </Stack>

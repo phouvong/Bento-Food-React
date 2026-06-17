@@ -24,22 +24,28 @@ const toBase64 = (str) =>
         : window.btoa(str);
 
 const CustomImage = ({
-                         src,
-                         altSrc = placeholder,
-                         alt = "Image",
-                         width,
-                         height,
-                         objectFit = "cover",
-                         borderRadius,
-                         aspectRatio,
-                         ...props
-                     }) => {
+    src,
+    altSrc = placeholder,
+    alt = "Image",
+    width,
+    height,
+    naturalWidth = undefined,
+    naturalHeight = undefined,
+    errorWidth = undefined,
+    errorHeight = undefined,
+    objectFit = "cover",
+    borderRadius,
+    aspectRatio,
+    ...props
+}) => {
+    const shimmerWidth = naturalWidth ?? width;
+    const shimmerHeight = naturalHeight ?? height;
     const [currentSrc, setCurrentSrc] = useState(src || altSrc);
-    const [isError, setIsError] = useState(false);
+    const [isError, setIsError] = useState(!src);
 
     useEffect(() => {
         setCurrentSrc(src || altSrc);
-        setIsError(false);
+        setIsError(!src);
     }, [src, altSrc]);
 
     const handleError = () => {
@@ -49,23 +55,32 @@ const CustomImage = ({
         }
     };
 
+    const { style: propStyle, ...restProps } = props;
+
     const style = {
         objectFit: isError ? "contain" : objectFit,
         borderRadius,
         aspectRatio,
-        ...props.style,
+        ...propStyle,
+        ...(isError && {
+            width: "auto",
+            height: "auto",
+        }),
     };
+
+    const renderedWidth = isError ? errorWidth ?? width : width;
+    const renderedHeight = isError ? errorHeight ?? height : height;
 
     return (
         <Image
             src={currentSrc}
-            width={width}
-            height={height}
+            width={renderedWidth}
+            height={renderedHeight}
             alt={alt}
             onError={handleError}
-            placeholder={`data:image/svg+xml;base64,${toBase64(shimmer(width, height))}`}
+            placeholder={`data:image/svg+xml;base64,${toBase64(shimmer(shimmerWidth, shimmerHeight))}`}
+            {...restProps}
             style={style}
-            {...props}
         />
     );
 };

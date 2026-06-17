@@ -3,7 +3,7 @@ import Typography from '@mui/material/Typography'
 
 import OutlinedInput from '@mui/material/OutlinedInput'
 import { useDispatch, useSelector } from 'react-redux'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { useWishListGet } from '@/hooks/react-query/config/wish-list/useWishListGet'
 import 'react-phone-input-2/lib/material.css'
 import { useTranslation } from 'react-i18next'
@@ -104,6 +104,7 @@ const SignInPage = ({
     const dispatch = useDispatch()
     const { global } = useSelector((state) => state.globalSettings)
     const router = useRouter()
+    const queryClient = useQueryClient()
     const guestId = getGuestId()
     const [isRemember, setIsRemember] = useState(false)
     const [openOtpModal, setOpenOtpModal] = useState(false)
@@ -237,6 +238,8 @@ const SignInPage = ({
             await cartListRefetch()
             CustomToaster('success', loginSuccessFull)
             dispatch(setToken(response.token))
+            queryClient.invalidateQueries('cart-item')
+            queryClient.invalidateQueries('cart-item-restaurant')
             if (
                 router.pathname === `/order-history/[id]` ||
                 router.pathname === '/forgot-password'

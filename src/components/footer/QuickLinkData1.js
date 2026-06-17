@@ -1,18 +1,18 @@
 export const QuickLinkData1 = [
     {
-        name: 'New Restaurants',
-        value: 'latest',
-        link: '/restaurants/latest',
+        name: 'Near Restaurants',
+        value: 'nearby',
+        link: '/restaurants/nearby',
     },
     {
-        name: 'Popular Restaurants',
-        value: 'popular',
-        link: '/restaurants/popular',
+        name: 'Recommended Restaurants',
+        value: 'recommended',
+        link: '/restaurants/recommended',
     },
     {
-        name: 'Best Reviewed Foods',
-        value: 'most-reviewed',
-        link: '/products/best-reviewed-foods',
+        name: 'Offer',
+        value: 'campaigns',
+        link: '/campaigns',
     },
     {
         name: 'Track Order',

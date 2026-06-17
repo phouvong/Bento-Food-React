@@ -6,24 +6,21 @@ export const getItemDataForAddToCart = (
     mainPrice,
     guest_id
 ) => {
-    let totalQty = 0
+    // Drop zero-quantity add-ons so the API never sees an addon line with
+    // qty 0 — the user effectively unselected it. `values.addons` (selected
+    // set with quantities) is the canonical source; `values.add_ons` is just
+    // the menu list used as a presence flag.
+    const selectedAddons =
+        values?.add_ons?.length > 0 && Array.isArray(values?.addons)
+            ? values.addons.filter((add) => Number(add?.quantity) > 0)
+            : []
     return {
         guest_id: guest_id,
         cart_id: values?.cartItemId,
+        restaurant_id: values?.restaurant_id,
         model: values?.available_date_starts ? 'ItemCampaign' : 'Item',
-        add_on_ids:
-            values?.add_ons?.length > 0
-                ? values?.addons?.map((add) => {
-                      return add.id
-                  })
-                : [],
-        add_on_qtys:
-            values?.add_ons?.length > 0
-                ? values?.addons?.map((add) => {
-                      totalQty = add.quantity
-                      return totalQty
-                  })
-                : [],
+        add_on_ids: selectedAddons.map((add) => add.id),
+        add_on_qtys: selectedAddons.map((add) => add.quantity),
         item_id: values?.id,
         price: mainPrice,
         quantity: updateQuantity,

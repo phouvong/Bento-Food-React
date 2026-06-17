@@ -21,7 +21,11 @@ const BottomNav = (props) => {
     const { t } = useTranslation()
     const router = useRouter()
     const { setSideDrawerOpen } = props
-    const { cartList } = useSelector((state) => state.cart)
+    const { cartList, cartGroups } = useSelector((state) => state.cart)
+    const isRestaurantPage = router.pathname === '/restaurants/[id]'
+    const cartCount = isRestaurantPage
+        ? cartList?.length
+        : (cartGroups || []).reduce((sum, g) => sum + (g?.carts?.length || 0), 0)
     const [openWishlistModal, setOpenWishlistModal] = useState(false)
 
     let zoneid = undefined
@@ -72,8 +76,6 @@ const BottomNav = (props) => {
                     right: 0,
                     width: '100%',
                     zIndex: 999,
-                    WebkitTransform: 'translateZ(0)',
-                    paddingBottom: 'env(safe-area-inset-bottom)',
                 }}
                 elevation={3}
             >
@@ -105,7 +107,7 @@ const BottomNav = (props) => {
                         // label="Cart"
                         icon={
                             <Badge
-                                badgeContent={cartList?.length}
+                                badgeContent={cartCount}
                                 color="error"
                             >
                                 <ShoppingCartOutlinedIcon />

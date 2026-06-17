@@ -1,27 +1,37 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from 'react'
 
-export function useGetScreenPosition() {
-    const [scrollPosition, setScrollPosition] = useState(0);
-    const timeoutRef = useRef(null);
+// Returns a "scroll-past-threshold" position snapped to two values so
+// consumers only re-render at the boundary crossing, not on every pixel.
+//   - below or at `threshold`: returns 0
+//   - above `threshold`:       returns threshold + 1
+// Callers that compare with `<= threshold` / `> threshold` keep working
+// unchanged. The scroll handler is throttled with requestAnimationFrame
+// rather than a trailing-edge debounce, so continuous smooth-scroll
+// (e.g. scrollIntoView) flips the state in lock-step with native
+// `position: sticky` instead of waiting for the scroll to settle.
+export function useGetScreenPosition(threshold = 0) {
+    const [pastThreshold, setPastThreshold] = useState(false)
+    const rafRef = useRef(null)
 
     useEffect(() => {
         const handleScroll = () => {
-            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+            if (rafRef.current !== null) return
+            rafRef.current = requestAnimationFrame(() => {
+                rafRef.current = null
+                setPastThreshold(window.pageYOffset > threshold)
+            })
+        }
 
-            // Call setScrollPosition after 100ms
-            timeoutRef.current = setTimeout(() => {
-                setScrollPosition(window.pageYOffset);
-            }, 10);
-        };
+        window.addEventListener('scroll', handleScroll, { passive: true })
 
-        window.addEventListener('scroll', handleScroll, { passive: true });
-
-        // Cleanup
         return () => {
-            window.removeEventListener('scroll', handleScroll);
-            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        };
-    }, []);
+            window.removeEventListener('scroll', handleScroll)
+            if (rafRef.current !== null) {
+                cancelAnimationFrame(rafRef.current)
+                rafRef.current = null
+            }
+        }
+    }, [threshold])
 
-    return scrollPosition;
+    return pastThreshold ? threshold + 1 : 0
 }

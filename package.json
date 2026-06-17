@@ -77,7 +77,8 @@
         "build": "next build",
         "start": "next start",
         "i18n:extract": "i18next-scanner",
-        "i18n:watch": "node i18n-watch.js"
+        "i18n:watch": "node i18n-watch.js",
+        "match:screenshot": "ts-node --skip-project scripts/match-design/screenshot.ts"
     },
     "browserslist": {
         "production": [
@@ -92,6 +93,7 @@
         ]
     },
     "devDependencies": {
+        "@playwright/test": "^1.60.0",
         "@types/hoist-non-react-statics": "^3.3.7",
         "@types/lodash": "^4.17.23",
         "@types/node": "^25.2.0",
@@ -104,6 +106,7 @@
         "concurrently": "^9.2.1",
         "eslint": "^8.18.0",
         "i18next-scanner": "^4.6.0",
-        "prettier": "2.5.1"
+        "prettier": "2.5.1",
+        "typescript": "6.0.3"
     }
 }

@@ -54,37 +54,32 @@ const Navigation = () => {
         dispatch(setCategoryIsSticky(false))
     }, [router.pathname])
     const cartListSuccessHandler = (res) => {
-        if (res) {
-            const setItemIntoCart = () => {
-                return res?.map((item) => ({
-                    ...item?.item,
-                    cartItemId: item?.id,
-                    totalPrice:
-                        getConvertDiscount(
-                            item?.item?.discount,
-                            item?.item?.discount_type,
-                            handleProductValueWithOutDiscount(item?.item),
-                            item?.item?.restaurant_discount
-                        ) * item?.quantity,
-                    selectedAddons: getSelectedAddons(item?.item?.addons),
-                    quantity: item?.quantity,
-                    variations: item?.item?.variations,
-                    itemBasePrice: getConvertDiscount(
-                        item?.item?.discount,
-                        item?.item?.discount_type,
-                        calculateItemBasePrice(
-                            item?.item,
-                            item?.item?.variations
-                        ),
-                        item?.item?.restaurant_discount
-                    ),
-                    selectedOptions: getSelectedVariations(
+        if (!Array.isArray(res) || res.length === 0) return
+        const isIndividualItemFormat = Boolean(res[0]?.item)
+        if (!isIndividualItemFormat) return
+        const setItemIntoCart = () => {
+            return res.map((item) => ({
+                ...item?.item,
+                cartItemId: item?.id,
+                totalPrice: item?.price,
+                selectedAddons: getSelectedAddons(item?.item?.addons),
+                quantity: item?.quantity,
+                variations: item?.item?.variations,
+                itemBasePrice: getConvertDiscount(
+                    item?.item?.discount,
+                    item?.item?.discount_type,
+                    calculateItemBasePrice(
+                        item?.item,
                         item?.item?.variations
                     ),
-                }))
-            }
-            dispatch(cart(setItemIntoCart()))
+                    item?.item?.restaurant_discount
+                ),
+                selectedOptions: getSelectedVariations(
+                    item?.item?.variations
+                ),
+            }))
         }
+        dispatch(cart(setItemIntoCart()))
     }
 
     const { data: cartData, refetch: cartListRefetch } = useGetAllCartList(

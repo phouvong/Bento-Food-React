@@ -253,15 +253,39 @@ const ProfilePage = () => {
                     }
                     <Stack gap={isEditProfile ? 0 : "15px"} paddingInline={{ xs: "0", sm: "2px 10px" }} >
                         <CustomPaperBigCard
-                            padding={isSmall ? "10px" : "20px 25px"}
-                            sx={{ minHeight: isEditProfile ? (!isSmall ? '558px' : "450px") : 0 }}
+                            padding={isSmall ? "8px 10px" : "20px 25px"}
+                            sx={{
+                                minHeight: isEditProfile ? (!isSmall ? '558px' : "450px") : 0,
+                                // Anchor for the mobile edit button so it can
+                                // overlay the top-right corner without pushing
+                                // PersonalDetails down with a full empty row.
+                                position: 'relative',
+                            }}
                         >
-                            <Grid item xs={12} sm={12} md={12}>
+                            <Grid
+                                item
+                                xs={12}
+                                sm={12}
+                                md={12}
+                                sx={{
+                                    // On mobile (non-edit mode) the title row
+                                    // is empty save for the edit button —
+                                    // overlay it top-right instead of letting
+                                    // it take a full row above PersonalDetails.
+                                    ...(isSmall && !isEditProfile && {
+                                        position: 'absolute',
+                                        top: 8,
+                                        right: 8,
+                                        zIndex: 2,
+                                        width: 'auto',
+                                    }),
+                                }}
+                            >
                                 <CustomStackFullWidth
                                     justifyContent={isSmall ? "end" : "space-between"}
                                     direction="row"
                                     alignItems="flex-start"
-                                    paddingBottom="12px"
+                                    paddingBottom={isSmall ? "0" : "12px"}
                                 >
                                     {(!isSmall) &&
                                         <Typography fontSize="16px" fontWeight="500" padding="0">

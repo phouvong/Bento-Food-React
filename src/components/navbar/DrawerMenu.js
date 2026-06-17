@@ -16,7 +16,7 @@ import { ButtonContainer, CustomDrawer } from './Navbar.style'
 
 import { setWelcomeModal } from '@/redux/slices/utils'
 import { useTranslation } from 'react-i18next'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { CategoryApi } from '@/hooks/react-query/config/categoryApi'
 import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
 import { useGetCuisines } from '@/hooks/react-query/cuisines/useGetCuisines'
@@ -52,6 +52,7 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
     const { t } = useTranslation()
     const router = useRouter()
     const dispatch = useDispatch()
+    const queryClient = useQueryClient()
     const theme = useTheme()
     const { settings, saveSettings } = useSettings()
     const [openDrawer, setOpenDrawer] = useState(false)
@@ -87,6 +88,8 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
             dispatch(setClearCart())
             dispatch(setWelcomeModal(false))
             await cartListRefetch()
+            queryClient.invalidateQueries('cart-item')
+            queryClient.invalidateQueries('cart-item-restaurant')
             CustomToaster('success', logoutSuccessFull)
             if (router.pathname === '/') {
                 router.push('/')

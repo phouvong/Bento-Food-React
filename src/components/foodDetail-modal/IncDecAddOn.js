@@ -126,7 +126,12 @@ const IncDecAddOn = ({
                     alignItems="center"
                     justifyContent="space-between"
                 >
-                    <Grid item md={7} sm={6} xs={7}>
+                    <Grid
+                        item
+                        md={quantity > 0 ? 6 : 7}
+                        sm={quantity > 0 ? 5 : 6}
+                        xs={quantity > 0 ? 5 : 7}
+                    >
                         <FormControlLabel
                             disabled={
                                 add_on?.stock_type !== 'unlimited' &&
@@ -195,9 +200,9 @@ const IncDecAddOn = ({
                     </Grid>
                     <Grid
                         item
-                        md={quantity > 0 ? 2 : 5}
-                        sm={quantity > 0 ? 2 : 6}
-                        xs={quantity > 0 ? 2 : 5}
+                        md={quantity > 0 ? 3 : 5}
+                        sm={quantity > 0 ? 3 : 6}
+                        xs={quantity > 0 ? 3 : 5}
                         justifySelf="flex-end"
                     >
                         <CustomTypographyLabel

@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react'
+import React, { memo, useEffect, useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { useMutation } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
@@ -21,14 +21,15 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded'
 import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded'
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded'
 
+import MainApi from '@/api/MainApi'
 import { ProductsApi } from '@/hooks/react-query/config/productsApi'
 import { useWishListDelete } from '@/hooks/react-query/config/wish-list/useWishListDelete'
 import useAddCartItem from '@/hooks/react-query/add-cart/useAddCartItem'
-import useDeleteAllCartItem from '@/hooks/react-query/add-cart/useDeleteAllCartItem'
 import useCartItemUpdate from '@/hooks/react-query/add-cart/useCartItemUpdate'
 import useDeleteCartItem from '@/hooks/react-query/add-cart/useDeleteCartItem'
 import {
     setCart,
+    setCartGroups,
     setClearCart,
     incrementProductQty,
     decrementProductQty,
@@ -50,7 +51,6 @@ import { onErrorResponse } from '@/components/ErrorResponse'
 import { RTL } from '@/components/RTL/RTL'
 import { getGuestId } from '@/components/checkout-page/functions/getGuestUserId'
 import CustomModal from '@/components/custom-modal/CustomModal'
-import CartClearModal from '@/components/foodDetail-modal/CartClearModal'
 import LocationModalAlert from '@/components/food-card/LocationModalAlert'
 import CustomImageContainer from '@/components/CustomImageContainer'
 import VagSvg from '@/components/foodDetail-modal/VagSvg'
@@ -85,8 +85,8 @@ const Media = styled(Box)(({ theme }) => ({
     backgroundColor: theme.palette.neutral[200],
     marginBottom: 10,
     '& img': {
-        width: '100% !important',
-        height: '100% !important',
+        width: '100%',
+        height: '100%',
         objectFit: 'cover',
         borderRadius: 12,
         transition: 'transform .45s ease',
@@ -98,6 +98,9 @@ const MediaInner = styled(Box)(() => ({
     inset: 0,
     borderRadius: 12,
     overflow: 'hidden',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
 }))
 
 const UnavailableOverlay = styled(Box)(({ theme }) => ({
@@ -278,17 +281,16 @@ const NewFoodCard = ({ product, productImageUrl, campaign }) => {
     const { global } = useSelector((state) => state.globalSettings)
     const { token } = useSelector((state) => state.userToken)
     const { wishLists } = useSelector((state) => state.wishList)
-    const { cartList } = useSelector((state) => state.cart)
-
+    const { cartList,cartGroups = [] } = useSelector((state) => state.cart)
+   console.log({cartGroups,cartList});
+   
     const [openModal, setOpenModal] = useState(false)
     const [modalData, setModalData] = useState([])
     const [openAddressModalAlert, setOpenAddressModalAlert] = useState(false)
-    const [clearCartModal, setClearCartModal] = useState(false)
     const [incrOpen, setIncrOpen] = useState(false)
 
     const { mutate: addToCartMutate, isLoading: addToCartLoading } =
         useAddCartItem()
-    const { mutate: deleteCartItemMutate } = useDeleteAllCartItem()
     const { mutate: updateMutate, isLoading: updatedLoading } =
         useCartItemUpdate()
     const { mutate: itemRemove, isLoading: removeIsLoading } =
@@ -360,10 +362,57 @@ const NewFoodCard = ({ product, productImageUrl, campaign }) => {
     }
 
     const isInList = !!wishLists?.food?.find((i) => i.id === product?.id)
-    const isInCart = cartList?.find((i) => i.id === product?.id)
+
+    // Combine cartList (scoped to the last-visited restaurant after its API
+    // returns a flat list) with the grouped cart payload that holds items
+    // from every restaurant. Without this merge, an item added at one
+    // restaurant disappears from "in cart" badges as soon as the user visits
+    // a different restaurant. cartList entries win on id conflict because
+    // they reflect local +/- dispatches that haven't synced yet.
+    const effectiveCart = useMemo(() => {
+        const fromGroups = (cartGroups || [])
+            .flatMap((g) => g?.carts || [])
+            .map((c) => ({
+                ...c?.item,
+                cartItemId: c?.id,
+                totalPrice: c?.price,
+                quantity: c?.quantity,
+                variations: c?.item?.variations,
+                selectedAddons: getSelectedAddons(c?.item?.addons),
+                itemBasePrice: getConvertDiscount(
+                    c?.item?.discount,
+                    c?.item?.discount_type,
+                    calculateItemBasePrice(c?.item, c?.item?.variations),
+                    c?.item?.restaurant_discount
+                ),
+                restaurant_id: c?.restaurant_id,
+            }))
+        const cartListIds = new Set((cartList || []).map((i) => i.id))
+        return [
+            ...(cartList || []),
+            ...fromGroups.filter((g) => !cartListIds.has(g.id)),
+        ]
+    }, [cartList, cartGroups])
+
+    const isInCart = effectiveCart?.find(
+        (i) =>
+            i.id === product?.id &&
+            (product?.restaurant_id == null ||
+                i?.restaurant_id == null ||
+                String(i.restaurant_id) === String(product.restaurant_id))
+    )
+    console.log({isInCart,effectiveCart,cartList,cartGroups});
+    
+    
 
     const getQuantity = (id) => {
-        const items = cartList?.filter((ci) => ci.id === id)
+        const items = effectiveCart?.filter(
+            (ci) =>
+                ci.id === id &&
+                (product?.restaurant_id == null ||
+                    ci?.restaurant_id == null ||
+                    String(ci.restaurant_id) === String(product.restaurant_id))
+        )
         if (items?.length > 1) {
             return items.reduce((acc, curr) => acc + curr.quantity, 0)
         }
@@ -485,6 +534,7 @@ const NewFoodCard = ({ product, productImageUrl, campaign }) => {
         const cartIdAndGuestId = {
             cart_id: isInCart?.cartItemId,
             guestId: getGuestId(),
+            restaurant_id: isInCart?.restaurant_id,
         }
         itemRemove(cartIdAndGuestId, {
             onSuccess: () => dispatch(removeProduct(isInCart)),
@@ -516,11 +566,24 @@ const NewFoodCard = ({ product, productImageUrl, campaign }) => {
                 }
             })
             dispatch(setCart(pr))
+            // Refresh cartGroups directly from the grouped endpoint —
+            // FloatingCart only mounts one useGetAllCartList mode per page,
+            // so on a restaurant page the grouped query has no observer and
+            // queryClient invalidation alone would not refresh cartGroups.
+            const guestId = getGuestId()
+            const params = !token && guestId ? `?guest_id=${guestId}` : ''
+            MainApi.get(`api/v1/customer/cart/get-all${params}`)
+                .then(({ data }) => {
+                    if (Array.isArray(data)) dispatch(setCartGroups(data))
+                })
+                .catch(onErrorResponse)
             toast.success(t('Item added to cart'))
-            setClearCartModal(false)
+            //setClearCartModal?.(false)
         }
     }
 
+    console.log({cartGroups});
+    
     const addToCartHandler = () => {
         const itemObject = {
             guest_id: getGuestId(),
@@ -533,20 +596,9 @@ const NewFoodCard = ({ product, productImageUrl, campaign }) => {
             price: modalData[0]?.price,
             quantity: modalData[0]?.quantity ?? 1,
             variations: [],
+            restaurant_id: modalData[0]?.restaurant_id,
         }
-        if (cartList.length > 0) {
-            const isRestaurantExist = cartList.find(
-                (i) => i.restaurant_id === product.restaurant_id
-            )
-            if (isRestaurantExist) {
-                addToCartMutate(itemObject, {
-                    onSuccess: handleCartSuccess,
-                    onError: onErrorResponse,
-                })
-            } else {
-                setClearCartModal(true)
-            }
-        } else if (!isInCart) {
+        if (!isInCart) {
             addToCartMutate(itemObject, {
                 onSuccess: handleCartSuccess,
                 onError: onErrorResponse,
@@ -574,32 +626,6 @@ const NewFoodCard = ({ product, productImageUrl, campaign }) => {
         }
     }
 
-    const clearCartAlert = () => {
-        const itemObject = {
-            guest_id: getGuestId(),
-            model: modalData[0]?.available_date_starts
-                ? 'ItemCampaign'
-                : 'Food',
-            add_on_ids: [],
-            add_on_qtys: [],
-            item_id: modalData[0]?.id,
-            price: modalData[0]?.price,
-            quantity: modalData[0]?.quantity ?? 1,
-            variations: [],
-        }
-        deleteCartItemMutate(getGuestId(), { onError: onErrorResponse })
-        dispatch(setClearCart())
-        addToCartMutate(itemObject, {
-            onSuccess: handleCartSuccess,
-            onError: onErrorResponse,
-        })
-        toast.success(
-            t(
-                'Previously added restaurant foods have been removed from cart and the selected one added'
-            ),
-            { duration: 6000 }
-        )
-    }
 
     const discountedPrice = getConvertDiscount(
         product?.discount,
@@ -662,6 +688,8 @@ const NewFoodCard = ({ product, productImageUrl, campaign }) => {
                             height="100%"
                             objectFit="cover"
                             borderRadius="12px"
+                            errorWidth={80}
+                            errorHeight={80}
                         />
                         {showVegBadge && (
                             <VegWrap>
@@ -916,12 +944,6 @@ const NewFoodCard = ({ product, productImageUrl, campaign }) => {
                 />
             </CustomModal>
 
-            <CartClearModal
-                clearCartModal={clearCartModal}
-                setClearCartModal={setClearCartModal}
-                clearCartAlert={clearCartAlert}
-                addToCard={addToCart}
-            />
         </>
     )
 }

@@ -17,6 +17,14 @@ const WalletsPage = (props) => {
     const languageDirection = localStorage.getItem('direction')
     const debit = data?.debit + data?.admin_bonus
     const credit = data?.credit + data?.admin_bonus
+    // Debit-type transactions all share the same UI treatment (minus sign,
+    // error color, "debit" label) — listing them in one set keeps the
+    // ternaries below in sync and avoids missing a spot when a new debit
+    // category is added (e.g. `pro_subscription`).
+    const isDebit =
+        data?.transaction_type === 'order_place' ||
+        data?.transaction_type === 'partial_payment' ||
+        data?.transaction_type === 'pro_subscription'
     return (
         <>
             <Grid
@@ -47,42 +55,23 @@ const WalletsPage = (props) => {
                                 fontSize="20px"
                                 fontWeight={600}
                                 color={
-                                    data?.transaction_type === 'order_place' ||
-                                    data?.transaction_type === 'partial_payment'
+                                    isDebit
                                         ? theme.palette.error.main
                                         : theme.palette.success.main
                                 }
                             >
-                                {data?.transaction_type === 'order_place' ||
-                                data?.transaction_type === 'partial_payment'
-                                    ? '-'
-                                    : '+'}
+                                {isDebit ? '-' : '+'}
                             </Typography>
                             <Typography
                                 fontWeight="700"
                                 fontSize={{ xs: '16px', sm: '20px' }}
                             >
-                                {data?.transaction_type === 'order_place'
-                                    ? getAmount(
-                                          debit,
-                                          currencySymbolDirection,
-                                          currencySymbol,
-                                          digitAfterDecimalPoint
-                                      )
-                                    : data?.transaction_type ===
-                                      'partial_payment'
-                                    ? getAmount(
-                                          debit,
-                                          currencySymbolDirection,
-                                          currencySymbol,
-                                          digitAfterDecimalPoint
-                                      )
-                                    : getAmount(
-                                          credit,
-                                          currencySymbolDirection,
-                                          currencySymbol,
-                                          digitAfterDecimalPoint
-                                      )}
+                                {getAmount(
+                                    isDebit ? debit : credit,
+                                    currencySymbolDirection,
+                                    currencySymbol,
+                                    digitAfterDecimalPoint
+                                )}
                             </Typography>
                         </Stack>
                         {data?.transaction_type === 'add_fund' ? (
@@ -124,8 +113,7 @@ const WalletsPage = (props) => {
                             textTransform="capitalize"
                             fontSize="13px"
                             color={
-                                data?.transaction_type === 'order_place' ||
-                                data?.transaction_type === 'partial_payment'
+                                isDebit
                                     ? theme.palette.error.main
                                     : theme.palette.success.main
                             }
@@ -133,10 +121,7 @@ const WalletsPage = (props) => {
                                 languageDirection === 'rtl' ? '24px' : '0px'
                             }
                         >
-                            {data?.transaction_type === 'order_place' ||
-                            data?.transaction_type === 'partial_payment'
-                                ? t('debit')
-                                : t('credit')}
+                            {isDebit ? t('debit') : t('credit')}
                         </Typography>
                         <CustomTypographyGray
                             sx={{ fontSize: '13px', fontWeight: '400' }}
