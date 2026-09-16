@@ -68,6 +68,7 @@ const buildQuery = ({ restaurantId, searchKey, filterByData, price }: Params): s
     params.set('rating_4_plus', ratingValue === 4 ? '1' : '0')
     params.set('rating_5', ratingValue === 5 ? '1' : '0')
     params.set('price', JSON.stringify(Array.isArray(price) ? price : []))
+    params.set('halal', filterByData?.halal ? '1' : '0')
     filterByValues.forEach((value) => params.append('filter_by[]', String(value)))
 
     return params.toString()

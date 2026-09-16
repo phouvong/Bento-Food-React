@@ -12,6 +12,14 @@ export const Search = styled('div')(({ theme, borderRadius, backgroundColor,bord
     color: theme.palette.neutral[600],
     border: border ?? `1px solid ${theme.palette.mode === 'dark' ? theme.palette.neutral[400] : theme.palette.neutral[300]}`,
     width: '100%',
+    transition: theme.transitions.create(['border-color', 'box-shadow']),
+    '&:hover': {
+        borderColor: theme.palette.neutral[400],
+    },
+    '&:focus-within': {
+        borderColor: theme.palette.primary.main,
+        boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.12)}`,
+    },
     //margin: 'auto',
     [theme.breakpoints.up('sm')]: {},
 }))

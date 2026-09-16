@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style";
 import { CustomTypography } from "../../custom-tables/Tables.style";
-import { alpha, Box, Button, Grid, Stack, styled, Typography, useMediaQuery } from "@mui/material";
+import { alpha, Box, Button, Drawer, Grid, Stack, styled, Typography, useMediaQuery } from "@mui/material";
 import { getDateFormatAnotherWay } from "@/utils/customFunctions";
 import CustomModal from "../../custom-modal/CustomModal";
 import Logs from "./Logs";
 import { useGeLogs } from "@/hooks/react-query/subscription/useGeLogs";
 import SubscriptionSchedules from "./SubscriptionSchedules";
+import useCloseOnBackButton from "@/hooks/custom-hooks/useCloseOnBackButton";
 import { ProductDetailsWrapper } from '../OrderDetail.style';
 import { useTheme } from "@mui/styles";
 
@@ -29,12 +30,19 @@ const SubscriptionDetails = props => {
         subscriptionCancellationReason,
         subscriptionCancellationNote,
         subscriptionOrderNote,
-        orderAmount
+        orderAmount,
+        // Normalized ETA from the track payload (orderEta.ts) — clock
+        // window preferred, minute range fallback, null when the zone has
+        // no ETA configuration.
+        eta,
 
     } = props
     const theme=useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const [openDeliveryLog, setOpenDeliveryLog] = useState(false)
+    useCloseOnBackButton(isSmall && openDeliveryLog, () =>
+        setOpenDeliveryLog(false)
+    )
     const [openPauseLog, setOpenPauseLog] = useState(false)
     const [deliveryOffset, setDeliveryOffset] = useState(1)
     const [pauseOffset, setPauseOffset] = useState(1)
@@ -88,6 +96,29 @@ const SubscriptionDetails = props => {
                                 </Typography>
                             </Stack>
                         </CustomStackFullWidth>
+                        {eta && (
+                            <CustomStackFullWidth
+                                direction="row"
+                                justifyContent="space-between"
+                                alignItems="center"
+                                gap="8px"
+                                flexWrap="wrap"
+                            >
+                                <Typography fontSize="14px">
+                                    {t('Estimated Arrival')}
+                                </Typography>
+                                <Typography
+                                    fontWeight="600"
+                                    fontSize="14px"
+                                    color={theme.palette.primary.main}
+                                >
+                                    {eta.window ??
+                                        `${eta.minMinutes}-${eta.maxMinutes} ${t(
+                                            'mins'
+                                        )}`}
+                                </Typography>
+                            </CustomStackFullWidth>
+                        )}
                         {subscriptionCancelled &&
                             <CustomStackFullWidth direction='row' justifyContent='space-between' alignItems='center'
                                 gap='8px'
@@ -241,11 +272,30 @@ const SubscriptionDetails = props => {
                     </Button>
                 </Grid>
             </Grid>
-            <CustomModal  maxWidth={isSmall?"350px":"450px"} openModal={openDeliveryLog}
-                setModalOpen={setOpenDeliveryLog}>
-                <Logs title='Delivery Log' t={t} logs={data} offset={deliveryOffset} setOffset={setDeliveryOffset}
-                      isLoading={isLoading || isRefetching} onClose={()=>setOpenDeliveryLog(false)} orderAmount={orderAmount} />
-            </CustomModal>
+            {isSmall ? (
+                <Drawer
+                    anchor="bottom"
+                    open={openDeliveryLog}
+                    onClose={() => setOpenDeliveryLog(false)}
+                    PaperProps={{
+                        sx: {
+                            maxHeight: '90dvh',
+                            borderTopLeftRadius: '20px',
+                            borderTopRightRadius: '20px',
+                            overflow: 'hidden',
+                        },
+                    }}
+                >
+                    <Logs title='Delivery Log' t={t} logs={data} offset={deliveryOffset} setOffset={setDeliveryOffset}
+                          isLoading={isLoading || isRefetching} onClose={()=>setOpenDeliveryLog(false)} orderAmount={orderAmount} />
+                </Drawer>
+            ) : (
+                <CustomModal  maxWidth="450px" openModal={openDeliveryLog}
+                    setModalOpen={setOpenDeliveryLog}>
+                    <Logs title='Delivery Log' t={t} logs={data} offset={deliveryOffset} setOffset={setDeliveryOffset}
+                          isLoading={isLoading || isRefetching} onClose={()=>setOpenDeliveryLog(false)} orderAmount={orderAmount} />
+                </CustomModal>
+            )}
             <CustomModal openModal={openPauseLog}
 
                 setModalOpen={setOpenPauseLog}>

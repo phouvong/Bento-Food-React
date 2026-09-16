@@ -7,8 +7,13 @@ if (typeof window != 'undefined') {
 }
 export const OrderApi = {
     placeOrder: (formData) => {
-        
+
         return MainApi.post('/api/v1/customer/order/place', formData)
+    },
+    // COD → digital switch for a live order. Returns { payment_url,
+    // amount_due }; the gateway page re-checks eligibility when opened.
+    payDigitally: (formData) => {
+        return MainApi.post('/api/v1/customer/order/pay-digitally', formData)
     },
     orderHistory: (orderType, limit, offset) => {
         return MainApi.get(

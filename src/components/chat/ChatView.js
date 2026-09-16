@@ -32,13 +32,16 @@ const StyledBox = styled(Box)(({ theme }) => ({
 }))
 export const ScrollToBottom = () => {
     const elementRef = useRef()
-    useEffect(() =>
-        elementRef.current.scrollIntoView({
+    // Braced body on purpose: the concise arrow returned scrollIntoView's
+    // result, which React then invoked as the effect cleanup ("destroy is
+    // not a function" under React 18.3 / Next 15).
+    useEffect(() => {
+        elementRef.current?.scrollIntoView({
             behavior: 'smooth',
             block: 'end',
             inline: 'nearest',
         })
-    )
+    })
     return <div ref={elementRef} />
 }
 

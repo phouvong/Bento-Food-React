@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Checkbox } from "@mui/material";
+import { FlatCheckboxIcon, variationControlSx } from "./FoodModalStyle";
 
 const MultiCheckBox = ({ changeChoices, option, index, choiceIndex, choice, radioData,itemIsLoading,productUpdate }) => {
     const [check,setCheck]=useState(false)
@@ -45,12 +46,9 @@ const MultiCheckBox = ({ changeChoices, option, index, choiceIndex, choice, radi
     return (
         <Checkbox
             disabled={isDisable}
-            sx={{
-                '&:hover': {
-                    backgroundColor: 'transparent',
-
-                },}}
-
+            sx={variationControlSx}
+            icon={<FlatCheckboxIcon />}
+            checkedIcon={<FlatCheckboxIcon checked />}
             defaultChecked={option?.isSelected}
             checked={check}
             onChange={(e) =>

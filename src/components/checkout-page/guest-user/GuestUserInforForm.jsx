@@ -11,6 +11,10 @@ import CustomPhoneInput from '@/components/CustomPhoneInput'
 import FormSubmitButton from './FormSubmitButton'
 import { DeliveryTitle } from '@/components/checkout-page/CheckOut.style'
 import { ACTIONS } from '@/components/checkout-page/states/additionalInformationStates'
+import {
+    getCheckoutContactOwnerId,
+    getStoredCheckoutContactInfo,
+} from '@/utils/customFunctions'
 import * as Yup from 'yup'
 const validationSchema = Yup.object({
     contact_person_name: Yup.string()
@@ -32,8 +36,14 @@ const GuestUserInforForm = ({
     dine_in,
     additionalInformationDispatch,
     customerData,
+    hideReset,
+    submitLabel,
 }) => {
     const { guestUserInfo } = useSelector((state) => state.guestUserInfo)
+    const storedContactInfo = getStoredCheckoutContactInfo(
+        guestUserInfo,
+        customerData
+    )
     const dispatch = useDispatch()
 
     let languageDirection = undefined
@@ -44,25 +54,27 @@ const GuestUserInforForm = ({
     const addAddressFormik = useFormik({
         validationSchema,
         initialValues: {
-            contact_person_name: customerData
-                ? customerData?.data?.f_name
-                : guestUserInfo
-                ? guestUserInfo?.contact_person_name
-                : '',
-            contact_person_number: customerData
-                ? customerData?.data?.phone
-                : guestUserInfo
-                ? guestUserInfo?.contact_person_number
-                : '',
-            contact_person_email: customerData
-                ? customerData?.data?.email
-                : guestUserInfo
-                ? guestUserInfo?.contact_person_email
-                : '',
+            contact_person_name:
+                storedContactInfo?.contact_person_name ||
+                customerData?.data?.f_name ||
+                '',
+            contact_person_number:
+                storedContactInfo?.contact_person_number ||
+                customerData?.data?.phone ||
+                '',
+            contact_person_email:
+                storedContactInfo?.contact_person_email ||
+                customerData?.data?.email ||
+                '',
         },
         onSubmit: async (values, helpers) => {
             try {
-                dispatch(setGuestUserInfo(values)) // Save to Redux
+                dispatch(
+                    setGuestUserInfo({
+                        ...values,
+                        owner: getCheckoutContactOwnerId(customerData),
+                    })
+                ) // Save to Redux
                 handleClose?.() // Close the form or modal
             } catch (err) {
                 console.error('Error submitting form:', err)
@@ -184,11 +196,23 @@ const GuestUserInforForm = ({
                     </Grid>
                     {!dine_in && (
                         <Grid item xs={12} md={12} align="end">
-                            <FormSubmitButton
-                                handleReset={handleReset}
-                                reset={t('Reset')}
-                                submit={editAddress ? t('Save') : t('Save')}
-                            />
+                            {hideReset ? (
+                                <FormSubmitButton
+                                    handleReset={handleReset}
+                                    reset=""
+                                    submit={submitLabel || t('Save')}
+                                    hideReset
+                                />
+                            ) : (
+                                <FormSubmitButton
+                                    handleReset={handleReset}
+                                    reset={t('Reset')}
+                                    submit={
+                                        submitLabel ||
+                                        (editAddress ? t('Save') : t('Save'))
+                                    }
+                                />
+                            )}
                         </Grid>
                     )}
                 </Grid>

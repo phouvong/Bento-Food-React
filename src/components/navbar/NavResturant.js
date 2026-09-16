@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import {
     alpha,
     Button,
@@ -24,6 +25,7 @@ import CustomEmptyResult from '../empty-view/CustomEmptyResult'
 import { onErrorResponse } from '../ErrorResponse'
 import { RTL } from '../RTL/RTL'
 import { NavMenuLink } from './Navbar.style'
+import ResShimmer from './ResShimmer'
 import { handleRestaurantRedirect } from '@/utils/customFunctions'
 import VerifiedBadge from '@/components/verified-badge/VerifiedBadge'
 const useStyles = makeStyles((theme) => ({
@@ -43,7 +45,12 @@ const NavResturant = ({ zoneid }) => {
     const [resdropdown, setResdropdown] = useState(null)
     const openresdrop = Boolean(resdropdown)
 
-    const { data: popularRestaurant, refetch: restaurantApiRefetch } = useQuery(
+    const {
+        data: popularRestaurant,
+        refetch: restaurantApiRefetch,
+        isLoading: restaurantLoading,
+        isFetching: restaurantFetching,
+    } = useQuery(
         ['restaurants/populars'],
         () => RestaurantsApi?.popularRestaurants(),
         {
@@ -53,11 +60,17 @@ const NavResturant = ({ zoneid }) => {
             cacheTime: 8 * 60 * 1000,
         }
     )
+    const showRestaurantLoading =
+        (restaurantLoading || restaurantFetching) &&
+        !popularRestaurants?.length
     useEffect(() => {
-        if (popularRestaurants?.length === 0) {
+        // Deferred to the dropdown actually opening — this list is menu
+        // content only, and eagerly fetching it on every page load spends a
+        // connection slot the page's own data needs.
+        if (openresdrop && popularRestaurants?.length === 0) {
             restaurantApiRefetch()
         }
-    }, [])
+    }, [openresdrop])
     useEffect(() => {
         if (popularRestaurant) {
             dispatch(setPopularRestaurants(popularRestaurant?.data))
@@ -81,7 +94,6 @@ const NavResturant = ({ zoneid }) => {
         )
     }
     const languageDirection = typeof window !== 'undefined' ? localStorage.getItem('direction') : 'ltr'
-    console.log({ popularRestaurant })
     return (
         <div
             onMouseEnter={(e) => handleresdropClick(e)}
@@ -119,9 +131,83 @@ const NavResturant = ({ zoneid }) => {
                     classes={{
                         paper: classes.paper,
                     }}
+                    PaperProps={{
+                        sx: {
+                            borderRadius: '16px',
+                            boxShadow:
+                                '0px 12px 32px -4px rgba(0, 0, 0, 0.12)',
+                        },
+                    }}
                 >
-                    <Grid container spacing={1} p="18px 10px" width="780px">
-                        {popularRestaurants && (
+                    <Stack width="780px">
+                        <Stack
+                            direction="row"
+                            alignItems="center"
+                            justifyContent="space-between"
+                            sx={{ px: '24px', pt: '20px', pb: '4px' }}
+                        >
+                            <Typography
+                                fontSize="18px"
+                                fontWeight={700}
+                                sx={{
+                                    color: (theme) =>
+                                        theme.palette.neutral[1000],
+                                }}
+                            >
+                                {t('Restaurants')}
+                            </Typography>
+                            {!showRestaurantLoading && popularRestaurants?.length > 0 && (
+                                <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    gap="2px"
+                                    onClick={viewAll}
+                                    sx={{
+                                        cursor: 'pointer',
+                                        userSelect: 'none',
+                                    }}
+                                >
+                                    <Typography
+                                        fontSize="14px"
+                                        fontWeight={600}
+                                        sx={{
+                                            color: (theme) =>
+                                                theme.palette.primary.main,
+                                        }}
+                                    >
+                                        {t('View All')}
+                                    </Typography>
+                                    <ChevronRightIcon
+                                        sx={{
+                                            fontSize: '18px',
+                                            color: (theme) =>
+                                                theme.palette.primary.main,
+                                        }}
+                                    />
+                                </Stack>
+                            )}
+                        </Stack>
+                        <Grid container spacing={1} p="24px" pt="12px">
+                        {showRestaurantLoading ? (
+                            <Grid item container md={8} spacing={0.5}>
+                                <ResShimmer shimmerfor="restaurant" mdSize={6} />
+                                <ResShimmer shimmerfor="restaurant" mdSize={6} />
+                            </Grid>
+                        ) : popularRestaurants?.length === 0 ? (
+                            <Grid
+                                item
+                                container
+                                md={8}
+                                alignItems="center"
+                                justifyContent="center"
+                            >
+                                <CustomEmptyResult
+                                    height="100px"
+                                    image={noRestaurantsImage}
+                                    label="No restaurant found"
+                                />
+                            </Grid>
+                        ) : (
                             <Grid item container md={8} spacing={0.5}>
                                 {popularRestaurants
                                     ?.slice(0, 8)
@@ -153,8 +239,11 @@ const NavResturant = ({ zoneid }) => {
                                                             sx={{
                                                                 alignItems:
                                                                     'center',
+                                                                gap: '12px',
+                                                                padding:
+                                                                    '8px',
                                                                 borderRadius:
-                                                                    '5px',
+                                                                    '8px',
                                                                 '&:hover': {
                                                                     backgroundColor:
                                                                         (
@@ -165,14 +254,14 @@ const NavResturant = ({ zoneid }) => {
                                                                                     .palette
                                                                                     .primary
                                                                                     .main,
-                                                                                0.3
+                                                                                0.08
                                                                             ),
                                                                 },
                                                             }}
                                                         >
                                                             <Stack
                                                                 spacing={
-                                                                    2
+                                                                    1.5
                                                                 }
                                                                 direction="row"
                                                                 alignItems="center"
@@ -188,7 +277,7 @@ const NavResturant = ({ zoneid }) => {
                                                                     objectFit="cover"
                                                                 />
                                                                 <Typography
-                                                                    fontSize="13px"
+                                                                    fontSize="14px"
                                                                     variant="h5"
                                                                     fontWeight="600"
                                                                     color={(
@@ -235,8 +324,11 @@ const NavResturant = ({ zoneid }) => {
                                                             sx={{
                                                                 alignItems:
                                                                     'center',
+                                                                gap: '12px',
+                                                                padding:
+                                                                    '8px',
                                                                 borderRadius:
-                                                                    '5px',
+                                                                    '8px',
                                                                 '&:hover': {
                                                                     backgroundColor:
                                                                         (
@@ -247,14 +339,14 @@ const NavResturant = ({ zoneid }) => {
                                                                                     .palette
                                                                                     .primary
                                                                                     .main,
-                                                                                0.3
+                                                                                0.08
                                                                             ),
                                                                 },
                                                             }}
                                                         >
                                                             <Stack
                                                                 spacing={
-                                                                    2.5
+                                                                    1.5
                                                                 }
                                                                 direction="row"
                                                                 alignItems="center"
@@ -270,7 +362,7 @@ const NavResturant = ({ zoneid }) => {
                                                                     objectFit="cover"
                                                                 />
                                                                 <Typography
-                                                                    fontSize="13px"
+                                                                    fontSize="14px"
                                                                     variant="h5"
                                                                     fontWeight="600"
                                                                     color={(
@@ -301,13 +393,6 @@ const NavResturant = ({ zoneid }) => {
                                             </>
                                         )
                                     })}
-                                {popularRestaurants?.length === 0 && (
-                                    <CustomEmptyResult
-                                        height="100px"
-                                        image={noRestaurantsImage}
-                                        label="No restaurant found"
-                                    />
-                                )}
                             </Grid>
                         )}
 
@@ -323,7 +408,7 @@ const NavResturant = ({ zoneid }) => {
                                 paddingRight: '16px',
                             }}
                         >
-                            {popularRestaurants?.length !== 0 && (
+                            {!showRestaurantLoading && popularRestaurants?.length !== 0 && (
                                 <Button
                                     sx={{
                                         zIndex: 1,
@@ -357,6 +442,7 @@ const NavResturant = ({ zoneid }) => {
                             />
                         </Grid>
                     </Grid>
+                    </Stack>
                 </Popover>
             </RTL>
         </div >

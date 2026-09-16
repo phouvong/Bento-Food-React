@@ -15,7 +15,7 @@ const OutlinedGroupButtons = (props) => {
                             key={index}
                             sx={{
                                 borderRadius: '3px',
-                                borderBottom: '5px solid',
+                                borderBottom: '2px solid',
                                 borderBottomColor:
                                     selected === item?.value
                                         ? (theme) => theme.palette.primary.main
@@ -29,7 +29,7 @@ const OutlinedGroupButtons = (props) => {
                                     color:
                                         selected === item?.value
                                             ? (theme) =>
-                                                  theme.palette.neutral[1000]
+                                                  theme.palette.primary.main
                                             : (theme) =>
                                                   theme.palette.neutral[400],
                                     fontWeight:

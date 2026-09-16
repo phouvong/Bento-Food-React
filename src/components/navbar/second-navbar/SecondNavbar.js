@@ -313,6 +313,7 @@ const SecondNavbar = ({ cartListRefetch }) => {
                     <SearchBox
                         query={query}
                         setOpenSearchBox={setOpenSearchBox}
+                        autoFocusOnMobile
                     />
                 </Box>
             )

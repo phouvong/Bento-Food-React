@@ -18,9 +18,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import IconButton from '@mui/material/IconButton'
-import Slider from 'react-slick'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
+import Slider from '@/components/slider/SlickToSwiper'
 import { HandleNext, HandlePrev } from '../CustomSliderIcon'
 
 const FilePreviewer = (props) => {
@@ -167,7 +165,9 @@ height,
                             <Grid item xs={12} md={8}>
                                 <Box sx={{
                                     width: '100%',
+                                    maxWidth: '100%',
                                     position: 'relative',
+                                    overflow: 'hidden',
                                     padding:"0 20px",
                                     '& .slick-slide': {
                                         padding: '0 8px',

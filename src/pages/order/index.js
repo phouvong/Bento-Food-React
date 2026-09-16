@@ -12,7 +12,7 @@ import jwt from 'base-64'
 import { t } from 'i18next'
 const Index = (props) => {
     const router = useRouter()
-    const { flag, amnt, token, orderId } = router.query
+    const { flag, amnt, token, orderId, phone } = router.query
     const [attributeId, setAttributeId] = useState('')
 
     useEffect(() => {
@@ -73,7 +73,11 @@ const Index = (props) => {
                                         flag === 'cancel' ? (
                                         <CheckoutFailed id={attributeId} />
                                     ) : (
-                                        <SuccessCard totalAmount={amnt} id={attributeId || orderId} />
+                                        <SuccessCard
+                                            totalAmount={amnt}
+                                            id={attributeId || orderId}
+                                            phone={phone}
+                                        />
                                     )}
                                 </CustomPaperBigCard>
                             </Stack>

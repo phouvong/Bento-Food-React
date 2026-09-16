@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { IconButton, Stack, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 
 const navBtnSx = {
-    width: 36,
-    height: 36,
-    border: (theme) => `1px solid ${theme.palette.divider}`,
+    width: 28,
+    height: 28,
+    p: '6px',
     color: (theme) => theme.palette.text.primary,
     backgroundColor: (theme) => theme.palette.background.paper,
+    boxShadow: '0px 1px 2px rgba(0,0,0,0.05)',
     transition: 'all .15s ease',
     '&:hover': {
         backgroundColor: (theme) => theme.palette.primary.main,
         color: '#fff',
-        borderColor: (theme) => theme.palette.primary.main,
         boxShadow: '0 8px 16px -4px rgba(255,117,24,.38)',
         transform: 'translateY(-1px)',
     },
@@ -24,12 +22,21 @@ const navBtnSx = {
     },
 }
 
+const navIconSx = {
+    fontSize: 16,
+    lineHeight: 1,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+}
+
 const SliderSectionHeader = ({
     title,
     subtitle,
     titleIcon,
     titleComponent = 'h2',
     sliderRef,
+    scrollElRef,
     showArrows = true,
     disablePrev = false,
     disableNext = false,
@@ -37,17 +44,28 @@ const SliderSectionHeader = ({
     viewAllText,
     onViewAll,
     sx,
+    titleSx,
 }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const [isScrollable, setIsScrollable] = useState(true)
     const isRtl = theme.direction === 'rtl'
-    const PrevIcon = isRtl ? ChevronRightIcon : ChevronLeftIcon
-    const NextIcon = isRtl ? ChevronLeftIcon : ChevronRightIcon
+    const prevIconClass = isRtl
+        ? 'fi fi-rr-angle-small-right'
+        : 'fi fi-rr-angle-small-left'
+    const nextIconClass = isRtl
+        ? 'fi fi-rr-angle-small-left'
+        : 'fi fi-rr-angle-small-right'
 
     useEffect(() => {
-        if (typeof itemsCount !== 'number' || !sliderRef) return
+        if (!sliderRef) return
         const check = () => {
+            const scrollEl = scrollElRef?.current
+            if (scrollEl) {
+                setIsScrollable(scrollEl.scrollWidth > scrollEl.clientWidth + 1)
+                return
+            }
+            if (typeof itemsCount !== 'number') return
             const inner = sliderRef.current?.innerSlider
             if (!inner) {
                 setIsScrollable(true)
@@ -62,12 +80,19 @@ const SliderSectionHeader = ({
             clearTimeout(id)
             window.removeEventListener('resize', check)
         }
-    }, [itemsCount, sliderRef])
+    }, [itemsCount, sliderRef, scrollElRef])
 
     const showArrowsResolved =
         showArrows && !isSmall && !!sliderRef && isScrollable
 
-    if (!title && !subtitle && !viewAllText && !showArrowsResolved) return null
+    if (
+        !title &&
+        !titleIcon &&
+        !subtitle &&
+        !viewAllText &&
+        !showArrowsResolved
+    )
+        return null
 
     return (
         <Stack
@@ -75,7 +100,7 @@ const SliderSectionHeader = ({
             alignItems={subtitle ? 'flex-end' : 'center'}
             justifyContent="space-between"
             spacing={1.5}
-            sx={{ width: '100%', mb: { xs: 2, md: 2.5 }, ...sx }}
+            sx={{ width: '100%', ...sx }}
         >
             <Stack spacing={0.5} sx={{ minWidth: 0 }}>
                 {(title || titleIcon) && (
@@ -91,6 +116,7 @@ const SliderSectionHeader = ({
                                     color: (theme) =>
                                         theme.palette.text.primary,
                                     lineHeight: 1.2,
+                                    ...titleSx,
                                 }}
                             >
                                 {title}
@@ -113,8 +139,8 @@ const SliderSectionHeader = ({
             <Stack
                 direction="row"
                 alignItems="center"
-                spacing={{ xs: 1, md: 1.5 }}
                 flexShrink={0}
+                sx={{ gap: { xs: '8px', md: '12px' } }}
             >
                 {viewAllText && onViewAll && (
                     <Stack
@@ -148,14 +174,13 @@ const SliderSectionHeader = ({
                 {showArrowsResolved && (
                     <>
                         <IconButton
-
                             aria-label="Previous"
                             size="small"
                             sx={navBtnSx}
                             disabled={disablePrev}
                             onClick={() => sliderRef.current?.slickPrev()}
                         >
-                            <PrevIcon sx={{ fontSize: 18 }} />
+                            <i className={prevIconClass} style={navIconSx} />
                         </IconButton>
                         <IconButton
                             aria-label="Next"
@@ -164,7 +189,7 @@ const SliderSectionHeader = ({
                             disabled={disableNext}
                             onClick={() => sliderRef.current?.slickNext()}
                         >
-                            <NextIcon sx={{ fontSize: 18 }} />
+                            <i className={nextIconClass} style={navIconSx} />
                         </IconButton>
                     </>
                 )}

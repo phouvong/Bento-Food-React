@@ -23,7 +23,12 @@ const PromoSection = ({ title, data = [], loading, handleApply, global, showEmpt
             <Stack
                 spacing={1}
                 sx={{
-                    backgroundColor: theme.palette.neutral[300],
+                    // Dark palette's neutral[300] is a light text tone, not
+                    // a surface — swap to the dark card surface there.
+                    backgroundColor:
+                        theme.palette.mode === 'dark'
+                            ? theme.palette.neutral[200]
+                            : theme.palette.neutral[300],
                     padding: '10px',
                     borderRadius: '5px',
                     width: '100%',

@@ -38,7 +38,7 @@ const Interest = ({ configData }) => {
                         maxWidth="lg"
                         sx={{ mb: { xs: '72px', md: '32px' } }}
                     >
-                        <Box mt={{ xs: '90px', md: '150px' }}>
+                        <Box pt={{ xs: '24px', md: '32px' }}>
                             <InterestOptions />
                         </Box>
                     </Container>

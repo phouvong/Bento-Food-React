@@ -2,16 +2,16 @@ import React, { useEffect, useState } from 'react'
 import CssBaseline from '@mui/material/CssBaseline'
 import CustomContainer from '../../components/container'
 import UserInfo from '../../components/user-info'
-import AuthGuard from '../../components/authentication/AuthGuard'
+import SideDrawerForProfile from '../../components/user-info/SideDrawer'
 import jwt from 'base-64'
 import { useSearchParams } from 'next/navigation'
-import { usePathname } from 'next/navigation'
+import useIsAuthenticated from '@/hooks/custom-hooks/useIsAuthenticated'
 const Index = () => {
-    const pathname = usePathname()
     const searchParams = useSearchParams()
-    const page = searchParams.get('page')
+    const isAuthenticated = useIsAuthenticated()
     const orderId = searchParams.get('orderId')
     const token = searchParams.get('token')
+    const page = searchParams.get('page') || (token ? 'order' : null)
     const [attributeId, setAttributeId] = useState('')
 
     useEffect(() => {
@@ -44,17 +44,26 @@ const Index = () => {
     return (
         <div>
             <CssBaseline />
-            <CustomContainer>
-                <AuthGuard from={pathname ? pathname.replace('/', '') : ''}>
-                    {page && (
+            {page && isAuthenticated !== null && (
+                <>
+                    {/* Rendered outside CustomContainer so this bar
+                        spans the full viewport width on mobile instead
+                        of inheriting the Container's horizontal padding. */}
+                    <SideDrawerForProfile
+                        page={page}
+                        setAttributeId={setAttributeId}
+                        isAuthenticated={isAuthenticated}
+                    />
+                    <CustomContainer>
                         <UserInfo
                             page={page}
                             orderId={orderId ?? attributeId}
                             setAttributeId={setAttributeId}
+                            isAuthenticated={isAuthenticated}
                         />
-                    )}
-                </AuthGuard>
-            </CustomContainer>
+                    </CustomContainer>
+                </>
+            )}
         </div>
     )
 }

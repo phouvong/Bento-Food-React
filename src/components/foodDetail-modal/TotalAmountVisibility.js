@@ -1,12 +1,7 @@
 import React from 'react'
-import { FoodTitleTypography } from '../food-card/FoodCard.style'
 import { Stack, Typography } from '@mui/material'
-import {
-    getAmount,
-    getConvertDiscount,
-    handleTotalAmountWithAddons,
-} from '@/utils/customFunctions'
-import { CustomTypographyGray } from '../error/Errors.style'
+import { getAmount, handleTotalAmountWithAddons } from '@/utils/customFunctions'
+import { rawFoodDataNormalize } from '@/components/new-food-card/rawFoodDataNormalize'
 
 const TotalAmountVisibility = (props) => {
     const {
@@ -18,83 +13,97 @@ const TotalAmountVisibility = (props) => {
         t,
         productDiscount,
         productDiscountType,
-        productRestaurantDiscount,
         selectedAddOns,
         quantity,
     } = props
+
+    if (!modalData?.length) return null
+
+    const { discountedPrice, hasDiscount } = rawFoodDataNormalize(
+        {
+            price: totalPrice,
+            discount: productDiscount,
+            discount_type: productDiscountType,
+        },
+        quantity
+    )
+
+    const finalAmount = getAmount(
+        handleTotalAmountWithAddons(discountedPrice, selectedAddOns),
+        currencySymbolDirection,
+        currencySymbol,
+        digitAfterDecimalPoint
+    )
 
     return (
         <Stack
             direction="row"
             alignItems="center"
-            spacing={0.5}
-            justifyContent={{xs:"flex-start",md:"space-between"}}
-            //sx={{ '@media (max-width:330.95px)': { flexDirection: 'column' } }}
+            justifyContent="space-between"
+            spacing={1}
         >
-            <FoodTitleTypography
-                gutterBottom
-                variant="h6"
-                component="h6"
-                sx={{
-                    margin: '0',
-                    alignItems: 'end',
-                    justifyContent: 'flex-start',
-                    padding: {
-                        //xs:"12px",
-                        sm:0
-                    },
-                    textAlign: 'left',
-                }}
+            {/* Label — "Total (Inc. VAT/TAX)" */}
+            <Stack
+                direction="row"
+                alignItems="baseline"
+                spacing={0.5}
+                flexWrap="wrap"
             >
-                {t('Total Amount')} :
-               
-            </FoodTitleTypography>
-             <Typography
-                    fontSize={{xs:"12px",sm:"14px"}}
+                <Typography
                     component="span"
-                    fontWeight="600"
                     sx={{
-                        color: (theme) => theme.palette.primary.main,
+                        fontSize: { xs: '14px', md: '15px' },
+                        fontWeight: 700,
+                        color: (theme) => theme.palette.text.primary,
                     }}
-                   
                 >
-                    {modalData.length > 0 &&
-                        getAmount(
+                    {t('Total')}
+                </Typography>
+                <Typography
+                    component="span"
+                    sx={{
+                        fontSize: '11px',
+                        fontWeight: 400,
+                        color: (theme) => theme.palette.neutral[500],
+                    }}
+                >
+                    ({t('Inc. VAT/TAX')})
+                </Typography>
+            </Stack>
+
+            {/* Amount — struck-through original, then the payable total */}
+            <Stack direction="row" alignItems="center" spacing={0.75}>
+                {hasDiscount ? (
+                    <Typography
+                        component="del"
+                        sx={{
+                            fontSize: '13px',
+                            fontWeight: 500,
+                            color: (theme) => theme.palette.neutral[500],
+                        }}
+                    >
+                        {getAmount(
                             handleTotalAmountWithAddons(
-                                getConvertDiscount(
-                                    productDiscount,
-                                    productDiscountType,
-                                    totalPrice,
-                                    productRestaurantDiscount,
-                                    quantity
-                                ),
+                                totalPrice,
                                 selectedAddOns
                             ),
                             currencySymbolDirection,
                             currencySymbol,
                             digitAfterDecimalPoint
                         )}
-                         {modalData.length > 0 &&
-            (productDiscount || productRestaurantDiscount === 1) ? (
-                <CustomTypographyGray
-                    nodefaultfont="true"
-                    textdecoration="line-through"
-                    sx={{ fontSize: '12px',marginInlineStart:"10px" }}
+                    </Typography>
+                ) : null}
+                <Typography
                     component="span"
+                    sx={{
+                        fontSize: { xs: '16px', md: '17px' },
+                        fontWeight: 700,
+                        color: (theme) => theme.palette.text.primary,
+                    }}
                 >
-                    (
-                    {getAmount(
-                        handleTotalAmountWithAddons(totalPrice, selectedAddOns),
-                        currencySymbolDirection,
-                        currencySymbol,
-                        digitAfterDecimalPoint
-                    )}
-                    )
-                </CustomTypographyGray>
-            ) : null}
+                    {finalAmount}
                 </Typography>
-
-           
+            </Stack>
         </Stack>
     )
 }

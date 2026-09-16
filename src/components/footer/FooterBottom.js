@@ -2,89 +2,52 @@ import { Box, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import CustomContainer from '../container'
-import Router from 'next/router'
+import SocialLinks from './SocialLinks'
+import { footerColors } from './Footer.style'
 
 const FooterBottom = () => {
     const { global } = useSelector((state) => state.globalSettings)
     const { t } = useTranslation()
 
-    const legalLinks = [
-        { label: 'Privacy', href: '/privacy-policy' },
-        { label: 'Terms', href: '/terms-and-conditions' },
-       // { label: 'Sitemap', href: '/' },
-    ]
-
     return (
         <Box
             sx={{
-                position: 'relative',
-                zIndex: 1,
                 width: '100%',
-                borderTop: '1px solid rgba(255,255,255,.07)',
+                background: footerColors.scrim,
             }}
         >
             <CustomContainer>
                 <Box
                     sx={{
-                        py: '20px',
                         display: 'flex',
-                        justifyContent: 'space-between',
+                        flexDirection: { xs: 'column-reverse', md: 'row' },
                         alignItems: 'center',
-                        gap: '18px',
-                        flexWrap: 'wrap',
-                        fontSize: '12.5px',
-                        color: '#64748B',
+                        justifyContent: 'space-between',
+                        gap: { xs: '16px', md: '32px' },
+                        py: '12px',
                     }}
                 >
-                    {/* Copyright */}
                     <Typography
                         sx={{
-                            color: '#94A3B8',
-                            fontWeight: 500,
-                            fontSize: '12.5px',
+                            flex: { md: '1 0 0' },
+                            color: footerColors.text,
+                            fontSize: '14px',
+                            lineHeight: 1.2,
+                            textAlign: { xs: 'center', md: 'left' },
                         }}
                     >
                         {t('Copyright')} ©{'  '}
                         {global?.footer_text || ''}
                     </Typography>
 
-                    {/* Legal links */}
                     <Box
                         sx={{
+                            flex: { md: '1 0 0' },
                             display: 'flex',
-                            gap: '10px',
-                            alignItems: 'center',
-                            color: '#475569',
+                            justifyContent: { xs: 'center', md: 'flex-end' },
                         }}
                     >
-                        {legalLinks.map((link, index) => (
-                            <Box
-                                key={link.label}
-                                sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}
-                            >
-                                {index > 0 && (
-                                    <Box
-                                        component="span"
-                                        sx={{ color: '#334155', fontWeight: 700 }}
-                                    >
-                                        ·
-                                    </Box>
-                                )}
-                                <Box
-                                    component="span"
-                                    onClick={() => Router.push(link.href)}
-                                    sx={{
-                                        color: '#94A3B8',
-                                        fontSize: '12.5px',
-                                        cursor: 'pointer',
-                                        transition: 'color .15s ease',
-                                        '&:hover': { color: 'primary.main' },
-                                    }}
-                                >
-                                    {t(link.label)}
-                                </Box>
-                            </Box>
-                        ))}
+                        <SocialLinks global={global} />
                     </Box>
                 </Box>
             </CustomContainer>

@@ -1,4 +1,5 @@
 import { Avatar, Typography, useTheme } from '@mui/material'
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import { t } from 'i18next'
 import moment from 'moment'
 import { useEffect, useState } from 'react'
@@ -44,14 +45,14 @@ const CustomerInfo = () => {
     return (
         <CustomStackFullWidth
             direction="row"
-            gap="9px"
+            gap="12px"
             justifyContent="center"
             alignItems="center"
         >
             <Avatar
                 sx={{
-                    height: 68,
-                    width: 70,
+                    height: { xs: 56, md: 72 },
+                    width: { xs: 56, md: 72 },
                     backgroundColor: hasImage
                         ? (theme) => theme.palette.neutral[100]
                         : (theme) => theme.palette.neutral[400],
@@ -64,15 +65,17 @@ const CustomerInfo = () => {
             >
                 {!hasImage ? initials || '?' : null}
             </Avatar>
-            <CustomStackFullWidth>
+            <CustomStackFullWidth gap="6px">
                 <Typography
-                    color={theme.palette.neutral[500]}
-                    fontSize="1rem"
-                    fontWeight="600"
+                    color={theme.palette.text.primary}
+                    fontWeight="700"
                     sx={{
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '4px',
+                        lineHeight: 1.1,
+                        fontSize: { xs: '16px', md: '20px' },
+                        letterSpacing: '-0.6px',
                     }}
                 >
                     {userData?.f_name?.concat(' ', userData?.l_name)}
@@ -83,22 +86,37 @@ const CustomerInfo = () => {
                     ) : null}
                 </Typography>
                 <Typography
-                    fontSize="0.75rem"
                     fontWeight="400"
-                    color={theme.palette.neutral[500]}
-                    sx={{ direction: theme.direction === 'rtl' ? 'rtl' : '' }}
+                    color={theme.palette.text.secondary}
+                    sx={{
+                        direction: theme.direction === 'rtl' ? 'rtl' : '',
+                        fontSize: { xs: '0.7rem', md: '0.75rem' },
+                    }}
                     textAlign={theme.direction === 'rtl' ? 'end' : 'start'}
                 >
                     {userData?.phone}
                 </Typography>
-                <Typography
-                    fontSize="0.65rem"
-                    fontWeight="400"
-                    color={theme.palette.neutral[500]}
+                <CustomStackFullWidth
+                    direction="row"
+                    gap="4px"
+                    alignItems="center"
                 >
-                    {t('Joined')}{' '}
-                    {moment(userData?.created_at).format('MMM Do YY')}
-                </Typography>
+                    <CalendarTodayIcon
+                        sx={{
+                            fontSize: { xs: '12px', md: '14px' },
+                            color: theme.palette.text.secondary,
+                        }}
+                    />
+                    <Typography
+                        fontWeight="400"
+                        lineHeight="1.3"
+                        color={theme.palette.text.secondary}
+                        sx={{ fontSize: { xs: '12px', md: '14px' } }}
+                    >
+                        {t('Joined')}{' '}
+                        {moment(userData?.created_at).format('MMM Do YY')}
+                    </Typography>
+                </CustomStackFullWidth>
             </CustomStackFullWidth>
         </CustomStackFullWidth>
     )

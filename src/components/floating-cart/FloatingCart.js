@@ -23,12 +23,14 @@ import { useTranslation } from 'react-i18next'
 import SimpleBar from 'simplebar-react'
 import ProductUpdateModal from '../food-card/ProductUpdateModal'
 import { useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import emptycart from '../../../public/static/emptycart.png'
 import { RTL } from '../RTL/RTL'
-import Cart from './Cart'
 import GuestCheckoutModal from './GuestCheckoutModal'
 import { getGuestId, getToken } from '../checkout-page/functions/getGuestUserId'
-import useGetAllCartList from '@/hooks/react-query/add-cart/useGetAllCartList'
+import useGetAllCartList, {
+    mapRestaurantCartRows,
+} from '@/hooks/react-query/add-cart/useGetAllCartList'
 import { useQuery, useQueryClient } from 'react-query'
 import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
 import CustomImageContainer from '../CustomImageContainer'
@@ -52,7 +54,6 @@ import toast from 'react-hot-toast'
 import {
     calculateItemBasePrice,
     getAmount,
-    getConvertDiscount,
     handleRestaurantRedirect,
 } from '@/utils/customFunctions'
 import {
@@ -62,14 +63,14 @@ import {
     removeCartGroupByRestaurantId,
     setWalletAmount,
 } from '@/redux/slices/cart'
-import {
-    getSelectedAddons,
-    getSelectedVariations,
-} from '../navbar/second-navbar/SecondNavbar'
 
 const FloatingCart = (props) => {
     const { sideDrawerOpen, setSideDrawerOpen } = props
     const theme = useTheme()
+    // On the restaurant details page mobile view the page renders its own
+    // bottom cart drawer for the shared open flag — keep this side drawer
+    // closed there so both never show at once.
+    const isMobileViewport = useMediaQuery(theme.breakpoints.down('md'))
     const { t } = useTranslation()
     const [openGuestModal, setOpenGuestModal] = useState(false)
     const [proPlanModalOpen, setProPlanModalOpen] = useState(false)
@@ -170,10 +171,6 @@ const FloatingCart = (props) => {
     // Use the URL param (always present on /restaurants/[id]) so the hook calls
     // cart/list?restaurant_id=X even when the Redux cart is still empty on first load.
     const restaurantId = isRestaurantPage ? router.query.id : undefined
-    const { isFilterDrawerOpen } = useSelector(
-        (state) => state.searchFilterStore
-    )
-    console.log({cartList})
 
     let languageDirection
     if (typeof window !== 'undefined') {
@@ -199,38 +196,25 @@ const FloatingCart = (props) => {
 
 
     const cartListSuccessHandler = (res) => {
-        if (!Array.isArray(res)) return
-        // Detect format: grouped response has a `restaurant` key, individual has an `item` key
-        const isGroupedFormat = res.length > 0 && res[0]?.restaurant && !res[0]?.item
-        if (isRestaurantPage && !isGroupedFormat) {
-            // Restaurant mode: response is individual items [{ id, item, quantity }]
-            // Map into Redux cart so CartItemCard can render them
-            const mapped = res.map((entry) => ({
-                ...entry?.item,
-                cartItemId: entry?.id,
-                totalPrice: entry?.price,
-                selectedAddons: getSelectedAddons(entry?.item?.addons),
-                quantity: entry?.quantity,
-                variations: entry?.item?.variations,
-                itemBasePrice: getConvertDiscount(
-                    entry?.item?.discount,
-                    entry?.item?.discount_type,
-                    calculateItemBasePrice(entry?.item, entry?.item?.variations),
-                    entry?.item?.restaurant_discount
-                ),
-                selectedOptions: getSelectedVariations(entry?.item?.variations),
-            }))
-            dispatch(cart(mapped))
-        } else if (!isRestaurantPage || isGroupedFormat) {
-            // Home/other pages (or unexpected grouped response): store as groups
-            dispatch(setCartGroups(res))
-        }
+        if (!isRestaurantPage || !Array.isArray(res)) return
+        dispatch(cart(mapRestaurantCartRows(res)))
     }
 
     const {
         refetch: cartListRefetch,
         isFetching: cartListFetching,
-    } = useGetAllCartList(getGuestId(), cartListSuccessHandler, restaurantId)
+    } = useGetAllCartList(restaurantId, { onSuccess: cartListSuccessHandler })
+
+    // On the restaurant page the primary fetch above is scoped to that
+    // restaurant (RestaurantCartSidebar reads the mapped cartList), so the
+    // grouped all-restaurants summary the drawer renders is fetched
+    // separately there — its own redux sync is handled inside the hook.
+    // Disabled on every other page, where the primary fetch above already
+    // is the grouped one.
+    const {
+        refetch: groupedCartRefetch,
+        isFetching: groupedCartFetching,
+    } = useGetAllCartList(undefined, { enabled: isRestaurantPage })
 
     // Source of truth for the floating bubble count:
     //   - on the restaurant page, cartList is the mapped per-restaurant cart
@@ -246,49 +230,46 @@ const FloatingCart = (props) => {
 
     // Refresh cart data from API each time the drawer opens
     useEffect(() => {
-        if (sideDrawerOpen) cartListRefetch()
+        if (sideDrawerOpen) {
+            cartListRefetch()
+            if (isRestaurantPage) groupedCartRefetch()
+        }
     }, [sideDrawerOpen])
 
-    // On the restaurant details page, auto-close the drawer when the user
-    // removes the last item. Guarded by prev>0 so opening an already-empty
-    // cart manually does not slam the drawer shut.
+    // Mobile restaurant page only: its bottom cart drawer (RestaurantDetails)
+    // shares the cartDrawerOpen flag and shows the per-restaurant cart, so
+    // auto-close it when the user removes the last item. Guarded by prev>0 so
+    // opening an already-empty cart manually does not slam the drawer shut.
+    // Desktop's side drawer shows the grouped view and must stay open even
+    // when this restaurant's cart empties.
     const prevCartLenRef = useRef(cartList?.length || 0)
     useEffect(() => {
         const cur = cartList?.length || 0
         const prev = prevCartLenRef.current
-        if (isRestaurantPage && sideDrawerOpen && prev > 0 && cur === 0) {
+        if (
+            isRestaurantPage &&
+            isMobileViewport &&
+            sideDrawerOpen &&
+            prev > 0 &&
+            cur === 0
+        ) {
             setSideDrawerOpen(false)
         }
         prevCartLenRef.current = cur
     }, [cartList?.length, isRestaurantPage, sideDrawerOpen, setSideDrawerOpen])
 
-    // Auto-open the drawer when landing on a restaurant page via the
-    // "View cart" group action (signaled by ?openCart=1). Strip the param
-    // afterwards so reloads / back-nav don't keep re-triggering.
-    useEffect(() => {
-        if (
-            isRestaurantPage &&
-            router.isReady &&
-            router.query.openCart === '1'
-        ) {
-            setSideDrawerOpen(true)
-            const { openCart, ...rest } = router.query
-            router.replace(
-                { pathname: router.pathname, query: rest },
-                undefined,
-                { shallow: true }
-            )
-        }
-        // router.replace is referentially stable; depending on router.query
-        // alone keeps this triggering only when the URL actually changes.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isRestaurantPage, router.isReady, router.query.openCart])
-
     // Fetch restaurant details when on restaurant page (for header card in drawer)
     const { data: restaurantData } = useQuery(
         ['floating-cart-restaurant', restaurantId],
         () => RestaurantsApi.restaurantDetails(restaurantId),
-        { enabled: isRestaurantPage && Boolean(restaurantId) }
+        {
+            // Only the guest-checkout modal reads this (restaurant slug),
+            // and the page itself already fetched these details via
+            // getStaticProps — don't duplicate that request on every store
+            // page load, fetch lazily when the modal actually opens.
+            enabled:
+                openGuestModal && isRestaurantPage && Boolean(restaurantId),
+        }
     )
     const restaurant = restaurantData?.data
 
@@ -419,6 +400,9 @@ const FloatingCart = (props) => {
         if (token) {
             const queryParams = { page: 'cart' }
             if (router.query.isDineIn) queryParams.isDineIn = router.query.isDineIn
+            if (cartList?.[0]?.restaurant_id)
+                queryParams.restuId = cartList[0].restaurant_id
+            if (restaurant?.slug) queryParams.restaurant = restaurant.slug
             router.push({ pathname: '/checkout', query: queryParams }, undefined, { shallow: true })
         } else {
             if (global?.guest_checkout_status === 1) {
@@ -436,14 +420,14 @@ const FloatingCart = (props) => {
         handleRestaurantRedirect(router, restaurantSlug, restaurantId)
     }
 
-    // "View cart" on a restaurant group: close the drawer for the navigation
-    // animation, push the restaurant route with `openCart=1`, and the effect
-    // below re-opens the drawer once the restaurant page is in view.
+    // "View cart" on a restaurant group: close this drawer and navigate —
+    // the restaurant details page already renders the cart as flat UI
+    // (sidebar on desktop, RestaurantMobileCartBar on mobile), so no
+    // second drawer needs to open there.
     const handleViewCart = (restaurantId, restaurantSlug) => {
         setSideDrawerOpen(false)
         router.push({
             pathname: `/restaurants/${restaurantSlug || restaurantId}`,
-            query: { openCart: '1' },
         })
     }
 
@@ -465,6 +449,38 @@ const FloatingCart = (props) => {
                 onError: onSingleErrorResponse,
             }
         )
+    }
+
+    // Wipes every restaurant's cart in one call (no restaurant_id filter),
+    // clearing both slices so the drawer empties without waiting on refetch.
+    const handleClearAll = () => {
+        dispatch(setCartGroups([]))
+        dispatch(cart([]))
+        removeCartMutate(
+            { guestId: getGuestId() },
+            {
+                onSettled: () => {
+                    queryClient.invalidateQueries('cart-item-restaurant')
+                    cartListRefetch()
+                },
+                onError: onSingleErrorResponse,
+            }
+        )
+    }
+
+    // Line prices already carry any item discount; the pre-discount total is
+    // rebuilt from each item's own price so the card can strike it through.
+    const getGroupPrices = (group) => {
+        const carts = group?.carts ?? []
+        const payable = carts.reduce((sum, c) => sum + (c?.price || 0), 0)
+        const original = carts.reduce(
+            (sum, c) =>
+                sum +
+                calculateItemBasePrice(c?.item, c?.item?.variations) *
+                    (c?.quantity || 1),
+            0
+        )
+        return { payable, original }
     }
 
     // Source-of-truth split mirrors totalCartItems: cartList is canonical on a
@@ -496,102 +512,13 @@ const FloatingCart = (props) => {
                 />
             )}
 
-            {/* Floating cart bubble (desktop only) */}
-            {!sideDrawerOpen && (
-                <Box
-                    className="cart__burger"
-                    sx={{
-                        position: 'fixed',
-                        width: '85px',
-                        height: '90px',
-                        left: languageDirection === 'rtl' ? 10 : 'auto',
-                        
-                        right: languageDirection === 'rtl' ? 'auto' : 10,
-                        top: '38%',
-                        zIndex: 1000000,
-                        flexGrow: 1,
-                        cursor: 'pointer',
-                        display: {
-                            xs: 'none',
-                            sm: 'none',
-                            md: isFilterDrawerOpen
-                                ? 'none'
-                                : totalCartItems === 0
-                                ? 'none'
-                                : 'inherit',
-                        },
-                    }}
-                    onClick={() => setSideDrawerOpen(true)}
-                >
-                    <div>
-                        <Cart />
-                        <Box
-                            sx={{
-                                position: 'absolute',
-                                top: '35%',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                textAlign: 'center',
-                                fontWeight: 'bold',
-                            }}
-                        >
-                            {totalCartItems}
-                            <Typography
-                                sx={{ lineHeight: 0.5, fontWeight: 'bold', fontSize: '12px' }}
-                            >
-                                {t('Items')}
-                            </Typography>
-                        </Box>
-                    </div>
-                    {isRestaurantPage && (
-                        <Box
-                            sx={{
-                                position: 'absolute',
-                                top: '75px',
-                                left: '50%',
-                                transform: 'translate(-50%, -50%)',
-                                textAlign: 'center',
-                                fontWeight: 'bold',
-                                color: (theme) => theme.palette.neutral[100],
-                                width: '100px',
-                                height: 'auto',
-                                overflow: 'visible',
-                            }}
-                        >
-                            <Stack flexWrap="wrap" sx={{ overflow: 'visible' }}>
-                                {totalCartPrice > 0 && (
-                                    <Typography
-                                        sx={{
-                                            lineHeight: 1,
-                                            fontWeight: 'bold',
-                                            textAlign: 'center',
-                                            fontSize: '12px',
-                                            overflow: 'visible',
-                                            whiteSpace: 'nowrap',
-                                            mt: '2px',
-                                        }}
-                                        color={
-                                            theme.palette.whiteContainer.main
-                                        }
-                                    >
-                                        {getAmount(
-                                            totalCartPrice,
-                                            currencySymbolDirection,
-                                            currencySymbol,
-                                            digitAfterDecimalPoint
-                                        )}
-                                    </Typography>
-                                )}
-                            </Stack>
-                        </Box>
-                    )}
-                </Box>
-            )}
-
             <RTL direction={languageDirection}>
                 <Drawer
                     anchor="right"
-                    open={sideDrawerOpen}
+                    open={
+                        sideDrawerOpen &&
+                        !(isRestaurantPage && isMobileViewport)
+                    }
                     onClose={() => setSideDrawerOpen(false)}
                     variant="temporary"
                     sx={{
@@ -606,38 +533,55 @@ const FloatingCart = (props) => {
                     }}
                 >
                     {/* ── Header ── */}
-                    {isRestaurantPage ? (
-                        <CartHeader
-                            itemCount={cartList?.length || 0}
-                            onClose={() => setSideDrawerOpen(false)}
-                            t={t}
-                        />
-                    ) : (
+                    {(
                         <Stack
                             direction="row"
                             alignItems="center"
-                            justifyContent="space-between"
+                            spacing={1.5}
                             sx={{ px: 2, pt: 2, pb: 1.5 }}
                         >
-                            <Typography fontSize="20px" fontWeight={700}>
-                                {t('Shopping Cart')}
-                            </Typography>
                             <IconButton
                                 aria-label={t('Close cart')}
                                 onClick={() => setSideDrawerOpen(false)}
-                                size="small"
                                 sx={{
+                                    flexShrink: 0,
                                     backgroundColor: (theme) => theme.palette.neutral[200],
                                     '&:hover': { backgroundColor: (theme) => theme.palette.neutral[300] },
                                 }}
                             >
                                 <CloseIcon fontSize="small" />
                             </IconButton>
+                            <Typography
+                                fontSize="22px"
+                                fontWeight={700}
+                                noWrap
+                                sx={{ flex: 1, minWidth: 0 }}
+                            >
+                                {t('Your Cart')}
+                            </Typography>
+                            {cartGroups.length > 0 && (
+                                <Typography
+                                    onClick={handleClearAll}
+                                    fontSize="16px"
+                                    fontWeight={600}
+                                    color={theme.palette.error.main}
+                                    sx={{
+                                        flexShrink: 0,
+                                        cursor: 'pointer',
+                                        userSelect: 'none',
+                                        '&:hover': { textDecoration: 'underline' },
+                                    }}
+                                >
+                                    {t('Clear All')}
+                                </Typography>
+                            )}
                         </Stack>
                     )}
 
-                    {/* ── Loading shimmer (home / non-restaurant) ── */}
-                    {cartListFetching && cartGroups.length === 0 && !isRestaurantPage ? (
+                    {/* ── Loading shimmer ── */}
+                    {(isRestaurantPage
+                        ? groupedCartFetching
+                        : cartListFetching) && cartGroups.length === 0 ? (
                         <SimpleBar style={{ height: 'calc(100vh - 80px)', width: '100%' }}>
                             <Stack spacing={1.5} sx={{ px: 2, pb: 3 }}>
                                 {Array.from({ length: 3 }).map((_, i) => (
@@ -675,8 +619,8 @@ const FloatingCart = (props) => {
                                 ))}
                             </Stack>
                         </SimpleBar>
-                    ) : cartGroups.length === 0 && !isRestaurantPage ? (
-                        /* ── Empty state (home / non-restaurant) ── */
+                    ) : cartGroups.length === 0 ? (
+                        /* ── Empty state ── */
                         <Stack
                             sx={{ height: '100%', alignItems: 'center', justifyContent: 'center' }}
                         >
@@ -688,120 +632,8 @@ const FloatingCart = (props) => {
                                 {t('Start adding items to see them here')}
                             </Typography>
                         </Stack>
-                    ) : isRestaurantPage ? (
-                        /* ── Restaurant page: restaurant card + cart items + banner + footer ── */
-                        <>
-                            <SimpleBar style={{ flex: 1, overflow: 'hidden', width: '100%' }}>
-                                <Stack sx={{ pb: 2 }}>
-                                    {restaurant && (
-                                        <RestaurantInfoCard
-                                            restaurant={restaurant}
-                                            t={t}
-                                        />
-                                    )}
-
-                                    {cartList?.length === 0 ? (
-                                        cartListFetching ? (
-                                            // Cart-list fetch is in flight and
-                                            // Redux is still empty — render an
-                                            // item-card shimmer instead of the
-                                            // "Cart is Empty" state so the
-                                            // drawer doesn't briefly flash the
-                                            // empty UI before items arrive.
-                                            <Stack spacing={1.25} sx={{ px: 2, pt: 1 }}>
-                                                {Array.from({ length: 3 }).map((_, i) => (
-                                                    <Stack
-                                                        key={`cart-item-shim-${i}`}
-                                                        direction="row"
-                                                        spacing={1.25}
-                                                        alignItems="center"
-                                                        sx={{
-                                                            border: `1px solid ${theme.palette.divider}`,
-                                                            borderRadius: '10px',
-                                                            p: 1.25,
-                                                        }}
-                                                    >
-                                                        <Skeleton
-                                                            variant="rounded"
-                                                            width={56}
-                                                            height={56}
-                                                            sx={{ borderRadius: '8px', flexShrink: 0 }}
-                                                        />
-                                                        <Stack spacing={0.5} sx={{ flex: 1, minWidth: 0 }}>
-                                                            <Skeleton variant="text" width="70%" height={18} />
-                                                            <Skeleton variant="text" width="40%" height={14} />
-                                                            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ pt: 0.5 }}>
-                                                                <Skeleton variant="text" width="25%" height={16} />
-                                                                <Skeleton variant="rounded" width={72} height={26} sx={{ borderRadius: '20px' }} />
-                                                            </Stack>
-                                                        </Stack>
-                                                    </Stack>
-                                                ))}
-                                            </Stack>
-                                        ) : (
-                                            <Stack sx={{ height: '50vh', alignItems: 'center', justifyContent: 'center', px: 2 }}>
-                                                <CustomImageContainer src={emptycart?.src} height="200px" />
-                                                <CustomTypographyBold align="center">{t('Cart is Empty')}</CustomTypographyBold>
-                                            </Stack>
-                                        )
-                                    ) : (
-                                        cartList?.map((item) => (
-                                            <CartItemCard
-                                                key={item.cartItemId ?? item.id}
-                                                item={item}
-                                                handleProductUpdateModal={handleProductUpdateModal}
-                                                t={t}
-                                            />
-                                        ))
-                                    )}
-                                </Stack>
-                            </SimpleBar>
-                            {cartList?.length > 0 && global?.pro_member_status  ? (
-                                !token ? (
-                                    <ProPlanBanner
-                                        t={t}
-                                        onSubscribe={() =>
-                                            toast.error(
-                                                t('Please login to subscribe')
-                                            )
-                                        }
-                                    />
-                                ) : hasActiveOfferSaving ? (
-                                    <ProSavingsBanner
-                                        amount={savedAmount}
-                                        message={savingsMessage || undefined}
-                                        currencySymbol={currencySymbol}
-                                        currencySymbolDirection={
-                                            currencySymbolDirection
-                                        }
-                                        digitAfterDecimalPoint={
-                                            digitAfterDecimalPoint
-                                        }
-                                        t={t}
-                                    />
-                                ) : (
-                                    <ProPlanBanner
-                                        t={t}
-                                        onSubscribe={() => {
-                                            setProPlanModalOpen(true)
-                                            setSideDrawerOpen(false)
-                                        }}
-                                    />
-                                )
-                            ):null}
-                            {cartList?.length > 0 && (
-                                <CartFooter
-                                    totalPrice={totalCartPrice}
-                                    currencySymbol={currencySymbol}
-                                    currencySymbolDirection={currencySymbolDirection}
-                                    digitAfterDecimalPoint={digitAfterDecimalPoint}
-                                    onCheckout={handleCheckout}
-                                    t={t}
-                                />
-                            )}
-                        </>
                     ) : (
-                        /* ── Home / other pages: grouped restaurant cards ── */
+                        /* ── Grouped restaurant cards (all pages) ── */
                         <SimpleBar style={{ height: 'calc(100vh - 80px)', width: '100%' }}>
                             <Stack spacing={1.5} sx={{ px: 2, pb: 3 }}>
                                 {cartGroups.map((group) => {
@@ -810,9 +642,63 @@ const FloatingCart = (props) => {
                                     // food image — the API doesn't expose a
                                     // pre-aggregated `item_images` array on
                                     // the restaurant, so we derive it here.
+                                    // Keep a tile per line even when the API
+                                    // sends image_full_url: null — dropping it
+                                    // would desync the strip from item_count;
+                                    // CustomNextImage falls back to the
+                                    // placeholder image itself.
                                     const itemImages = (group?.carts ?? [])
-                                        .map((c) => c?.item?.image_full_url)
-                                        .filter(Boolean)
+                                        .flatMap((c) => {
+                                            if (c?.item) {
+                                                return [c.item.image_full_url]
+                                            }
+                                            const bundleFoods = [
+                                                ...(c?.bogo_details
+                                                    ?.buy_items || []),
+                                                ...(c?.bogo_details
+                                                    ?.free_items || []),
+                                            ]
+                                            return bundleFoods.map(
+                                                (food) =>
+                                                    food?.item
+                                                        ?.image_full_url ??
+                                                    food?.image_full_url
+                                            )
+                                        })
+                                    const { payable, original } =
+                                        getGroupPrices(group)
+                                    // discount_eligibility is a restaurant/coupon-level
+                                    // discount layered on top of the item prices — only
+                                    // apply it once the backend has confirmed the cart
+                                    // qualifies (min purchase met).
+                                    const discountEligibility =
+                                        group?.discount_eligibility
+                                    const restaurantDiscountAmount =
+                                        discountEligibility?.is_qualified
+                                            ? discountEligibility.discount_amount || 0
+                                            : 0
+                                    const finalPrice = Math.max(
+                                        payable - restaurantDiscountAmount,
+                                        0
+                                    )
+                                    // `restaurant` (group.restaurant) is the
+                                    // minimal summary object and doesn't carry
+                                    // delivery_time — the full restaurant object
+                                    // only lives on each cart line, so fall back
+                                    // to the first line's nested restaurant.
+                                    const deliveryTimeRaw =
+                                        restaurant?.delivery_time ??
+                                        group?.carts?.[0]?.restaurant
+                                            ?.delivery_time
+                                    // delivery_time comes through as either
+                                    // "20-30" or "20-30 min" depending on the
+                                    // endpoint, so only add the unit when the
+                                    // string doesn't carry one already.
+                                    const deliveryTime = deliveryTimeRaw
+                                        ? /[a-z]/i.test(deliveryTimeRaw)
+                                            ? deliveryTimeRaw
+                                            : `${deliveryTimeRaw} ${t('min')}`
+                                        : undefined
                                     return (
                                         <CartGroupCard
                                             key={restaurant?.id}
@@ -823,7 +709,24 @@ const FloatingCart = (props) => {
                                                 restaurant?.verified_seller ??
                                                 restaurant?.is_verified
                                             }
+                                            deliveryTime={deliveryTime}
                                             itemImages={itemImages}
+                                            priceText={getAmount(
+                                                finalPrice,
+                                                currencySymbolDirection,
+                                                currencySymbol,
+                                                digitAfterDecimalPoint
+                                            )}
+                                            originalPriceText={
+                                                original > finalPrice
+                                                    ? getAmount(
+                                                          original,
+                                                          currencySymbolDirection,
+                                                          currencySymbol,
+                                                          digitAfterDecimalPoint
+                                                      )
+                                                    : undefined
+                                            }
                                             onAddMore={() => handleAddMore(restaurant?.id, restaurant?.slug)}
                                             onViewCart={() => handleViewCart(restaurant?.id, restaurant?.slug)}
                                             onRemoveGroup={() => handleRemoveGroup(restaurant?.id)}
@@ -844,6 +747,8 @@ const FloatingCart = (props) => {
                     open={openGuestModal}
                     setOpen={setOpenGuestModal}
                     setSideDrawerOpen={setSideDrawerOpen}
+                    restaurantId={cartList?.[0]?.restaurant_id}
+                    restaurantSlug={restaurant?.slug}
                 />
             )}
             {openModal && (

@@ -1,16 +1,16 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
     Box,
     IconButton,
     Stack,
-    TextField,
     Tooltip,
     Typography,
     useMediaQuery,
 } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
+import { alpha, useTheme } from '@mui/material/styles'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { useDispatch, useSelector } from 'react-redux'
 import toast from 'react-hot-toast'
 
@@ -18,11 +18,11 @@ import VisibleVariations from '@/components/floating-cart/VisibleVariations'
 import {
     calculateItemBasePrice,
     getAmount,
-    getConvertDiscount,
     getSelectedAddOn,
     getTotalVariationsPrice,
     handleTotalAmountWithAddonsFF,
 } from '@/utils/customFunctions'
+import { rawFoodDataNormalize } from '@/components/new-food-card/rawFoodDataNormalize'
 import { getSelectedAddons } from '@/components/navbar/second-navbar/SecondNavbar'
 import {
     decrementProductQty,
@@ -51,6 +51,7 @@ type CartItem = {
     quantity?: number
     price?: number
     totalPrice?: number
+    itemBasePrice?: number
     discount?: number | string
     discount_type?: string
     restaurant_discount?: number
@@ -82,6 +83,14 @@ type NeutralPalette = Record<string, Record<number, string>>
 const neutralOf = (theme: { palette: unknown }): Record<number, string> =>
     (theme.palette as NeutralPalette).neutral
 
+// neutral[400] reads as a heavy dark grey against the light pill background —
+// too strong for a hover state. A translucent overlay stays legible in both
+// modes without darkening as much.
+const stepperHoverBg = (theme: { palette: { mode: string } }) =>
+    theme.palette.mode === 'dark'
+        ? 'rgba(255, 255, 255, 0.16)'
+        : 'rgba(0, 0, 0, 0.06)'
+
 const CartItemCard: React.FC<CartItemCardProps> = ({
     item,
     handleProductUpdateModal,
@@ -95,10 +104,13 @@ const CartItemCard: React.FC<CartItemCardProps> = ({
         (state: { globalSettings: { global: Record<string, unknown> } }) =>
             state.globalSettings
     )
-    const [editingQuantity, setEditingQuantity] = useState(false)
-    const [tempQuantity, setTempQuantity] = useState<number>(
-        Number(item?.quantity) || 1
-    )
+    // Variation summary starts collapsed to one line; the chevron only
+    // appears (and is only clickable) when that single line actually
+    // truncates the content — matches the checkout page, where the
+    // full text renders plainly and never gets a toggle.
+    const [variationsExpanded, setVariationsExpanded] = useState(false)
+    const [variationsOverflow, setVariationsOverflow] = useState(false)
+    const variationsTextRef = useRef<HTMLDivElement | null>(null)
     const { mutate: itemRemove, isLoading: removeIsLoading } =
         useDeleteCartItem()
     const { mutate: updateMutate, isLoading: updatedLoading } =
@@ -121,16 +133,15 @@ const CartItemCard: React.FC<CartItemCardProps> = ({
         selectedAddons: getSelectedAddons(
             (entry?.item as { addons?: unknown[] })?.addons
         ),
-        itemBasePrice: getConvertDiscount(
-            (entry?.item as { discount?: unknown })?.discount,
-            (entry?.item as { discount_type?: unknown })?.discount_type,
-            calculateItemBasePrice(
+        itemBasePrice: rawFoodDataNormalize({
+            price: calculateItemBasePrice(
                 entry,
                 (entry?.item as { variations?: unknown })?.variations
             ),
-            (entry?.item as { restaurant_discount?: unknown })
-                ?.restaurant_discount
-        ),
+            discount: (entry?.item as { discount?: unknown })?.discount,
+            discount_type: (entry?.item as { discount_type?: unknown })
+                ?.discount_type,
+        }).discountedPrice,
     })
 
     const onIncrementSuccess = (res: CartApiEntry[]) => {
@@ -162,12 +173,11 @@ const CartItemCard: React.FC<CartItemCardProps> = ({
         const updateQuantity = (item?.quantity || 0) + 1
         const totalPrice =
             (item?.price || 0) + getTotalVariationsPrice(item?.variations)
-        const priceAfterDiscount = getConvertDiscount(
-            item?.discount,
-            item?.discount_type,
-            totalPrice,
-            item?.restaurant_discount
-        )
+        const { discountedPrice: priceAfterDiscount } = rawFoodDataNormalize({
+            price: totalPrice,
+            discount: item?.discount,
+            discount_type: item?.discount_type,
+        })
         const productPrice = priceAfterDiscount * updateQuantity
         const itemObject = getItemDataForAddToCart(
             item,
@@ -185,12 +195,11 @@ const CartItemCard: React.FC<CartItemCardProps> = ({
         const updateQuantity = (item?.quantity || 0) - 1
         const totalPrice =
             (item?.price || 0) + getTotalVariationsPrice(item?.variations)
-        const priceAfterDiscount = getConvertDiscount(
-            item?.discount,
-            item?.discount_type,
-            totalPrice,
-            item?.restaurant_discount
-        )
+        const { discountedPrice: priceAfterDiscount } = rawFoodDataNormalize({
+            price: totalPrice,
+            discount: item?.discount,
+            discount_type: item?.discount_type,
+        })
         const productPrice = priceAfterDiscount * updateQuantity
         const itemObject = getItemDataForAddToCart(
             item,
@@ -231,299 +240,306 @@ const CartItemCard: React.FC<CartItemCardProps> = ({
         })
     }
 
-    // The reference design never shows a delete icon — the minus button is
-    // rendered consistently at every quantity. At qty=1, clicking it removes
-    // the item; at qty>1, it decrements.
-    const handleMinusClick = () => {
-        if ((item?.quantity || 0) <= 1) {
-            handleRemove()
-        } else {
-            handleDecrement()
+    const isQuantityOne = (item?.quantity || 0) <= 1
+
+    const imageSize = 48
+
+    const payableTotal = handleTotalAmountWithAddonsFF(
+        item?.itemBasePrice,
+        item?.selectedAddons
+    )
+    // Pre-discount unit price, rebuilt from the item's own base price so the
+    // strike-through never shows an identical number next to the payable one.
+    const originalTotal = calculateItemBasePrice(item, item?.variations)
+    const hasVariations = Boolean(item?.variations?.length)
+
+    useEffect(() => {
+        // Clamp is only active while collapsed — measuring while expanded
+        // would always read as non-overflowing and hide the chevron.
+        if (variationsExpanded) return
+        const measure = () => {
+            const el = variationsTextRef.current
+            if (!el) return
+            setVariationsOverflow(el.scrollHeight > el.clientHeight + 1)
         }
-    }
+        measure()
+        window.addEventListener('resize', measure)
+        return () => window.removeEventListener('resize', measure)
+    }, [item?.variations, variationsExpanded])
 
-    const handleQuantityEdit = () => {
-        setEditingQuantity(true)
-        setTempQuantity(Number(item?.quantity) || 1)
-    }
-
-    const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = parseInt(e.target.value, 10)
-        if (!Number.isNaN(value) && value >= 0) setTempQuantity(value)
-        else if (e.target.value === '') setTempQuantity(0)
-    }
-
-    const handleQuantitySubmit = () => {
-        const newQuantity = Math.max(1, tempQuantity || 1)
-        if (newQuantity !== item?.quantity) {
-            updateQuantityDirectly(newQuantity)
-        }
-        setEditingQuantity(false)
-    }
-
-    const handleQuantityKeyPress = (
-        e: React.KeyboardEvent<HTMLInputElement>
-    ) => {
-        if (['-', '+', 'e', 'E', '.'].includes(e.key)) {
-            e.preventDefault()
-            return
-        }
-        if (e.key === 'Enter') {
-            handleQuantitySubmit()
-        } else if (e.key === 'Escape') {
-            setEditingQuantity(false)
-            setTempQuantity(Number(item?.quantity) || 1)
-        }
-    }
-
-    const updateQuantityDirectly = (newQuantity: number) => {
-        if (
-            item?.maximum_cart_quantity &&
-            newQuantity > item.maximum_cart_quantity
-        ) {
-            toast.error(t('Out Of Limits'))
-            setTempQuantity(Number(item?.quantity) || 1)
-            return
-        }
-        const totalPrice =
-            (item?.price || 0) + getTotalVariationsPrice(item?.variations)
-        const priceAfterDiscount = getConvertDiscount(
-            item?.discount,
-            item?.discount_type,
-            totalPrice,
-            item?.restaurant_discount
-        )
-        const productPrice = priceAfterDiscount * newQuantity
-        const itemObject = getItemDataForAddToCart(
-            item,
-            newQuantity,
-            productPrice,
-            guestId
-        )
-        updateMutate(itemObject, {
-            onSuccess: onIncrementSuccess,
-            onError: (
-                error: {
-                    response?: {
-                        data?: { errors?: Array<{ message?: string }> }
-                    }
-                }
-            ) => {
-                error?.response?.data?.errors?.forEach((items) => {
-                    CustomToaster('error', items?.message)
-                })
-                setTempQuantity(Number(item?.quantity) || 1)
-            },
-        })
-    }
-
-    const imageSize = isSmall ? 70 : 80
+    const showVariationsToggle = variationsOverflow || variationsExpanded
 
     return (
         <Stack
-            direction="row"
-            spacing={{ xs: 1, sm: 1.5 }}
-            alignItems="center"
+            spacing={1}
             sx={{
-                px: { xs: 1.25, sm: 2 },
-                py: { xs: 1, sm: 1.25 },
+                px: 2,
+                py: 1.5,
+                borderBottom: `1px solid ${theme.palette.divider}`,
+                '&:last-of-type': { borderBottom: 'none' },
             }}
         >
-            {/* Image */}
-            <Box
-                onClick={() => handleProductUpdateModal(item)}
-                sx={{
-                    cursor: 'pointer',
-                    flexShrink: 0,
-                    width: imageSize,
-                    height: imageSize,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}
-            >
-                <CustomNextImage
-                    height={String(imageSize)}
-                    width={String(imageSize)}
-                    src={item?.image_full_url}
-                    objectFit={item?.image_full_url ? 'cover' : 'contain'}
-                    borderRadius="10px"
-                    aspectRatio="1"
-                    errorWidth={imageSize}
-                    errorHeight={imageSize}
-                />
-            </Box>
-
-            {/* Middle column: name / variations / price / addons */}
-            <Stack flex={1} minWidth={0} spacing={0.4}>
-                <Stack direction="row" alignItems="center" spacing={0.5}>
-                    <Typography
-                        fontSize="14px"
-                        fontWeight={500}
-                        onClick={() => handleProductUpdateModal(item)}
-                        sx={{
-                            cursor: 'pointer',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 1,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                        }}
-                    >
-                        {item?.name}
-                    </Typography>
-                    {item?.halal_tag_status === 1 && item?.is_halal === 1 && (
-                        <Tooltip arrow title={t('This is a halal food')}>
-                            <IconButton sx={{ padding: 0 }}>
-                                <HalalSvg />
-                            </IconButton>
-                        </Tooltip>
-                    )}
-                </Stack>
-
-                {item?.variations && item.variations.length > 0 && (
-                    <Box
-                        sx={{
-                            // VisibleVariations defaults to wordBreak: break-word
-                            // which snaps "variation" to "v / ariation" in tight
-                            // cart cells. Force normal word breaks + clamp.
-                            '& *': { wordBreak: 'normal !important' },
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                        }}
-                    >
-                        <VisibleVariations variations={item.variations} t={t} />
-                    </Box>
-                )}
-
-                <Typography
-                    fontSize="15px"
-                    fontWeight={700}
-                    color={theme.palette.primary.main}
+            {/* Top row: thumbnail + name + price */}
+            <Stack direction="row" spacing={1.25} alignItems="flex-start">
+                <Box
+                    onClick={() => handleProductUpdateModal(item)}
+                    sx={{
+                        cursor: 'pointer',
+                        flexShrink: 0,
+                        width: imageSize,
+                        height: imageSize,
+                    }}
                 >
-                    {getAmount(
-                        handleTotalAmountWithAddonsFF(
-                            item?.totalPrice,
-                            item?.selectedAddons
-                        ),
-                        currencySymbolDirection,
-                        currencySymbol,
-                        digitAfterDecimalPoint
-                    )}
-                </Typography>
+                    <CustomNextImage
+                        height={String(imageSize)}
+                        width={String(imageSize)}
+                        src={item?.image_full_url}
+                        objectFit={item?.image_full_url ? 'cover' : 'contain'}
+                        borderRadius="10px"
+                        aspectRatio="1"
+                        errorWidth={imageSize}
+                        errorHeight={imageSize}
+                    />
+                </Box>
 
-                {item?.selectedAddons && item.selectedAddons.length > 0 && (
+                <Stack flex={1} minWidth={0} spacing={0.4}>
+                    <Stack direction="row" alignItems="center" spacing={0.5}>
+                        <Typography
+                            fontSize="14px"
+                            fontWeight={500}
+                            onClick={() => handleProductUpdateModal(item)}
+                            sx={{
+                                // Explicit color: dark mode's body text is
+                                // black in this app, so inherit won't do.
+                                color: (t2) => neutralOf(t2)[1000],
+                                cursor: 'pointer',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 1,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                            }}
+                        >
+                            {item?.name}
+                        </Typography>
+                        {item?.halal_tag_status === 1 &&
+                            item?.is_halal === 1 && (
+                                <Tooltip
+                                    arrow
+                                    title={t('This is a halal food')}
+                                >
+                                    <IconButton sx={{ padding: 0 }}>
+                                        <HalalSvg />
+                                    </IconButton>
+                                </Tooltip>
+                            )}
+                    </Stack>
+
                     <Stack
                         direction="row"
-                        alignItems="flex-start"
-                        spacing={0.5}
-                        flexWrap="wrap"
+                        alignItems="baseline"
+                        spacing={0.75}
                     >
-                        <Typography fontSize="12px" fontWeight={700}>
-                            {t('Addons')}:
-                        </Typography>
                         <Typography
-                            fontSize="12px"
-                            color="text.secondary"
-                            sx={{ flex: 1, minWidth: 0 }}
+                            fontSize="15px"
+                            fontWeight={700}
+                            sx={{ color: (t2) => neutralOf(t2)[1000] }}
                         >
-                            {getSelectedAddOn(item.selectedAddons)}
+                            {getAmount(
+                                payableTotal,
+                                currencySymbolDirection,
+                                currencySymbol,
+                                digitAfterDecimalPoint
+                            )}
                         </Typography>
+                        {originalTotal > payableTotal + 0.01 && (
+                            <Typography
+                                fontSize="13px"
+                                sx={{
+                                    color: (t2) => neutralOf(t2)[400],
+                                    textDecoration: 'line-through',
+                                }}
+                            >
+                                {getAmount(
+                                    originalTotal,
+                                    currencySymbolDirection,
+                                    currencySymbol,
+                                    digitAfterDecimalPoint
+                                )}
+                            </Typography>
+                        )}
                     </Stack>
-                )}
+
+                    {item?.selectedAddons &&
+                        item.selectedAddons.length > 0 && (
+                            <Stack
+                                direction="row"
+                                alignItems="flex-start"
+                                spacing={0.5}
+                                flexWrap="wrap"
+                            >
+                                <Typography
+                                    fontSize="12px"
+                                    fontWeight={700}
+                                    sx={{
+                                        color: (t2) => neutralOf(t2)[1000],
+                                    }}
+                                >
+                                    {t('Addons')}:
+                                </Typography>
+                                <Typography
+                                    fontSize="12px"
+                                    color="text.secondary"
+                                    sx={{ flex: 1, minWidth: 0 }}
+                                >
+                                    {getSelectedAddOn(item.selectedAddons)}
+                                </Typography>
+                            </Stack>
+                        )}
+                </Stack>
             </Stack>
 
-            {/* Right column: quantity controls */}
+            {/* Bottom row: collapsible variation summary + pill stepper */}
             <Stack
                 direction="row"
                 alignItems="center"
-                spacing={{ xs: 0.5, sm: 0.75 }}
-                sx={{ flexShrink: 0 }}
+                justifyContent={hasVariations ? 'space-between' : 'flex-end'}
+                spacing={1}
             >
-                <IconButton
-                    disabled={updatedLoading || removeIsLoading}
-                    aria-label="decrement"
-                    onClick={handleMinusClick}
+                {hasVariations && (
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={0.25}
+                        onClick={
+                            showVariationsToggle
+                                ? () => setVariationsExpanded((prev) => !prev)
+                                : undefined
+                        }
+                        sx={{
+                            flex: 1,
+                            minWidth: 0,
+                            cursor: showVariationsToggle
+                                ? 'pointer'
+                                : 'default',
+                            userSelect: 'none',
+                        }}
+                    >
+                        <Box
+                            ref={variationsTextRef}
+                            sx={{
+                                minWidth: 0,
+                                '& *': {
+                                    wordBreak: 'normal !important',
+                                },
+                                ...(variationsExpanded
+                                    ? {}
+                                    : {
+                                          display: '-webkit-box',
+                                          WebkitLineClamp: 1,
+                                          WebkitBoxOrient: 'vertical',
+                                          overflow: 'hidden',
+                                      }),
+                            }}
+                        >
+                            <VisibleVariations
+                                variations={item.variations}
+                                t={t}
+                            />
+                        </Box>
+                        {showVariationsToggle && (
+                            <KeyboardArrowDownIcon
+                                sx={{
+                                    fontSize: 18,
+                                    flexShrink: 0,
+                                    color: 'text.secondary',
+                                    transform: variationsExpanded
+                                        ? 'rotate(180deg)'
+                                        : 'none',
+                                    transition: 'transform 200ms ease',
+                                }}
+                            />
+                        )}
+                    </Stack>
+                )}
+
+                <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={0.75}
                     sx={{
-                        width: { xs: 22, sm: 26 },
-                        height: { xs: 22, sm: 26 },
-                        backgroundColor: (t2) => neutralOf(t2)[200],
-                        '&:hover': {
-                            backgroundColor: (t2) => neutralOf(t2)[300],
-                        },
-                        borderRadius: '50%',
+                        flexShrink: 0,
+                        // Dark palette's neutral[300] is a light grey that
+                        // swallows the white icons — use translucent white.
+                        backgroundColor:
+                            theme.palette.mode === 'dark'
+                                ? 'rgba(255, 255, 255, 0.12)'
+                                : (t2: any) => neutralOf(t2)[300],
+                        borderRadius: '999px',
+                        px: 1,
+                        py: 0.4,
                     }}
                 >
-                    <RemoveIcon
+                {isQuantityOne ? (
+                    <IconButton
+                        disabled={removeIsLoading}
+                        aria-label="remove"
+                        onClick={handleRemove}
                         sx={{
-                            fontSize: { xs: 12, sm: 14 },
-                            color: (t2) => neutralOf(t2)[1000],
+                            width: 26,
+                            height: 26,
+                            padding: 0,
+                            backgroundColor: 'transparent',
+                            color: (t2) => t2.palette.error.main,
+                            '&:hover': {
+                                backgroundColor: (t2) =>
+                                    alpha(t2.palette.error.main, 0.1),
+                            },
+                            borderRadius: '50%',
+                            '& i': {
+                                fontSize: 14,
+                                lineHeight: 1,
+                            },
                         }}
-                    />
-                </IconButton>
+                    >
+                        <i className="fi fi-rr-trash" />
+                    </IconButton>
+                ) : (
+                    <IconButton
+                        disabled={updatedLoading}
+                        aria-label="decrement"
+                        onClick={handleDecrement}
+                        sx={{
+                            width: 26,
+                            height: 26,
+                            padding: 0,
+                            backgroundColor: 'transparent',
+                            '&:hover': {
+                                backgroundColor: stepperHoverBg,
+                            },
+                            borderRadius: '50%',
+                        }}
+                    >
+                        <RemoveIcon
+                            sx={{
+                                fontSize: 16,
+                                color: (t2) => neutralOf(t2)[1000],
+                            }}
+                        />
+                    </IconButton>
+                )}
 
                 {updatedLoading ? (
                     <CircularLoader size="14px" color="primary" />
-                ) : editingQuantity ? (
-                    <TextField
-                        size="small"
-                        type="number"
-                        value={tempQuantity}
-                        onChange={handleQuantityChange}
-                        onBlur={handleQuantitySubmit}
-                        onKeyDown={handleQuantityKeyPress}
-                        autoFocus
-                        inputProps={{
-                            min: 1,
-                            style: {
-                                textAlign: 'center',
-                                padding: '4px 6px',
-                                width: 32,
-                                fontSize: 14,
-                            },
-                        }}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                height: 26,
-                                '& fieldset': {
-                                    borderColor: (t2) => neutralOf(t2)[400],
-                                },
-                                '&:hover fieldset': {
-                                    borderColor: (t2) => neutralOf(t2)[400],
-                                },
-                                '&.Mui-focused fieldset': {
-                                    borderColor: (t2) => neutralOf(t2)[400],
-                                },
-                            },
-                            '& input[type=number]': {
-                                MozAppearance: 'textfield',
-                            },
-                            '& input[type=number]::-webkit-outer-spin-button': {
-                                WebkitAppearance: 'none',
-                                margin: 0,
-                            },
-                            '& input[type=number]::-webkit-inner-spin-button': {
-                                WebkitAppearance: 'none',
-                                margin: 0,
-                            },
-                        }}
-                    />
                 ) : (
                     <Typography
-                        onClick={handleQuantityEdit}
                         sx={{
-                            cursor: 'pointer',
                             userSelect: 'none',
-                            minWidth: { xs: 28, sm: 36 },
+                            minWidth: 24,
                             textAlign: 'center',
-                            border: '1px solid',
-                            borderColor: (t2) => neutralOf(t2)[400],
-                            borderRadius: '6px',
-                            py: '3px',
-                            fontSize: { xs: '12px', sm: '14px' },
-                            fontWeight: 500,
+                            fontSize: '15px',
+                            fontWeight: 700,
+                            color: (t2) => neutralOf(t2)[1000],
                         }}
                     >
                         {item?.quantity}
@@ -535,19 +551,24 @@ const CartItemCard: React.FC<CartItemCardProps> = ({
                     aria-label="increment"
                     onClick={handleIncrement}
                     sx={{
-                        width: { xs: 22, sm: 26 },
-                        height: { xs: 22, sm: 26 },
-                        backgroundColor: theme.palette.primary.main,
+                        width: 26,
+                        height: 26,
+                        padding: 0,
+                        backgroundColor: 'transparent',
                         '&:hover': {
-                            backgroundColor: theme.palette.primary.dark,
+                            backgroundColor: stepperHoverBg,
                         },
                         borderRadius: '50%',
                     }}
                 >
                     <AddIcon
-                        sx={{ fontSize: { xs: 12, sm: 14 }, color: '#fff' }}
+                        sx={{
+                            fontSize: 16,
+                            color: (t2) => neutralOf(t2)[1000],
+                        }}
                     />
                 </IconButton>
+                </Stack>
             </Stack>
         </Stack>
     )

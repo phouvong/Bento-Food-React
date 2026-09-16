@@ -6,9 +6,9 @@ import {
     ListItemIcon,
 } from '@mui/material'
 
-const ResShimmer = ({ shimmerfor }) => {
+const ResShimmer = ({ shimmerfor, mdSize = 4 }) => {
     return (
-        <Grid item md={4}>
+        <Grid item md={mdSize}>
             {[...Array(shimmerfor === 'restaurant' ? 4 : 6)]?.map(
                 (category, index) => {
                     return (

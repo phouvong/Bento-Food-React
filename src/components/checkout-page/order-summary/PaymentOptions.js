@@ -1,16 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Grid, Stack, Typography } from '@mui/material'
-import { PymentTitle } from '../CheckOut.style'
+import { Box, IconButton, Stack, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined'
-import {
-    CustomPaperBigCard,
-    CustomStackFullWidth,
-} from '../../../styled-components/CustomStyles.style'
-import CustomImageContainer from '../../CustomImageContainer'
+import AddIcon from '@mui/icons-material/Add'
+import { CustomPaperBigCard } from '../../../styled-components/CustomStyles.style'
 import { useTheme } from '@mui/material/styles'
-import CustomDivider from '../../CustomDivider'
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import CustomModal from '../../custom-modal/CustomModal'
 import AllPaymentMethod from '../AllPaymentMethod'
 import OfflinePayment from '../assets/OfflinePayment'
@@ -19,8 +12,8 @@ import {
     setOfflineInfoStep,
     setOfflineMethod,
 } from '@/redux/slices/OfflinePayment'
-import PartialPayment from '../PartialPayment'
 import CustomNextImage from '@/components/CustomNextImage'
+import { getAmount } from '@/utils/customFunctions'
 
 const PaymentOptions = (props) => {
     const theme = useTheme()
@@ -43,7 +36,8 @@ const PaymentOptions = (props) => {
         switchToWallet,
         setChangeAmount,
         changeAmount,
-        orderType
+        orderType,
+        openPaymentPrompt,
     } = props
     const { t } = useTranslation()
     const dispatch = useDispatch()
@@ -63,6 +57,13 @@ const PaymentOptions = (props) => {
             setIsCheckedOffline(false)
         }
     }, [selected])
+
+    useEffect(() => {
+        if (openPaymentPrompt) {
+            setOpenModal(true)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [openPaymentPrompt])
 
     const getPaymentMethod = (item) => {
         setSelected(item)
@@ -98,36 +99,134 @@ const PaymentOptions = (props) => {
         }
     }
 
-    return (
-        <CustomPaperBigCard nopadding="true">
-            <Grid container>
-                <Grid item xs={12} md={12}>
-                    <CustomStackFullWidth
-                        justifyContent="space-between"
-                        direction="row"
-                        padding="19px 16px 3px 16px"
-                    >
-                        <PymentTitle>{t('Payment Options')}</PymentTitle>
-                        <BorderColorOutlinedIcon
-                            onClick={handleClick}
-                            color="primary"
-                            style={{ cursor: 'pointer' }}
-                        />
-                    </CustomStackFullWidth>
-                </Grid>
-                <CustomDivider />
+    const isSelected = Boolean(paymentMethodDetails?.name)
+    const currencySymbol = global?.currency_symbol
+    const currencySymbolDirection = global?.currency_symbol_direction
+    const digitAfterDecimalPoint = Number.parseInt(
+        global?.digit_after_decimal_point,
+        10
+    )
+    // Wallet is applied as a partial payment alongside another method — the
+    // summary needs to reflect both, not just whichever was picked last.
+    const isWalletPlusOther =
+        usePartialPayment &&
+        offLineWithPartial &&
+        paymentMethodDetails?.name &&
+        paymentMethodDetails?.name !== 'wallet'
+    const methodLabel = paymentMethodDetails?.method
+        ? `${t(
+              paymentMethodDetails?.method?.replaceAll('_', ' ')
+          )} (${t(paymentMethodDetails?.name)})`
+        : `${t(paymentMethodDetails?.name?.replaceAll('_', ' '))}`
+    const displayLabel = isWalletPlusOther
+        ? `${t('Wallet')} + ${methodLabel}`
+        : methodLabel
+    // The gateway/COD/offline leg only ever covers what the wallet didn't —
+    // showing the full order total here overstates what that method charges.
+    const displayAmount = isWalletPlusOther
+        ? Math.max(totalAmount - walletAmount, 0)
+        : totalAmount
 
-                <CustomStackFullWidth
-                    direction="row"
-                    padding="16px"
-                    sx={{ cursor: 'pointer' }}
-                    onClick={handleClick}
+    return (
+        <CustomPaperBigCard padding="16px" noboxshadow="true">
+            <Stack sx={{ gap: '16px' }}>
+                <Stack
+                    direction={{ xs: 'column', sm: 'row' }}
+                    alignItems={{ xs: 'stretch', sm: 'flex-start' }}
+                    justifyContent="space-between"
+                    gap={{ xs: '16px', sm: '12px' }}
                 >
-                    {paymentMethodDetails?.name ? (
+                    <Stack sx={{ gap: '4px' }}>
+                        <Typography
+                            sx={{
+                                fontSize: '16px',
+                                fontWeight: 700,
+                                letterSpacing: '-0.48px',
+                                color: 'text.primary',
+                            }}
+                        >
+                            {t('Payment Method')}
+                        </Typography>
+                        <Typography
+                            sx={{ fontSize: '13px', color: 'text.secondary' }}
+                        >
+                            {t('Add at least one option to pay your order.')}
+                        </Typography>
+                    </Stack>
+                    {isSelected ? (
+                        <IconButton
+                            onClick={handleClick}
+                            sx={{
+                                display: { xs: 'none', sm: 'inline-flex' },
+                                flexShrink: 0,
+                                width: '36px',
+                                height: '36px',
+                                borderRadius: '8px',
+                                color: 'text.info',
+                            }}
+                        >
+                            <i
+                                className="fi fi-rr-pencil"
+                                style={{
+                                    fontSize: '16px',
+                                    lineHeight: 1,
+                                    color: 'inherit',
+                                }}
+                            />
+                        </IconButton>
+                    ) : (
+                        <Box
+                            onClick={handleClick}
+                            sx={{
+                                flexShrink: 0,
+                                width: { xs: '100%', sm: 'auto' },
+                                cursor: 'pointer',
+                                height: { xs: '36px', sm: '40px' },
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: { xs: '6px', sm: '8px' },
+                                px: '24px',
+                                borderRadius: '8px',
+                                backgroundColor: 'primary.main',
+                            }}
+                        >
+                            <AddIcon
+                                sx={{
+                                    fontSize: 18,
+                                    color: 'primary.contrastText',
+                                }}
+                            />
+                            <Typography
+                                sx={{
+                                    fontSize: { xs: '14px', sm: '16px' },
+                                    fontWeight: { xs: 600, sm: 700 },
+                                    letterSpacing: '-0.48px',
+                                    color: 'primary.contrastText',
+                                    textTransform: 'capitalize',
+                                }}
+                            >
+                                {t('Add')}
+                            </Typography>
+                        </Box>
+                    )}
+                </Stack>
+
+                {isSelected && (
+                    <Box
+                        onClick={handleClick}
+                        sx={{
+                            cursor: 'pointer',
+                            borderRadius: '8px',
+                            p: '12px',
+                            backgroundColor: (theme) =>
+                                theme.palette.neutral[200],
+                        }}
+                    >
                         <Stack
                             direction="row"
-                            spacing={1.5}
                             alignItems="center"
+                            gap="12px"
                         >
                             {paymentMethodDetails?.name === 'wallet' ||
                             paymentMethodDetails?.name ===
@@ -154,42 +253,37 @@ const PaymentOptions = (props) => {
                                 </>
                             )}
                             <Typography
-                                fontSize="14px"
-                                fontWeight="500"
-                                color={theme.palette.primary.main}
-                                textTransform="capitalize"
+                                noWrap
+                                sx={{
+                                    flex: 1,
+                                    minWidth: 0,
+                                    fontSize: '14px',
+                                    letterSpacing: '-0.42px',
+                                    color: 'text.primary',
+                                    textTransform: 'capitalize',
+                                }}
                             >
-                                {paymentMethodDetails?.method
-                                    ? `${t(
-                                          paymentMethodDetails?.method?.replaceAll(
-                                              '_',
-                                              ' '
-                                          )
-                                      )} (${t(paymentMethodDetails?.name)})`
-                                    : `${t(
-                                          paymentMethodDetails?.name?.replaceAll(
-                                              '_',
-                                              ' '
-                                          )
-                                      )}`}
+                                {displayLabel}
                             </Typography>
-                        </Stack>
-                    ) : (
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                            <AddCircleOutlineIcon
-                                style={{ width: '22px', height: '22px' }}
-                                color="primary"
-                            />
                             <Typography
-                                fontSize="14px"
-                                fontWeight="500"
-                                color={theme.palette.primary.main}
+                                sx={{
+                                    fontSize: '14px',
+                                    fontWeight: 600,
+                                    letterSpacing: '-0.42px',
+                                    color: 'text.primary',
+                                    whiteSpace: 'nowrap',
+                                }}
                             >
-                                {t('Add Payment Method')}
+                                {getAmount(
+                                    displayAmount,
+                                    currencySymbolDirection,
+                                    currencySymbol,
+                                    digitAfterDecimalPoint
+                                )}
                             </Typography>
                         </Stack>
-                    )}
-                </CustomStackFullWidth>
+                    </Box>
+                )}
                 {openModal && (
                     <CustomModal
                         openModal={openModal}
@@ -227,7 +321,7 @@ const PaymentOptions = (props) => {
                         />
                     </CustomModal>
                 )}
-            </Grid>
+            </Stack>
         </CustomPaperBigCard>
     )
 }

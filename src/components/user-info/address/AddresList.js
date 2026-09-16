@@ -9,13 +9,16 @@ import CustomEmptyResult from '../../empty-view/CustomEmptyResult'
 import { onSingleErrorResponse } from '../../ErrorResponse'
 import { useTheme } from '@mui/material/styles'
 import { noAddressFound } from '@/utils/LocalImages'
+import { getToken } from '@/components/checkout-page/functions/getGuestUserId'
 
 const AddresList = () => {
     const theme = useTheme()
+    const token = getToken()
     const { isLoading, data, refetch } = useQuery(
         ['address-list'],
         AddressApi.addressList,
         {
+            enabled: Boolean(token),
             onError: onSingleErrorResponse,
         }
     )

@@ -87,9 +87,13 @@ const MapComponent = ({
         if (map && zoom > 1) setZoom(prev => prev - 1);
     };
 
-    // Get directions only if user location exists
+    // Get directions only once the API is fully loaded (isLoaded) and a user
+    // location exists. Checking window.google.maps directly isn't enough —
+    // Google's loader creates that namespace before classes like
+    // DirectionsService finish attaching, so this can otherwise fire during
+    // that race and throw "is not a constructor".
     const fetchDirections = useCallback(async () => {
-        if (window.google && window.google.maps && userLat && userLong) {
+        if (isLoaded && window.google?.maps && userLat && userLong) {
             const directionsService = new window.google.maps.DirectionsService();
             const results = await directionsService.route({
                 origin: { lat: parseFloat(latitude), lng: parseFloat(longitude) },
@@ -98,11 +102,11 @@ const MapComponent = ({
             });
             setDirectionsResponse(results);
         }
-    }, [latitude, longitude, userLat, userLong]); // dependencies
+    }, [isLoaded, latitude, longitude, userLat, userLong]); // dependencies
 
     useEffect(() => {
         fetchDirections();
-    }, [userLat, userLong, latitude, longitude]);
+    }, [isLoaded, userLat, userLong, latitude, longitude, fetchDirections]);
 
     if (!isLoaded) return <CircularProgress />;
   
@@ -147,7 +151,11 @@ const MapComponent = ({
                         coupons={data[0]?.coupons}
                         slug={data[0]?.slug}
                         zone_id={data[0]?.zone_id}
-                        distance={tempDistance}
+                        distance_label={
+                            tempDistance !== undefined && tempDistance !== null
+                                ? `${(tempDistance / 1000).toFixed(2)}km`
+                                : undefined
+                        }
                         foods_count={data[0]?.foods?.length}
                         order_details={order_details}
                     />

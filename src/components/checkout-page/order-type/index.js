@@ -1,14 +1,9 @@
 import React from 'react'
-import { DeliveryCaption } from '../CheckOut.style'
+import { Stack, Typography } from '@mui/material'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
-import { Stack, Typography, Box } from '@mui/material'
-import CustomImageContainer from '../../CustomImageContainer'
-
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import Form from './Form'
+import SegmentedToggle from '../shared/SegmentedToggle'
 import { orderTypes } from './data'
 import { ACTIONS } from '../states'
-import { setOrderType } from '@/redux/slices/orderType'
 
 const OrderType = (props) => {
     const {
@@ -21,100 +16,80 @@ const OrderType = (props) => {
         setUsePartialPayment,
         setSwitchToWallet,
         setOrderType,
-        order_subscription_active
+        order_subscription_active,
     } = props
 
-    const handleClick = (item) => {
+    const visibleOrderTypes = orderTypes?.filter((item) => {
+        if (item?.name === 'Subscription Order') {
+            return order_subscription_active
+        }
+        return true
+    })
+
+    // Only one order type available (repeat order not offered by this
+    // restaurant) — there is nothing to choose between, so the whole
+    // section is hidden rather than showing a single, meaningless pill.
+    if (!visibleOrderTypes || visibleOrderTypes.length < 2) {
+        return null
+    }
+
+    const handleChange = (value) => {
+        const item = orderTypes.find((option) => option.value === value)
         if (item?.name === 'Subscription Order') {
             setDeliveryTip(0)
             setPaymentMethodDetails({ name: '', image: '' })
             setPaymenMethod('')
             setUsePartialPayment(false)
             setSwitchToWallet(false)
-            setOrderType('')
+            setOrderType('delivery')
         }
         subscriptionDispatch({
             type: ACTIONS.setSubscriptionOrder,
-            payload: item?.value,
+            payload: value,
         })
     }
+
+    const toggleOptions = visibleOrderTypes.map((item) => ({
+        value: item.value,
+        label: t(
+            item?.name === 'Subscription Order' ? 'Repeat Order' : item?.name
+        ),
+    }))
+
     return (
         <CustomStackFullWidth>
-            <DeliveryCaption id="demo-row-radio-buttons-group-label">
-                {t('Order Type')}
-            </DeliveryCaption>
-            <CustomStackFullWidth
+            <Stack
                 direction="row"
                 alignItems="center"
-                justifyContent="flex-start"
-                flexWrap="wrap"
-                gap="15px"
+                sx={{
+                    width: '100%',
+                    gap: '20px',
+                    padding: '12px',
+                    borderRadius: '16px',
+                    backgroundColor: 'background.paper',
+                }}
             >
-                {orderTypes
-                    ?.filter((item) => {
-                        // যদি item.name "Subscription Order" হয়, order_subscription_active true হতে হবে
-                        if (item?.name === 'Subscription Order') {
-                            return order_subscription_active
-                        }
-                        return true // অন্য সব item দেখাবে
-                    })
-                    .map((item) => (
-                        <Box
-                            onClick={() => handleClick(item)}
-                            key={item.value}
-                            sx={{
-                                border: '1px solid',
-                                borderColor: (theme) =>
-                                    subscriptionStates.order === item?.value
-                                        ? theme.palette.primary.main
-                                        : theme.palette.neutral[400],
-                                borderRadius: '4px',
-                                padding: '10px 15px',
-                                boxShadow: (theme) =>
-                                    `0px 0px 2px rgba(145, 158, 171, 0.2), 0px 5px 20px ${theme.palette.paperBoxShadow}`,
-                                cursor: 'pointer',
-                                position: 'relative',
-                                width: '220px',
-                            }}
-                        >
-                            <Stack direction="row" alignItems="center" spacing={1}>
-                                <CustomImageContainer
-                                    src={item?.img.src}
-                                    alt={item?.name}
-                                    width="30px"
-                                    height="30px"
-                                    objectFit="contained"
-                                />
-                                <Stack>
-                                    <Typography>{t(item?.name)}</Typography>
-                                    <Typography variant="subtitle2">
-                                        {t('Place an order and enjoy')}
-                                    </Typography>
-                                </Stack>
-                            </Stack>
-                            {subscriptionStates.order === item?.value && (
-                                <CheckCircleIcon
-                                    sx={{
-                                        position: 'absolute',
-                                        top: 0,
-                                        right: 0,
-                                        color: 'primary.main',
-                                    }}
-                                />
-                            )}
-                        </Box>
-                    ))}
-
-            </CustomStackFullWidth>
-            <CustomStackFullWidth mt="1.5rem">
-                {subscriptionStates.order === orderTypes[1]?.value && (
-                    <Form
-                        t={t}
-                        subscriptionStates={subscriptionStates}
-                        subscriptionDispatch={subscriptionDispatch}
-                    />
-                )}
-            </CustomStackFullWidth>
+                <Typography
+                    sx={{
+                        display: { xs: 'none', sm: 'block' },
+                        flex: 1,
+                        minWidth: 0,
+                        pl: '8px',
+                        fontSize: '18px',
+                        fontWeight: 700,
+                        lineHeight: 1.1,
+                        letterSpacing: '-0.54px',
+                        color: 'text.primary',
+                    }}
+                >
+                    {t('Choose Order Type')}
+                </Typography>
+                <SegmentedToggle
+                    value={subscriptionStates.order}
+                    onChange={handleChange}
+                    options={toggleOptions}
+                />
+            </Stack>
         </CustomStackFullWidth>
     )
 }

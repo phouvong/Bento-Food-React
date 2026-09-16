@@ -1,3 +1,50 @@
+const parseCsv = (value) => (value ? value.split(',').filter(Boolean) : [])
+
+// FilterPanel emits its own sort tokens; the category endpoints expect the
+// legacy ones. Anything unmapped is forwarded untouched.
+const SORT_BY_MAP = {
+    a_z: 'a_to_z',
+    z_a: 'z_to_a',
+}
+
+const RATING_MAP = { '5_plus': 5, '4_plus': 4, '3_plus': 3, '2_plus': 2 }
+
+// Translates FilterTabs/FilterPanel output into the `filterByData` +
+// `priceAndRating` pair both CategoryApi.categoriesDetails and
+// categoriesDetailsForRes read, so the new filter UI drives the exact same
+// query params the old RestaurantFilterCard did.
+export const toCategoryFilters = (appliedFilters = {}) => {
+    const types = parseCsv(appliedFilters.type)
+    const discover = parseCsv(appliedFilters.discover)
+    const ratings = parseCsv(appliedFilters.rating)
+
+    const rating = ratings.reduce(
+        (highest, key) => Math.max(highest, RATING_MAP[key] || 0),
+        0
+    )
+
+    const priceMax = Number(appliedFilters.price_max)
+    const price = Number.isFinite(priceMax)
+        ? [Number(appliedFilters.price_min) || 0, priceMax]
+        : []
+
+    return {
+        filterByData: {
+            veg: types.includes('veg'),
+            non_veg: types.includes('nonVeg'),
+            top_rated: discover.includes('topRated'),
+            popular: discover.includes('popular'),
+            new: discover.includes('newArrival'),
+            cuisine: parseCsv(appliedFilters.cuisine_ids).map(Number),
+            sort_by: appliedFilters.sort_by
+                ? SORT_BY_MAP[appliedFilters.sort_by] || appliedFilters.sort_by
+                : '',
+            rating,
+        },
+        priceAndRating: { price, rating },
+    }
+}
+
 export const handleFilterData = (
     checkedFilterKey,
     setFilterByData,

@@ -41,6 +41,7 @@ const AddNewAddress = ({
     orderType,
     setOpenGuestUserModal,
     setEditAddress,
+    variant,
 }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
@@ -56,7 +57,14 @@ const AddNewAddress = ({
     const { token } = useSelector((state) => state.userToken)
     const isXs = useMediaQuery(theme.breakpoints.down('sm'))
 
-    const { data, isError } = useQuery(['profile-info'], ProfileApi.profileInfo)
+    // Rendered from the guest checkout branch too (CheckoutSelectedAddressGuest)
+    // — only used to prefill the address form's name/phone, which a guest
+    // has none of, so skip the call entirely when logged out.
+    const { data, isError } = useQuery(
+        ['profile-info'],
+        ProfileApi.profileInfo,
+        { enabled: Boolean(token) }
+    )
     const clickAddNew = () => {
         if (guestUser && orderType === 'take_away') {
             setEditAddress?.(true)
@@ -129,6 +137,36 @@ const AddNewAddress = ({
                         }}
                     />
                 </IconButton>
+            ) : variant === 'link' ? (
+                // Figma node 261:40240 — plain link-style trigger (no
+                // border/fill), matching the Edit Profile button treatment.
+                <Stack
+                    direction="row"
+                    alignItems="center"
+                    gap="6px"
+                    onClick={clickAddNew}
+                    sx={{ cursor: 'pointer' }}
+                >
+                    <i
+                        className="fi fi-rr-plus"
+                        style={{
+                            fontSize: '16px',
+                            lineHeight: 1,
+                            display: 'inline-flex',
+                            color: theme.palette.text.info,
+                        }}
+                    />
+                    <Typography
+                        sx={{
+                            fontSize: '16px',
+                            fontWeight: 500,
+                            letterSpacing: '-0.48px',
+                        }}
+                        color={theme.palette.text.info}
+                    >
+                        {t('Add Address')}
+                    </Typography>
+                </Stack>
             ) : (
                 <PrimaryButton
                     variant={buttonbg === 'true' ? '' : 'outlined'}

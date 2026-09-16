@@ -8,7 +8,7 @@ import { CustomTypography } from '../custom-tables/Tables.style'
 import { useTranslation } from 'react-i18next'
 import { CustomTypographyGray } from '../error/Errors.style'
 import { useGetCategory } from '@/hooks/react-query/interest/useGetCategory'
-import { Grid } from '@mui/material'
+import { Box, Grid } from '@mui/material'
 import CustomImageContainer from '../CustomImageContainer'
 import { useDispatch, useSelector } from 'react-redux'
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -86,69 +86,86 @@ const InterestOptions = (props) => {
             >
                 {t('Choose Your Interests')}
             </CustomTypographyBold>
-            <CustomTypographyGray variant="h4" nodefaultfont="true">
+            <CustomTypographyGray
+                variant="h4"
+                nodefaultfont="true"
+                sx={{ mb: '.5rem' }}
+            >
                 {t('Get personalized food recommendations.')}
             </CustomTypographyGray>
-            <Grid container spacing={2}>
-                {featuredCategories.length > 0 ? (
-                    featuredCategories.map((item, index) => {
-                        return (
-                            <Grid
-                                key={index}
-                                onClick={() => handleItemClick(item)}
-                                item
-                                xs={6}
-                                sm={3}
-                                md={2}
-                                lg={2}
-                                align="center"
-                                sx={{
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                <CustomPaperBigCard
-                                    padding=".5rem"
+            <Box sx={{ width: '100%', overflow: 'hidden' }}>
+                <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
+                    {featuredCategories.length > 0 ? (
+                        featuredCategories.map((item, index) => {
+                            return (
+                                <Grid
+                                    key={index}
+                                    onClick={() => handleItemClick(item)}
+                                    item
+                                    xs={6}
+                                    sm={3}
+                                    md={2}
+                                    lg={2}
+                                    align="center"
                                     sx={{
-                                        border:
-                                            handleBorder(item.id) &&
-                                            '2px solid',
-                                        borderColor:
-                                            handleBorder(item.id) &&
-                                            'primary.main',
+                                        cursor: 'pointer',
                                     }}
                                 >
-                                    <CustomStackFullWidth spacing={1}>
-                                        <CustomImageContainer
-                                            height={isSmall ? '100px' : '150px'}
-                                            width="100%"
-                                            src={item?.image_full_url}
-                                        />
-                                        <CustomTypography>
-                                            {item.name}
-                                        </CustomTypography>
-                                    </CustomStackFullWidth>
-                                </CustomPaperBigCard>
-                            </Grid>
-                        )
-                    })
-                ) : (
-                    <InterestShimmer />
-                )}
-                <Grid item xs={12} md={12} align="center">
-                    <LoadingButton
-                        disabled={selectedId.length === 0}
-                        loading={isLoading}
-                        variant="contained"
-                        sx={{
-                            marginTop: '1rem',
-                            width: { xs: 'auto', sm: '200px' },
-                        }}
-                        onClick={() => handleSubmit()}
-                    >
-                        {t('Save')}
-                    </LoadingButton>
+                                    <CustomPaperBigCard
+                                        padding=".75rem"
+                                        sx={{
+                                            transition:
+                                                'border-color 0.2s ease',
+                                            border: '2px solid',
+                                            borderColor: handleBorder(item.id)
+                                                ? 'primary.main'
+                                                : 'transparent',
+                                        }}
+                                    >
+                                        <CustomStackFullWidth spacing={1}>
+                                            <CustomImageContainer
+                                                height={
+                                                    isSmall ? '100px' : '150px'
+                                                }
+                                                width="100%"
+                                                objectFit="cover"
+                                                borderRadius="10px"
+                                                src={item?.image_full_url}
+                                            />
+                                            <CustomTypography
+                                                title={item.name}
+                                                sx={{
+                                                    overflow: 'hidden',
+                                                    whiteSpace: 'nowrap',
+                                                    textOverflow: 'ellipsis',
+                                                }}
+                                            >
+                                                {item.name}
+                                            </CustomTypography>
+                                        </CustomStackFullWidth>
+                                    </CustomPaperBigCard>
+                                </Grid>
+                            )
+                        })
+                    ) : (
+                        <InterestShimmer />
+                    )}
+                    <Grid item xs={12} md={12} align="center">
+                        <LoadingButton
+                            disabled={selectedId.length === 0}
+                            loading={isLoading}
+                            variant="contained"
+                            sx={{
+                                marginTop: '1rem',
+                                width: { xs: 'auto', sm: '200px' },
+                            }}
+                            onClick={() => handleSubmit()}
+                        >
+                            {t('Save')}
+                        </LoadingButton>
+                    </Grid>
                 </Grid>
-            </Grid>
+            </Box>
         </CustomStackFullWidth>
     )
 }

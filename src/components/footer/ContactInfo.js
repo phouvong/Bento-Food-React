@@ -1,15 +1,11 @@
 import styled from '@emotion/styled'
-import ApartmentIcon from '@mui/icons-material/Apartment'
-import LocalPhoneIcon from '@mui/icons-material/LocalPhone'
-import MailIcon from '@mui/icons-material/Mail'
 import { Box, Skeleton, Typography } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
 import Link from 'next/link'
 import { useState } from 'react'
 import ContactAddressMap from '../help-page/ContactAddressMap'
+import { footerColors } from './Footer.style'
 
 const ContactInfo = ({ global }) => {
-    const theme = useTheme()
     const [open, setOpen] = useState(false)
 
     const handleOpenCloseMap = () => {
@@ -17,11 +13,11 @@ const ContactInfo = ({ global }) => {
     }
 
     const iconTileSx = {
-        width: 30,
-        height: 30,
-        borderRadius: '9px',
-        background: 'rgba(255,117,24,.1)',
-        color: theme.palette.primary.main,
+        width: 28,
+        height: 28,
+        borderRadius: '8px',
+        background: { xs: footerColors.iconTileLight, md: footerColors.iconTileDark },
+        color: footerColors.text,
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -30,20 +26,17 @@ const ContactInfo = ({ global }) => {
 
     const rowSx = {
         display: 'flex',
-        alignItems: 'flex-start',
-        gap: '12px',
-        color: '#94A3B8',
-        fontSize: '13px',
-        lineHeight: 1.5,
+        alignItems: 'center',
+        justifyContent: { xs: 'center', md: 'flex-start' },
+        gap: '16px',
+        width: '100%',
     }
 
     const textSx = {
-        pt: '4px',
-        color: '#E2E8F0',
-        fontSize: '13px',
-        lineHeight: 1.5,
-        transition: 'color .15s ease',
-        '&:hover': { color: theme.palette.primary.main },
+        color: footerColors.text,
+        fontSize: '14px',
+        lineHeight: 1.2,
+        textAlign: { xs: 'center', md: 'left' },
     }
 
     if (!global)
@@ -52,10 +45,9 @@ const ContactInfo = ({ global }) => {
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '10px',
-                    alignItems: 'flex-start',
-                    width: 'fit-content',
-                    mx: { xs: 'auto', sm: 'auto', md: 0 },
+                    gap: '16px',
+                    alignItems: { xs: 'center', md: 'flex-start' },
+                    width: '100%',
                 }}
             >
                 <CustomSkelenton width={160} />
@@ -69,20 +61,22 @@ const ContactInfo = ({ global }) => {
             sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '10px',
-                alignItems:{ xs: 'center',sm: 'center',md: 'flex-start' },
+                gap: { xs: '8px', md: '16px' },
+                width: '100%',
             }}
         >
-            {global?.address && (
-                <Box
-                    sx={{ ...rowSx, cursor: 'pointer' }}
-                    onClick={handleOpenCloseMap}
+            {global?.phone && (
+                <Link
+                    href={`tel:${global?.phone}`}
+                    style={{ textDecoration: 'none' }}
                 >
-                    <Box sx={iconTileSx}>
-                        <ApartmentIcon sx={{ fontSize: '14px' }} />
+                    <Box sx={rowSx}>
+                        <Box sx={iconTileSx}>
+                            <Box component="i" className="fi fi-rr-phone-call" sx={{ fontSize: '14px' }} />
+                        </Box>
+                        <Typography sx={textSx}>{global?.phone}</Typography>
                     </Box>
-                    <Typography sx={textSx}>{global?.address}</Typography>
-                </Box>
+                </Link>
             )}
 
             {global?.email && (
@@ -92,25 +86,23 @@ const ContactInfo = ({ global }) => {
                 >
                     <Box sx={rowSx}>
                         <Box sx={iconTileSx}>
-                            <MailIcon sx={{ fontSize: '14px' }} />
+                            <Box component="i" className="fi fi-rr-envelope" sx={{ fontSize: '14px' }} />
                         </Box>
                         <Typography sx={textSx}>{global?.email}</Typography>
                     </Box>
                 </Link>
             )}
 
-            {global?.phone && (
-                <Link
-                    href={`tel:${global?.phone}`}
-                    style={{ textDecoration: 'none' }}
+            {global?.address && (
+                <Box
+                    sx={{ ...rowSx, cursor: 'pointer' }}
+                    onClick={handleOpenCloseMap}
                 >
-                    <Box sx={rowSx}>
-                        <Box sx={iconTileSx}>
-                            <LocalPhoneIcon sx={{ fontSize: '14px' }} />
-                        </Box>
-                        <Typography sx={textSx}>{global?.phone}</Typography>
+                    <Box sx={iconTileSx}>
+                        <Box component="i" className="fi fi-rr-marker" sx={{ fontSize: '14px' }} />
                     </Box>
-                </Link>
+                    <Typography sx={textSx}>{global?.address}</Typography>
+                </Box>
             )}
 
             <ContactAddressMap global={global} open={open} setOpen={setOpen} />

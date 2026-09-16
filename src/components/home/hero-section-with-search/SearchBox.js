@@ -6,32 +6,44 @@ import { useSelector } from 'react-redux'
 import { Stack, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 
-const SearchBox = ({ query }) => {
+const SearchBox = ({ query, autoFocusOnMobile = false, onFocusChange }) => {
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const [focused, setFocused] = React.useState(false)
-    const { token } = useSelector((state) => state.userToken)
     const [inputValue, setInputValue] = useState('')
+    const [selectedValue, setSelectedValue] = useState('')
+    const [suggestionsFetching, setSuggestionsFetching] = useState(false)
     const router = useRouter()
     const { categoryIsSticky } = useSelector((state) => state.scrollPosition)
     const containerRef = useRef(null)
     const searchRef = useRef(null)
+    const inputRef = useRef(null)
     const onFocus = () => setFocused(true)
     const onBlur = () => {
         setFocused(false)
     }
-    console.log({inputValue});
-    
-
+    // Only for callers (e.g. FilterTag's tap-to-open mobile search) that
+    // mount this component in direct response to the user opening it —
+    // NewNavbar renders it unconditionally, so this must stay opt-in.
     useEffect(() => {
-        if (isSmall) setFocused(true)
-    }, [isSmall])
+        if (autoFocusOnMobile && isSmall) setFocused(true)
+    }, [autoFocusOnMobile, isSmall])
 
     useEffect(() => {
         if (categoryIsSticky) {
             setFocused(false)
         }
     }, [categoryIsSticky])
+
+    useEffect(() => {
+        onFocusChange?.(focused)
+    }, [focused, onFocusChange])
+
+    // Once the route's own query catches up, drop the optimistic value so
+    // later typed searches aren't stuck showing a stale selection.
+    useEffect(() => {
+        setSelectedValue('')
+    }, [query])
 
     const handleSearchedValues = (value) => {
         const searchedValues = JSON.parse(
@@ -56,21 +68,33 @@ const SearchBox = ({ query }) => {
     const routeHandler = (value) => {
         setFocused(false)
         setInputValue('')
+        inputRef.current?.blur()
 
         if (value !== '') {
+            setSelectedValue(value)
             router.push(
                 {
-                    pathname: '/home',
+                    pathname: '/search',
                     query: {
                         query: value,
                     },
                 },
                 undefined,
-                { shallow: router.pathname === '/home' }
+                { shallow: router.pathname === '/search' }
             )
             onBlur()
         }
     }
+    // For suggestion rows that navigate away (a food modal opening, a
+    // restaurant redirect) rather than running an actual search — the typed
+    // query has no bearing on where the user landed, so leaving it in the
+    // box would misleadingly look like a search was performed.
+    const resetSearch = () => {
+        setFocused(false)
+        setInputValue('')
+        inputRef.current?.clearValue()
+    }
+
     const handleKeyPress = (value) => {
         const trimmedValue = value.trim()
 
@@ -87,7 +111,6 @@ const SearchBox = ({ query }) => {
         const insidePopover = searchRef.current?.contains(target)
         if (!insideContainer && !insidePopover) {
             setFocused(false)
-            setInputValue('')
         }
     }
     useEffect(() => {
@@ -99,42 +122,33 @@ const SearchBox = ({ query }) => {
             document.removeEventListener('pointerdown', handleClickOutside)
         }
     }, [])
-    console.log({focused,inputValue});
-    
+
     const handleSearchSuggestionsBottom = () => {
         if (!focused) return null
-        if (token) {
-            return (
-                <SearchSuggestionsBottom
-                    routeHandler={routeHandler}
-                    handleFocus={onFocus}
-                    inputValue={inputValue}
-                    searchRef={searchRef}
-                />
-            )
-        }
-        if (inputValue.trim().length >= 1) {
-            return (
-                <SearchSuggestionsBottom
-                    routeHandler={routeHandler}
-                    handleFocus={onFocus}
-                    inputValue={inputValue}
-                    searchRef={searchRef}
-                />
-            )
-        }
-        return null
+        return (
+            <SearchSuggestionsBottom
+                routeHandler={routeHandler}
+                handleFocus={onFocus}
+                inputValue={inputValue}
+                searchRef={searchRef}
+                onClose={onBlur}
+                resetSearch={resetSearch}
+                onFetchingStateChange={setSuggestionsFetching}
+            />
+        )
     }
 
     return (
         <Stack ref={containerRef} sx={{ position: 'relative' }}>
             <CustomSearchInput
+                ref={inputRef}
                 setInputValue={setInputValue}
                 handleSearchResult={handleKeyPress}
                 handleFocus={onFocus}
                 handleBlur={onBlur}
-                query={query}
+                query={selectedValue || query}
                 setFocused={setFocused}
+                isSuggestionsFetching={suggestionsFetching}
             />
             {handleSearchSuggestionsBottom()}
         </Stack>

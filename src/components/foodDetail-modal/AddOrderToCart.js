@@ -1,7 +1,6 @@
 import React from 'react'
-import { Button } from '@mui/material'
-import { CustomTypography } from '../custom-tables/Tables.style'
-import CircularLoader from '../loader/CircularLoader'
+import { Button, CircularProgress } from '@mui/material'
+import { cartButtonLoadingSx, cartButtonSx } from './FoodModalStyle'
 
 const AddOrderToCart = (props) => {
     const {
@@ -12,52 +11,30 @@ const AddOrderToCart = (props) => {
         addToCartLoading,
         getFullFillRequirements,
     } = props
+
+    const isPreOrder = Boolean(product?.available_date_starts)
+
     return (
-        <>
-            {!product?.available_date_starts ? (
-                <Button
-                    onClick={() => addToCard?.()}
-                    variant="contained"
-                    fullWidth
-                    sx={{
-                        borderRadius: '4px',
-                    }}
-                >
-                    {addToCartLoading ? (
-                        <CircularLoader size="1.4rem" />
-                    ) : (
-                        <CustomTypography
-                            sx={{
-                                color: (theme) =>
-                                    theme.palette.whiteContainer.main,
-                            }}
-                        >
-                            {t('Add to cart')}
-                        </CustomTypography>
-                    )}
-                </Button>
+        <Button
+            disabled={addToCartLoading}
+            onClick={() => (isPreOrder ? orderNow?.() : addToCard?.())}
+            variant="contained"
+            fullWidth
+            sx={addToCartLoading ? cartButtonLoadingSx : cartButtonSx}
+        >
+            {addToCartLoading ? (
+                <CircularProgress
+                    size={22}
+                    thickness={5}
+                    sx={{ color: (theme) => theme.palette.whiteContainer.main }}
+                />
+            ) : isPreOrder ? (
+                t('Order Now')
             ) : (
-                <Button
-                    disabled={!getFullFillRequirements()}
-                    onClick={() => orderNow?.()}
-                    variant="contained"
-                    fullWidth
-                >
-                    {addToCartLoading ? (
-                        <CircularLoader size="1.4rem" />
-                    ) : (
-                        <CustomTypography
-                            sx={{
-                                color: (theme) =>
-                                    theme.palette.whiteContainer.main,
-                            }}
-                        >
-                            {t('Order Now')}
-                        </CustomTypography>
-                    )}
-                </Button>
+                t('Add to cart')
             )}
-        </>
+        </Button>
     )
 }
+
 export default AddOrderToCart

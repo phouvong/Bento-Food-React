@@ -2,7 +2,7 @@ export const QuickLinkData1 = [
     {
         name: 'Near Restaurants',
         value: 'nearby',
-        link: '/restaurants/nearby',
+        link: '/home/nearby',
     },
     {
         name: 'Recommended Restaurants',

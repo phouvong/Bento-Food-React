@@ -40,6 +40,8 @@ const GuestCheckoutModal = ({
     setModalFor,
     setSideDrawerOpen,
     handleOpenAuthModal,
+    restaurantId,
+    restaurantSlug,
 }) => {
     const router = useRouter()
     const theme = useTheme()
@@ -51,6 +53,8 @@ const GuestCheckoutModal = ({
         if (router.query.isDineIn) {
             queryParams.isDineIn = router.query.isDineIn
         }
+        if (restaurantId) queryParams.restuId = restaurantId
+        if (restaurantSlug) queryParams.restaurant = restaurantSlug
 
         // Push the route with query parameters
         router.push(

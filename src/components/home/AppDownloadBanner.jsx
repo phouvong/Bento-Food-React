@@ -1,12 +1,55 @@
 import { useState } from 'react'
-import { Box, IconButton, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, IconButton, Stack, Typography, useMediaQuery } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import { t } from 'i18next'
-import AndroidIcon from '@mui/icons-material/Android'
-import AppleIcon from '@mui/icons-material/Apple'
 import CloseIcon from '@mui/icons-material/Close'
-import CustomImage from '@/components/CustomNextImage'
 import QRCodeClient from '../landingpage/QRCodeClient'
+import { HOME_SECTION_SPACING } from './homeSectionSpacing'
 
+const SPACING = HOME_SECTION_SPACING.appDownloadBanner
+
+// Desktop: #242424, 16px radius. Mobile: #303030, no radius (edge-to-edge) — per Figma.
+const CARD_BG = { xs: '#303030', md: '#242424' }
+
+const StoreButton = ({ href, iconSrc, iconAlt, iconStyle, label }) => (
+    <Stack
+        component="a"
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        direction="row"
+        alignItems="center"
+        justifyContent="center"
+        gap={{ xs: '5px', md: '6px' }}
+        sx={{
+            cursor: 'pointer',
+            backgroundColor: '#ffffff',
+            borderRadius: '6px',
+            px: { xs: '10px', md: '12px' },
+            py: { xs: '7px', md: '8px' },
+            textDecoration: 'none',
+        }}
+    >
+        <Box
+            component="img"
+            src={iconSrc}
+            alt={iconAlt}
+            sx={{ width: { xs: '16px', md: '20px' }, height: { xs: '16px', md: '20px' }, ...iconStyle }}
+        />
+        <Typography
+            sx={{
+                fontSize: { xs: '12px', md: '14px' },
+                fontWeight: 600,
+                letterSpacing: { xs: '-0.24px', md: '-0.42px' },
+                lineHeight: 1.2,
+                color: '#303030',
+                whiteSpace: 'nowrap',
+            }}
+        >
+            {label}
+        </Typography>
+    </Stack>
+)
 
 const AppDownloadBanner = ({
     downloadAppData,
@@ -18,10 +61,7 @@ const AppDownloadBanner = ({
     const [isVisible, setIsVisible] = useState(true)
     const title =
         downloadAppData?.react_download_apps_title ||
-        t('Unlock Exclusive App Rewards - Download Now')
-    const imageSrc =
-        downloadAppData?.react_download_apps_image_full_url ||
-        '/static/banners/scan-to-download-phone-only.svg'
+        t('Download app to enjoy more!')
     const playStoreStatus =
         downloadAppData?.react_download_apps_play_store
             ?.react_download_apps_play_store_status
@@ -34,36 +74,37 @@ const AppDownloadBanner = ({
     const resolvedAppStoreLink =
         downloadAppData?.react_download_apps_app_store
             ?.react_download_apps_link || appStoreLink
-    const showPlayStoreButton = (playStoreStatus
-        ? playStoreStatus === '1'
-        : true) && Boolean(resolvedPlayStoreLink)
-    const showAppStoreButton = (appStoreStatus ? appStoreStatus === '1' : true) &&
+    const showPlayStoreButton =
+        (playStoreStatus ? playStoreStatus === '1' : true) &&
+        Boolean(resolvedPlayStoreLink)
+    const showAppStoreButton =
+        (appStoreStatus ? appStoreStatus === '1' : true) &&
         Boolean(resolvedAppStoreLink)
 
     if (!isVisible || (!showPlayStoreButton && !showAppStoreButton)) return null
 
-    const storeButtonSx = {
-        cursor: 'pointer',
-        backgroundColor: '#1d1d1d',
-        border: '1px solid rgba(255,255,255,0.2)',
-        borderRadius: '6px',
-        px: { xs: 1, sm: 1.1 },
-        py: { xs: 0.6, sm: 0.8 },
-        textDecoration: 'none',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.3)',
-    }
-
     return (
         <Box
             sx={{
-                mt: 4,
-                mb: 3,
-                px: { xs: 1.5, sm: 2 },
-                py: { xs: 1.4, sm: 1.4 },
-                borderRadius: { xs: '12px', sm: '14px' },
-                background: '#111111',
+                mt: SPACING.pt,
+                mb: SPACING.pb,
+                px: { xs: '16px', md: '48px' },
+                py: { xs: '24px', md: '32px' },
+                borderRadius: { xs: 0, md: '16px' },
+                background: CARD_BG,
                 position: 'relative',
                 overflow: 'hidden',
+                '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundImage:
+                        'url(/static/banners/app-download-banner-bg.svg)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center right',
+                    backgroundRepeat: 'no-repeat',
+                    pointerEvents: 'none',
+                },
             }}
         >
             <IconButton
@@ -71,234 +112,88 @@ const AppDownloadBanner = ({
                 aria-label="close app download banner"
                 sx={{
                     position: 'absolute',
-                    right: 6,
-                    top: 6,
+                    right: 0,
+                    top: 0,
                     color: '#ffffff',
-                    p: 0.5,
+                    p: '12px',
                     zIndex: 2,
                 }}
             >
-                <CloseIcon sx={{ fontSize: '16px' }} />
+                <CloseIcon sx={{ fontSize: '20px' }} />
             </IconButton>
 
-            {/* Mobile layout */}
-            {isSmall ? (
-                <Stack direction="row" alignItems="center" gap={1.5} pr={3}>
-                    {/* Left: text + buttons */}
-                    <Stack flex={1} gap={1} minWidth={0} overflow="hidden">
-                        <Typography
-                            color="#ffffff"
-                            fontWeight={700}
-                            lineHeight={1.3}
-                            fontSize="12px"
-                            sx={{
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                                wordBreak: 'break-word',
-                            }}
-                        >
-                            {title}
-                        </Typography>
-                        <Stack direction="row" gap={0.8}>
-                            {showAppStoreButton && (
-                                <Stack
-                                    component="a"
-                                    href={resolvedAppStoreLink}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    direction="row"
-                                    alignItems="center"
-                                    justifyContent="center"
-                                    gap={0.5}
-                                    sx={storeButtonSx}
-                                >
-                                     <img src="/static/Group (2).png" alt="Apple" style={{ width: '20px', height: '22px' }} />
-                                    <Stack spacing={0.1}>
-                                        <Typography sx={{ fontSize: '6px', lineHeight: 1, color: 'rgba(255,255,255,0.7)' }}>
-                                            {t('Download on')}
-                                        </Typography>
-                                        <Typography sx={{ fontSize: '10px', lineHeight: 1, color: '#ffffff', fontWeight: 700 }}>
-                                            {t('App Store')}
-                                        </Typography>
-                                    </Stack>
-                                </Stack>
-                            )}
-                            {showPlayStoreButton && (
-                                <Stack
-                                    component="a"
-                                    href={resolvedPlayStoreLink}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    direction="row"
-                                    alignItems="center"
-                                    justifyContent="center"
-                                    gap={0.5}
-                                    sx={storeButtonSx}
-                                >
-                                    <img src="/static/playstore 1.png" alt="Google Play" style={{ width: '16px', height: '16px' }} />
-                                    <Stack spacing={0.1}>
-                                        <Typography sx={{ fontSize: '6px', lineHeight: 1, color: 'rgba(255,255,255,0.7)' }}>
-                                            {t('GET IT ON')}
-                                        </Typography>
-                                        <Typography sx={{ fontSize: '10px', lineHeight: 1, color: '#ffffff', fontWeight: 700 }}>
-                                            {t('Google Play')}
-                                        </Typography>
-                                    </Stack>
-                                </Stack>
-                            )}
-                        </Stack>
-                    </Stack>
-
-                    {/* Right: QR code */}
-                    <Stack alignItems="center" gap={0.5} flexShrink={0} pt={{xs:"1rem",sm:"0rem"}}>
-                        <Box
-                            sx={{
-                                width: '72px',
-                                height: '72px',
-                                backgroundColor: '#ffffff',
-                                borderRadius: '8px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                p: '4px',
-                            }}
-                        >
-                            <QRCodeClient
-                                size={60}
-                                playStoreLink={resolvedPlayStoreLink}
-                                appStoreLink={resolvedAppStoreLink}
-                            />
-                        </Box>
-                        <Typography sx={{ fontSize: '9px',marginTop:"10px", color: 'rgba(255,255,255,0.7)', textAlign: 'center', lineHeight: 1.2 }}>
-                            {t('Scan to')}<br />{t('Download')}
-                        </Typography>
-                    </Stack>
-                </Stack>
-            ) : (
-                /* Desktop layout */
+            <Stack
+                direction={{ xs: 'column', md: 'row' }}
+                alignItems="center"
+                justifyContent="space-between"
+                gap={{ xs: '32px', md: '12px' }}
+                sx={{ position: 'relative', zIndex: 1 }}
+            >
                 <Stack
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="space-between"
-                    gap={2.5}
+                    gap={{ xs: '16px', md: '16px' }}
+                    alignItems={{ xs: 'center', md: 'flex-start' }}
+                    sx={{ width: { xs: '100%', md: 'auto' }, flex: { md: 1 } }}
                 >
-                    <Stack direction="row" alignItems="center" gap={1.5} flex={1} minWidth={0}>
-                        <Box
-                            sx={{
-                                width: '100px',
-                                height: '100px',
-                                border: '2px solid rgba(255,255,255,0.5)',
-                                borderRadius: '10px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                flexShrink: 0,
-                                p: '4px',
-                            }}
-                        >
-                            <QRCodeClient
-                                size={82}
-                                playStoreLink={resolvedPlayStoreLink}
-                                appStoreLink={resolvedAppStoreLink}
+                    <Typography
+                        sx={{
+                            fontWeight: 700,
+                            lineHeight: 1.1,
+                            color: '#ffffff',
+                            textAlign: { xs: 'center', md: 'left' },
+                            fontSize: { xs: '20px', md: '24px' },
+                            letterSpacing: { xs: '-0.6px', md: '-1.2px' },
+                        }}
+                    >
+                        {title}
+                    </Typography>
+                    <Stack
+                        direction="row"
+                        gap={{ xs: '16px', md: '12px' }}
+                        alignItems="center"
+                        justifyContent="center"
+                    >
+                        {showPlayStoreButton && (
+                            <StoreButton
+                                href={resolvedPlayStoreLink}
+                                iconSrc="/static/playstore 1.png"
+                                iconAlt="Google Play"
+                                label={t('Google Play')}
                             />
-                        </Box>
-                        <Stack gap={1} minWidth={0}>
-                            <Typography
-                                color="#ffffff"
-                                fontWeight={700}
-                                lineHeight={1.25}
-                                fontSize={{ sm: '18px', md: '20px' }}
-                            >
-                                {title}
-                            </Typography>
-                            <Stack direction="row" gap={0.8} mt="5px">
-                                {showPlayStoreButton && (
-                                    <Stack
-                                        component="a"
-                                        href={resolvedPlayStoreLink}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        direction="row"
-                                        alignItems="center"
-                                        justifyContent="center"
-                                        gap={0.5}
-                                        sx={{
-                                            cursor: 'pointer',
-                                            backgroundColor: '#ffffff',
-                                            borderRadius: '3px',
-                                            px: 1.1,
-                                            py: 1,
-                                            textDecoration: 'none',
-                                            boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
-                                        }}
-                                    >
-                                       <img src="/static/playstore 1.png" alt="Google Play" style={{ width: '16px', height: '16px' }} />
-                                        <Stack spacing={0.2}>
-                                            <Typography sx={{ fontSize: '8px', lineHeight: 1, color: '#4a4a4a' }}>
-                                                {t('GET IT ON')}
-                                            </Typography>
-                                            <Typography sx={{ fontSize: '12px', lineHeight: 1, color: '#1d1d1d', fontWeight: 700 }}>
-                                                {t('Google Play')}
-                                            </Typography>
-                                        </Stack>
-                                    </Stack>
-                                )}
-                                {showAppStoreButton && (
-                                    <Stack
-                                        component="a"
-                                        href={resolvedAppStoreLink}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        direction="row"
-                                        alignItems="center"
-                                        justifyContent="center"
-                                        gap={0.5}
-                                        sx={{
-                                            cursor: 'pointer',
-                                            backgroundColor: '#ffffff',
-                                            borderRadius: '3px',
-                                            px: 1.1,
-                                            py: 1,
-                                            textDecoration: 'none',
-                                            boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
-                                        }}
-                                    >
-                                        <img src="/static/Group (2).png" alt="Apple" style={{ width: '20px', height: '22px' }} />
-                                        <Stack spacing={0.2}>
-                                            <Typography sx={{ fontSize: '8px', lineHeight: 1, color: '#4a4a4a' }}>
-                                                {t('Download on')}
-                                            </Typography>
-                                            <Typography sx={{ fontSize: '12px', lineHeight: 1, color: '#1d1d1d', fontWeight: 700 }}>
-                                                {t('App Store')}
-                                            </Typography>
-                                        </Stack>
-                                    </Stack>
-                                )}
-                            </Stack>
-                        </Stack>
-                    </Stack>
-
-                    <Stack direction="row" alignItems="center" marginInlineEnd="20px">
-                        <Stack justifyContent="space-between" sx={{ height: '66px' }}>
-                            <Typography sx={{ fontSize: '18px', lineHeight: 1 }}>{'🌮'}</Typography>
-                            <Typography sx={{ fontSize: '18px', lineHeight: 1 }}>{'🍔'}</Typography>
-                        </Stack>
-                        <CustomImage
-                            src={imageSrc}
-                            alt={t('Scan to Download')}
-                            width={86}
-                            height={118}
-                            objectFit="contain"
-                        />
-                        <Stack justifyContent="space-between" sx={{ height: '66px' }}>
-                            <Typography sx={{ fontSize: '18px', lineHeight: 1 }}>{'🌯'}</Typography>
-                            <Typography sx={{ fontSize: '18px', lineHeight: 1 }}>{'🍟'}</Typography>
-                        </Stack>
+                        )}
+                        {showAppStoreButton && (
+                            <StoreButton
+                                href={resolvedAppStoreLink}
+                                iconSrc="/static/Group (2).png"
+                                iconAlt="Apple"
+                                iconStyle={{ filter: 'brightness(0)' }}
+                                label={t('App Store')}
+                            />
+                        )}
                     </Stack>
                 </Stack>
-            )}
+
+                {!isSmall && (
+                    <Box
+                        sx={{
+                            width: '110px',
+                            height: '110px',
+                            flexShrink: 0,
+                            border: '1px solid rgba(0,0,0,0.2)',
+                            borderRadius: '10px',
+                            overflow: 'hidden',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <QRCodeClient
+                            size={90}
+                            playStoreLink={resolvedPlayStoreLink}
+                            appStoreLink={resolvedAppStoreLink}
+                        />
+                    </Box>
+                )}
+            </Stack>
         </Box>
     )
 }

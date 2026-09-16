@@ -4,15 +4,16 @@ importScripts(
 importScripts(
     'https://www.gstatic.com/firebasejs/9.13.0/firebase-messaging-compat.js'
 )
-firebase?.initializeApp({
-    apiKey: '',
-    authDomain: '',
-    projectId: '',
-    storageBucket: '',
-    messagingSenderId: '',
-    appId: '',
-    measurementId: '',
-})
+
+// A static file can't read process.env, so the config is passed in via the
+// registration URL's query string instead (see registerFirebaseSw in
+// src/firebase.js) — the values still originate from NEXT_PUBLIC_FIREBASE_*
+// env vars, just handed off at registration time rather than hardcoded here.
+const firebaseConfig = Object.fromEntries(
+    new URL(location.href).searchParams.entries()
+)
+
+firebase?.initializeApp(firebaseConfig)
 
 // Retrieve firebase messaging
 const messaging = firebase?.messaging()

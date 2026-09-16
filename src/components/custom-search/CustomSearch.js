@@ -18,6 +18,7 @@ const CustomSearch = ({
     borderRadius,
     forMobile,
     backgroundColor,
+    border,
 }) => {
     const { t } = useTranslation()
     const [value, setValue] = useState('')
@@ -54,6 +55,7 @@ const CustomSearch = ({
                 <Search
                     borderRadius={borderRadius}
                     backgroundColor={backgroundColor}
+                    border={border}
                 >
                     <NoSsr>
                         <StyledInputBase

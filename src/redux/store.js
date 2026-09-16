@@ -6,6 +6,7 @@ import counterReducer from '../redux/slices/counter'
 import layoutReducer from '../redux/slices/layout'
 import offlinePaymentInfoReducer from './slices/OfflinePayment'
 import addressDataReducer from './slices/addressData'
+import authModalReducer from './slices/authModal'
 import cartReducer from './slices/cart'
 import cashbackReducer from './slices/cashbackList'
 import userSlice from './slices/customer'
@@ -19,6 +20,7 @@ import orderTypeSlice from './slices/orderType'
 import restaurantFoodFilterSlice from './slices/restaurantFoodFilter'
 import scrollPosition from './slices/scrollPosition'
 import searchFilterSlice from './slices/searchFilter'
+import searchProductModalReducer from './slices/searchProductModal'
 import searchTagsReducer from './slices/searchTagSlice'
 import storedDataSliceReducer from './slices/storedData'
 import userTokenReducer from './slices/userToken'
@@ -33,6 +35,8 @@ const persistConfig = {
         'storedData',
         'scrollPosition',
         'globalSettings',
+        'searchProductModal',
+        'authModal',
     ],
 }
 const reducers = combineReducers({
@@ -54,6 +58,8 @@ const reducers = combineReducers({
     guestUserInfo: guestUserReducer,
     scrollPosition: scrollPosition,
     searchTags: searchTagsReducer,
+    searchProductModal: searchProductModalReducer,
+    authModal: authModalReducer,
     addressData: addressDataReducer,
     isEditProfile: editProfileReducer,
     cashbackList: cashbackReducer,

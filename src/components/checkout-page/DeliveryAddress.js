@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Stack, Typography, Modal } from '@mui/material'
 
-import { DeliveryCaption, SaveAddressBox, InputField } from './CheckOut.style'
+import { DeliveryCaption } from './CheckOut.style'
 import { useQuery } from 'react-query'
 import { AddressApi } from '@/hooks/react-query/config/addressApi'
 import { useTranslation } from 'react-i18next'
@@ -20,6 +20,11 @@ import MapWithSearchBox from '@/components/google-map/MapWithSearchBox'
 import { useDispatch, useSelector } from 'react-redux'
 import { useGeolocated } from 'react-geolocated'
 import { setLocation } from '@/redux/slices/addressData'
+import {
+    normalizeAddressValues,
+    setLocalLocation,
+} from '@/components/checkout-page/functions/addressHelpers'
+import { getToken } from '@/components/checkout-page/functions/getGuestUserId'
 
 const getZoneWiseAddresses = (addresses, restaurantId) => {
     const newArray = []
@@ -50,7 +55,8 @@ const DeliveryAddress = ({
     restaurantId,
     token,
     handleAddressSetSuccess,
-    maxHeight
+    maxHeight,
+    coverageLabel,
 }) => {
     const theme = useTheme()
     const { t } = useTranslation()
@@ -89,24 +95,35 @@ const DeliveryAddress = ({
             setData(response.data)
         }
     }
+    // `token` (the prop, sourced from Redux `state.userToken`) and the
+    // localStorage token MainApi's request interceptor actually attaches as
+    // the Bearer header are two independently-persisted values that only
+    // stay in sync by convention across the app's various login/logout call
+    // sites — they can drift (e.g. a logout that clears one but not the
+    // other mid-navigation). Gating on the localStorage value here matches
+    // what MainApi will actually send, so this never fires an unauthorized
+    // request that Redux alone would've allowed through.
+    const hasAuthToken = Boolean(token) && Boolean(getToken())
     const { refetch, isRefetching } = useQuery(
         ['address-list'],
         AddressApi.addressList,
         {
-            enabled: false,
+            // `enabled: false` alone doesn't stop a manual `refetch()` call
+            // below — react-query still runs it regardless of `enabled`.
+            enabled: hasAuthToken,
             onSuccess: handleSuccess,
             onError: onSingleErrorResponse,
         }
     )
     useEffect(() => {
-        if (token) {
+        if (hasAuthToken) {
             const apiRefetch = async () => {
                 await refetch()
             }
 
             apiRefetch()
         }
-    }, [restaurantId])
+    }, [restaurantId, hasAuthToken])
     useEffect(() => {
         data && setAllAddress([mainAddress, ...data.addresses])
     }, [data])
@@ -128,19 +145,6 @@ const DeliveryAddress = ({
         setAnchorEl(null)
     }
 
-    const normalizeAddressValues = (values = {}) => {
-        const latitude = values?.latitude ?? values?.lat
-        const longitude = values?.longitude ?? values?.lng
-        return {
-            ...values,
-            latitude,
-            longitude,
-            lat: latitude,
-            lng: longitude,
-            address_type: values?.address_type || 'Selected Address',
-        }
-    }
-
     const setAdditionalInformation = (values = {}) => {
         if (additionalInformationDispatch) {
             additionalInformationDispatch({
@@ -159,22 +163,6 @@ const DeliveryAddress = ({
                 type: ACTIONS.setAddressType,
                 payload: values?.address_type || '',
             })
-        }
-    }
-
-    const setLocalLocation = (values = {}) => {
-        if (typeof window === 'undefined') return
-        if (values?.latitude && values?.longitude) {
-            localStorage.setItem(
-                'currentLatLng',
-                JSON.stringify({
-                    lat: values.latitude,
-                    lng: values.longitude,
-                })
-            )
-        }
-        if (values?.address) {
-            localStorage.setItem('location', values.address)
         }
     }
 
@@ -237,31 +225,14 @@ const DeliveryAddress = ({
     }
     return (
         <>
-            {!renderOnNavbar && (
-                <Stack
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="space-between"
-                >
-                    <DeliveryCaption>{t('Delivery Addresses')}</DeliveryCaption>
-                    <SaveAddressBox onClick={handleClick}>
-                        <Typography
-                            color={theme.palette.primary.main}
-                            sx={{ cursor: 'pointer' }}
-                            fontSize="12px"
-                            // onClick={handleRoute}
-                        >
-                            {t('Saved Address')}
-                        </Typography>
-                    </SaveAddressBox>
-                </Stack>
-            )}
             {hideAddressSelectionField !== 'true' && (
                 <AddressSelectionField
                     theme={theme}
                     address={address}
                     refetch={refetch}
                     t={t}
+                    onEdit={handleClick}
+                    coverageLabel={coverageLabel}
                 />
             )}
             {renderOnNavbar === 'true' ? (
@@ -292,6 +263,7 @@ const DeliveryAddress = ({
                 setAnchorEl={setAnchorEl}
                 handleClose={handleClose}
                 padding="20px 20px 20px"
+                bgColor={theme.palette.background.paper}
             >
                 <CustomStackFullWidth>
                     <Stack

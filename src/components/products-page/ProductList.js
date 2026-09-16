@@ -10,9 +10,12 @@ export default function ProductList({
     offset,
     setOffset,
     productType,
+    gridSizes,
 }) {
     const { global } = useSelector((state) => state.globalSettings)
     const matchesToMd = useMediaQuery('(max-width:1200px)')
+    const defaultGridSizes = { md: matchesToMd ? 2.4 : 2, sm: 4, xs: 6 }
+    const sizes = gridSizes || defaultGridSizes
 
     useEffect(() => {
         if (offset === undefined || typeof window === 'undefined') return
@@ -66,13 +69,7 @@ export default function ProductList({
                             product?.variations?.length === 0
                         ) {
                             return (
-                                <Grid
-                                    key={product?.id}
-                                    item
-                                    md={matchesToMd ? 2.4 : 2}
-                                    sm={4}
-                                    xs={6}
-                                >
+                                <Grid key={product?.id} item {...sizes}>
                                     <NewFoodCard
                                         product={product}
                                         productImageUrl={

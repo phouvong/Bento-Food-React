@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
 import { Box, Typography } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import Router from 'next/router'
 import MapModal from '../landingpage/google-map/MapModal'
 import { CustomToaster } from '../custom-toaster/CustomToaster'
+import { footerColors } from './Footer.style'
 
-const RouteLinks = ({ token, global, title, RouteLinksData, isCenter }) => {
-    const theme = useTheme()
+const RouteLinks = ({ token, global, title, RouteLinksData }) => {
     const { t } = useTranslation()
     const [open, setOpen] = useState(false)
 
@@ -50,29 +49,12 @@ const RouteLinks = ({ token, global, title, RouteLinksData, isCenter }) => {
     const linkSx = {
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '8px',
-        color: '#94A3B8',
-        fontSize: '13px',
+        color: footerColors.text,
+        fontSize: '14px',
+        lineHeight: 1.2,
+        opacity: { xs: 1, md: 0.8 },
         cursor: 'pointer',
-        transition: 'color .15s ease, transform .15s ease',
-        alignSelf: isCenter ? 'center' : 'flex-start',
-        '&::before': {
-            content: '""',
-            width: '4px',
-            height: '4px',
-            borderRadius: '50%',
-            background: theme.palette.primary.main,
-            opacity: 0,
-            transition: 'opacity .15s ease',
-            flexShrink: 0,
-        },
-        '&:hover': {
-            color: '#fff',
-            transform: 'translateX(3px)',
-        },
-        '&:hover::before': {
-            opacity: 1,
-        },
+        textAlign: { xs: 'center', md: 'left' },
     }
 
     return (
@@ -80,39 +62,31 @@ const RouteLinks = ({ token, global, title, RouteLinksData, isCenter }) => {
             sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: isCenter ? 'center' : 'flex-start',
+                alignItems: { xs: 'center', md: 'flex-start' },
+                gap: { xs: '8px', md: '16px' },
+                width: '100%',
             }}
         >
-            {/* Column heading */}
-            <Box sx={{ position: 'relative', pb: '10px', mb: '18px' }}>
-                <Typography
-                    sx={{
-                        color: '#fff',
-                        fontSize: '12px',
-                        fontWeight: 800,
-                        letterSpacing: '.08em',
-                        textTransform: 'uppercase',
-                    }}
-                >
-                    {t(title)}
-                </Typography>
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: isCenter ? '50%' : 0,
-                        transform: isCenter ? 'translateX(-50%)' : 'none',
-                        width: '22px',
-                        height: '2px',
-                        background: theme.palette.primary.main,
-                        borderRadius: '999px',
-                    }}
-                />
-            </Box>
+            <Typography
+                sx={{
+                    color: footerColors.heading,
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    letterSpacing: '-0.48px',
+                    textTransform: 'uppercase',
+                }}
+            >
+                {t(title)}
+            </Typography>
 
-            {/* Links */}
             <Box
-                sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: { xs: 'center', md: 'flex-start' },
+                    gap: { xs: '12px', md: '16px' },
+                    width: '100%',
+                }}
             >
                 {RouteLinksData.map((item, index) => (
                     <Box

@@ -1,9 +1,7 @@
 import { Box, Grid, Stack } from '@mui/material'
 import { useEffect } from 'react'
 
-import { useWishListResDelete } from '@/hooks/react-query/config/wish-list/useWishListResDelete'
-import { removeWishListRes } from '@/redux/slices/wishList'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 import { setFoodOrRestaurant } from '@/redux/slices/searchFilter'
 import { CustomPaperBigCard } from '@/styled-components/CustomStyles.style'
@@ -12,33 +10,17 @@ import { useTheme } from '@emotion/react'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import Meta from '../Meta'
 import CustomEmptyResult from '../empty-view/CustomEmptyResult'
-import FoodCard from '../food-card/FoodCard'
+import NewFoodCard from '../new-food-card/NewFoodCard'
+import NewStoreCard from '../new-store-card/NewStoreCard'
 import FoodOrRestaurant from '../products-page/FoodOrRestaurant'
-import WishListRestaurantCard from './WishListRestaurantCard'
 import WishListShimmer from './WishListShimmer'
 
 const WishlistPage = ({ noCard = false }) => {
     const { foodOrRestaurant } = useSelector((state) => state.searchFilterStore)
     const theme = useTheme()
     const { global } = useSelector((state) => state.globalSettings)
-    const dispatch = useDispatch()
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
-    const matches = useMediaQuery('(max-width:655px)')
     const { wishLists } = useSelector((state) => state.wishList)
-
-    const onSuccessHandlerForResDelete = (res) => {
-        if (res) {
-            dispatch(removeWishListRes(res))
-        }
-    }
-    const { mutate: restaurantMutate } = useWishListResDelete(
-        onSuccessHandlerForResDelete
-    )
-    const deleteWishlistRes = (id) => {
-        restaurantMutate(id, {
-            onSuccess: onSuccessHandlerForResDelete(id),
-        })
-    }
 
     useEffect(() => {}, [wishLists])
 
@@ -60,19 +42,17 @@ const WishlistPage = ({ noCard = false }) => {
                                 <Grid
                                     item
                                     md={6}
-                                    sm={matches ? 12 : 6}
+                                    sm={6}
                                     xs={12}
                                     key={product?.id}
                                 >
-                                    <FoodCard
+                                    <NewFoodCard
                                         product={product}
-                                        inWishListPage="true"
+                                        variant="horizontal"
                                         productImageUrl={
                                             global?.base_urls
                                                 ?.product_image_url
                                         }
-                                        horizontal="true"
-                                        hasBackGroundSection="true"
                                     />
                                 </Grid>
                             ))}
@@ -103,20 +83,12 @@ const WishlistPage = ({ noCard = false }) => {
                             {wishLists?.restaurant?.map((restaurantItem) => (
                                 <Grid
                                     item
-                                    md={6}
+                                    md={4}
                                     sm={6}
                                     xs={12}
                                     key={restaurantItem?.id}
                                 >
-                                    <WishListRestaurantCard
-                                        restaurant={restaurantItem}
-                                        deleteWishlistRes={deleteWishlistRes}
-                                        restaurantImageUrl={
-                                            global?.base_urls
-                                                ?.restaurant_image_url
-                                        }
-                                        rating={restaurantItem?.rating_count}
-                                    />
+                                    <NewStoreCard restaurant={restaurantItem} />
                                 </Grid>
                             ))}
                             {wishLists?.restaurant?.length === 0 && (

@@ -91,20 +91,20 @@ const AddressForm = ({
                 : '',
             latitude: lat,
             longitude: lng,
-            road: guestUserInfo
+            road: editAddress
+                ? address?.road ?? ''
+                : guestUserInfo
                 ? guestUserInfo?.road
-                : editAddress
-                ? address?.road
                 : '',
-            house: guestUserInfo
+            house: editAddress
+                ? address?.house ?? ''
+                : guestUserInfo
                 ? guestUserInfo?.house
-                : editAddress
-                ? address?.house
                 : '',
-            floor: guestUserInfo
+            floor: editAddress
+                ? address?.floor ?? ''
+                : guestUserInfo
                 ? guestUserInfo?.floor
-                : editAddress
-                ? address?.floor
                 : '',
         },
         validationSchema: ValidationSchemaForAddAddress(),

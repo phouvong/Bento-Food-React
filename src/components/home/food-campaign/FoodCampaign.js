@@ -1,12 +1,10 @@
 import React, { memo, useRef } from 'react'
-import Slider from 'react-slick'
+import Slider from '@/components/slider/SlickToSwiper'
 import { Stack } from '@mui/material'
 import { Grid } from '@mui/material'
 
 import { useSelector } from 'react-redux'
 import FoodCard from '../../food-card/FoodCard'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
 import { useTranslation } from 'react-i18next'
 import {
     CustomStackFullWidth,
@@ -20,6 +18,7 @@ import fire_image from '../../../../public/static/fire.svg'
 import FoodCardShimmer from '../../food-card/FoodCarShimmer'
 import Skeleton from '@mui/material/Skeleton'
 import SliderSectionHeader from '@/components/slider-section-header/SliderSectionHeader'
+import { getLanguageDirection } from '@/utils/localStorage'
 const FoodCampaign = ({ isLoading }) => {
     const { t } = useTranslation()
     const { global } = useSelector((state) => state.globalSettings)
@@ -27,7 +26,7 @@ const FoodCampaign = ({ isLoading }) => {
     const { campaignFoods } = useSelector((state) => state.storedData)
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const foodCampaignSliderRef = useRef(null)
-    const languageDirection = localStorage.getItem('direction')
+    const languageDirection = getLanguageDirection()
     const settings = {
         speed: 500,
         slidesToShow: 5,
@@ -229,7 +228,7 @@ const FoodCampaign = ({ isLoading }) => {
                                     height="20px"
                                 />
                                 <SliderCustom>
-                                    <Slider {...settings}>
+                                    <Slider {...settings} gap="16px">
                                         <FoodCardShimmer />
                                         <FoodCardShimmer />
                                         <FoodCardShimmer />

@@ -15,13 +15,20 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined'
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined'
 import LanguageOutlinedIcon from '@mui/icons-material/LanguageOutlined'
+import i18n from 'i18next'
+import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
+import { useQueryClient } from 'react-query'
 import { TopBarButton } from '../../navbar/Navbar.style'
 import { useDispatch, useSelector } from 'react-redux'
 import { StyledMenu } from '../../navbar/top-navbar/TopNav.style'
 import { CustomPaperBigCard } from '@/styled-components/CustomStyles.style'
 import Meta from '../../Meta'
-import { setCountryCode, setLanguage } from '@/redux/slices/languageChange'
+import {
+    setCountryCode,
+    setIsLanguageChanging,
+    setLanguage,
+} from '@/redux/slices/languageChange'
 import { isRTLLanguage } from '@/utils/customFunctions'
 import { languageLists } from '../../navbar/second-navbar/custom-language/languageLists'
 import cookie from 'js-cookie'
@@ -34,6 +41,8 @@ const SettingPage = () => {
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const { t } = useTranslation()
     const dispatch = useDispatch()
+    const queryClient = useQueryClient()
+    const router = useRouter()
     const [anchorEl, setAnchorEl] = useState(null)
     const [theme_mode, setThemeMode] = useState('')
     const { global } = useSelector((state) => state.globalSettings)
@@ -63,18 +72,58 @@ const SettingPage = () => {
     }
 
     const open = Boolean(anchorEl)
-    const handleLanguage = (ln) => {
+    const handleLanguage = async (ln) => {
+        // Global overlay (rendered in _app.js) — survives this menu
+        // unmounting. Held for a minimum time so fast refetches still give
+        // visible feedback instead of an imperceptible flash.
+        const shownAt = Date.now()
+        dispatch(setIsLanguageChanging(true))
+        handleClose()
+
         dispatch(setLanguage(ln?.languageCode))
         dispatch(setCountryCode(ln?.countryCode))
         localStorage.setItem('language', ln?.languageCode)
         localStorage.setItem('country', ln?.countryCode)
         cookie.set('languageSetting', ln?.languageCode)
-        localStorage.setItem(
-            'direction',
-            isRTLLanguage(ln?.languageCode) ? 'rtl' : 'ltr'
-        )
+        const direction = isRTLLanguage(ln?.languageCode) ? 'rtl' : 'ltr'
+        localStorage.setItem('direction', direction)
+        // Apply RTL/LTR live — previously the reload picked this up.
+        saveSettings({ ...settings, direction })
 
-        window.location.reload()
+        // Swap UI translations in place, then refetch all active queries so
+        // API data re-arrives in the new language (the MainApi interceptor
+        // reads `language` from localStorage on every request) — no reload.
+        // invalidateQueries resolves once active refetches settle, which
+        // bounds how long the blocking backdrop stays up.
+        // router.replace(asPath) re-runs the current page's getServerSideProps
+        // (which reads the languageSetting cookie set above) so SSR pages like
+        // the landing page also re-arrive in the new language — no-op on
+        // pages without server-side props.
+        i18n.changeLanguage(ln?.languageCode)
+        try {
+            // Cap the blocking overlay at MAX_VISIBLE_MS — slow queries keep
+            // refetching in the background (react-query swaps each one in as
+            // it lands) instead of holding the whole screen hostage.
+            const MAX_VISIBLE_MS = 2500
+            await Promise.race([
+                Promise.all([
+                    queryClient.invalidateQueries(),
+                    router.replace(router.asPath, undefined, {
+                        scroll: false,
+                    }),
+                ]),
+                new Promise((resolve) =>
+                    setTimeout(resolve, MAX_VISIBLE_MS)
+                ),
+            ])
+        } finally {
+            const MIN_VISIBLE_MS = 600
+            const remaining = MIN_VISIBLE_MS - (Date.now() - shownAt)
+            if (remaining > 0) {
+                await new Promise((resolve) => setTimeout(resolve, remaining))
+            }
+            dispatch(setIsLanguageChanging(false))
+        }
     }
 
     const languageValue = (language) => {

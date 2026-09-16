@@ -99,42 +99,63 @@ const ReviewContent = ({ review, restaurantName }) => {
                 </Grid>
                 {review.reply ? (
                     <Grid item xs={12}>
-                        <Box
-                            sx={{
-                                background: theme.palette.background.paper,
-                                padding: '10px',
-                                borderRadius: '9px',
-                            }}
+                        <Stack
+                            direction="row"
+                            alignItems="flex-start"
+                            spacing={0.75}
+                            sx={{ pl: { xs: 0.5, sm: 1.5 } }}
                         >
-                            <Stack
-                                direction="row"
-                                justifyContent="space-between"
-                                alignItems="center"
+                            <Box
+                                component="i"
+                                className="fi fi-sr-arrow-turn-down-right"
+                                sx={{
+                                    fontSize: '14px',
+                                    pt: '10px',
+                                    color: theme.palette.neutral[500],
+                                    flexShrink: 0,
+                                    lineHeight: 1,
+                                }}
+                            />
+                            <Box
+                                sx={{
+                                    flex: 1,
+                                    minWidth: 0,
+                                    background: theme.palette.neutral[100],
+                                    border: `1px solid ${theme.palette.divider}`,
+                                    padding: '10px 12px',
+                                    borderRadius: '9px',
+                                }}
                             >
-                                <Typography
-                                    fontSize="12px"
-                                    fontWeight="500"
-                                    color={theme.palette.text.primary}
+                                <Stack
+                                    direction="row"
+                                    justifyContent="space-between"
+                                    alignItems="center"
                                 >
-                                    {restaurantName}
-                                </Typography>
-                                <Typography
-                                    fontSize="10px"
-                                    fontWeight="400"
-                                    color="text.secondary"
-                                >
-                                    {getDateFormat(review.updated_at)}
-                                </Typography>
-                            </Stack>
-                            <Stack mt="5px">
-                                <ReadMore
-                                    color={theme.palette.text.secondary}
-                                    limits="160"
-                                >
-                                    {review.reply}
-                                </ReadMore>
-                            </Stack>
-                        </Box>
+                                    <Typography
+                                        fontSize="12px"
+                                        fontWeight="700"
+                                        color={theme.palette.primary.main}
+                                    >
+                                        {restaurantName}
+                                    </Typography>
+                                    <Typography
+                                        fontSize="10px"
+                                        fontWeight="400"
+                                        color="text.secondary"
+                                    >
+                                        {getDateFormat(review.updated_at)}
+                                    </Typography>
+                                </Stack>
+                                <Stack mt="5px">
+                                    <ReadMore
+                                        color={theme.palette.text.secondary}
+                                        limits="160"
+                                    >
+                                        {review.reply}
+                                    </ReadMore>
+                                </Stack>
+                            </Box>
+                        </Stack>
                     </Grid>
                 ) : (
                     ''

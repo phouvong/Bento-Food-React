@@ -4,18 +4,32 @@ import DotSpin from '@/components/home/restaurant/DotSpin'
 import { ReviewApi } from '@/hooks/react-query/config/reviewlist'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { getNumberWithConvertedDecimalPoint } from '@/utils/customFunctions'
-import { Grid, Typography, alpha, Box, Stack } from '@mui/material'
+import {
+    Grid,
+    Typography,
+    alpha,
+    Box,
+    Stack,
+    Dialog,
+    Drawer,
+    IconButton,
+    useMediaQuery,
+} from '@mui/material'
 import LinearProgress, {
     linearProgressClasses,
 } from '@mui/material/LinearProgress'
 import { styled } from '@mui/material/styles'
 import { useTheme } from '@mui/styles'
+import CloseIcon from '@mui/icons-material/Close'
 import { t } from 'i18next'
 import React, { useEffect } from 'react'
 import { useQuery } from 'react-query'
 import SimpleBar from 'simplebar-react'
 import 'simplebar/dist/simplebar.min.css'
 import ReviewContent from '@/components/restaurant-details/ReviewContent'
+import AddressDrawerHeader from '@/components/address-drawer/AddressDrawerHeader'
+import useScrollToFitScreenDrawer from '@/hooks/custom-hooks/useScrollToFitScreenDrawer'
+import useCloseOnBackButton from '@/hooks/custom-hooks/useCloseOnBackButton'
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     height: 8,
@@ -31,6 +45,8 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
 }))
 
 const RestaurantReviewModal = ({
+    open,
+    onClose,
     product_avg_rating,
     rating_count,
     reviews_comments_count,
@@ -38,6 +54,10 @@ const RestaurantReviewModal = ({
     restaurantDetails,
 }) => {
     const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+    const { handleContentScroll, sheetHeight, sheetRadius } =
+        useScrollToFitScreenDrawer(Boolean(open))
+    useCloseOnBackButton(Boolean(open), onClose)
     const { isLoading, data } = useQuery(
         [`review-list`, id],
         () => ReviewApi.reviewList(id),
@@ -96,7 +116,7 @@ const RestaurantReviewModal = ({
 
         return percentRate ? ((percentRate / total) * 100).toFixed(1) : 0
     }
-    return (
+    const content = (
         <CustomStackFullWidth
             sx={{
                 padding: {
@@ -106,7 +126,7 @@ const RestaurantReviewModal = ({
                 },
             }}
         >
-            <SimpleBar style={{ maxHeight: '60vh' }}>
+            <SimpleBar style={isMobile ? undefined : { maxHeight: '60vh' }}>
                 <CustomStackFullWidth
                     backgroundColor={alpha(theme.palette.neutral[400], 0.1)}
                     padding="2rem"
@@ -315,6 +335,84 @@ const RestaurantReviewModal = ({
                 )}
             </SimpleBar>
         </CustomStackFullWidth>
+    )
+
+    if (isMobile) {
+        return (
+            <Drawer
+                anchor="bottom"
+                open={Boolean(open)}
+                onClose={onClose}
+                variant="temporary"
+                sx={{
+                    zIndex: 1300,
+                    '& .MuiDrawer-paper': {
+                        width: '100vw',
+                        maxWidth: '100vw',
+                        height: sheetHeight,
+                        maxHeight: sheetHeight,
+                        borderTopLeftRadius: sheetRadius,
+                        borderTopRightRadius: sheetRadius,
+                        backgroundColor: (theme) =>
+                            theme.palette.background.paper,
+                        display: 'flex',
+                        flexDirection: 'column',
+                    },
+                }}
+            >
+                <AddressDrawerHeader title={t('Reviews')} onClose={onClose} />
+                <Box
+                    onScroll={handleContentScroll}
+                    sx={{
+                        flex: 1,
+                        minHeight: 0,
+                        overflowY: 'auto',
+                        overflowX: 'hidden',
+                        overscrollBehaviorY: 'contain',
+                    }}
+                >
+                    {content}
+                </Box>
+            </Drawer>
+        )
+    }
+
+    return (
+        <Dialog
+            open={Boolean(open)}
+            onClose={onClose}
+            PaperProps={{
+                sx: {
+                    position: 'relative',
+                    borderRadius: '20px',
+                    width: '670px',
+                    maxWidth: '92vw',
+                },
+            }}
+        >
+            <IconButton
+                onClick={onClose}
+                aria-label="close"
+                sx={{
+                    position: 'absolute',
+                    top: '4px',
+                    right: '4px',
+                    zIndex: 1,
+                    width: 40,
+                    height: 40,
+                    p: '8px',
+                    borderRadius: '12px',
+                }}
+            >
+                <CloseIcon
+                    sx={{
+                        fontSize: 20,
+                        color: (theme) => theme.palette.text.primary,
+                    }}
+                />
+            </IconButton>
+            {content}
+        </Dialog>
     )
 }
 

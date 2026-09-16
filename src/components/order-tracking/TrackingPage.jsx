@@ -23,7 +23,13 @@ import GpsFixedIcon from '@mui/icons-material/GpsFixed'
 import { useGeolocated } from 'react-geolocated'
 import { getToken } from '@/components/checkout-page/functions/getGuestUserId'
 
-const TrackingPage = ({ data, guestOrderTracking,refetch ,refetchTrackData}) => {
+const TrackingPage = ({
+    data,
+    guestOrderTracking,
+    refetch,
+    refetchTrackData,
+    denseMobilePadding,
+}) => {
     const [actStep, setActStep] = useState(1)
     const [rerenderMap, setRerenderMap] = useState(false)
     const [resLat,setResLat]=useState({
@@ -149,7 +155,7 @@ const TrackingPage = ({ data, guestOrderTracking,refetch ,refetchTrackData}) => 
     return (
         <RTL direction={languageDirection}>
             <CustomStackFullWidth>
-                <Grid container item md={12} xs={12} mb="1rem">
+                <Grid container item md={12} xs={12} mb="1rem" width="100%">
                     <Grid item md={12} xs={12}>
                         <SimpleBar
                             style={{ height: isSmall ? '120px' : '150px' }}
@@ -203,7 +209,8 @@ const TrackingPage = ({ data, guestOrderTracking,refetch ,refetchTrackData}) => 
                         item
                         md={12}
                         xs={12}
-                        p="1.4rem"
+                        px={{ xs: denseMobilePadding ? 0 : '1.4rem', md: '1.4rem' }}
+                        py="1.4rem"
                         sx={{ position: 'relative' }}
                     >
                         <MapComponent
@@ -229,7 +236,14 @@ const TrackingPage = ({ data, guestOrderTracking,refetch ,refetchTrackData}) => 
                         </IconButton>
                     </Grid>
                     {data?.order_type === 'delivery' && (
-                        <Grid item md={12} xs={12} align="center" p="1.4rem">
+                        <Grid
+                            item
+                            md={12}
+                            xs={12}
+                            align="center"
+                            px={{ xs: denseMobilePadding ? 0 : '1.4rem', md: '1.4rem' }}
+                            py="1.4rem"
+                        >
                             {data ? (
                                 data?.delivery_man ? (
                                     <DeliverymanInfo resLat={resLat} data={data} />

@@ -21,10 +21,14 @@ import {
 import CircularLoader from '../loader/CircularLoader'
 import { getGuestId, getToken } from './functions/getGuestUserId'
 
-export default function SuccessCard({ id }) {
+export default function SuccessCard({ id, phone }) {
     const { guestUserInfo } = useSelector((state) => state.guestUserInfo)
     const guestId = getGuestId()
     const { t } = useTranslation()
+    // `phone` comes from the order-success URL — it survives a refresh or a
+    // direct link, unlike `guestUserInfo`, which is only in Redux for the
+    // browser tab that placed the order.
+    const contactPhone = phone || guestUserInfo?.contact_person_number
 
     const {
         data: trackData,
@@ -32,11 +36,7 @@ export default function SuccessCard({ id }) {
         isLoading: trackDataIsLoading,
         isFetching: trackDataIsFetching,
     } = useQuery([`category-tracking`, id], () =>
-        OrderApi.orderTracking(
-            id,
-            guestUserInfo?.contact_person_number,
-            guestId
-        )
+        OrderApi.orderTracking(id, contactPhone, guestId)
     )
     useEffect(() => {
         refetch()
@@ -241,9 +241,17 @@ export default function SuccessCard({ id }) {
                 <Stack pt="2rem" spacing={1}>
                     <Button
                         onClick={() =>
-                            router.push('/tracking', undefined, {
-                                shallow: true,
-                            })
+                            router.push(
+                                {
+                                    pathname: '/tracking',
+                                    ...(id &&
+                                        phone && {
+                                            query: { orderId: id, phone },
+                                        }),
+                                },
+                                undefined,
+                                { shallow: true }
+                            )
                         }
                         variant="contained"
                     >

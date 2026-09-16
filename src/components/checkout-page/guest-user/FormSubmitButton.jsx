@@ -25,17 +25,19 @@ export const SaveButton = styled(LoadingButton)(({ theme }) => ({
   },
 }));
 
-const FormSubmitButton = ({ handleReset, isLoading, reset, submit }) => {
+const FormSubmitButton = ({ handleReset, isLoading, reset, submit, hideReset }) => {
   return (
     <>
-      <ResetButton variant="outlined" onClick={handleReset}>
-        {reset}
-      </ResetButton>
+      {!hideReset && (
+        <ResetButton variant="outlined" onClick={handleReset}>
+          {reset}
+        </ResetButton>
+      )}
       <SaveButton
-        // Fixing the syntax for applying marginTop on xs breakpoint
         variant="contained"
         type="submit"
         loading={isLoading}
+        fullWidth={hideReset}
       >
         {submit}
       </SaveButton>

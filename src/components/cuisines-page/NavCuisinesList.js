@@ -20,15 +20,16 @@ const NavCuisinesList = ({ item, handledropClose }) => {
                 onClick={handledropClose}
                 sx={{
                     alignItems: 'center',
-                   
-                    borderRadius: '5px',
+                    gap: '12px',
+                    padding: '8px',
+                    borderRadius: '8px',
                     '&:hover': {
                         backgroundColor: (theme) =>
-                            alpha(theme.palette.primary.main, 0.3),
+                            alpha(theme.palette.primary.main, 0.08),
                     },
                 }}
             >
-                <ListItemIcon>
+                <ListItemIcon sx={{ minWidth: 'auto', margin: 0 }}>
                     <CustomImageContainer
                         src={item.image_full_url}
                         width="40px"
@@ -39,12 +40,12 @@ const NavCuisinesList = ({ item, handledropClose }) => {
                     />
                 </ListItemIcon>
                 <Typography
-                    fontSize="13px"
+                    fontSize="14px"
                     variant="h5"
                     fontWeight="600"
                     color={theme.palette.neutral[1000]}
                     sx={{
-                        maxWidth: '100px',
+                        maxWidth: '110px',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',

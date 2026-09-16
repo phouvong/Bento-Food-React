@@ -109,6 +109,8 @@ export async function getStaticProps(context) {
         console.error('Error fetching restaurants data:', error)
         return {
             notFound: true,
+            // Retry generation soon instead of caching this failure indefinitely
+            revalidate: 10,
         }
     }
 }

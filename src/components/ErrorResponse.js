@@ -1,6 +1,7 @@
 import Router from 'next/router'
 import { setWelcomeModal } from '@/redux/slices/utils'
 import { removeToken } from '@/redux/slices/userToken'
+import { clearWishList } from '@/redux/slices/wishList'
 import { store } from '@/redux/store'
 import {
     CustomToaster,
@@ -16,6 +17,7 @@ const handleTokenExpire = (status) => {
             )
             window?.localStorage.removeItem('token')
             store.dispatch(removeToken())
+            store.dispatch(clearWishList([]))
             store.dispatch(setWelcomeModal(false))
             Router.push('/home')
         }

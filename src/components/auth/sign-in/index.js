@@ -585,6 +585,10 @@ const SignInPage = ({
                                 {state.status === 'otp_social' ? null : (
                                     <Typography
                                         sx={{
+                                            display: {
+                                                xs: 'none',
+                                                sm: 'block',
+                                            },
                                             fontWeight: 600,
                                             fontSize: '18px',
                                             paddingBottom: '5px',

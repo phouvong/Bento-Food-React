@@ -234,7 +234,11 @@ const SignUpPage = ({ handleClose, setModalFor, verificationId, sendOTP }) => {
                             alt="Logo"
                         />
                         <CustomTypography
-                            sx={{ fontWeight: 'bold', fontSize: '22px' }}
+                            sx={{
+                                display: { xs: 'none', sm: 'block' },
+                                fontWeight: 'bold',
+                                fontSize: '22px',
+                            }}
                         >
                             {t('Sign Up')}
                         </CustomTypography>
@@ -792,7 +796,7 @@ const SignUpPage = ({ handleClose, setModalFor, verificationId, sendOTP }) => {
                                         }}
                                         loading={isLoading}
                                         variant="contained"
-                                        id="recaptcha-container"
+                                        id="signup-submit-btn"
                                     >
                                         {t('Sign Up')}
                                     </LoadingButton>

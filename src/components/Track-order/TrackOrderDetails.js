@@ -42,10 +42,14 @@ const TrackOrderDetails = ({ trackOrderFormik, trackOrderData }) => {
         }
     }
     return (
-        <CustomStackFullWidth paddingTop="30px" spacing={2}>
+        <CustomStackFullWidth
+            paddingTop="30px"
+            paddingX={{ xs: 0, md: '2rem' }}
+            spacing={2}
+        >
             <Stack direction="row" justifyContent="space-between">
                 <Typography fontSize="20px" fontWeight="600">
-                    {t('order')}
+                    {t('Order')}
                     <Typography
                         component="span"
                         fontSize="20px"
@@ -108,7 +112,11 @@ const TrackOrderDetails = ({ trackOrderFormik, trackOrderData }) => {
                 </Button>
             </CustomStackFullWidth>
             <CustomStackFullWidth>
-                <TrackingPage guestOrderTracking data={trackOrderData} />
+                <TrackingPage
+                    guestOrderTracking
+                    denseMobilePadding
+                    data={trackOrderData}
+                />
             </CustomStackFullWidth>
         </CustomStackFullWidth>
     )

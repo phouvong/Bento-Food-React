@@ -1,56 +1,32 @@
 import React, { useEffect, useRef, useState } from 'react'
-import {
-    Grid,
-    IconButton,
-    Popover,
-    Typography,
-    Box,
-    Stack,
-} from '@mui/material'
+import { Badge, Grid, IconButton, Typography, Box, Stack } from '@mui/material'
+import { useSelector } from 'react-redux'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { CategoryButton } from './restaurant-details.style'
 import { styled, useTheme } from '@mui/material/styles'
-import FilterButton from '../Button/FilterButton'
-import RestaurantFilterCard from '../home/restaurant/RestaurantFilterCard'
+import FilterPanel from '../home/filter-tabs/FilterPanel'
+import {
+    RESTAURANT_DETAILS_FILTER_BY_OPTIONS,
+    RESTAURANT_DETAILS_SORT_OPTIONS,
+    RESTAURANT_RATING_OPTIONS,
+    getRestaurantTypeOptions,
+} from './restaurantFilterOptions'
 import { RTL } from '../RTL/RTL'
-import SearchBox from '../home/hero-section-with-search/SearchBox'
 import { useInView } from 'react-intersection-observer'
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import CustomSearch from '../custom-search/CustomSearch'
 import { t } from 'i18next'
+import { NAVBAR_HEIGHT } from '../navbar/navbarConstants'
 
 const CustomBox = styled(Box)(({ theme }) => ({
     width: '100%',
     overflow: 'auto',
     cursor: 'pointer',
+    scrollBehavior: 'smooth',
+    scrollbarWidth: 'none',
     '&::-webkit-scrollbar': {
-        height: '0px',
-    },
-    [theme.breakpoints.down('md')]: {
-        '&::-webkit-scrollbar': {
-            height: '0px',
-        },
-    },
-    '&::-webkit-scrollbar-track': {
-        backgroundColor: theme.palette.whiteContainer.main,
-        borderRadius: 10,
-        opacity: 0,
-        zIndex: -1,
-    },
-    '&::-webkit-scrollbar-thumb': {
-        backgroundColor: theme.palette.neutral[300],
-        borderRadius: 10,
-        opacity: 0,
-        transition: 'opacity 0.2s',
-    },
-    '&::-webkit-scrollbar-thumb:hover': {
-        backgroundColor: theme.palette.neutral[100],
-    },
-    '&:hover': {
-        '&::-webkit-scrollbar-thumb': {
-            opacity: 0,
-        },
+        display: 'none',
     },
 }))
 
@@ -65,20 +41,15 @@ const RestaurantCategoryBar = (props) => {
         setRemoveStickyBanner,
         removeStickyBanner,
         highestPrice,
-        handlePrice,
-        handleChangeRatings,
-        handleReset,
-        handleFilterBy,
-        checkedFilterKey,
-        setCheckedFilterKey,
-        priceAndRating,
+        filterValue,
+        onApplyFilters,
         activeFilters,
-        handleSearchResult
+        handleSearchResult,
     } = props
     const theme = useTheme()
+    const { global } = useSelector((state) => state.globalSettings)
 
     const [anchorEl, setAnchorEl] = useState(null)
-    const open = Boolean(anchorEl)
     const refs = useRef([])
     const scrollerRef = useRef(null)
     const [showLeftBtn, setShowLeftBtn] = useState(false)
@@ -169,13 +140,6 @@ const RestaurantCategoryBar = (props) => {
         rootMargin: '-130px 0px 0px 0px',
     })
 
-    // Detect when the sticky bar reaches its mobile stick-top (190px) so we
-    // can break it out of the parent Container only while it's stuck.
-    const { ref: stickySentinelRef, inView: stickySentinelInView } = useInView({
-        rootMargin: '-190px 0px 0px 0px',
-    })
-    const isMobileStuck = isSmall && !stickySentinelInView
-
     useEffect(() => {
         // Skip the sticky-banner-removal dance on mobile — the banner is no longer
         // fixed there, so this state isn't read by TopBanner on small viewports.
@@ -190,29 +154,33 @@ const RestaurantCategoryBar = (props) => {
 
     return (
         <RTL direction={languageDirection}>
-            <Box ref={stickySentinelRef} sx={{ height: '1px', marginBottom: '-1px' }} />
             <Grid
                 container
-                spacing={{ xs: 0, sm: 1 }}
+                spacing={{ xs: 0, sm: 2 }}
                 rowSpacing={{ xs: 0.5, sm: 0 }}
                 ref={ref}
                 sx={{
                     position: 'sticky',
+                    // Mobile: sticks below the sticky MobilePageHeader (~58px)
+                    // since the global navbar is hidden on this route.
                     top: {
-                        xs: 'calc(var(--restaurant-fixed-top-bottom, 190px) + (-12px))',
-                        sm: '140px',
-                        md: isHidden ? '162px' : '203px',
+                        xs: '58px',
+                        md: `${NAVBAR_HEIGHT}px`,
                     },
+                    // Same token as the page shell (WrapperForApp), so the
+                    // bar blends with the page yet masks content scrolling
+                    // beneath it.
                     background: (theme) => theme.palette.neutral[1800],
-                    padding: { xs: '8px 8px', md: '10px 0px 5px' },
-                    ...(isMobileStuck && {
-                        marginLeft: '-16px',
-                        marginRight: '-16px',
-                        width: 'calc(100% + 32px)',
-                        maxWidth: 'none',
-                    }),
+                    // Side padding carries the mobile content inset (the page
+                    // container has no gutters below md) — it must live on
+                    // the sticky bar itself, not a wrapper, so the bar keeps
+                    // room to travel and its bg spans edge to edge.
+                    padding: {
+                        xs: '10px 24px 4px',
+                        sm: '10px 32px 4px',
+                        md: '10px 0px 5px',
+                    },
                     zIndex: 100,
-                    transition: 'top 0.25s ease, box-shadow 0.25s ease',
                 }}
                 alignItems="center"
             >
@@ -221,27 +189,28 @@ const RestaurantCategoryBar = (props) => {
                     xs={12}
                     sm={9}
                     md={7}
-                    order={{ xs: 1, sm: 1 }}
+                    order={{ xs: 2, sm: 1 }}
                     sx={{ position: 'relative' }}
                 >
                     <CustomBox ref={scrollerRef}>
                             {showLeftBtn && (
                                 <IconButton
                                     sx={{
-                                        width: '32px',
-                                        height: '32px',
+                                        width: '28px',
+                                        height: '28px',
                                         borderRadius: '50%',
                                         backgroundColor:
-                                            theme.palette.neutral[100],
-                                        boxShadow: `0px 5px 10px rgba(0, 0, 0, 0.1)`,
+                                            theme.palette.background.paper,
+                                        boxShadow:
+                                            '0px 1px 4px rgba(0, 0, 0, 0.15)',
                                         position: 'absolute',
-                                        top: 'calc(50% + 2.5px)',
+                                        top: '50%',
                                         transform: 'translateY(-50%)',
-                                        left: '0px',
-                                        zIndex: 9999,
+                                        left: '-4px',
+                                        zIndex: 9,
                                         '&:hover': {
                                             backgroundColor:
-                                                theme.palette.neutral[100],
+                                                theme.palette.background.paper,
                                         },
                                     }}
                                     onClick={() => {
@@ -253,11 +222,25 @@ const RestaurantCategoryBar = (props) => {
                                         }
                                     }}
                                 >
-                                    <ChevronLeftIcon fontSize="small" />
+                                    <ChevronLeftIcon
+                                        sx={{
+                                            fontSize: 18,
+                                            color: theme.palette
+                                                .neutral[1000],
+                                        }}
+                                    />
                                 </IconButton>
                             )}
-                            <CustomStackFullWidth direction="row">
+                            <CustomStackFullWidth
+                                direction="row"
+                                alignItems="center"
+                                gap={2.5}
+                            >
                                 {data?.map((item, index) => {
+                                    const active = isActiveCategoryBar(
+                                        item,
+                                        index
+                                    )
                                     return (
                                         <CategoryButton
                                             key={item?.id}
@@ -268,25 +251,33 @@ const RestaurantCategoryBar = (props) => {
                                             onClick={() =>
                                                 handleClick(item?.id)
                                             }
-                                            active={isActiveCategoryBar(
-                                                item,
-                                                index
-                                            )}
+                                            active={active}
                                         >
                                             <Typography
                                                 fontSize={{
-                                                    xs: '13px',
-                                                    sm: '14px',
-                                                    md: '14px',
+                                                    xs: '15px',
+                                                    md: '16px',
                                                 }}
                                                 fontWeight={
-                                                    selectedId === item?.id
-                                                        ? '500'
-                                                        : '400'
+                                                    active === 'true'
+                                                        ? 700
+                                                        : 400
                                                 }
-                                                color={
-                                                    theme.palette.neutral[900]
-                                                }
+                                                sx={{
+                                                    lineHeight: 1.2,
+                                                    letterSpacing:
+                                                        active === 'true'
+                                                            ? '-0.48px'
+                                                            : '-0.32px',
+                                                    color:
+                                                        active === 'true'
+                                                            ? theme.palette
+                                                                  .primary.main
+                                                            : theme.palette
+                                                                  .text.primary,
+                                                    transition:
+                                                        'color 120ms ease',
+                                                }}
                                             >
                                                 {item?.name}
                                             </Typography>
@@ -297,21 +288,22 @@ const RestaurantCategoryBar = (props) => {
                             {showRightBtn && (
                                 <IconButton
                                     sx={{
-                                        width: '32px',
-                                        height: '32px',
+                                        width: '28px',
+                                        height: '28px',
                                         borderRadius: '50%',
                                         backgroundColor:
-                                            theme.palette.neutral[100],
-                                        boxShadow: `0px 5px 10px rgba(0, 0, 0, 0.1)`,
+                                            theme.palette.background.paper,
+                                        boxShadow:
+                                            '0px 1px 4px rgba(0, 0, 0, 0.15)',
                                         position: 'absolute',
-                                        top: 'calc(50% + 2.5px)',
+                                        top: '50%',
                                         transform: 'translateY(-50%)',
                                         left: 'auto',
-                                        right: 0,
-                                        zIndex: 999,
+                                        right: '-4px',
+                                        zIndex: 9,
                                         '&:hover': {
                                             backgroundColor:
-                                                theme.palette.neutral[100],
+                                                theme.palette.background.paper,
                                         },
                                     }}
                                     onClick={() => {
@@ -323,7 +315,13 @@ const RestaurantCategoryBar = (props) => {
                                         }
                                     }}
                                 >
-                                    <ChevronRightIcon fontSize="small" />
+                                    <ChevronRightIcon
+                                        sx={{
+                                            fontSize: 18,
+                                            color: theme.palette
+                                                .neutral[1000],
+                                        }}
+                                    />
                                 </IconButton>
                             )}
                     </CustomBox>
@@ -334,65 +332,133 @@ const RestaurantCategoryBar = (props) => {
                     xs={12}
                     sm={3}
                     md={5}
-                    order={{ xs: 2, sm: 2 }}
+                    order={{ xs: 1, sm: 2 }}
                     align={languageDirection === 'rtl' ? 'left' : 'right'}
-                    marginBottom={{ xs: '0px', md: '8px' }}
                 >
                     <Stack
                         direction="row"
                         width="100%"
-                        spacing={1}
+                        spacing={2}
                         alignItems="center"
+                        justifyContent="flex-end"
                         sx={{ marginInlineStart: 'auto' }}
                     >
-                     <CustomSearch
-                                    //key={reRenderSearch}
-                                    handleSearchResult={handleSearchResult}
-                                    label={t('Search foods')}
-                                    //isLoading={isLoadingSearchFood}
-                                    searchFrom="restaurantDetails"
-                                    selectedValue={searchKey}
-                                    backgroundColor={theme.palette.neutral[200]}
-                                    borderRadius="10px"
-                                />
+                        <Box
+                            sx={{
+                                width: '100%',
+                                // In dark mode the inner InputBase carries its
+                                // own 8px-radius navy background that pokes
+                                // out of the rounded shell — flatten it so
+                                // only the shell surface shows.
+                                '& .MuiInputBase-root': {
+                                    backgroundColor: 'transparent',
+                                    borderRadius: '8px',
+                                },
+                                // Doubled class ups specificity over the
+                                // shared StyledInputBase rules, which tie at
+                                // two classes and win on insertion order.
+                                '& .MuiInputBase-input.MuiInputBase-input': {
+                                    fontSize: '16px',
+                                    padding: '9px 16px 9px 12px',
+                                    '&::placeholder': {
+                                        color: theme.palette.neutral[400],
+                                        opacity: 1,
+                                    },
+                                },
+                                '& .MuiInputAdornment-root': {
+                                    marginInlineStart: '16px',
+                                },
+                                '& .MuiInputAdornment-root .MuiSvgIcon-root': {
+                                    color: theme.palette.neutral[1000],
+                                },
+                            }}
+                        >
+                            <CustomSearch
+                                handleSearchResult={handleSearchResult}
+                                label={t('Search from here')}
+                                searchFrom="restaurantDetails"
+                                selectedValue={searchKey}
+                                backgroundColor={
+                                    theme.palette.background.paper
+                                }
+                                borderRadius="8px"
+                                border={`1px solid ${theme.palette.divider}`}
+                            />
+                        </Box>
 
-                        <FilterButton
-                            handleClick={handleDropClick}
-                            height="32px"
-                            activeFilters={activeFilters}
-                        />
+                        <Badge
+                            color="primary"
+                            badgeContent={activeFilters?.length || 0}
+                            sx={{
+                                '& .MuiBadge-badge': {
+                                    fontSize: '10px',
+                                    height: 16,
+                                    minWidth: 16,
+                                },
+                            }}
+                        >
+                            <IconButton
+                                onClick={handleDropClick}
+                                aria-label={t('Filter')}
+                                sx={{
+                                    width: 40,
+                                    height: 40,
+                                    borderRadius: '8px',
+                                    backgroundColor:
+                                        theme.palette.background.paper,
+                                    border: `1px solid ${
+                                        activeFilters?.length
+                                            ? theme.palette.primary.main
+                                            : theme.palette.divider
+                                    }`,
+                                    // neutral[700] is near-invisible on the
+                                    // dark paper bg — neutral[1000] flips
+                                    // correctly between modes.
+                                    color: activeFilters?.length
+                                        ? theme.palette.primary.main
+                                        : theme.palette.neutral[1000],
+                                    transition: 'all 120ms ease',
+                                    '&:hover': {
+                                        borderColor:
+                                            theme.palette.primary.main,
+                                        color: theme.palette.primary.main,
+                                        backgroundColor:
+                                            theme.palette.background.paper,
+                                    },
+                                }}
+                            >
+                                <i
+                                    className="fi fi-rr-filter"
+                                    style={{
+                                        fontSize: 20,
+                                        lineHeight: 1,
+                                        display: 'flex',
+                                    }}
+                                />
+                            </IconButton>
+                        </Badge>
                     </Stack>
                 </Grid>
             </Grid>
-            <Popover
-                onClose={() => handleDropClose()}
-                id="fade-button"
-                open={open}
+            <FilterPanel
                 anchorEl={anchorEl}
-                anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                }}
-                sx={{
-                    zIndex: 999,
-                }}
-            >
-                <RestaurantFilterCard
-                    rowWise
-                    foodOrRestaurant="products"
-                    checkboxData={checkedFilterKey}
-                    handleDropClose={handleDropClose}
-                    anchorEl={anchorEl}
-                    setCheckedFilterKey={setCheckedFilterKey}
-                    handleChangeRatings={handleChangeRatings}
-                    priceAndRating={priceAndRating}
-                    handleReset={handleReset}
-                    highestPrice={highestPrice}
-                    handlePrice={handlePrice}
-                    handleFilterBy={handleFilterBy}
-                    only_food={true}
-                />
-            </Popover>
+                onClose={handleDropClose}
+                onApply={onApplyFilters}
+                filterValue={filterValue}
+                anchorHorizontal="right"
+                sortOptions={RESTAURANT_DETAILS_SORT_OPTIONS}
+                typeOptions={getRestaurantTypeOptions(
+                    global?.toggle_veg_non_veg !== false
+                )}
+                discoverOptions={RESTAURANT_DETAILS_FILTER_BY_OPTIONS}
+                discoverLabel="Filter By"
+                ratingOptions={RESTAURANT_RATING_OPTIONS}
+                showCategories={false}
+                showCuisines={false}
+                showPriceRange
+                priceRangeMax={highestPrice}
+                currencySymbol={global?.currency_symbol}
+            />
         </RTL>
     )
 }

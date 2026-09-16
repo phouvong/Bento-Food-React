@@ -14,6 +14,7 @@ import * as Yup from 'yup'
 import CloseIcon from '@mui/icons-material/Close'
 import RefundSvg from "./RefundSvg";
 import { useTheme } from "@mui/styles";
+import { RTL } from '@/components/RTL/RTL' 
 
 
 const acceptedFileInputFormat =
@@ -81,28 +82,37 @@ const RefundModal = (props) => {
     }
     // const imageUrl = `${productImageUrl}/${review.food_image}`
     return (
+        <RTL direction={theme.direction}>
         <Drawer
             anchor="right"
             open={open}
             onClose={onClose}
             variant="temporary"
-            sx={{ zIndex: '1200', minWidth: "375px" }}
+            sx={{
+                zIndex: '1200',
+                '& .MuiDrawer-paper': {
+                    width: { xs: '100vw', sm: '420px' },
+                    maxWidth: '511px',
+                    boxSizing: 'border-box',
+                    overflowX: 'hidden',
+                },
+            }}
         >
             <Stack maxWidth="511px" width="100%"  >
                 <button className="closebtn" onClick={onClose}>
                     <CloseIcon sx={{ fontSize: '16px' }} />
                 </button>
                 <CustomStackFullWidth spacing={1} paddingTop="3rem" paddingX="1rem">
-                    <Stack alignItems="center" justifyContent="center" paddingX="50px">
+                    <Stack alignItems="center" justifyContent="center" paddingX={{ xs: '16px', sm: '50px' }}>
                         <RefundSvg/>
-                        <Typography fontSize="16px" fontWeight="700" paddingTop="24px" >
+                        <Typography fontSize="16px" fontWeight="700" paddingTop="24px" textAlign="center">
                             {t('Tell us what’s wrong with the order ?')}
                         </Typography>
                         <Typography fontSize="14px" fontWeight="400" color={theme.palette.neutral[500]} paddingTop="12px" paddingBottom=".5rem" textAlign="center">
                             {t('Please describe your problem to make you future experience more better')}
                         </Typography>
                     </Stack>
-                    <DialogContent sx={{ padding: '10px 24px' }}>
+                    <DialogContent sx={{ padding: { xs: '10px 4px', sm: '10px 24px' } }}>
                         <CustomStackFullWidth>
                             <form
                                 noValidate
@@ -198,6 +208,7 @@ const RefundModal = (props) => {
                 </CustomStackFullWidth>
             </Stack>
         </Drawer>
+        </RTL>
     )
 }
 

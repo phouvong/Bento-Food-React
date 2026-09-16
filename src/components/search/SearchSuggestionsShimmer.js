@@ -13,9 +13,9 @@ const SearchSuggestionsShimmer = () => {
                 alignItems="start"
                 justifyContent="flex-start"
             >
-                <Skeleton variant="text" width="120px" height="30px" />
-                <Skeleton variant="text" width="120px" height="30px" />
-                <Skeleton variant="text" width="120px" height="30px" />
+                <Skeleton variant="text" width="100%" height="30px" />
+                <Skeleton variant="text" width="100%" height="30px" />
+                <Skeleton variant="text" width="100%" height="30px" />
             </Stack>
         </Stack>
     )

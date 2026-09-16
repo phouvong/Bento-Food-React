@@ -1,35 +1,22 @@
 import { Box, styled } from '@mui/material'
-export const StyledFooterBackground = styled(Box)(({ theme, router }) => ({
+import { BOTTOM_OVERLAY_HEIGHT_VAR } from '@/components/navbar/navbarConstants'
+
+export const footerColors = {
+    background: '#303030',
+    heading: '#FFFFFF',
+    text: '#F3F3F3',
+    iconTileDark: 'rgba(0,0,0,.3)',
+    iconTileLight: 'rgba(255,255,255,.05)',
+    badgeBg: 'rgba(0,0,0,.7)',
+    scrim: 'rgba(0,0,0,.15)',
+}
+
+export const StyledFooterBackground = styled(Box)(({ theme }) => ({
     width: '100%',
-    background: 'linear-gradient(180deg, #0B1020 0%, #05080F 100%)',
-    color: '#CBD5E1',
+    background: footerColors.background,
+    color: footerColors.text,
     position: 'relative',
-    overflow: 'hidden',
-    fontSize: '13px',
-    '&::before': {
-        content: '""',
-        position: 'absolute',
-        top: '-180px',
-        left: '-180px',
-        width: '480px',
-        height: '480px',
-        background:
-            'radial-gradient(circle, rgba(255,117,24,.10) 0%, transparent 65%)',
-        pointerEvents: 'none',
-    },
-    '&::after': {
-        content: '""',
-        position: 'absolute',
-        top: '60px',
-        right: '-200px',
-        width: '520px',
-        height: '520px',
-        background:
-            'radial-gradient(circle, rgba(37,99,235,.06) 0%, transparent 65%)',
-        pointerEvents: 'none',
-    },
     [theme.breakpoints.down('md')]: {
-        marginBottom: router !== '/' && '4.5rem',
+        paddingBottom: BOTTOM_OVERLAY_HEIGHT_VAR,
     },
-    marginTop:"24px"
 }))

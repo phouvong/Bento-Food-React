@@ -1,6 +1,11 @@
-import { Modal, Box, IconButton, Stack } from '@mui/material'
+import { Modal, Drawer, Box, IconButton, Stack, useMediaQuery } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import React, { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
+import { useTranslation } from 'react-i18next'
+import AddressDrawerHeader from '@/components/address-drawer/AddressDrawerHeader'
+import useScrollToFitScreenDrawer from '@/hooks/custom-hooks/useScrollToFitScreenDrawer'
+import useCloseOnBackButton from '@/hooks/custom-hooks/useCloseOnBackButton'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { setUser } from '@/redux/slices/customer'
@@ -68,6 +73,12 @@ const AuthModal = ({
     setModalFor,
     cartListRefetch,
 }) => {
+    const { t } = useTranslation()
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+    const { handleContentScroll, sheetHeight, sheetRadius } =
+        useScrollToFitScreenDrawer(Boolean(open))
+    useCloseOnBackButton(Boolean(open), handleClose)
     const { global } = useSelector((state) => state.globalSettings)
 
     const { userInfo: fbUserInfo, jwtToken: fbJwtToken } = useSelector(
@@ -177,10 +188,14 @@ const AuthModal = ({
     useEffect(() => {
         setUpRecaptcha()
         return () => {
-            if (recaptchaWrapperRef.current) {
-                recaptchaWrapperRef.current.clear() // Clear Recaptcha when component unmounts
-                recaptchaWrapperRef.current = null
+            if (typeof window.recaptchaVerifier?.clear === 'function') {
+                try {
+                    window.recaptchaVerifier.clear()
+                } catch (error) {
+                    console.error('Error clearing RecaptchaVerifier:', error)
+                }
             }
+            window.recaptchaVerifier = null
         }
     }, [])
 
@@ -289,6 +304,76 @@ const AuthModal = ({
         }
     }
 
+    const drawerTitle =
+        modalFor === 'sign-in'
+            ? t('Login')
+            : modalFor === 'forgot_password'
+            ? t('Forgot Password')
+            : modalFor === 'user_info'
+            ? t('User Info')
+            : modalFor === 'is_exist_user'
+            ? t('Verify Account')
+            : modalFor === 'phone_modal'
+            ? t('Phone Verification')
+            : t('Sign Up')
+    const drawerTitleFontSize =
+        modalFor === 'sign-in'
+            ? '18px'
+            : modalFor === 'forgot_password'
+            ? '16px'
+            : '22px'
+
+    const recaptchaBox = (
+        <div ref={recaptchaWrapperRef}>
+            <div id="recaptcha-container"></div>
+        </div>
+    )
+
+    if (isMobile) {
+        return (
+            <Drawer
+                anchor="bottom"
+                open={Boolean(open)}
+                onClose={handleClose}
+                variant="temporary"
+                sx={{
+                    zIndex: 1300,
+                    '& .MuiDrawer-paper': {
+                        width: '100vw',
+                        maxWidth: '100vw',
+                        height: sheetHeight,
+                        maxHeight: sheetHeight,
+                        borderTopLeftRadius: sheetRadius,
+                        borderTopRightRadius: sheetRadius,
+                        backgroundColor: (theme) =>
+                            theme.palette.background.paper,
+                    },
+                }}
+            >
+                <Stack sx={{ height: '100%' }}>
+                    <AddressDrawerHeader
+                        title={drawerTitle}
+                        onClose={handleClose}
+                        titleSx={{ fontSize: drawerTitleFontSize }}
+                    />
+                    <Box
+                        onScroll={handleContentScroll}
+                        sx={{
+                            flex: 1,
+                            minHeight: 0,
+                            overflowY: 'auto',
+                            overflowX: 'hidden',
+                            padding: '1.5rem',
+                        }}
+                    >
+                        {recaptchaBox}
+                        {handleModal()}
+                    </Box>
+                </Stack>
+            </Drawer>
+        )
+    }
+
     return (
         <Box>
             <Modal
@@ -331,9 +416,7 @@ const AuthModal = ({
                             />
                         </IconButton>
                     </Stack>
-                    <div ref={recaptchaWrapperRef}>
-                        <div id="recaptcha-container"></div>
-                    </div>
+                    {recaptchaBox}
                     {handleModal()}
                 </CustomBoxForModal>
             </Modal>

@@ -10,8 +10,11 @@ import {
     CustomPaperBigCard,
     CustomStackFullWidth,
 } from '@/styled-components/CustomStyles.style'
+import { CustomButtonPrimary } from '@/styled-components/CustomButtons.style'
 import { getAmount } from '@/utils/customFunctions'
+import CancelIcon from '@mui/icons-material/Cancel'
 import ChatIcon from '@mui/icons-material/Chat'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import CloseIcon from '@mui/icons-material/Close'
 import StarIcon from '@mui/icons-material/Star'
 import {
@@ -31,10 +34,10 @@ import { useTheme } from '@mui/material/styles'
 import jwt from 'base-64'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
-import { useQuery } from 'react-query'
+import { useMutation, useQuery } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
 import 'simplebar-react/dist/simplebar.min.css'
 import CustomDivider from '../CustomDivider'
@@ -46,26 +49,29 @@ import CustomModal from '../custom-modal/CustomModal'
 import CustomFormatedDateTime from '../date/CustomFormatedDateTime'
 import ProBadge from '@/components/pro-badge/ProBadge'
 import RefundModal from '../order-history/RefundModal'
+import DeliveryInfoCard from './DeliveryInfoCard'
 import DeliveryTimeInfoVisibility from './DeliveryTimeInfoVisibility'
 import GifShimmer from './GifShimmer'
 import {
+    AmountTypography,
     CustomOrderStatus,
-    CustomProductDivider,
     IformationGrid,
     InfoTypography,
     InstructionWrapper,
-    OrderFoodAmount,
-    OrderFoodName,
     OrderSummaryGrid,
     ProductDetailsWrapper,
     RefundButton,
+    StatusPill,
     TitleTypography,
     TotalGrid,
 } from './OrderDetail.style'
 import OrderDetailsBottom from './OrderDetailsBottom'
 import OrderDetailsShimmer from './OrderDetailsShimmer'
-import { getVariationNames } from './OrderSummeryVariations'
+import OrderItemRow from './OrderItemRow'
 import PaymentUpdate from './PaymentUpdate'
+import PaymentMethodCard from './PaymentMethodCard'
+import PayDigitallyModal from './PayDigitallyModal'
+import { normalizeOrderEta } from './orderEta'
 import Refund from './Refund'
 import Reorder from './Reorder'
 import OfflineDetailsModal from './offline-payment/OfflineDetailsModal'
@@ -81,11 +87,9 @@ import TrackingPage from '../order-tracking/TrackingPage'
 import ProSavingsBanner from '@/components/floating-cart/restaurant-cart/ProSavingsBanner'
 
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
-import LocationIcon from '@/components/order-details/assets/LocationIcon'
 import ContactAddressMap from '@/components/help-page/ContactAddressMap'
 import DIneInOrderTimeInfo from '@/components/order-details/DIneInOrderTimeInfo'
 import CustomNextImage from '@/components/CustomNextImage'
-import VerifiedBadge from '@/components/verified-badge/VerifiedBadge'
 
 const CustomTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -107,26 +111,15 @@ const getItemsPrice = (items) => {
 const getAddOnsPrice = (items) => {
     return items?.reduce(
         (total, product) =>
-            (product.add_ons.length > 0
+            (product?.add_ons?.length > 0
                 ? product?.add_ons?.reduce(
-                    (cTotal, cProduct) =>
-                        cProduct.price * cProduct.quantity + cTotal,
-                    0
-                )
+                      (cTotal, cProduct) =>
+                          cProduct.price * cProduct.quantity + cTotal,
+                      0
+                  )
                 : 0) + total,
         0
     )
-}
-
-const getAddOnsNames = (addOns) => {
-    const filteredAddOns = addOns.filter((item) => item.quantity > 0)
-
-    const names = filteredAddOns.map(
-        (item, index) =>
-            `${item.name}(${item.quantity})${index !== filteredAddOns.length - 1 ? ',' : ''
-            }`
-    )
-    return names
 }
 const OrderDetails = ({ OrderIdDigital }) => {
     const theme = useTheme()
@@ -138,11 +131,18 @@ const OrderDetails = ({ OrderIdDigital }) => {
     const { global } = useSelector((state) => state.globalSettings)
     const { userData } = useSelector((state) => state.user)
     const { orderDetailsModal } = useSelector((state) => state.offlinePayment)
-    const isProUser = Number(userData?.pro_status) === 1
     const [openOfflineModal, setOpenOfflineModal] = useState(orderDetailsModal)
     const [openModal, setOpenModal] = useState(false)
     const [openReviewModal, setOpenReviewModal] = useState(false)
+    const [openPayDigitallyModal, setOpenPayDigitallyModal] = useState(false)
     const [openRes, setOpenRes] = useState(false)
+    const [paymentResultFlag, setPaymentResultFlag] = useState(null)
+
+    useEffect(() => {
+        if (!router.isReady) return
+        const match = router.asPath.match(/[?&]flag=(success|fail)\b/)
+        if (match) setPaymentResultFlag(match[1])
+    }, [router.isReady])
 
     const guestId = getGuestId()
     const userPhone = phone && jwt.decode(phone)
@@ -200,27 +200,81 @@ const OrderDetails = ({ OrderIdDigital }) => {
         OrderApi.orderTracking(tempOrderId, userPhone, guestId)
     )
 
+    const hasBogoItem = Boolean(
+        data?.data?.details?.some((item) => item?.bogo_details) ||
+            trackData?.data?.is_bogo
+    )
+    const isCampaignOrder = Boolean(trackData?.data?.is_item_campaign)
+
+    // COD → digital switch via /order/pay-digitally: the backend builds the
+    // gateway URL and re-checks eligibility when it is opened, and a failed
+    // or abandoned payment leaves the order a live cash order.
+    const { mutate: payDigitallyMutation, isLoading: payDigitallyLoading } =
+        useMutation('order-pay-digitally', OrderApi.payDigitally)
+    const handleProceedDigitalPayment = (gateway) => {
+        const callbackUrl = new URL(window.location.href)
+        callbackUrl.searchParams.delete('flag')
+        callbackUrl.searchParams.delete('token')
+        callbackUrl.searchParams.set('_gw', '1')
+        const formData = {
+            order_id: tempOrderId,
+            payment_method: gateway?.gateway,
+            callback: callbackUrl.toString(),
+        }
+        if (!getToken()) formData.guest_id = getGuestId()
+        payDigitallyMutation(formData, {
+            onSuccess: (res) => {
+                const paymentUrl = res?.data?.payment_url
+                if (paymentUrl) window.location.href = paymentUrl
+            },
+            onError: onErrorResponse,
+        })
+    }
+
     const proBenefitType = trackData?.data?.benefit_type
     const proDeliveryOfferType = trackData?.data?.delivery_offer_type
     const proDeliveryReductionAmount =
         Number(trackData?.data?.delivery_fee_reduction_amount) || 0
+    const proCouponDiscount =
+        Number(trackData?.data?.coupon_discount_amount) || 0
+    const proDiscountAmount = Number(trackData?.data?.pro_discount) || 0
+    const isFullFreeProDelivery =
+        proBenefitType === 'delivery_fee' &&
+        proDeliveryOfferType === 'full_free'
+    const isProDeliveryDiscount =
+        proBenefitType === 'delivery_fee' &&
+        !isFullFreeProDelivery &&
+        proDeliveryReductionAmount > 0
+    const hasProBenefit =
+        Boolean(proBenefitType) &&
+        (proDiscountAmount > 0 ||
+            proDeliveryReductionAmount > 0 ||
+            isFullFreeProDelivery ||
+            (proBenefitType === 'coupon' && proCouponDiscount > 0))
+    // Same source labels as checkout's OrderCalculation discount tooltip.
+    const discountSourceText =
+        trackData?.data?.restaurant_discount_type === 'happy_hour'
+            ? t('Happy Hour discount')
+            : trackData?.data?.restaurant_discount_type ===
+              'restaurant_discount'
+            ? t('Restaurant discount')
+            : ''
+
     let proSavingsMessage = ''
     if (proBenefitType === 'delivery_fee') {
-        if (proDeliveryOfferType === 'partial_free') {
-            proSavingsMessage = `${t(
-                'You saved'
-            )} ${getAmount(
-                proDeliveryReductionAmount,
-                currencySymbolDirection,
-                currencySymbol,
-                digitAfterDecimalPoint
-            )} ${t('on delivery as a Pro member')}`
-        } else {
-            proSavingsMessage = t('Free delivery as a Pro member')
-        }
+        // Keyed on the reduction amount rather than `delivery_offer_type`
+        // alone: a missing or unrecognised offer type must not claim free
+        // delivery when the order plainly paid part of the fee.
+        proSavingsMessage =
+            !isFullFreeProDelivery && proDeliveryReductionAmount > 0
+                ? `${t('You saved')} ${getAmount(
+                      proDeliveryReductionAmount,
+                      currencySymbolDirection,
+                      currencySymbol,
+                      digitAfterDecimalPoint
+                  )} ${t('on delivery as a Pro member')}`
+                : t('Free delivery as a Pro member')
     } else if (proBenefitType === 'coupon') {
-        const proCouponDiscount =
-            Number(trackData?.data?.coupon_discount_amount) || 0
         proSavingsMessage =
             proCouponDiscount > 0
                 ? `${t('You saved')} ${getAmount(
@@ -256,32 +310,28 @@ const OrderDetails = ({ OrderIdDigital }) => {
         }
     }
 
-
+    const paymentStatusInfo = (() => {
+        if (trackData?.data?.subscription) return null
+        const paymentStatus = trackData?.data?.payment_status
+        if (!paymentStatus) return null
+        if (paymentStatus === 'paid') {
+            return { label: t('Paid'), color: theme.palette.success.main }
+        }
+        const partiallyPaidAmount =
+            Number(trackData?.data?.partially_paid_amount) || 0
+        if (partiallyPaidAmount > 0) {
+            return {
+                label: t('Partially Paid'),
+                color: theme.palette.warning.main,
+            }
+        }
+        return { label: t('Unpaid'), color: theme.palette.error.pureRed }
+    })()
 
     const handleOfflineClose = () => {
         dispatch(clearOfflinePaymentInfo())
         dispatch(setOrderDetailsModal(false))
         setOpenOfflineModal(false)
-    }
-    const backgroundColorStatus = () => {
-        if (trackData?.data?.offline_payment?.data?.status === 'pending') {
-            return {
-                color: theme.palette.info.dark,
-                status: `${t('Verification Pending')}`,
-            }
-        }
-        if (trackData?.data?.offline_payment?.data?.status === 'verified') {
-            return {
-                color: theme.palette.success.main,
-                status: `${t('Payment Verified')}`,
-            }
-        }
-        if (trackData?.data?.offline_payment?.data?.status === 'denied') {
-            return {
-                color: theme.palette.error.main,
-                status: `${t('Verification Failed')}`,
-            }
-        }
     }
     const backgroundColorOrderStatus = () => {
         if (trackData?.data?.order_status === 'delivered') {
@@ -301,7 +351,8 @@ const OrderDetails = ({ OrderIdDigital }) => {
         slightly_delay: t('Slightly Delay Delivery'),
     }
     const deliveryType = trackData?.data?.delivery_type
-    const deliveryTypeCharge = Number(trackData?.data?.delivery_type_charge) || 0
+    const deliveryTypeCharge =
+        Number(trackData?.data?.delivery_type_charge) || 0
     const baseDeliveryCharge = Number(trackData?.data?.delivery_charge) || 0
     const normalizedDeliveryType = deliveryType
         ?.toString()
@@ -320,8 +371,8 @@ const OrderDetails = ({ OrderIdDigital }) => {
     // label
     const deliveryTypeLabel =
         deliveryTypeCharge > 0 &&
-            normalizedDeliveryType &&
-            deliveryTypeLabels[normalizedDeliveryType]
+        normalizedDeliveryType &&
+        deliveryTypeLabels[normalizedDeliveryType]
             ? deliveryTypeLabels[normalizedDeliveryType]
             : ''
     const handleSideDrawer = () => {
@@ -448,7 +499,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
             return null
         }
     }
-    console.log({ orderDetailsModal });
+    console.log({ orderDetailsModal })
 
     return (
         <NoSsr>
@@ -476,15 +527,23 @@ const OrderDetails = ({ OrderIdDigital }) => {
                             alignItems="center"
                             sx={{
                                 rowGap: { xs: '6px', md: '10px' },
-                                columnGap: { xs: '6px', md: '10px' },
-                                justifyContent: { xs: 'center', md: 'flex-start' },
+                                columnGap: { xs: '12px', md: '16px' },
+                                justifyContent: {
+                                    xs: 'center',
+                                    md: 'flex-start',
+                                },
                             }}
                         >
                             <Typography
                                 sx={{
-                                    color: 'customColor.fifteen',
-                                    fontSize: { xs: '13px', sm: '15px', md: '18px' },
-                                    fontWeight: '600',
+                                    color: theme.palette.text.primary,
+                                    fontSize: {
+                                        xs: '15px',
+                                        sm: '16px',
+                                        md: '18px',
+                                    },
+                                    fontWeight: 700,
+                                    letterSpacing: '-0.54px',
                                     width: { xs: '100%', sm: 'auto' },
                                     textAlign: { xs: 'center', sm: 'inherit' },
                                 }}
@@ -492,86 +551,101 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                 {trackData?.data?.subscription !== null
                                     ? t('Subscription')
                                     : t('Order')}{' '}
-                                # {getCommonValue(data, 'order_id')}
+                                #{getCommonValue(data, 'order_id')}
                             </Typography>
-                            {trackData && (
-                                <CustomOrderStatus
-                                    color={backgroundColorOrderStatus()}
-                                >
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                sx={{ columnGap: '8px', rowGap: '6px' }}
+                                flexWrap="wrap"
+                            >
+                                {trackData && (
+                                    <StatusPill
+                                        color={backgroundColorOrderStatus()}
+                                    >
+                                        <Typography
+                                            component="span"
+                                            textTransform="capitalize"
+                                            color={backgroundColorOrderStatus()}
+                                            align="center"
+                                            sx={{
+                                                fontSize: '12px',
+                                                fontWeight: 400,
+                                                lineHeight: 1.2,
+                                                letterSpacing: '-0.36px',
+                                                whiteSpace: 'nowrap',
+                                            }}
+                                        >
+                                            <>
+                                                {trackData?.data?.order_type ===
+                                                    'dine_in' &&
+                                                trackData?.data
+                                                    ?.order_status ===
+                                                    'delivered'
+                                                    ? t('Served')
+                                                    : trackData?.data
+                                                          ?.order_type ===
+                                                          'dine_in' &&
+                                                      trackData?.data
+                                                          ?.order_status ===
+                                                          'handover'
+                                                    ? t('Ready to serve')
+                                                    : t(
+                                                          trackData?.data
+                                                              ?.order_status
+                                                      ).replaceAll('_', ' ')}
+                                            </>
+                                        </Typography>
+                                    </StatusPill>
+                                )}
+                                <StatusPill color={theme.palette.success.main}>
                                     <Typography
                                         component="span"
                                         textTransform="capitalize"
-                                        color={backgroundColorOrderStatus()}
-                                        align="left"
-                                        fontSize={{ xs: '11px', sm: '13px', md: '14px' }}
-                                        fontWeight="bold"
-                                        sx={{ whiteSpace: 'nowrap' }}
+                                        color={theme.palette.success.main}
+                                        align="center"
+                                        sx={{
+                                            fontSize: '12px',
+                                            fontWeight: 400,
+                                            lineHeight: 1.2,
+                                            letterSpacing: '-0.36px',
+                                            whiteSpace: 'nowrap',
+                                        }}
                                     >
-                                        <>
-                                            {trackData?.data?.order_type ===
-                                                'dine_in' &&
-                                                trackData?.data?.order_status ===
-                                                'delivered'
-                                                ? t('Served')
-                                                : trackData?.data
-                                                    ?.order_type ===
-                                                    'dine_in' &&
-                                                    trackData?.data
-                                                        ?.order_status ===
-                                                    'handover'
-                                                    ? t('Ready to serve')
-                                                    : t(
-                                                        trackData?.data
-                                                            ?.order_status
-                                                    ).replaceAll('_', ' ')}
-                                        </>
+                                        {trackData?.data?.order_type ===
+                                        'delivery'
+                                            ? t('Home Delivery')
+                                            : t(
+                                                  trackData?.data?.order_type
+                                              ).replaceAll('_', ' ')}
                                     </Typography>
-                                </CustomOrderStatus>
-                            )}
-                            <CustomOrderStatus
-                                color={theme.palette.success.main}
-                            >
-                                <Typography
-                                    fontSize={{ xs: '10px', sm: '11px', md: '12px' }}
-                                    fontWeight="500"
-                                    textTransform="capitalize"
-                                    color={theme.palette.success.main}
-                                    sx={{ whiteSpace: 'nowrap' }}
-                                >
-                                    {trackData?.data?.order_type === 'delivery'
-                                        ? t('Home Delivery')
-                                        : t(
-                                            trackData?.data?.order_type
-                                        ).replaceAll('_', ' ')}
-                                </Typography>
-                            </CustomOrderStatus>
+                                </StatusPill>
+                            </Stack>
                         </Stack>
                         <Stack
-                            height="100%"
+                            // height="100%"
+                            // mt="8px"
                             flexDirection={{ xs: 'column', md: 'row' }}
                             gap="5px"
                             alignItems={{ md: 'left', xs: 'center' }}
                         >
                             <Stack
                                 flexDirection="row"
-                                gap="5px"
+                                gap="4px"
                                 paddingInlineEnd="5px"
                                 alignItems="center"
                             >
                                 <Typography
-                                    fontSize="12px"
+                                    fontSize="14px"
                                     fontWeight={400}
                                     sx={{ color: theme.palette.text.secondary }}
                                 >
                                     {t('Order date:')}
                                 </Typography>
                                 <Typography
-                                    fontSize="12px"
-                                    fontWeight={500}
-                                    sx={{
-                                        color: theme.palette.customColor
-                                            .fifteen,
-                                    }}
+                                    fontSize="14px"
+                                    fontWeight={400}
+                                    sx={{ color: theme.palette.text.secondary }}
                                 >
                                     <CustomFormatedDateTime
                                         date={
@@ -582,38 +656,37 @@ const OrderDetails = ({ OrderIdDigital }) => {
                             </Stack>
                             {(trackData?.data?.scheduled !== 0 ||
                                 trackData?.data?.order_type === 'dine_in') && (
-                                    <Stack
-                                        flexDirection="row"
-                                        gap="5px"
-                                        paddingInlineEnd="5px"
-                                        alignItems="center"
+                                <Stack
+                                    flexDirection="row"
+                                    gap="4px"
+                                    paddingInlineEnd="5px"
+                                    alignItems="center"
+                                >
+                                    <Typography
+                                        fontSize="14px"
+                                        fontWeight={400}
+                                        sx={{
+                                            color: theme.palette.text.secondary,
+                                        }}
                                     >
-                                        <Typography
-                                            fontSize="12px"
-                                            fontWeight={400}
-                                            sx={{
-                                                color: theme.palette.text.secondary,
-                                            }}
-                                        >
-                                            {trackData?.data?.order_type ===
-                                                'dine_in'
-                                                ? t('Dine-in date:')
-                                                : t('Scheduled delivery')}
-                                        </Typography>
-                                        <Typography
-                                            fontSize="12px"
-                                            fontWeight={500}
-                                            sx={{
-                                                color: theme.palette.customColor
-                                                    .fifteen,
-                                            }}
-                                        >
-                                            <CustomFormatedDateTime
-                                                date={trackData?.data?.schedule_at}
-                                            />
-                                        </Typography>
-                                    </Stack>
-                                )}
+                                        {trackData?.data?.order_type ===
+                                        'dine_in'
+                                            ? t('Dine-in date:')
+                                            : t('Scheduled delivery')}
+                                    </Typography>
+                                    <Typography
+                                        fontSize="14px"
+                                        fontWeight={400}
+                                        sx={{
+                                            color: theme.palette.text.secondary,
+                                        }}
+                                    >
+                                        <CustomFormatedDateTime
+                                            date={trackData?.data?.schedule_at}
+                                        />
+                                    </Typography>
+                                </Stack>
+                            )}
                         </Stack>
                     </Grid>
 
@@ -647,7 +720,9 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                     ?.subscription === null &&
                                                     global?.repeat_order_option &&
                                                     getToken() &&
-                                                    !isTrackOrder && (
+                                                    !isTrackOrder &&
+                                                    !hasBogoItem &&
+                                                    !isCampaignOrder && (
                                                         <Reorder
                                                             orderData={
                                                                 data?.data
@@ -668,48 +743,51 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                         (trackData?.data?.order_status ===
                                             'canceled' ||
                                             trackData?.data?.order_status ===
-                                            'failed') && (
+                                                'failed') && (
                                             <Stack>
-                                                {global?.repeat_order_option && (
-                                                    <Reorder
-                                                        orderData={
-                                                            data?.data?.details
-                                                        }
-                                                        orderZoneId={
-                                                            trackData?.data
-                                                                ?.zone_id
-                                                        }
-                                                    />
-                                                )}
+                                                {global?.repeat_order_option &&
+                                                    !hasBogoItem &&
+                                                    !isCampaignOrder && (
+                                                        <Reorder
+                                                            orderData={
+                                                                data?.data
+                                                                    ?.details
+                                                            }
+                                                            orderZoneId={
+                                                                trackData?.data
+                                                                    ?.zone_id
+                                                            }
+                                                        />
+                                                    )}
                                                 {trackData?.data
                                                     ?.order_status ===
                                                     'failed' && (
-                                                        <PaymentUpdate
-                                                            id={tempOrderId}
-                                                            refetchOrderDetails={
-                                                                refetchOrderDetails
-                                                            }
-                                                            refetchTrackData={
-                                                                refetchTrackData
-                                                            }
-                                                            trackData={trackData}
-                                                        />
-                                                    )}
+                                                    <PaymentUpdate
+                                                        id={tempOrderId}
+                                                        refetchOrderDetails={
+                                                            refetchOrderDetails
+                                                        }
+                                                        refetchTrackData={
+                                                            refetchTrackData
+                                                        }
+                                                        trackData={trackData}
+                                                    />
+                                                )}
                                             </Stack>
                                         )}
                                     {trackData &&
                                         (trackData?.data?.order_status ===
                                             'accepted' ||
                                             trackData?.data?.order_status ===
-                                            'pending' ||
+                                                'pending' ||
                                             trackData?.data?.order_status ===
-                                            'processing' ||
+                                                'processing' ||
                                             trackData?.data?.order_status ===
-                                            'confirmed' ||
+                                                'confirmed' ||
                                             trackData?.data?.order_status ===
-                                            'handover' ||
+                                                'handover' ||
                                             trackData?.data?.order_status ===
-                                            'picked_up') && (
+                                                'picked_up') && (
                                             // trackData?.data?.subscription
                                             <OrderDetailsBottom
                                                 id={tempOrderId}
@@ -758,10 +836,8 @@ const OrderDetails = ({ OrderIdDigital }) => {
                             >
                                 {trackData &&
                                     trackData?.data?.subscription === null &&
-                                    trackData?.data?.order_status !==
-                                    'pending' &&
                                     trackData?.data?.order_type !==
-                                    'dine_in' && (
+                                        'dine_in' && (
                                         <>
                                             {trackData ? (
                                                 <DeliveryTimeInfoVisibility
@@ -779,6 +855,9 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                             subscriptionData={
                                                 trackData?.data?.subscription
                                             }
+                                            eta={normalizeOrderEta(
+                                                trackData?.data
+                                            )}
                                             t={t}
                                             subscriptionSchedules={
                                                 data?.data
@@ -811,178 +890,58 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                 {trackData &&
                                     trackData?.data?.order_type === 'dine_in' &&
                                     trackData?.data?.order_status !==
-                                    'canceled' &&
+                                        'canceled' &&
                                     trackData?.data?.order_status !==
-                                    'refund_requested' &&
+                                        'refund_requested' &&
                                     trackData?.data?.order_status !==
-                                    'refunded' &&
+                                        'refunded' &&
                                     trackData?.data?.order_status !==
-                                    'refunded_canceled' && (
+                                        'refunded_canceled' && (
                                         <DIneInOrderTimeInfo
                                             trackData={trackData}
                                         />
                                     )}
                                 {/*<DeliveryTimeInfo trackData={trackData} />*/}
-                                <ProductDetailsWrapper>
+                                {trackData &&
+                                    trackData?.data?.order_type ===
+                                        'delivery' && (
+                                        <DeliveryInfoCard
+                                            order={trackData?.data}
+                                            onRestaurantLocationClick={() =>
+                                                setOpenRes(true)
+                                            }
+                                        />
+                                    )}
+                                <ProductDetailsWrapper gap="16px">
+                                    {data?.data?.details?.length > 0 && (
+                                        <TitleTypography>
+                                            {data.data.details.length}{' '}
+                                            {t('Items')}
+                                        </TitleTypography>
+                                    )}
                                     {data?.data?.details?.length > 0 &&
                                         data?.data?.details?.map(
                                             (product, id) => (
-                                                <Stack key={id}>
-                                                    <Stack
-                                                        flexDirection="row"
-                                                        justifyContent="space-between"
-                                                        alignItems="center"
-                                                    >
-                                                        <Stack
-                                                            flexDirection="row"
-                                                            gap="17px"
-                                                        >
-                                                            <Stack minWidth="60px">
-                                                                {product.item_campaign_id ? (
-                                                                    <CustomImageContainer
-                                                                        src={
-                                                                            product
-                                                                                .food_details
-                                                                                .image_full_url
-                                                                        }
-                                                                        height="60px"
-                                                                        maxWidth="60px"
-                                                                        width="100%"
-                                                                        loading="lazy"
-                                                                        smHeight="50px"
-                                                                        borderRadius="5px"
-                                                                        objectFit="cover"
-                                                                    />
-                                                                ) : (
-                                                                    <CustomImageContainer
-                                                                        src={
-                                                                            product
-                                                                                .food_details
-                                                                                .image_full_url
-                                                                        }
-                                                                        height="60px"
-                                                                        maxWidth="60px"
-                                                                        width="100%"
-                                                                        loading="lazy"
-                                                                        smHeight="50px"
-                                                                        borderRadius="5px"
-                                                                        objectFit="cover"
-                                                                    />
-                                                                )}
-                                                            </Stack>
-                                                            <Stack>
-                                                                <OrderFoodName
-                                                                    fontSize="13px"
-                                                                    fontWeight={
-                                                                        600
-                                                                    }
-                                                                    color={
-                                                                        theme
-                                                                            .palette
-                                                                            .customColor
-                                                                            .fifteen
-                                                                    }
-                                                                >
-                                                                    {
-                                                                        product
-                                                                            ?.food_details
-                                                                            ?.name
-                                                                    }
-                                                                </OrderFoodName>
-                                                                {getAddOnsNames(
-                                                                    product?.add_ons
-                                                                ).length >
-                                                                    0 && (
-                                                                        <OrderFoodName
-                                                                            color={
-                                                                                theme
-                                                                                    .palette
-                                                                                    .customColor
-                                                                                    .fifteen
-                                                                            }
-                                                                        >
-                                                                            {t(
-                                                                                'Addons'
-                                                                            )}
-                                                                            :{' '}
-                                                                            {getAddOnsNames(
-                                                                                product?.add_ons
-                                                                            )}
-                                                                        </OrderFoodName>
-                                                                    )}
-                                                                {product
-                                                                    ?.variation
-                                                                    ?.length >
-                                                                    0 && (
-                                                                        <>
-                                                                            {getVariationNames(
-                                                                                product,
-                                                                                t
-                                                                            )}
-                                                                        </>
-                                                                    )}
-
-                                                                <OrderFoodName
-                                                                    color={
-                                                                        theme
-                                                                            .palette
-                                                                            .customColor
-                                                                            .fifteen
-                                                                    }
-                                                                >
-                                                                    {t(
-                                                                        'Unit Price '
-                                                                    )}
-                                                                    :{' '}
-                                                                    {getAmount(
-                                                                        product
-                                                                            ?.food_details
-                                                                            ?.price,
-                                                                        currencySymbolDirection,
-                                                                        currencySymbol,
-                                                                        digitAfterDecimalPoint
-                                                                    )}
-                                                                </OrderFoodName>
-                                                            </Stack>
-                                                        </Stack>
-                                                        <Stack>
-                                                            <OrderFoodAmount>
-                                                                {getAmount(
-                                                                    product?.price *
-                                                                    product?.quantity,
-                                                                    currencySymbolDirection,
-                                                                    currencySymbol,
-                                                                    digitAfterDecimalPoint
-                                                                )}
-                                                            </OrderFoodAmount>
-                                                            <OrderFoodName
-                                                                color={
-                                                                    theme
-                                                                        .palette
-                                                                        .text
-                                                                        .secondary
-                                                                }
-                                                                textAlign="end"
-                                                            >
-                                                                {t('Qty')}:{' '}
-                                                                {
-                                                                    product?.quantity
-                                                                }
-                                                            </OrderFoodName>
-                                                        </Stack>
-                                                    </Stack>
-                                                    {data?.data?.details
-                                                        ?.length -
-                                                        1 >
-                                                        id && (
-                                                            <Stack padding="15px 5px 15px 0px">
-                                                                <CustomProductDivider
-                                                                    variant="middle"
-                                                                    component="div"
-                                                                />
-                                                            </Stack>
-                                                        )}
-                                                </Stack>
+                                                <OrderItemRow
+                                                    key={id}
+                                                    product={product}
+                                                    isLast={
+                                                        id ===
+                                                        data.data.details
+                                                            .length -
+                                                            1
+                                                    }
+                                                    currencySymbolDirection={
+                                                        currencySymbolDirection
+                                                    }
+                                                    currencySymbol={
+                                                        currencySymbol
+                                                    }
+                                                    digitAfterDecimalPoint={
+                                                        digitAfterDecimalPoint
+                                                    }
+                                                    t={t}
+                                                />
                                             )
                                         )}
                                 </ProductDetailsWrapper>
@@ -991,162 +950,87 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                     ?.token_number ||
                                     trackData?.data?.order_reference
                                         ?.table_number) && (
-                                        <ProductDetailsWrapper>
-                                            <Stack
-                                                sx={{
-                                                    justifyContent: 'space-between',
-                                                    alignItems: 'center',
-                                                }}
-                                                direction="row"
-                                                width="100%"
-                                                padding="5px"
-                                            >
-                                                {/* Token Number */}
-                                                {trackData?.data?.order_reference
-                                                    ?.token_number && (
-                                                        <Stack
-                                                            width="100%"
-                                                            justifyContent="center"
-                                                            alignItems="center"
-                                                        >
-                                                            <Typography
-                                                                fontSize="14px"
-                                                                fontWeight="600"
-                                                                component="span"
-                                                            >
-                                                                {
-                                                                    trackData.data
-                                                                        .order_reference
-                                                                        .token_number
-                                                                }
-                                                                <Typography
-                                                                    paddingInlineStart="5px"
-                                                                    component="span"
-                                                                    color={
-                                                                        theme.palette
-                                                                            .primary
-                                                                            .main
-                                                                    }
-                                                                    fontSize="12px"
-                                                                >
-                                                                    {t('(Token No.)')}
-                                                                </Typography>
-                                                            </Typography>
-                                                        </Stack>
-                                                    )}
-
-                                                {/* Divider */}
-                                                {trackData?.data?.order_reference
-                                                    ?.token_number &&
-                                                    trackData?.data?.order_reference
-                                                        ?.table_number && (
-                                                        <Stack
-                                                            height="100%"
-                                                            border="1px solid"
-                                                            borderColor={
-                                                                theme.palette
-                                                                    .neutral[400]
-                                                            }
-                                                        />
-                                                    )}
-
-                                                {/* Table Number */}
-                                                {trackData?.data?.order_reference
-                                                    ?.table_number && (
-                                                        <Typography
-                                                            width="100%"
-                                                            textAlign="center"
-                                                            fontSize="12px"
-                                                            color={
-                                                                theme.palette.info.main
-                                                            }
-                                                        >
-                                                            {`${t('Table No-')} ${trackData.data
+                                    <ProductDetailsWrapper>
+                                        <Stack
+                                            sx={{
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                            }}
+                                            direction="row"
+                                            width="100%"
+                                            padding="5px"
+                                        >
+                                            {/* Token Number */}
+                                            {trackData?.data?.order_reference
+                                                ?.token_number && (
+                                                <Stack
+                                                    width="100%"
+                                                    justifyContent="center"
+                                                    alignItems="center"
+                                                >
+                                                    <Typography
+                                                        fontSize="14px"
+                                                        fontWeight="600"
+                                                        component="span"
+                                                    >
+                                                        {
+                                                            trackData.data
                                                                 .order_reference
-                                                                .table_number
-                                                                }`}
+                                                                .token_number
+                                                        }
+                                                        <Typography
+                                                            paddingInlineStart="5px"
+                                                            component="span"
+                                                            color={
+                                                                theme.palette
+                                                                    .primary
+                                                                    .main
+                                                            }
+                                                            fontSize="12px"
+                                                        >
+                                                            {t('(Token No.)')}
                                                         </Typography>
-                                                    )}
-                                            </Stack>
-                                        </ProductDetailsWrapper>
-                                    )}
+                                                    </Typography>
+                                                </Stack>
+                                            )}
 
-                                {trackData &&
-                                    trackData?.data?.delivery_instruction &&
-                                    trackData?.data?.order_type ===
-                                    'delivery' && (
-                                        <Stack gap="10px">
-                                            <TitleTypography>
-                                                {t('Instructions')}
-                                            </TitleTypography>
-                                            <InstructionWrapper>
-                                                {trackData ? (
-                                                    <Typography
-                                                        component="span"
-                                                        textTransform="capitalize"
-                                                        align="left"
-                                                        fontSize={{
-                                                            xs: '12px',
-                                                            sm: '12px',
-                                                            md: '14px',
-                                                        }}
-                                                        color={
+                                            {/* Divider */}
+                                            {trackData?.data?.order_reference
+                                                ?.token_number &&
+                                                trackData?.data?.order_reference
+                                                    ?.table_number && (
+                                                    <Stack
+                                                        height="100%"
+                                                        border="1px solid"
+                                                        borderColor={
                                                             theme.palette
                                                                 .neutral[400]
                                                         }
-                                                    >
-                                                        {t(
-                                                            trackData?.data
-                                                                ?.delivery_instruction
-                                                        )}
-                                                    </Typography>
-                                                ) : (
-                                                    <Skeleton
-                                                        width="100px"
-                                                        variant="text"
                                                     />
                                                 )}
-                                            </InstructionWrapper>
+
+                                            {/* Table Number */}
+                                            {trackData?.data?.order_reference
+                                                ?.table_number && (
+                                                <Typography
+                                                    width="100%"
+                                                    textAlign="center"
+                                                    fontSize="12px"
+                                                    color={
+                                                        theme.palette.info.main
+                                                    }
+                                                >
+                                                    {`${t('Table No-')} ${
+                                                        trackData.data
+                                                            .order_reference
+                                                            .table_number
+                                                    }`}
+                                                </Typography>
+                                            )}
                                         </Stack>
-                                    )}
-                                {trackData &&
-                                    trackData?.data?.unavailable_item_note &&
-                                    trackData?.data?.order_type ===
-                                    'delivery' && (
-                                        <Stack gap="10px">
-                                            <TitleTypography>
-                                                {t('Unavailable item note')}
-                                            </TitleTypography>
-                                            <InstructionWrapper>
-                                                {trackData ? (
-                                                    <Typography
-                                                        component="span"
-                                                        textTransform="capitalize"
-                                                        align="left"
-                                                        fontSize={{
-                                                            xs: '12px',
-                                                            sm: '12px',
-                                                            md: '14px',
-                                                        }}
-                                                        color={
-                                                            theme.palette
-                                                                .neutral[400]
-                                                        }
-                                                    >
-                                                        {t(
-                                                            trackData?.data
-                                                                ?.unavailable_item_note
-                                                        )}
-                                                    </Typography>
-                                                ) : (
-                                                    <Skeleton
-                                                        width="100px"
-                                                        variant="text"
-                                                    />
-                                                )}
-                                            </InstructionWrapper>
-                                        </Stack>
-                                    )}
+                                    </ProductDetailsWrapper>
+                                )}
+
                                 {trackData && trackData?.data?.order_note && (
                                     <Stack gap="10px">
                                         <TitleTypography>
@@ -1179,250 +1063,29 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                     </Stack>
                                 )}
                                 {trackData?.data?.cutlery ? (
-                                    <Stack direction="row" gap={2} alignItems="center" justifyContent="space-between">
-                                        <Typography>{t("Cutlery")} : </Typography>
-                                        <Typography>{t("On")}</Typography>
+                                    <Stack
+                                        direction="row"
+                                        gap={2}
+                                        alignItems="center"
+                                        justifyContent="space-between"
+                                    >
+                                        <Typography>
+                                            {t('Cutlery')} :{' '}
+                                        </Typography>
+                                        <Typography>{t('On')}</Typography>
                                     </Stack>
                                 ) : null}
 
                                 <Stack gap="25px">
-                                    <TitleTypography>
-                                        {t('Restaurants Information')}
-                                    </TitleTypography>
-                                    <IformationGrid>
-                                        <Stack
-                                            flexDirection="row"
-                                            gap="16px"
-                                            alignItems="center"
-                                        >
-                                            <Stack>
-                                                {trackData && (
-                                                    <CustomNextImage
-                                                        src={
-                                                            trackData?.data
-                                                                ?.restaurant
-                                                                ?.logo_full_url
-                                                        }
-                                                        height="80"
-                                                        width="80"
-                                                        borderRadius=".5rem"
-                                                        objectFit="cover"
-                                                    />
-                                                )}
-                                            </Stack>
-                                            <Stack
-                                                width="100%"
-                                                maxWidth={{
-                                                    xs: '100%',
-                                                    md: '250px',
-                                                }}
-                                            >
-                                                <InfoTypography
-                                                    sx={{
-                                                        fontWeight: '500',
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center',
-                                                        gap: '4px',
-                                                    }}
-                                                >
-                                                    {trackData &&
-                                                        trackData?.data
-                                                            ?.restaurant?.name}
-                                                    <VerifiedBadge
-                                                        verified={
-                                                            trackData?.data
-                                                                ?.restaurant
-                                                                ?.verified_seller
-                                                        }
-                                                        size={14}
-                                                    />
-                                                </InfoTypography>
-                                                <InfoTypography
-                                                    sx={{
-                                                        fontWeight: 'bold',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '5px',
-                                                    }}
-                                                >
-                                                    {trackData &&
-                                                        trackData?.data?.restaurant?.avg_rating?.toFixed(
-                                                            1
-                                                        )}
-                                                    <StarIcon
-                                                        sx={{
-                                                            fontSize: '16px',
-
-                                                            color: (theme) =>
-                                                                theme.palette
-                                                                    .primary
-                                                                    .main,
-                                                        }}
-                                                    />{' '}
-                                                </InfoTypography>
-                                                <InfoTypography
-                                                    sx={{
-                                                        wordBreak: 'break-word',
-                                                        width: '100%',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        display: '-webkit-box',
-                                                        WebkitLineClamp: '1',
-                                                        WebkitBoxOrient: 'vertical',
-                                                    }}
-                                                >
-                                                    {t('Address')} :{' '}
-                                                    {
-                                                        trackData?.data
-                                                            ?.restaurant
-                                                            ?.address
-                                                    }
-                                                </InfoTypography>
-                                            </Stack>
-                                        </Stack>
-                                        <Stack
-                                            direction="row"
-                                            alignItems="center"
-                                            spacing={1}
-                                        >
-                                            {trackData &&
-                                                trackData?.data
-                                                    ?.order_status !==
-                                                'dine_in' && (
-                                                    <IconButton
-                                                        onClick={() =>
-                                                            setOpenRes(true)
-                                                        }
-                                                    >
-                                                        <LocationIcon />
-                                                    </IconButton>
-                                                )}
-                                            {trackData &&
-                                                trackData?.data?.order_status !==
-                                                'delivered' &&
-                                                trackData?.data?.order_status !==
-                                                'failed' &&
-                                                trackData?.data?.order_status !==
-                                                'canceled' &&
-                                                trackData?.data?.order_status !==
-                                                'refunded' &&
-                                                trackData?.data?.restaurant
-                                                    ?.restaurant_model ===
-                                                'subscription' &&
-                                                Number.parseInt(
-                                                    trackData?.data?.restaurant
-                                                        ?.restaurant_sub?.chat
-                                                ) === 1 &&
-                                                getToken() && (
-                                                    <Stack
-                                                        justifyContent="flex-end"
-                                                        sx={{ cursor: 'pointer' }}
-                                                    >
-                                                        <Link
-                                                            href={{
-                                                                pathname: '/info',
-                                                                query: {
-                                                                    page: 'inbox',
-                                                                    type: 'vendor',
-                                                                    id: trackData
-                                                                        ?.data
-                                                                        ?.restaurant
-                                                                        .vendor_id,
-                                                                    routeName:
-                                                                        'vendor_id',
-                                                                    chatFrom:
-                                                                        'true',
-                                                                },
-                                                            }}
-                                                        >
-                                                            <ChatIcon
-                                                                sx={{
-                                                                    height: 25,
-                                                                    width: 25,
-                                                                    color: (
-                                                                        theme
-                                                                    ) =>
-                                                                        theme
-                                                                            .palette
-                                                                            .primary
-                                                                            .main,
-                                                                }}
-                                                            ></ChatIcon>
-                                                        </Link>
-                                                    </Stack>
-                                                )}
-                                            {trackData &&
-                                                trackData?.data?.order_status !==
-                                                'delivered' &&
-                                                trackData?.data?.order_status !==
-                                                'failed' &&
-                                                trackData?.data?.order_status !==
-                                                'canceled' &&
-                                                trackData?.data?.order_status !==
-                                                'refunded' &&
-                                                trackData?.data?.restaurant
-                                                    ?.restaurant_model ===
-                                                'commission' &&
-                                                getToken() && (
-                                                    <Stack
-                                                        justifyContent="flex-end"
-                                                        sx={{ cursor: 'pointer', paddingTop: "10px", }}
-                                                    >
-                                                        <Link
-                                                            href={{
-                                                                pathname: '/info',
-                                                                query: {
-                                                                    page: 'inbox',
-                                                                    type: 'vendor',
-                                                                    id: trackData
-                                                                        ?.data
-                                                                        ?.restaurant
-                                                                        .vendor_id,
-                                                                    routeName:
-                                                                        'vendor_id',
-                                                                    chatFrom:
-                                                                        'true',
-                                                                    restaurantName:
-                                                                        trackData
-                                                                            ?.data
-                                                                            ?.restaurant
-                                                                            ?.name,
-                                                                    logo: trackData
-                                                                        ?.data
-                                                                        ?.restaurant
-                                                                        ?.logo,
-                                                                },
-                                                            }}
-                                                        >
-                                                            <ChatIcon
-                                                                sx={{
-
-                                                                    height: 25,
-                                                                    width: 25,
-                                                                    color: (
-                                                                        theme
-                                                                    ) =>
-                                                                        theme
-                                                                            .palette
-                                                                            .primary
-                                                                            .main,
-                                                                }}
-                                                            ></ChatIcon>
-                                                        </Link>
-                                                    </Stack>
-                                                )}
-                                        </Stack>
-
-                                    </IformationGrid>
                                     {trackData?.data?.delivery_man &&
                                         trackData?.data?.order_status !==
-                                        'delivered' &&
+                                            'delivered' &&
                                         trackData?.data?.order_status !==
-                                        'failed' &&
+                                            'failed' &&
                                         trackData?.data?.order_status !==
-                                        'canceled' &&
+                                            'canceled' &&
                                         trackData?.data?.order_status !==
-                                        'refunded' &&
+                                            'refunded' &&
                                         getToken() && (
                                             <Stack gap="25px">
                                                 <TitleTypography>
@@ -1566,7 +1229,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
 
                                     <Stack gap="15px">
                                         <TitleTypography>
-                                            {t('Payment Information')}
+                                            {t('Payment Method')}
                                         </TitleTypography>
                                         <ProductDetailsWrapper
                                             isVerfired={
@@ -1574,180 +1237,18 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                     ?.status === 'verified'
                                             }
                                         >
-                                            {(trackData?.data
-                                                ?.payment_method ===
-                                                'offline_payment' ||
-                                                trackData?.data
-                                                    ?.offline_payment !==
-                                                null) && (
-                                                    <OfflineOrderDetails
-                                                        trackData={trackData?.data}
-                                                        refetchTrackData={
-                                                            refetchTrackData
-                                                        }
-                                                    />
-                                                )}
-                                            {trackData?.data?.payment_method !==
-                                                'offline_payment' && (
-                                                    <Stack
-                                                        direction={{
-                                                            xs: 'column',
-                                                            sm: 'row',
-                                                            md: 'row',
-                                                        }}
-                                                        justifyContent="space-between"
-                                                    >
-                                                        <Stack direction="row">
-                                                            <Typography
-                                                                color={
-                                                                    theme.palette
-                                                                        .neutral[400]
-                                                                }
-                                                                fontSize="14px"
-                                                                fontWeight={400}
-                                                                sx={{
-                                                                    textTransform:
-                                                                        'capitalize',
-                                                                    wordWrap:
-                                                                        'break-word',
-                                                                }}
-                                                            >
-                                                                {t('Method')}
-                                                            </Typography>
-                                                            <Typography
-                                                                fontSize="14px"
-                                                                fontWeight="400"
-                                                                color={
-                                                                    theme.palette
-                                                                        .neutral[400]
-                                                                }
-                                                                sx={{
-                                                                    textTransform:
-                                                                        'capitalize',
-                                                                    wordWrap:
-                                                                        'break-word',
-                                                                }}
-                                                            >
-                                                                {' '}
-                                                                &nbsp;&nbsp;&nbsp;:
-                                                                &nbsp;&nbsp;{' '}
-                                                                {trackData?.data
-                                                                    ?.offline_payment !==
-                                                                    null &&
-                                                                    trackData?.data
-                                                                        ?.payment_method !==
-                                                                    'partial_payment'
-                                                                    ? `${t(
-                                                                        'Offline Payment'
-                                                                    )} (${trackData
-                                                                        ?.data
-                                                                        ?.offline_payment
-                                                                        ?.data
-                                                                        ?.method_name
-                                                                    })`
-                                                                    : `${t(
-                                                                        trackData
-                                                                            ?.data
-                                                                            ?.payment_method
-                                                                    ).replaceAll(
-                                                                        '_',
-                                                                        ' '
-                                                                    )}`}
-                                                            </Typography>
-                                                        </Stack>
-                                                        <Stack
-                                                            direction="row"
-                                                            alignItems="center"
-                                                        >
-                                                            <Typography
-                                                                fontSize="14px"
-                                                                fontWeight="400"
-                                                                color={
-                                                                    theme.palette
-                                                                        .neutral[400]
-                                                                }
-                                                                sx={{
-                                                                    textTransform:
-                                                                        'capitalize',
-                                                                    wordWrap:
-                                                                        'break-word',
-                                                                }}
-                                                                align="left"
-                                                            >
-                                                                {t(
-                                                                    'Payment Status'
-                                                                )}
-                                                            </Typography>
-                                                            &nbsp;&nbsp;&nbsp;:
-                                                            &nbsp;&nbsp;
-                                                            {trackData &&
-                                                                trackData?.data
-                                                                    ?.offline_payment !==
-                                                                null ? (
-                                                                <Typography
-                                                                    component="span"
-                                                                    sx={{
-                                                                        fontSize:
-                                                                            '14px',
-                                                                        color: backgroundColorStatus()
-                                                                            .color,
-                                                                        fontWeight:
-                                                                            '400',
-                                                                    }}
-                                                                >
-                                                                    {
-                                                                        backgroundColorStatus()
-                                                                            .status
-                                                                    }
-                                                                </Typography>
-                                                            ) : (
-                                                                <Typography
-                                                                    sx={{
-                                                                        fontWeight:
-                                                                            '400',
-                                                                        fontSize:
-                                                                            '14px',
-                                                                    }}
-                                                                    align="left"
-                                                                >
-                                                                    {trackData &&
-                                                                        trackData?.data
-                                                                            ?.payment_status ===
-                                                                        'paid' ? (
-                                                                        <span
-                                                                            style={{
-                                                                                color: `${theme.palette.success.main}`,
-                                                                            }}
-                                                                        >
-                                                                            {t(
-                                                                                'Paid'
-                                                                            )}
-                                                                        </span>
-                                                                    ) : (
-                                                                        <span
-                                                                            style={{
-                                                                                color: 'red',
-                                                                            }}
-                                                                        >
-                                                                            {t(
-                                                                                'Unpaid'
-                                                                            )}
-                                                                        </span>
-                                                                    )}
-                                                                </Typography>
-                                                            )}
-                                                        </Stack>
-                                                    </Stack>
-                                                )}
                                             {global?.order_delivery_verification && (
-                                                <Stack direction="row">
+                                                <Stack
+                                                    direction="row"
+                                                    marginBottom="10px"
+                                                >
                                                     <Typography
                                                         color={
                                                             theme.palette
                                                                 .neutral[400]
                                                         }
                                                         fontSize="14px"
-                                                        fontWeight={400}
+                                                        fontWeight={600}
                                                         sx={{
                                                             textTransform:
                                                                 'capitalize',
@@ -1759,7 +1260,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                     </Typography>
                                                     <Typography
                                                         fontSize="14px"
-                                                        fontWeight="400"
+                                                        fontWeight={600}
                                                         color={
                                                             theme.palette
                                                                 .neutral[400]
@@ -1778,6 +1279,62 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                     </Typography>
                                                 </Stack>
                                             )}
+                                            {(trackData?.data
+                                                ?.payment_method ===
+                                                'offline_payment' ||
+                                                trackData?.data
+                                                    ?.offline_payment !==
+                                                    null) && (
+                                                <OfflineOrderDetails
+                                                    trackData={trackData?.data}
+                                                    refetchTrackData={
+                                                        refetchTrackData
+                                                    }
+                                                />
+                                            )}
+                                            {trackData?.data?.payment_method !==
+                                                'offline_payment' && (
+                                                <PaymentMethodCard
+                                                    method={
+                                                        trackData?.data
+                                                            ?.payment_method
+                                                    }
+                                                    amount={getAmount(
+                                                        trackData?.data
+                                                            ?.order_amount,
+                                                        currencySymbolDirection,
+                                                        currencySymbol,
+                                                        digitAfterDecimalPoint
+                                                    )}
+                                                    showPayDigitally={
+                                                        trackData?.data
+                                                            ?.payment_method ===
+                                                            'cash_on_delivery' &&
+                                                        trackData?.data
+                                                            ?.payment_status ===
+                                                            'unpaid' &&
+                                                        Boolean(
+                                                            global?.cod_to_digital_payment
+                                                        ) &&
+                                                        [
+                                                            'pending',
+                                                            'accepted',
+                                                            'confirmed',
+                                                            'processing',
+                                                            'handover',
+                                                            'picked_up',
+                                                        ].includes(
+                                                            trackData?.data
+                                                                ?.order_status
+                                                        )
+                                                    }
+                                                    onPayDigitally={() =>
+                                                        setOpenPayDigitallyModal(
+                                                            true
+                                                        )
+                                                    }
+                                                />
+                                            )}
                                         </ProductDetailsWrapper>
                                     </Stack>
                                     {trackData?.data?.refund && (
@@ -1788,8 +1345,8 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                 direction="row"
                                             >
                                                 {trackData?.data?.refund &&
-                                                    trackData?.data
-                                                        ?.order_status ===
+                                                trackData?.data
+                                                    ?.order_status ===
                                                     'refund_request_canceled' ? (
                                                     <Refund
                                                         t={t}
@@ -1803,7 +1360,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                 ) : (
                                                     trackData?.data
                                                         ?.order_status ===
-                                                    'refund_requested' && (
+                                                        'refund_requested' && (
                                                         <Refund
                                                             t={t}
                                                             title="Refund request"
@@ -1830,33 +1387,33 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                     )}
                                     {trackData?.data?.order_status ===
                                         'canceled' && (
-                                            <Stack spacing={1.2}>
-                                                <TitleTypography>
-                                                    {t('Cancellation Note')}
-                                                </TitleTypography>
-                                                <Stack
-                                                    padding="20px 16px"
-                                                    borderRadius="10px"
-                                                    backgroundColor={alpha(
-                                                        theme.palette.nonVeg,
-                                                        0.1
-                                                    )}
+                                        <Stack spacing={1.2}>
+                                            <TitleTypography>
+                                                {t('Cancellation Note')}
+                                            </TitleTypography>
+                                            <Stack
+                                                padding="20px 16px"
+                                                borderRadius="10px"
+                                                backgroundColor={alpha(
+                                                    theme.palette.nonVeg,
+                                                    0.1
+                                                )}
+                                            >
+                                                <Typography
+                                                    fontSize="14px"
+                                                    color={
+                                                        theme.palette
+                                                            .neutral[400]
+                                                    }
                                                 >
-                                                    <Typography
-                                                        fontSize="14px"
-                                                        color={
-                                                            theme.palette
-                                                                .neutral[400]
-                                                        }
-                                                    >
-                                                        {
-                                                            trackData?.data
-                                                                ?.cancellation_reason
-                                                        }
-                                                    </Typography>
-                                                </Stack>
+                                                    {
+                                                        trackData?.data
+                                                            ?.cancellation_reason
+                                                    }
+                                                </Typography>
                                             </Stack>
-                                        )}
+                                        </Stack>
+                                    )}
                                 </Stack>
                             </Grid>
                             <Grid item sm={4.7} xs={12}>
@@ -1898,7 +1455,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                             </InfoTypography>
                                         </Grid>
                                         <Grid item md={5} xs={4}>
-                                            <InfoTypography align="right">
+                                            <AmountTypography align="right">
                                                 {data &&
                                                     getAmount(
                                                         getItemsPrice(
@@ -1908,10 +1465,10 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                         currencySymbol,
                                                         digitAfterDecimalPoint
                                                     )}
-                                            </InfoTypography>
+                                            </AmountTypography>
                                         </Grid>
                                         {getAddOnsPrice(data?.data?.details) >
-                                            0 ? (
+                                        0 ? (
                                             <>
                                                 <Grid item md={8} xs={8}>
                                                     <InfoTypography>
@@ -1919,7 +1476,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                     </InfoTypography>
                                                 </Grid>
                                                 <Grid item md={4} xs={4}>
-                                                    <InfoTypography align="right">
+                                                    <AmountTypography align="right">
                                                         {data &&
                                                             getAmount(
                                                                 getAddOnsPrice(
@@ -1930,55 +1487,92 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                                 currencySymbol,
                                                                 digitAfterDecimalPoint
                                                             )}
-                                                    </InfoTypography>
+                                                    </AmountTypography>
                                                 </Grid>
                                             </>
                                         ) : null}
 
                                         <Grid item md={7} xs={8}>
-                                            <InfoTypography>
-                                                {t('Discount')}
-                                            </InfoTypography>
+                                            <Stack
+                                                direction="row"
+                                                alignItems="center"
+                                                spacing={0.5}
+                                            >
+                                                <InfoTypography>
+                                                    {t('Discount')}
+                                                </InfoTypography>
+                                                {Boolean(
+                                                    trackData?.data
+                                                        ?.restaurant_discount_amount
+                                                ) &&
+                                                    discountSourceText && (
+                                                        <Tooltip
+                                                            title={
+                                                                discountSourceText
+                                                            }
+                                                            placement="top"
+                                                            arrow
+                                                        >
+                                                            <Box
+                                                                component="i"
+                                                                className="fi fi-br-info"
+                                                                sx={{
+                                                                    fontSize:
+                                                                        '14px',
+                                                                    lineHeight: 1,
+                                                                    display:
+                                                                        'flex',
+                                                                    color: 'text.primary',
+                                                                    cursor: 'pointer',
+                                                                }}
+                                                            />
+                                                        </Tooltip>
+                                                    )}
+                                            </Stack>
                                         </Grid>
                                         <Grid item md={5} xs={4}>
-                                            <InfoTypography align="right">
+                                            <AmountTypography align="right">
                                                 (-)
                                                 <InfoTypography
                                                     component="span"
                                                     marginLeft="4px"
                                                 >
                                                     {trackData &&
-                                                        trackData?.data
-                                                            ?.restaurant_discount_amount
+                                                    trackData?.data
+                                                        ?.restaurant_discount_amount
                                                         ? getAmount(
-                                                            trackData?.data
-                                                                ?.restaurant_discount_amount,
-                                                            currencySymbolDirection,
-                                                            currencySymbol,
-                                                            digitAfterDecimalPoint
-                                                        )
+                                                              trackData?.data
+                                                                  ?.restaurant_discount_amount,
+                                                              currencySymbolDirection,
+                                                              currencySymbol,
+                                                              digitAfterDecimalPoint
+                                                          )
                                                         : getAmount(
-                                                            0,
-                                                            currencySymbolDirection,
-                                                            currencySymbol,
-                                                            digitAfterDecimalPoint
-                                                        )}
+                                                              0,
+                                                              currencySymbolDirection,
+                                                              currencySymbol,
+                                                              digitAfterDecimalPoint
+                                                          )}
                                                 </InfoTypography>
-                                            </InfoTypography>
+                                            </AmountTypography>
                                         </Grid>
                                         <Grid item md={8} xs={8}>
                                             <InfoTypography>
                                                 {t('Coupon Discount')}
-                                                {proBenefitType === 'coupon' && (
+                                                {proBenefitType ===
+                                                    'coupon' && (
                                                     <Box
                                                         component="span"
                                                         sx={{
-                                                            display: 'inline-flex',
-                                                            alignItems: 'center',
+                                                            display:
+                                                                'inline-flex',
+                                                            alignItems:
+                                                                'center',
                                                             ml: 0.75,
                                                             px: 0.75,
                                                             py: 0.25,
-                                                            borderRadius: '999px',
+                                                            borderRadius:
+                                                                '999px',
                                                             backgroundColor:
                                                                 'rgba(181, 142, 255, 0.15)',
                                                             color: '#7C3AED',
@@ -1995,7 +1589,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                             </InfoTypography>
                                         </Grid>
                                         <Grid item md={4} xs={4}>
-                                            <InfoTypography align="right">
+                                            <AmountTypography align="right">
                                                 (-)
                                                 <InfoTypography
                                                     component="span"
@@ -2010,10 +1604,10 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                             digitAfterDecimalPoint
                                                         )}
                                                 </InfoTypography>
-                                            </InfoTypography>
+                                            </AmountTypography>
                                         </Grid>
                                         {trackData?.data?.ref_bonus_amount >
-                                            0 ? (
+                                        0 ? (
                                             <>
                                                 <Grid item md={8} xs={8}>
                                                     <InfoTypography>
@@ -2021,7 +1615,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                     </InfoTypography>
                                                 </Grid>
                                                 <Grid item md={4} xs={4}>
-                                                    <InfoTypography align="right">
+                                                    <AmountTypography align="right">
                                                         (-)
                                                         <InfoTypography
                                                             component="span"
@@ -2037,7 +1631,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                                     digitAfterDecimalPoint
                                                                 )}
                                                         </InfoTypography>
-                                                    </InfoTypography>
+                                                    </AmountTypography>
                                                 </Grid>
                                             </>
                                         ) : (
@@ -2054,7 +1648,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                     </InfoTypography>
                                                 </Grid>
                                                 <Grid item md={4} xs={4}>
-                                                    <InfoTypography align="end">
+                                                    <AmountTypography align="end">
                                                         (+)
                                                         <InfoTypography
                                                             component="span"
@@ -2070,7 +1664,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                                     digitAfterDecimalPoint
                                                                 )}
                                                         </InfoTypography>
-                                                    </InfoTypography>
+                                                    </AmountTypography>
                                                 </Grid>
                                             </>
                                         ) : (
@@ -2079,7 +1673,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                         {trackData?.data?.tax_status ===
                                             'excluded' &&
                                             trackData?.data?.total_tax_amount >
-                                            0 && (
+                                                0 && (
                                                 <>
                                                     <Grid item md={8} xs={8}>
                                                         <InfoTypography>
@@ -2092,7 +1686,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                         xs={4}
                                                         align="end"
                                                     >
-                                                        <InfoTypography>
+                                                        <AmountTypography>
                                                             (+)
                                                             <InfoTypography
                                                                 component="span"
@@ -2108,7 +1702,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                                         digitAfterDecimalPoint
                                                                     )}
                                                             </InfoTypography>
-                                                        </InfoTypography>
+                                                        </AmountTypography>
                                                     </Grid>
                                                 </>
                                             )}
@@ -2124,7 +1718,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                         </InfoTypography>
                                                     </Grid>
                                                     <Grid item md={4} xs={4}>
-                                                        <InfoTypography align="right">
+                                                        <AmountTypography align="right">
                                                             {getAmount(
                                                                 trackData?.data
                                                                     ?.dm_tips,
@@ -2132,7 +1726,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                                 currencySymbol,
                                                                 digitAfterDecimalPoint
                                                             )}
-                                                        </InfoTypography>
+                                                        </AmountTypography>
                                                     </Grid>
                                                 </>
                                             )}
@@ -2171,7 +1765,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                             )} */}
                                         {trackData &&
                                             global?.additional_charge_status ===
-                                            1 && (
+                                                1 && (
                                                 <>
                                                     <Grid item md={8} xs={8}>
                                                         <InfoTypography>
@@ -2181,55 +1775,164 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                         </InfoTypography>
                                                     </Grid>
                                                     <Grid item md={4} xs={4}>
-                                                        <InfoTypography align="right">
-                                                            {getAmount(
-                                                                trackData?.data
-                                                                    ?.additional_charge,
-                                                                currencySymbolDirection,
-                                                                currencySymbol,
-                                                                digitAfterDecimalPoint
-                                                            )}
-                                                        </InfoTypography>
+                                                        <AmountTypography align="right">
+                                                            (+)
+                                                            <InfoTypography
+                                                                component="span"
+                                                                marginLeft="4px"
+                                                            >
+                                                                {getAmount(
+                                                                    trackData
+                                                                        ?.data
+                                                                        ?.additional_charge,
+                                                                    currencySymbolDirection,
+                                                                    currencySymbol,
+                                                                    digitAfterDecimalPoint
+                                                                )}
+                                                            </InfoTypography>
+                                                        </AmountTypography>
                                                     </Grid>
                                                 </>
                                             )}
                                         <Grid item md={8} xs={8}>
                                             <InfoTypography>
                                                 {t('Delivery fee')}
-
                                             </InfoTypography>
                                         </Grid>
                                         <Grid item md={4} xs={4}>
-                                            <InfoTypography align="right">
+                                            <AmountTypography align="right">
                                                 {trackData &&
-                                                    getAmount(
-                                                        deliveryFeeWithTypeCharge,
-                                                        currencySymbolDirection,
-                                                        currencySymbol,
-                                                        digitAfterDecimalPoint
-                                                    )}
-                                            </InfoTypography>
+                                                    (deliveryFeeWithTypeCharge >
+                                                    0 ? (
+                                                        // A Pro partial-free
+                                                        // benefit shows what
+                                                        // the fee would have
+                                                        // been beside what was
+                                                        // charged, the same way
+                                                        // checkout does.
+                                                        <Stack
+                                                            direction="row"
+                                                            alignItems="center"
+                                                            justifyContent="flex-end"
+                                                            spacing={0.5}
+                                                            component="span"
+                                                        >
+                                                            {isProDeliveryDiscount && (
+                                                                <Typography
+                                                                    component="span"
+                                                                    fontSize="inherit"
+                                                                    sx={{
+                                                                        textDecoration:
+                                                                            'line-through',
+                                                                        color: theme
+                                                                            .palette
+                                                                            .text
+                                                                            .secondary,
+                                                                    }}
+                                                                >
+                                                                    {getAmount(
+                                                                        deliveryFeeWithTypeCharge +
+                                                                            proDeliveryReductionAmount,
+                                                                        currencySymbolDirection,
+                                                                        currencySymbol,
+                                                                        digitAfterDecimalPoint
+                                                                    )}
+                                                                </Typography>
+                                                            )}
+                                                            <Typography
+                                                                component="span"
+                                                                fontSize="inherit"
+                                                            >
+                                                                {getAmount(
+                                                                    deliveryFeeWithTypeCharge,
+                                                                    currencySymbolDirection,
+                                                                    currencySymbol,
+                                                                    digitAfterDecimalPoint
+                                                                )}
+                                                            </Typography>
+                                                            {isProDeliveryDiscount && (
+                                                                <Typography
+                                                                    component="span"
+                                                                    fontSize="11px"
+                                                                    fontWeight={
+                                                                        600
+                                                                    }
+                                                                    color="success.main"
+                                                                >
+                                                                    ({t('Pro')})
+                                                                </Typography>
+                                                            )}
+                                                        </Stack>
+                                                    ) : (
+                                                        <Stack
+                                                            direction="row"
+                                                            alignItems="center"
+                                                            justifyContent="flex-end"
+                                                            spacing={0.5}
+                                                            component="span"
+                                                        >
+                                                            <Typography
+                                                                component="span"
+                                                                fontSize="inherit"
+                                                                fontWeight={600}
+                                                                color={
+                                                                    theme
+                                                                        .palette
+                                                                        .success
+                                                                        .main
+                                                                }
+                                                            >
+                                                                {t('Free')}
+                                                            </Typography>
+                                                            {/* Only Pro made it
+                                                                free — a zone or
+                                                                restaurant free
+                                                                delivery must not
+                                                                be credited to the
+                                                                membership. */}
+                                                            {isFullFreeProDelivery && (
+                                                                <Typography
+                                                                    component="span"
+                                                                    fontSize="11px"
+                                                                    fontWeight={
+                                                                        600
+                                                                    }
+                                                                    color="success.main"
+                                                                >
+                                                                    ({t('Pro')})
+                                                                </Typography>
+                                                            )}
+                                                        </Stack>
+                                                    ))}
+                                            </AmountTypography>
                                         </Grid>
 
                                         {normalizedDeliveryType &&
-                                            normalizedDeliveryType !== 'standard' &&
+                                            normalizedDeliveryType !==
+                                                'standard' &&
                                             deliveryTypeCharge > 0 && (
                                                 <>
                                                     <Grid item md={8} xs={8}>
                                                         <InfoTypography>
-                                                            {deliveryTypeLabels[normalizedDeliveryType] || normalizedDeliveryType}
+                                                            {deliveryTypeLabels[
+                                                                normalizedDeliveryType
+                                                            ] ||
+                                                                normalizedDeliveryType}
                                                         </InfoTypography>
                                                     </Grid>
                                                     <Grid item md={4} xs={4}>
-                                                        <InfoTypography align="right">
-                                                            {normalizedDeliveryType === 'express' ? '(+) ' : '(-) '}
+                                                        <AmountTypography align="right">
+                                                            {normalizedDeliveryType ===
+                                                            'express'
+                                                                ? '(+) '
+                                                                : '(-) '}
                                                             {getAmount(
                                                                 deliveryTypeCharge,
                                                                 currencySymbolDirection,
                                                                 currencySymbol,
                                                                 digitAfterDecimalPoint
                                                             )}
-                                                        </InfoTypography>
+                                                        </AmountTypography>
                                                     </Grid>
                                                 </>
                                             )}
@@ -2245,49 +1948,81 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                     </Grid>
 
                                     <TotalGrid container md={12} xs={12}>
-                                        <Grid item md={8} xs={8}>
+                                        <Grid item md={6} xs={6}>
                                             <Typography
                                                 fontSize="16px"
                                                 fontWeight="400"
                                                 sx={{
-                                                    color: theme.palette
-                                                        .neutral[400],
+                                                    color: theme.palette.text
+                                                        .secondary,
                                                 }}
                                             >
                                                 {t('Total')}
                                                 {trackData?.data?.tax_status ===
                                                     'included' && (
-                                                        <Typography
-                                                            fontSize="12px"
-                                                            sx={{
-                                                                marginInlineStart:
-                                                                    '5px',
-                                                            }}
-                                                            color="primary"
-                                                            component="span"
-                                                        >
-                                                            {t('(Vat/Tax incl.)')}
-                                                        </Typography>
-                                                    )}
+                                                    <Typography
+                                                        fontSize="12px"
+                                                        sx={{
+                                                            marginInlineStart:
+                                                                '5px',
+                                                        }}
+                                                        color="primary"
+                                                        component="span"
+                                                    >
+                                                        {t('(Vat/Tax incl.)')}
+                                                    </Typography>
+                                                )}
                                             </Typography>
                                         </Grid>
-                                        <Grid item md={4} xs={4} align="right">
-                                            <Typography
-                                                fontWeight="400"
-                                                color={
-                                                    theme.palette.neutral[400]
-                                                }
+                                        <Grid item md={6} xs={6}>
+                                            <Stack
+                                                direction="row"
+                                                alignItems="center"
+                                                justifyContent="flex-end"
+                                                flexWrap="wrap"
+                                                gap="12px"
                                             >
-                                                {trackData &&
-                                                    getAmount(
-                                                        handleTotalAmount(),
-                                                        currencySymbolDirection,
-                                                        currencySymbol,
-                                                        digitAfterDecimalPoint
-                                                    )}
-                                            </Typography>
+                                                {paymentStatusInfo && (
+                                                    <Typography
+                                                        sx={{
+                                                            fontSize: '14px',
+                                                            fontWeight: 500,
+                                                            letterSpacing:
+                                                                '-0.42px',
+                                                            textTransform:
+                                                                'capitalize',
+                                                            whiteSpace:
+                                                                'nowrap',
+                                                            color: paymentStatusInfo.color,
+                                                        }}
+                                                    >
+                                                        {
+                                                            paymentStatusInfo.label
+                                                        }
+                                                    </Typography>
+                                                )}
+                                                <Typography
+                                                    fontWeight="600"
+                                                    color={
+                                                        theme.palette.text
+                                                            .primary
+                                                    }
+                                                    sx={{
+                                                        whiteSpace: 'nowrap',
+                                                    }}
+                                                >
+                                                    {trackData &&
+                                                        getAmount(
+                                                            handleTotalAmount(),
+                                                            currencySymbolDirection,
+                                                            currencySymbol,
+                                                            digitAfterDecimalPoint
+                                                        )}
+                                                </Typography>
+                                            </Stack>
                                         </Grid>
-                                        {global?.pro_member_status && isProUser && proBenefitType ? (
+                                        {global?.pro_member_status &&
+                                        hasProBenefit ? (
                                             <Grid item md={12} xs={12}>
                                                 <ProSavingsBanner
                                                     amount={
@@ -2311,109 +2046,109 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                         ) : null}
                                         {trackData?.data?.subscription !==
                                             null && (
-                                                <>
-                                                    <Grid
-                                                        item
-                                                        md={8}
-                                                        xs={8}
-                                                        pt=".5rem"
-                                                        pb=".5rem"
+                                            <>
+                                                <Grid
+                                                    item
+                                                    md={8}
+                                                    xs={8}
+                                                    pt=".5rem"
+                                                    pb=".5rem"
+                                                >
+                                                    <Stack
+                                                        direction="row"
+                                                        alignItems="center"
                                                     >
-                                                        <Stack
-                                                            direction="row"
-                                                            alignItems="center"
-                                                        >
-                                                            <InfoTypography>
-                                                                {t(
-                                                                    'Total Delivered'
-                                                                )}{' '}
-                                                                (
-                                                                {trackOrderLoading ? (
-                                                                    <Skeleton
-                                                                        variant="text"
-                                                                        width={18}
-                                                                        sx={{
-                                                                            display:
-                                                                                'inline-block',
-                                                                            verticalAlign:
-                                                                                'middle',
-                                                                        }}
-                                                                    />
-                                                                ) : (
-                                                                    trackData
-                                                                        ?.data
-                                                                        ?.subscription
-                                                                        ?.delivered_count ??
-                                                                    0
-                                                                )}
-                                                                )
-                                                            </InfoTypography>
-                                                            <CustomTooltip
-                                                                title={`${trackData?.data?.subscription?.delivered_count} ${tip_text} ${trackData?.data?.subscription?.quantity}`}
-                                                                arrow
-                                                                placement="top"
-                                                            >
-                                                                <InfoIcon
+                                                        <InfoTypography>
+                                                            {t(
+                                                                'Total Delivered'
+                                                            )}{' '}
+                                                            (
+                                                            {trackOrderLoading ? (
+                                                                <Skeleton
+                                                                    variant="text"
+                                                                    width={18}
                                                                     sx={{
-                                                                        fontSize:
-                                                                            '20px',
-                                                                        color: (
-                                                                            theme
-                                                                        ) =>
-                                                                            theme
-                                                                                .palette
-                                                                                .info
-                                                                                .main,
+                                                                        display:
+                                                                            'inline-block',
+                                                                        verticalAlign:
+                                                                            'middle',
                                                                     }}
                                                                 />
-                                                            </CustomTooltip>
-                                                        </Stack>
-                                                    </Grid>
-                                                    <Grid
-                                                        item
-                                                        md={4}
-                                                        xs={4}
-                                                        pt=".5rem"
-                                                        pb=".5rem"
-                                                    >
-                                                        <InfoTypography align="right">
-                                                            (-)
-                                                            {getAmount(
+                                                            ) : (
                                                                 trackData?.data
                                                                     ?.subscription
-                                                                    ?.paid_amount,
-                                                                currencySymbolDirection,
-                                                                currencySymbol,
-                                                                digitAfterDecimalPoint
+                                                                    ?.delivered_count ??
+                                                                0
                                                             )}
+                                                            )
                                                         </InfoTypography>
-                                                    </Grid>
-                                                    <Grid item md={8} xs={8}>
-                                                        <Typography fontWeight="600">
-                                                            {t('Due')}
-                                                        </Typography>
-                                                    </Grid>
-                                                    <Grid item md={4} xs={4}>
-                                                        <Typography
-                                                            fontWeight="600"
-                                                            align="right"
+                                                        <CustomTooltip
+                                                            title={`${trackData?.data?.subscription?.delivered_count} ${tip_text} ${trackData?.data?.subscription?.quantity}`}
+                                                            arrow
+                                                            placement="top"
                                                         >
-                                                            {getAmount(
-                                                                handleTotalAmount() -
+                                                            <Box
+                                                                component="i"
+                                                                className="fi fi-br-info"
+                                                                sx={{
+                                                                    fontSize:
+                                                                        '14px',
+                                                                    lineHeight: 1,
+                                                                    display:
+                                                                        'flex',
+                                                                    ml: '6px',
+                                                                    color: 'text.secondary',
+                                                                    cursor: 'pointer',
+                                                                }}
+                                                            />
+                                                        </CustomTooltip>
+                                                    </Stack>
+                                                </Grid>
+                                                <Grid
+                                                    item
+                                                    md={4}
+                                                    xs={4}
+                                                    pt=".5rem"
+                                                    pb=".5rem"
+                                                >
+                                                    <AmountTypography align="right">
+                                                        (-)
+                                                        {getAmount(
+                                                            trackData?.data
+                                                                ?.subscription
+                                                                ?.paid_amount,
+                                                            currencySymbolDirection,
+                                                            currencySymbol,
+                                                            digitAfterDecimalPoint
+                                                        )}
+                                                    </AmountTypography>
+                                                </Grid>
+                                                <Grid item md={8} xs={8}>
+                                                    <Typography fontWeight="600">
+                                                        {t('Due')}
+                                                    </Typography>
+                                                </Grid>
+                                                <Grid item md={4} xs={4}>
+                                                    <Typography
+                                                        fontWeight="600"
+                                                        align="right"
+                                                    >
+                                                        {getAmount(
+                                                            handleTotalAmount() -
                                                                 trackData?.data
                                                                     ?.subscription
                                                                     ?.paid_amount,
-                                                                currencySymbolDirection,
-                                                                currencySymbol,
-                                                                digitAfterDecimalPoint
-                                                            )}
-                                                        </Typography>
-                                                    </Grid>
-                                                </>
-                                            )}
+                                                            currencySymbolDirection,
+                                                            currencySymbol,
+                                                            digitAfterDecimalPoint
+                                                        )}
+                                                    </Typography>
+                                                </Grid>
+                                            </>
+                                        )}
                                         {trackData &&
                                             trackData?.data?.subscription !==
-                                            null &&
+                                                null &&
                                             trackData?.data?.subscription
                                                 ?.status !== 'canceled' && (
                                                 //this bottom actions are for subscriptions order
@@ -2438,7 +2173,7 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                             )}
                                         {trackData?.data
                                             ?.partially_paid_amount &&
-                                            trackData?.data?.order_status !==
+                                        trackData?.data?.order_status !==
                                             'canceled' ? (
                                             <>
                                                 <Grid item md={8} xs={8}>
@@ -2471,11 +2206,11 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                         ) : null}
 
                                         {trackData?.data?.payment_method ===
-                                            'partial_payment' ? (
+                                        'partial_payment' ? (
                                             <>
                                                 {trackData?.data?.payments[1]
                                                     ?.payment_status ===
-                                                    'unpaid' ? (
+                                                'unpaid' ? (
                                                     <>
                                                         {' '}
                                                         <Grid
@@ -2516,9 +2251,9 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                                         trackData
                                                                             ?.data
                                                                             ?.order_amount -
-                                                                        trackData
-                                                                            ?.data
-                                                                            ?.partially_paid_amount,
+                                                                            trackData
+                                                                                ?.data
+                                                                                ?.partially_paid_amount,
                                                                         currencySymbolDirection,
                                                                         currencySymbol,
                                                                         digitAfterDecimalPoint
@@ -2564,9 +2299,9 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                                                         trackData
                                                                             ?.data
                                                                             ?.order_amount -
-                                                                        trackData
-                                                                            ?.data
-                                                                            ?.partially_paid_amount,
+                                                                            trackData
+                                                                                ?.data
+                                                                                ?.partially_paid_amount,
                                                                         currencySymbolDirection,
                                                                         currencySymbol,
                                                                         digitAfterDecimalPoint
@@ -2580,10 +2315,10 @@ const OrderDetails = ({ OrderIdDigital }) => {
                                     </TotalGrid>
                                     {global?.refund_active_status &&
                                         trackData?.data?.order_status ===
-                                        'delivered' &&
+                                            'delivered' &&
                                         trackData &&
                                         trackData?.data?.subscription ===
-                                        null &&
+                                            null &&
                                         getToken() && (
                                             <RefundButton
                                                 variant="outlined"
@@ -2600,6 +2335,77 @@ const OrderDetails = ({ OrderIdDigital }) => {
                     </>
                 )}
             </CustomPaperBigCard>
+            {paymentResultFlag && (
+                <CustomModal
+                    maxWidth="400px"
+                    openModal={Boolean(paymentResultFlag)}
+                    setModalOpen={() => setPaymentResultFlag(null)}
+                    closeButton
+                >
+                    <Stack
+                        alignItems="center"
+                        textAlign="center"
+                        spacing={2.5}
+                        sx={{ px: '28px', pt: '8px', pb: '28px' }}
+                    >
+                        <Stack
+                            alignItems="center"
+                            justifyContent="center"
+                            sx={{
+                                width: '84px',
+                                height: '84px',
+                                borderRadius: '50%',
+                                backgroundColor: alpha(
+                                    paymentResultFlag === 'success'
+                                        ? theme.palette.success.main
+                                        : theme.palette.error.main,
+                                    0.1
+                                ),
+                            }}
+                        >
+                            {paymentResultFlag === 'success' ? (
+                                <CheckCircleIcon
+                                    sx={{
+                                        fontSize: '52px',
+                                        color: theme.palette.success.main,
+                                    }}
+                                />
+                            ) : (
+                                <CancelIcon
+                                    sx={{
+                                        fontSize: '52px',
+                                        color: theme.palette.error.main,
+                                    }}
+                                />
+                            )}
+                        </Stack>
+                        <Stack spacing={0.75}>
+                            <Typography variant="h5" fontWeight={700}>
+                                {paymentResultFlag === 'success'
+                                    ? t('Payment Successful')
+                                    : t('Payment Failed')}
+                            </Typography>
+                            <Typography color={theme.palette.text.secondary}>
+                                {paymentResultFlag === 'success'
+                                    ? t(
+                                          'Your payment has been completed successfully.'
+                                      )
+                                    : t(
+                                          'Your payment could not be completed. Please try again.'
+                                      )}
+                            </Typography>
+                        </Stack>
+                        <CustomButtonPrimary
+                            maxWidth="160px"
+                            paddingTop="8px"
+                            paddingBottom="8px"
+                            onClick={() => setPaymentResultFlag(null)}
+                        >
+                            {t('Close')}
+                        </CustomButtonPrimary>
+                    </Stack>
+                </CustomModal>
+            )}
             {getToken() && orderDetailsModal && (
                 <CustomModal
                     maxWidth="670px"
@@ -2661,8 +2467,38 @@ const OrderDetails = ({ OrderIdDigital }) => {
                 onClose={() => setOpenReviewModal(false)}
                 orderId={tempOrderId}
                 refetchTrackData={refetchTrackData}
+                refetchOrderDetails={refetchOrderDetails}
                 is_reviewed={trackData?.data?.is_reviewed}
                 is_dm_reviewed={trackData?.data?.is_dm_reviewed}
+            />
+            <PayDigitallyModal
+                open={openPayDigitallyModal}
+                onClose={() => setOpenPayDigitallyModal(false)}
+                gateways={global?.active_payment_method_list ?? []}
+                // Unpaid due, not the raw order amount: any already-settled
+                // payment rows (e.g. a paid wallet share) are subtracted so
+                // the modal's Total matches pay-digitally's amount_due.
+                totalAmount={getAmount(
+                    Math.max(
+                        0,
+                        (Number(trackData?.data?.order_amount) || 0) -
+                            (trackData?.data?.payments ?? [])
+                                .filter(
+                                    (payment) =>
+                                        payment?.payment_status === 'paid'
+                                )
+                                .reduce(
+                                    (sum, payment) =>
+                                        sum + (Number(payment?.amount) || 0),
+                                    0
+                                )
+                    ),
+                    currencySymbolDirection,
+                    currencySymbol,
+                    digitAfterDecimalPoint
+                )}
+                onProceed={handleProceedDigitalPayment}
+                proceedLoading={payDigitallyLoading}
             />
         </NoSsr>
     )

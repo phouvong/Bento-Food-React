@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { alpha, Box, IconButton, Stack, Typography, styled } from '@mui/material'
+import {
+    Box,
+    Button,
+    IconButton,
+    Skeleton,
+    Stack,
+    Tooltip,
+    Typography,
+    styled,
+} from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import ArrowForwardSharpIcon from '@mui/icons-material/ArrowForwardSharp'
-import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined'
-import StarIcon from '@mui/icons-material/Star'
 import VideoPlayerWithCenteredControl from '@/components/home/add-section/VideoPlayerWithCenteredControl'
 import { useRouter } from 'next/router'
 import CustomModal from '@/components/custom-modal/CustomModal'
@@ -16,30 +22,37 @@ import { addWishListRes, removeWishListRes } from '@/redux/slices/wishList'
 import { useWishListResDelete } from '@/hooks/react-query/config/wish-list/useWishListResDelete'
 import { useDispatch, useSelector } from 'react-redux'
 import { t } from 'i18next'
-import FavoriteIcon from '@mui/icons-material/Favorite'
 import CustomNextImage from '@/components/CustomNextImage'
 import { handleRestaurantRedirect } from '@/utils/customFunctions'
 
+// Figma "App & Web/Card M" drop shadow.
+const CARD_SHADOW =
+    '0px 5px 9px 0px rgba(0,0,0,0.07), 0px 0px 4px 0px rgba(0,0,0,0.05)'
+
 const HiCard = styled(Box)(({ theme }) => ({
-    background: 'transparent',
-    border: `1px solid ${alpha(theme.palette.neutral[400], 0.3)}`,
-    borderRadius: 14,
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: 12,
+    padding: 2,
+    boxShadow: CARD_SHADOW,
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
-    transition: 'border-color .18s ease, transform .18s ease',
+    transition: 'transform .18s ease',
     cursor: 'pointer',
     height: '100%',
     '&:hover': {
-        borderColor: alpha(theme.palette.primary.main, 0.4),
         transform: 'translateY(-2px)',
     },
 }))
 
 const HiMedia = styled(Box)(({ theme }) => ({
     position: 'relative',
-    aspectRatio: '16 / 10',
+    width: '100%',
+    aspectRatio: '296 / 182',
+    borderRadius: 12,
     overflow: 'hidden',
+    border: `2px solid ${theme.palette.background.paper}`,
+    boxShadow: '0px 1px 4px 0px rgba(0,0,0,0.05)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -54,40 +67,36 @@ const HiMedia = styled(Box)(({ theme }) => ({
 
 const RatingPill = styled(Stack)(({ theme }) => ({
     position: 'absolute',
-    bottom: 10,
-    right: 10,
+    bottom: 8,
+    right: 8,
     zIndex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    padding: '4px 9px',
-    borderRadius: 6,
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.common.white,
-    fontSize: 11.5,
-    fontWeight: 700,
-    letterSpacing: '-0.005em',
+    padding: '4px 6px',
+    borderRadius: 999,
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: '0px 1px 2px 0px rgba(0,0,0,0.05)',
+    '& i': { fontSize: 12, color: theme.palette.warning.main },
 }))
 
 const HiLogo = styled(Box)(({ theme }) => ({
-    width: 44,
-    height: 44,
-    borderRadius: '50%',
+    width: 40,
+    height: 40,
+    borderRadius: 8,
     overflow: 'hidden',
-    backgroundColor: theme.palette.neutral[100],
-    border: `2px solid ${theme.palette.background.paper}`,
-    outline: `1px solid ${theme.palette.neutral[300]}`,
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.divider}`,
     flexShrink: 0,
-    alignSelf: 'center',
 }))
 
 const HiTitle = styled(Typography)(({ theme }) => ({
     margin: 0,
-    fontSize: 14.5,
+    fontSize: 16,
     fontWeight: 700,
     color: theme.palette.text.primary,
-    letterSpacing: '-0.005em',
-    lineHeight: 1.3,
+    letterSpacing: '-0.48px',
+    lineHeight: 1.1,
     flex: 1,
     minWidth: 0,
     whiteSpace: 'nowrap',
@@ -98,9 +107,9 @@ const HiTitle = styled(Typography)(({ theme }) => ({
 const HiDesc = styled(Typography)(({ theme }) => ({
     margin: 0,
     color: theme.palette.text.secondary,
-    fontSize: 12.5,
-    fontWeight: 500,
-    lineHeight: 1.5,
+    fontSize: 12,
+    fontWeight: 400,
+    lineHeight: 1.3,
     display: '-webkit-box',
     WebkitLineClamp: 2,
     WebkitBoxOrient: 'vertical',
@@ -108,48 +117,71 @@ const HiDesc = styled(Typography)(({ theme }) => ({
 }))
 
 const WishBtn = styled(IconButton)(({ theme }) => ({
-    flexShrink: 0,
-    width: 26,
-    height: 26,
-    padding: 0,
-    color: theme.palette.primary.main,
-    transition: 'background .15s ease',
-    '&:hover': {
-        backgroundColor: alpha(theme.palette.primary.main, 0.1),
-    },
-    '& svg': { fontSize: 17 },
-}))
-
-const ArrowBtn = styled(IconButton)(({ theme }) => ({
-    width: 36,
-    height: 36,
-    alignSelf: 'center',
-    backgroundColor: alpha(theme.palette.primary.main, 0.1),
-    color: theme.palette.primary.main,
-    borderRadius: '50%',
-    '&:hover': {
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.common.white,
-    },
-    '& svg': { fontSize: 18 },
-}))
-
-const VideoBar = styled(Stack)(({ theme }) => ({
     position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    padding: '6px 10px 8px',
-    background: 'linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0))',
+    top: 8,
+    right: 8,
+    zIndex: 1,
+    width: 28,
+    height: 28,
+    padding: 6,
+    backgroundColor: theme.palette.neutral[200],
+    '&:hover': { backgroundColor: theme.palette.neutral[200] },
+    '& i': { fontSize: 13, color: theme.palette.error.main },
+}))
+
+const TopItemsWrap = styled(Stack)(({ theme }) => ({
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 8,
-    color: theme.palette.common.white,
+    flexShrink: 0,
+}))
+
+const TopItemThumb = styled(Box)(({ theme }) => ({
+    width: 28,
+    height: 28,
+    borderRadius: '50%',
+    overflow: 'hidden',
+    border: `2px solid ${theme.palette.background.paper}`,
+    backgroundColor: theme.palette.neutral[100],
+    marginInlineStart: -8,
+    flexShrink: 0,
+    '&:first-of-type': {
+        marginInlineStart: 0,
+    },
+    '& img': {
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        display: 'block',
+    },
+}))
+
+const TopItemsMoreCount = styled(Box)(({ theme }) => ({
+    width: 28,
+    height: 28,
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: `2px solid ${theme.palette.background.paper}`,
+    backgroundColor: theme.palette.neutral[200],
+    marginInlineStart: -8,
+    flexShrink: 0,
     fontSize: 11,
     fontWeight: 600,
-    zIndex: 2,
-    pointerEvents: 'none',
+    color: theme.palette.text.primary,
+}))
+
+const ExploreBtn = styled(Button)(({ theme }) => ({
+    height: 36,
+    padding: '8px 16px',
+    borderRadius: 8,
+    fontSize: 14,
+    fontWeight: 600,
+    letterSpacing: '-0.42px',
+    textTransform: 'none',
+    flexShrink: 0,
+    backgroundColor: theme.palette.primary.main,
+    '&:hover': { backgroundColor: theme.palette.primary.dark },
 }))
 
 const PaidAddsCard = ({
@@ -163,6 +195,7 @@ const PaidAddsCard = ({
     setDuration,
     setRenderComp,
     renderComp,
+    isDuplicate,
 }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
@@ -218,35 +251,38 @@ const PaidAddsCard = ({
     }, [ended])
 
     useEffect(() => {
-        if (ended && data?.length > 0) {
-            const nextSlide =
-                sliderRef.current?.innerSlider?.state?.currentSlide + 1
-            if (nextSlide < itemLength) {
-                const nextSlideChildren = sliderRef?.current?.props?.children
-                if (nextSlideChildren && nextSlideChildren[nextSlide]) {
-                    const nextItem =
-                        nextSlideChildren[nextSlide]?.props?.children?.props
-                            ?.item
-                    if (nextItem?.add_type === 'video_promotion') {
-                        sliderRef?.current?.slickNext()
-                    } else {
-                        setPlaying(false)
-                    }
+        if (!ended || !(data?.length > 0)) return
+        if (isDuplicate) {
+            setPlaying(false)
+            setEnded(false)
+            return
+        }
+        const nextSlide =
+            sliderRef.current?.innerSlider?.state?.currentSlide + 1
+        if (nextSlide < itemLength) {
+            const nextSlideChildren = sliderRef?.current?.props?.children
+            if (nextSlideChildren && nextSlideChildren[nextSlide]) {
+                const nextItem =
+                    nextSlideChildren[nextSlide]?.props?.children?.props?.item
+                if (nextItem?.add_type === 'video_promotion') {
+                    sliderRef?.current?.slickNext()
                 } else {
                     setPlaying(false)
                 }
             } else {
                 setPlaying(false)
             }
-            setEnded(false)
+        } else {
+            setPlaying(false)
         }
-    }, [ended, index, itemLength, sliderRef])
+        setEnded(false)
+    }, [ended, index, itemLength, sliderRef, isDuplicate])
 
     const handleClick = () => {
         handleRestaurantRedirect(
             router,
             item?.restaurant?.slug,
-            item?.restaurant?.id,
+            item?.restaurant?.id
         )
     }
 
@@ -302,33 +338,56 @@ const PaidAddsCard = ({
         restaurantMutate(item?.restaurant?.id)
     }
 
-    const isInList = (id) =>
-        !!wishLists?.restaurant?.find((r) => r.id === id)
+    const isInList = (id) => !!wishLists?.restaurant?.find((r) => r.id === id)
 
     const isRestaurant = item?.add_type === 'restaurant_promotion'
+    const activeIndex = data?.findIndex((d) => d?.id === activeSlideData?.id)
+    const isNearActive =
+        !isSmall ||
+        (activeIndex === undefined || activeIndex === -1
+            ? index <= 1
+            : Math.abs(index - activeIndex) <= 1)
     const showRating =
         (item?.is_rating_active === 1 || item?.is_review_active === 1) &&
         item?.average_rating > 0
+    const isWishlisted = isInList(item?.restaurant?.id)
+
+    const topItems = item?.restaurant?.top_items || []
+    const visibleTopItems = topItems.slice(0, 3)
+    const extraTopItemsCount = topItems.length - visibleTopItems.length
 
     return (
         <>
-            <Box sx={{  height: '100%' }}>
+            <Box
+                sx={{
+                    height: '100%',
+                    width: 'min(300px, 100%)',
+                }}
+            >
                 <HiCard onClick={handleClick}>
                     <HiMedia>
                         {isRestaurant ? (
-                            <CustomNextImage
-                                src={item?.cover_image_full_url}
-                                width="400"
-                                height="250"
-                                errorWidth={80}
-                                errorHeight={80}
-                                objectFit={
-                                    item?.cover_image_full_url
-                                        ? 'cover'
-                                        : 'contain'
-                                }
-                                alt="cover image"
-                            />
+                            isNearActive ? (
+                                <CustomNextImage
+                                    src={item?.cover_image_full_url}
+                                    width="400"
+                                    height="250"
+                                    errorWidth={80}
+                                    errorHeight={80}
+                                    objectFit={
+                                        item?.cover_image_full_url
+                                            ? 'cover'
+                                            : 'contain'
+                                    }
+                                    alt="cover image"
+                                />
+                            ) : (
+                                <Skeleton
+                                    variant="rectangular"
+                                    animation={false}
+                                    sx={{ width: '100%', height: '100%' }}
+                                />
+                            )
                         ) : (
                             <Box
                                 sx={{
@@ -355,117 +414,158 @@ const PaidAddsCard = ({
                             </Box>
                         )}
 
-                        {isRestaurant && showRating && (
+                        <WishBtn
+                            aria-label="wishlist"
+                            onClick={(e) =>
+                                isWishlisted
+                                    ? deleteWishlistRes(e)
+                                    : addToFavorite(e)
+                            }
+                        >
+                            <i
+                                className={
+                                    isWishlisted
+                                        ? 'fi fi-sr-heart'
+                                        : 'fi fi-rr-heart'
+                                }
+                            />
+                        </WishBtn>
+
+                        {showRating && (
                             <RatingPill>
                                 {item.is_review_active === 1 && (
                                     <>
-                                        <StarIcon sx={{ fontSize: 12 }} />
-                                        <Box component="span">
+                                        <i className="fi fi-sr-star" />
+                                        <Typography
+                                            component="span"
+                                            sx={{
+                                                fontSize: 14,
+                                                fontWeight: 400,
+                                                lineHeight: 1.1,
+                                                color: (theme) =>
+                                                    theme.palette.text.primary,
+                                            }}
+                                        >
                                             {item?.average_rating.toFixed(1)}
-                                        </Box>
+                                        </Typography>
                                     </>
                                 )}
                                 {item.is_rating_active === 1 && (
-                                    <Box
+                                    <Typography
                                         component="span"
                                         sx={{
-                                            opacity: 0.9,
+                                            fontSize: 12,
                                             fontWeight: 600,
-                                            fontSize: 11,
+                                            color: (theme) =>
+                                                theme.palette.text.secondary,
                                         }}
                                     >
                                         ({item?.reviews_comments_count}+)
-                                    </Box>
+                                    </Typography>
                                 )}
                             </RatingPill>
                         )}
                     </HiMedia>
 
-                    {isRestaurant ? (
-                        <Box
-                            sx={{
-                                padding: '14px 16px 16px',
-                                display: 'grid',
-                                gridTemplateColumns: '44px 1fr',
-                                gap: '12px',
-                                alignItems: 'start',
-                            }}
+                    <Box
+                        sx={{
+                            pt: '16px',
+                            px: '12px',
+                            pb: '12px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '12px',
+                            flex: 1,
+                        }}
+                    >
+                        <Stack
+                            direction="row"
+                            gap="8px"
+                            alignItems="flex-start"
+                            sx={{ minHeight: 56 }}
                         >
                             <HiLogo>
                                 <CustomNextImage
-                                    src={item?.profile_image_full_url}
-                                    width="44"
-                                    height="44"
+                                    src={
+                                        item?.profile_image_full_url ||
+                                        item?.restaurant?.logo_full_url
+                                    }
+                                    width="40"
+                                    height="40"
                                     objectFit={
-                                        item?.profile_image_full_url
+                                        item?.profile_image_full_url ||
+                                        item?.restaurant?.logo_full_url
                                             ? 'cover'
                                             : 'contain'
                                     }
                                 />
                             </HiLogo>
-                            <Box sx={{ minWidth: 0 }}>
-                                <Stack
-                                    direction="row"
-                                    alignItems="center"
-                                    justifyContent="space-between"
-                                    gap={1}
-                                    sx={{ mb: '4px' }}
-                                >
-                                    <HiTitle component="h3">
-                                        {item?.title || item?.restaurant?.name}
-                                    </HiTitle>
-                                    {/* <WishBtn
-                                        aria-label="wishlist"
-                                        onClick={(e) =>
-                                            isInList(item?.restaurant?.id)
-                                                ? deleteWishlistRes(e)
-                                                : addToFavorite(e)
-                                        }
-                                    >
-                                        {isInList(item?.restaurant?.id) ? (
-                                            <FavoriteIcon />
-                                        ) : (
-                                            <FavoriteBorderOutlinedIcon />
-                                        )}
-                                    </WishBtn> */}
-                                </Stack>
-                                <HiDesc component="p">
-                                    {item?.description}
-                                </HiDesc>
-                            </Box>
-                        </Box>
-                    ) : (
-                        <Box
-                            sx={{
-                                padding: '14px 16px 16px',
-                                display: 'grid',
-                                gridTemplateColumns: '1fr 36px',
-                                gap: '10px',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Box sx={{ minWidth: 0 }}>
-                                <HiTitle
-                                    component="h3"
-                                    sx={{ mb: '4px', display: 'block' }}
-                                >
-                                    {item?.title}
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                                <HiTitle component="h3" sx={{ mb: '4px' }}>
+                                    {item?.title || item?.restaurant?.name}
                                 </HiTitle>
                                 <HiDesc component="p">
                                     {item?.description}
                                 </HiDesc>
                             </Box>
-                            <ArrowBtn
-                                aria-label="open"
+                        </Stack>
+
+                        <Stack
+                            direction="row"
+                            alignItems="center"
+                            justifyContent="space-between"
+                            gap="8px"
+                            sx={{ mt: 'auto' }}
+                        >
+                            {visibleTopItems.length > 0 ? (
+                                <TopItemsWrap>
+                                    {visibleTopItems.map((topItem, i) => (
+                                        <Tooltip
+                                            key={topItem?.id || i}
+                                            title={topItem?.name || ''}
+                                            arrow
+                                        >
+                                            <TopItemThumb
+                                                sx={{
+                                                    zIndex:
+                                                        visibleTopItems.length -
+                                                        i,
+                                                }}
+                                            >
+                                                <CustomNextImage
+                                                    src={
+                                                        topItem?.image_full_url
+                                                    }
+                                                    width="28"
+                                                    height="28"
+                                                    objectFit="cover"
+                                                    alt={topItem?.name}
+                                                />
+                                            </TopItemThumb>
+                                        </Tooltip>
+                                    ))}
+                                    {extraTopItemsCount > 0 && (
+                                        <TopItemsMoreCount sx={{ zIndex: 0 }}>
+                                            +{extraTopItemsCount}
+                                        </TopItemsMoreCount>
+                                    )}
+                                </TopItemsWrap>
+                            ) : (
+                                <Box />
+                            )}
+
+                            <ExploreBtn
+                                variant="contained"
+                                disableElevation
                                 onClick={(e) => {
                                     e.stopPropagation()
                                     handleClick()
                                 }}
                             >
-                                <ArrowForwardSharpIcon />
-                            </ArrowBtn>
-                        </Box>
-                    )}
+                                {t('Explore')}
+                            </ExploreBtn>
+                        </Stack>
+                    </Box>
                 </HiCard>
             </Box>
 

@@ -6,12 +6,8 @@ import { t } from 'i18next'
 import { useTheme } from '@mui/material/styles'
 import DeleteAddress from './DeleteAddress'
 import { CustomDivWithBorder } from './Address.style'
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded'
 import FmdGoodIcon from '@mui/icons-material/FmdGood'
 import ApartmentIcon from '@mui/icons-material/Apartment'
-import DeleteIcon from '../../../assets/images/icons/DeleteIcon'
-import EditLocationOutlinedIcon from '@mui/icons-material/EditLocationOutlined'
-import CustomPopover from '../../custom-popover/CustomPopover'
 import { RTL } from '../../RTL/RTL'
 import MapWithSearchBox from '../../google-map/MapWithSearchBox'
 import AddressForm from './AddressForm'
@@ -26,11 +22,7 @@ import { onErrorResponse } from '@/components/ErrorResponse'
 import { setGuestUserInfo } from '@/redux/slices/guestUserInfo'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { Menu, MenuItem, Box, Chip } from '@mui/material'
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'
-//import EditLocationOutlinedIcon from '@mui/icons-material/EditLocationOutlined'
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import HomeIcon from '@mui/icons-material/Home';
+import HomeIcon from '@mui/icons-material/Home'
 
 const style = {
     position: 'absolute',
@@ -44,7 +36,7 @@ const style = {
     borderRadius: '10px',
 }
 
-const AddressCard = ({ address, refetch, isDefault, setIsDefault }) => {
+const AddressCard = ({ address, refetch, isDefault, setIsDefault, onEdit }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
     const [open, setOpen] = useState(false)
@@ -57,10 +49,12 @@ const AddressCard = ({ address, refetch, isDefault, setIsDefault }) => {
     const { location, formatted_address } = useSelector(
         (state) => state.addressData
     )
-    console.log({ address })
     //const { data, isError } = useQuery(['profile-info'], ProfileApi.profileInfo)
     useEffect(() => {
-        if (address?.address_type === 'home' || address?.address_type === 'Home') {
+        if (
+            address?.address_type === 'home' ||
+            address?.address_type === 'Home'
+        ) {
             setAddressSymbol(
                 <HomeIcon
                     sx={{
@@ -70,7 +64,10 @@ const AddressCard = ({ address, refetch, isDefault, setIsDefault }) => {
                     }}
                 />
             )
-        } else if (address.address_type === 'Office' || address.address_type === 'office') {
+        } else if (
+            address.address_type === 'Office' ||
+            address.address_type === 'office'
+        ) {
             setAddressSymbol(
                 <ApartmentIcon
                     sx={{
@@ -118,6 +115,10 @@ const AddressCard = ({ address, refetch, isDefault, setIsDefault }) => {
     }
     const handleEditAddress = () => {
         handleClose()
+        if (onEdit) {
+            onEdit(address)
+            return
+        }
         dispatch(
             setLocation({ lat: address?.latitude, lng: address?.longitude })
         )
@@ -133,7 +134,6 @@ const AddressCard = ({ address, refetch, isDefault, setIsDefault }) => {
     const handleSetDefault = (id) => {
         handleClose()
         setIsDefault(id)
-
     }
     const formSubmitHandler = (values) => {
         let newData = {
@@ -158,10 +158,9 @@ const AddressCard = ({ address, refetch, isDefault, setIsDefault }) => {
     return (
         <CustomDivWithBorder
             sx={{
-                p: '1rem',
-                borderRadius: '10px',
+                p: '16px',
                 height: '100%',
-                position: 'relative',
+                transition: 'border-color .15s ease',
                 '&:hover': {
                     borderColor: 'primary.main',
                 },
@@ -169,14 +168,21 @@ const AddressCard = ({ address, refetch, isDefault, setIsDefault }) => {
         >
             <Stack
                 direction="row"
-                alignItems="center"
+                alignItems="flex-start"
                 justifyContent="space-between"
-                spacing={1}
+                gap="8px"
             >
-                <Stack direction="row" alignItems="center" spacing={2}>
+                <Stack
+                    direction="row"
+                    alignItems="center"
+                    gap="12px"
+                    minWidth={0}
+                >
                     <Box
                         sx={{
-                            p: '12px',
+                            width: '44px',
+                            height: '44px',
+                            flexShrink: 0,
                             borderRadius: '50%',
                             backgroundColor: (theme) =>
                                 theme.palette.mode === 'dark'
@@ -189,32 +195,38 @@ const AddressCard = ({ address, refetch, isDefault, setIsDefault }) => {
                     >
                         {addressSymbol}
                     </Box>
-                    <Stack>
-                        <Typography
-                            fontSize="14px"
-                            fontWeight="600"
-                            sx={{ textTransform: 'capitalize' }}
+                    <Stack minWidth={0} gap="2px">
+                        <Stack
+                            direction="row"
+                            alignItems="center"
+                            flexWrap="wrap"
+                            gap="8px"
                         >
-                            {t(address?.address_type)}
+                            <Typography
+                                fontSize="14px"
+                                fontWeight="600"
+                                sx={{ textTransform: 'capitalize' }}
+                            >
+                                {t(address?.address_type)}
+                            </Typography>
                             {isDefault === address?.id && (
                                 <Chip
                                     label={t('Default')}
                                     color="primary"
                                     size="small"
                                     sx={{
-                                        ml: '10px',
                                         fontSize: '12px',
-                                        height: '16px',
-                                        borderRadius: '2px',
+                                        height: '18px',
+                                        borderRadius: '4px',
                                         '& .MuiChip-label': {
-                                            px: '5px',
+                                            px: '6px',
                                         },
                                     }}
                                 />
                             )}
-                        </Typography>
+                        </Stack>
                         <Typography
-                            fontSize="14px"
+                            fontSize="13px"
                             fontWeight="400"
                             color={theme.palette.neutral[500]}
                             sx={{
@@ -231,12 +243,7 @@ const AddressCard = ({ address, refetch, isDefault, setIsDefault }) => {
                 </Stack>
                 <IconButton
                     onClick={handleClick}
-                    sx={{
-                        p: '5px',
-                        position: 'absolute',
-                        top: '10px',
-                        right: '5px',
-                    }}
+                    sx={{ p: '4px', flexShrink: 0 }}
                 >
                     <MoreVertIcon sx={{ fontSize: '20px' }} />
                 </IconButton>
@@ -254,26 +261,71 @@ const AddressCard = ({ address, refetch, isDefault, setIsDefault }) => {
                     vertical: 'top',
                     horizontal: 'right',
                 }}
+                slotProps={{
+                    paper: {
+                        sx: {
+                            mt: '4px',
+                            minWidth: '180px',
+                            borderRadius: '12px',
+                            p: '6px',
+                        },
+                    },
+                }}
             >
-                <MenuItem onClick={handleEditAddress}>
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                        <EditLocationOutlinedIcon sx={{ fontSize: '18px' }} />
-                        <Typography fontSize="14px" sx={{ color: 'text.primary' }}>
-                            {t('Edit')}
-                        </Typography>
-                    </Stack>
+                <MenuItem
+                    onClick={handleEditAddress}
+                    sx={{
+                        alignItems: 'center',
+                        gap: '10px',
+                        px: '10px',
+                        py: '9px',
+                        borderRadius: '8px',
+                        color: 'text.primary',
+                        '&:hover': {
+                            backgroundColor: (theme) =>
+                                theme.palette.neutral[200],
+                        },
+                    }}
+                >
+                    <i
+                        className="fi fi-rr-map-marker-edit"
+                        style={{
+                            fontSize: '16px',
+                            lineHeight: 1,
+                            display: 'inline-flex',
+                        }}
+                    />
+                    <Typography fontSize="14px" fontWeight={500}>
+                        {t('Edit')}
+                    </Typography>
                 </MenuItem>
                 {isDefault !== address?.id && (
-                    <MenuItem onClick={() => handleSetDefault(address?.id)}>
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                            <CheckCircleOutlineIcon sx={{ fontSize: '18px' }} />
-                            <Typography
-                                fontSize="14px"
-                                sx={{ color: 'text.primary' }}
-                            >
-                                {t('Set as Default')}
-                            </Typography>
-                        </Stack>
+                    <MenuItem
+                        onClick={() => handleSetDefault(address?.id)}
+                        sx={{
+                            alignItems: 'center',
+                            gap: '10px',
+                            px: '10px',
+                            py: '9px',
+                            borderRadius: '8px',
+                            color: 'text.primary',
+                            '&:hover': {
+                                backgroundColor: (theme) =>
+                                    theme.palette.neutral[200],
+                            },
+                        }}
+                    >
+                        <i
+                            className="fi fi-br-badge-check"
+                            style={{
+                                fontSize: '16px',
+                                lineHeight: 1,
+                                display: 'inline-flex',
+                            }}
+                        />
+                        <Typography fontSize="14px" fontWeight={500}>
+                            {t('Set as Default')}
+                        </Typography>
                     </MenuItem>
                 )}
                 <MenuItem
@@ -281,15 +333,30 @@ const AddressCard = ({ address, refetch, isDefault, setIsDefault }) => {
                         handleClose()
                         setOpenDelete(true)
                     }}
+                    sx={{
+                        alignItems: 'center',
+                        gap: '10px',
+                        px: '10px',
+                        py: '9px',
+                        borderRadius: '8px',
+                        color: 'error.main',
+                        '&:hover': {
+                            backgroundColor: (theme) =>
+                                alpha(theme.palette.error.main, 0.08),
+                        },
+                    }}
                 >
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                        <DeleteOutlineIcon
-                            sx={{ fontSize: '18px', color: 'error.main' }}
-                        />
-                        <Typography fontSize="14px" sx={{ color: 'error.main' }}>
-                            {t('Delete')}
-                        </Typography>
-                    </Stack>
+                    <i
+                        className="fi fi-rr-trash"
+                        style={{
+                            fontSize: '16px',
+                            lineHeight: 1,
+                            display: 'inline-flex',
+                        }}
+                    />
+                    <Typography fontSize="14px" fontWeight={500}>
+                        {t('Delete')}
+                    </Typography>
                 </MenuItem>
             </Menu>
 

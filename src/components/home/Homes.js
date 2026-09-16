@@ -36,6 +36,7 @@ import {
     SwipeableDrawer,
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
+import Section from '@/components/container/Section'
 import { t } from 'i18next'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
@@ -43,7 +44,6 @@ import { useQuery } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
 import { onSingleErrorResponse } from '../ErrorResponse'
 import PushNotificationLayout from '../PushNotificationLayout'
-import CashBackPopup from '../cash-back-popup/CashBackPopup'
 import CustomContainer from '../container'
 import CustomModal from '../custom-modal/CustomModal'
 import ProductSearchPage from '../products-page/ProductSearchPage'
@@ -51,6 +51,7 @@ import Banner from './Banner'
 import TrendingFoodTabs from './trending-food-tabs/TrendingFoodTabs'
 import TrendingBites from './trending-bites/TrendingBites'
 import LastOrderSection from './last-order/LastOrderSection'
+import BogoOfferBanner from './promotion-offer-banner/BogoOfferBanner'
 import NewRestaurant from './NewRestaurant'
 import PromotionalBanner from './PromotionalBanner'
 import Restaurant from './Restaurant'
@@ -58,6 +59,8 @@ import SearchFilterTag from './Search-filter-tag/SearchFilterTag'
 import Cuisines from './cuisines'
 import FeatureCatagories from './featured-categories/FeatureCatagories'
 import VisitAgain, { Puller } from './visit-again'
+import QuickDelivery from './quick-delivery/QuickDelivery'
+import TopPicksNearYou from './top-picks-near-you/TopPicksNearYou'
 import AddsSection from '@/components/home/add-section'
 import { useGetAdds } from '@/hooks/react-query/useGetAdds'
 import { PrimaryButton } from '@/components/products-page/FoodOrRestaurant'
@@ -68,25 +71,36 @@ import CloseIcon from '@mui/icons-material/Close'
 import CustomImageContainer from '@/components/CustomImageContainer'
 import { setGlobalSettings } from '@/redux/slices/global'
 import AppDownloadBanner from '@/components/home/AppDownloadBanner'
-import FindNearbyReferStrip from '@/components/home/find-nearby-refer/FindNearbyReferStrip'
-import HomeSidebar from '@/components/home/home-sidebar/HomeSidebar'
+import ReferFriendCard from '@/components/home/find-nearby-refer/ReferFriendCard'
+import HomeSidebarLayout from '@/components/home/home-sidebar/HomeSidebarLayout'
+import FilterTabs from '@/components/home/filter-tabs/FilterTabs'
+import FilterPanel from '@/components/home/filter-tabs/FilterPanel'
+import useFilterControls from '@/hooks/custom-hooks/useFilterControls'
+import useCloseOnBackButton from '@/hooks/custom-hooks/useCloseOnBackButton'
 import SubscribeServices from '@/components/home/subscribe-services/SubscribeServices'
-import useHideOnScroll from '@/hooks/custom-hooks/useHideOnScroll'
 import CustomPageTitleSubtitle from '@/components/CustomPageTitleSubtitle'
+import HappyHourNBogoBanner from './promotion-offer-banner/HappyHourNBogoBanner'
+import { useGetBogoHome } from '@/hooks/react-query/bogo/useGetBogoHome'
+import HappyHourBanner from './promotion-offer-banner/HappyHourBanner'
 
-const SECTION_GAP = { xs: 3, md: 4 }
+const SECTION_GAP = { xs: 3, md: 3 }
 
 const Homes = ({ configData, landingPageData: landingPageDataProp }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
     const { global } = useSelector((state) => state.globalSettings)
-    const [fetchedData, setFetcheedData] = useState({})
     const { userData } = useSelector((state) => state.user)
     const [sort_by, setSort_by] = useState('')
     const [openDineInRes, setOpenDineInRes] = useState(false)
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const [openDrawer, setOpenDrawer] = useState(false)
-    const isNavHidden = useHideOnScroll({ threshold: 50 })
+    useCloseOnBackButton(openDrawer, () => setOpenDrawer(false))
+    const [bogoBannerVisible, setBogoBannerVisible] = useState(false)
+    const { data: bogoHomeData } = useGetBogoHome()
+    const bogoActive = !!bogoHomeData?.is_live
+    const filterControls = useFilterControls({
+        redirectFilterTo: '/home/filter',
+    })
 
     const { data: landingPageApiData } = useQuery(
         ['landing-page-data'],
@@ -130,12 +144,8 @@ const Homes = ({ configData, landingPageData: landingPageDataProp }) => {
 
     const { welcomeModal, isNeedLoad } = useSelector((state) => state.utilsData)
     const { token } = useSelector((state) => state.userToken)
-    const restaurantIsSticky = useSelector(
-        (state) => state.scrollPosition.restaurantIsSticky
-    )
     const onSuccessHandler = (response) => {
-        setFetcheedData(response)
-        dispatch(setWishList(fetchedData))
+        dispatch(setWishList(response))
     }
     const { refetch } = useWishListGet(onSuccessHandler)
     let getToken = undefined
@@ -146,7 +156,7 @@ const Homes = ({ configData, landingPageData: landingPageDataProp }) => {
         if (getToken) {
             refetch().then()
         }
-    }, [getToken, fetchedData])
+    }, [getToken])
 
     const {
         data,
@@ -155,6 +165,7 @@ const Homes = ({ configData, landingPageData: landingPageDataProp }) => {
     } = useQuery(['banner-image'], BannerApi.bannerList, {
         enabled: false,
         staleTime: 1000 * 60 * 8,
+        cacheTime: 1000 * 60 * 8,
         onError: onSingleErrorResponse,
     })
 
@@ -281,47 +292,16 @@ const Homes = ({ configData, landingPageData: landingPageDataProp }) => {
     const toggleDrawer = () => () => {
         setOpenDrawer(!openDrawer)
     }
-    console.log('bbbb', query, page, restaurantType, tags)
-
-    console.log({ configData })
 
     return (
         <PushNotificationLayout>
-            <Box
-                sx={{
-                    marginTop: { xs: '60px', md: '112px' },
-                    position: 'sticky',
-                    top: {
-                        xs: '53px',
-                        md: isNavHidden ? '58px' : '99px',
-                    },
-                    transition:
-                        'top 0.25s ease, transform 0.25s ease, opacity 0.2s ease',
-                    zIndex: 99,
-                    backgroundColor: (theme) =>
-                        theme.palette.background.default,
-                    transform: restaurantIsSticky
-                        ? 'translateY(-100%)'
-                        : 'translateY(0)',
-                    opacity: restaurantIsSticky ? 0 : 1,
-                    pointerEvents: restaurantIsSticky ? 'none' : 'auto',
-                }}
-            >
-                <SearchFilterTag
-                    sort_by={sort_by}
-                    setSort_by={setSort_by}
-                    tags={tags}
-                    query={query}
-                    page={page}
-                    restaurantType={restaurantType}
-                />
-            </Box>
             <CustomContainer>
                 <CustomStackFullWidth
                     sx={{
                         mt: SECTION_GAP,
                         direction: 'row',
-                        display: restaurantType === 'dine-in' ? 'flex' : 'none',
+                        // display: restaurantType === 'dine-in' ? 'flex' : 'none',
+                        display: 'none',
                     }}
                 >
                     <Stack direction="row" width="100%">
@@ -390,114 +370,109 @@ const Homes = ({ configData, landingPageData: landingPageDataProp }) => {
                     </Stack>
                 </CustomStackFullWidth>
             </CustomContainer>
-            {query || activeFilters?.length > 0 ? (
-                <CustomContainer>
-                    <Box
-                        sx={{
-                            display: { xs: 'block', md: 'grid' },
-                            gridTemplateColumns: { md: '260px 1fr' },
-                            columnGap: { md: '28px' },
-                        }}
-                    >
-                        <Box
+
+            <CustomContainer
+                disableGutters
+                sx={{ paddingInline: { xs: 0, md: 3 } }}
+            >
+                <Stack sx={{ gap: SECTION_GAP }}>
+                    <HomeSidebarLayout bogoActive={bogoActive}>
+                        <Stack
                             sx={{
-                                display: { xs: 'none', md: 'block' },
-                                position: 'relative',
+                                gap: { xs: 0, md: '20px' },
                             }}
                         >
-                            <HomeSidebar />
-                        </Box>
-                        <Box
-                            sx={{
-                                minWidth: 0,
-                                marginTop: { xs: '1.5rem', md: '1.5rem' },
-                            }}
-                        >
-                            <CustomPageTitleSubtitle
-                                title={
-                                    query
-                                        ? `${t(
-                                              'Search results for'
-                                          )} "${query}"`
-                                        : restaurantType === 'dine-in'
-                                        ? t('Dine-in Restaurants')
-                                        : tags
-                                        ? t('Filtered Results')
-                                        : t('Search Results')
-                                }
-                                subtitle={t(
-                                    'Foods and restaurants matching your selection — refine the filters to narrow down further.'
-                                )}
+                            <FilterTabs
+                                controls={filterControls}
+                                hideBogoChip={!bogoActive || bogoBannerVisible}
                             />
-                            <ProductSearchPage
-                                tags={tags}
-                                configData={configData}
-                                query={query}
-                                page={page}
-                                restaurantType={restaurantType}
-                            />
-                        </Box>
-                    </Box>
-                </CustomContainer>
-            ) : (
-                <CustomContainer>
-                    <Stack sx={{ gap: SECTION_GAP }}>
-                        <Box
-                            sx={{
-                                display: { xs: 'block', md: 'grid' },
-                                gridTemplateColumns: { md: '260px 1fr' },
-                                columnGap: { md: '28px' },
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    display: { xs: 'none', md: 'block' },
-                                    position: 'relative',
-                                }}
+
+                            <Section
+                                bleedEnd
+                                sx={(th) => ({
+                                    background: {
+                                        xs: `linear-gradient(180deg, ${th.palette.background.paper} 0%, ${th.palette.neutral[1800]} 50%)`,
+                                        md: 'transparent',
+                                    },
+                                })}
                             >
-                                <HomeSidebar />
-                            </Box>
-                            <Stack sx={{ minWidth: 0, gap: SECTION_GAP }}>
                                 <Banner isFetched={isFetched} data={data} />
-                                <FeatureCatagories height="70px" />
-                                <FindNearbyReferStrip />
-                                <VisitAgain />
-                                <AddsSection
-                                    data={addStores}
-                                    isLoading={addIsLoading}
+                            </Section>
+
+                            <FeatureCatagories />
+
+                            {configData?.repeat_order_option && token ? (
+                                <LastOrderSection />
+                            ) : null}
+
+                            {/* promotional banner */}
+                            <Section>
+                                <HappyHourNBogoBanner
+                                    setBogoBannerVisible={setBogoBannerVisible}
+                                    bogoActive={bogoActive}
                                 />
-                                <AppDownloadBanner
-                                    downloadAppData={downloadAppData}
-                                    playStoreLink={playStoreLink}
-                                    appStoreLink={appStoreLink}
-                                />
-                                {configData?.data?.dine_in_order_option ===
-                                1 ? (
-                                    <DineIn />
-                                ) : null}
-                                {configData?.repeat_order_option && token ? (
-                                    <LastOrderSection />
-                                ) : null}
-                                <TrendingFoodTabs
-                                    campaignIsLoading={campaignIsloading}
-                                    popularIsLoading={
-                                        isLoadingNearByPopularRestaurantData
-                                    }
-                                    bestReviewedIsLoading={isLoading}
-                                />
-                                <TrendingBites />
+                            </Section>
+
+                            <QuickDelivery />
+
+                            {configData?.dine_in_order_option === 1 ? (
+                                <DineIn />
+                            ) : null}
+
+                            {/*  Highlights for you */}
+                            <AddsSection
+                                data={addStores}
+                                isLoading={addIsLoading}
+                            />
+
+                            <VisitAgain />
+
+                            <AppDownloadBanner
+                                downloadAppData={downloadAppData}
+                                playStoreLink={playStoreLink}
+                                appStoreLink={appStoreLink}
+                            />
+
+                            <Section>
+                                <ReferFriendCard />
+                            </Section>
+
+                            {/* Items You Will Love */}
+                            <TrendingFoodTabs
+                                campaignIsLoading={campaignIsloading}
+                                popularIsLoading={
+                                    isLoadingNearByPopularRestaurantData
+                                }
+                                bestReviewedIsLoading={isLoading}
+                            />
+
+                            <TrendingBites />
+
+                            {/* new restaurant on stackfood */}
+                            {configData?.new_restaurant ? (
                                 <NewRestaurant />
-                                {configData && <Cuisines />}
-                                {configData?.banner_data
-                                    ?.promotional_banner_image && (
-                                    <PromotionalBanner global={configData} />
-                                )}
-                                <Restaurant />
-                            </Stack>
-                        </Box>
-                    </Stack>
-                </CustomContainer>
-            )}
+                            ) : null}
+
+                            {/* Top Picks Near You => nearby + popular store combination */}
+                            <TopPicksNearYou />
+
+                            <PromotionalBanner global={configData} />
+
+                            {/* all store paginated  */}
+                            <Restaurant />
+                        </Stack>
+                    </HomeSidebarLayout>
+                </Stack>
+            </CustomContainer>
+
+            <FilterPanel
+                anchorEl={filterControls.anchorEl}
+                onClose={filterControls.closePanel}
+                onApply={filterControls.applyFilters}
+                filterValue={filterControls.appliedFilters}
+                showCategories={false}
+                categories={[]}
+            />
 
             <CustomModal
                 setModalOpen={handleCloseWelcomeModal}
@@ -553,7 +528,6 @@ const Homes = ({ configData, landingPageData: landingPageDataProp }) => {
                     </Box>
                 </Box>
             </CustomModal>
-            {getToken && <CashBackPopup />}
             {openDineInRes && (
                 <CustomModal
                     openModal={openDineInRes}

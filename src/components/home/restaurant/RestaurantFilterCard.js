@@ -77,6 +77,16 @@ const RestaurantFilterCard = (props) => {
         },
         { key: 'a_to_z', label: 'A to Z', candidates: ['a_to_z', 'atoz'] },
         { key: 'z_to_a', label: 'Z to A', candidates: ['z_to_a', 'ztoa'] },
+        {
+            key: 'price_high',
+            label: 'Price: High to Low',
+            candidates: ['price_high', 'pricehigh'],
+        },
+        {
+            key: 'price_low',
+            label: 'Price: Low to High',
+            candidates: ['price_low', 'pricelow'],
+        },
     ])
     const vegItem = pickItem('veg')
     const nonVegItem = pickItem('non_veg', 'nonveg', 'non veg')
@@ -458,7 +468,9 @@ const RestaurantFilterCard = (props) => {
                         value: item?.value,
                         label: t(label),
                     },
-                    false
+                    true,
+                    [vegItem, nonVegItem],
+                    'food-type'
                 )
             }
             sx={{

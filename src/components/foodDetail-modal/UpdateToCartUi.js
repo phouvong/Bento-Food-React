@@ -1,6 +1,6 @@
 import React from 'react'
-import { CustomTypography } from '../custom-tables/Tables.style'
 import { Button, CircularProgress } from '@mui/material'
+import { cartButtonLoadingSx, cartButtonSx } from './FoodModalStyle'
 
 const UpdateToCartUi = ({ addToCard, t, isLoading = false }) => {
     return (
@@ -9,17 +9,16 @@ const UpdateToCartUi = ({ addToCard, t, isLoading = false }) => {
             onClick={() => addToCard()}
             variant="contained"
             fullWidth
+            sx={isLoading ? cartButtonLoadingSx : cartButtonSx}
         >
             {isLoading ? (
-                <CircularProgress size={20} sx={{ color: '#fff' }} />
+                <CircularProgress
+                    size={22}
+                    thickness={5}
+                    sx={{ color: (theme) => theme.palette.whiteContainer.main }}
+                />
             ) : (
-                <CustomTypography
-                    sx={{
-                        color: (theme) => theme.palette.whiteContainer.main,
-                    }}
-                >
-                    {t('Update to cart')}
-                </CustomTypography>
+                t('Update to cart')
             )}
         </Button>
     )

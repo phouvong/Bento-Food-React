@@ -1,8 +1,6 @@
 import { Stack, Typography, useMediaQuery } from '@mui/material'
 import CustomContainer from '../container'
 import 'simplebar/dist/simplebar.min.css'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
 import { useTheme } from '@emotion/react'
 import CustomNextImage from '@/components/CustomNextImage'
 import { Box } from '@mui/system'

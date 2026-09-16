@@ -13,6 +13,13 @@ const initialState = {
     walletAmount: null,
     subscriptionSubTotal: null,
     couponAmount: null,
+    // Cart-level order preferences picked on the restaurant page's cart;
+    // the checkout page seeds its packaging/cutlery/note state from these.
+    orderPreferences: {
+        extraPackaging: false,
+        addCutlery: false,
+        unavailableNote: null,
+    },
 }
 const isEqual = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 export const cartSlice = createSlice({
@@ -211,6 +218,12 @@ export const cartSlice = createSlice({
         setCouponAmount: (state, action) => {
             state.couponAmount = action.payload
         },
+        setOrderPreferences: (state, action) => {
+            state.orderPreferences = {
+                ...state.orderPreferences,
+                ...action.payload,
+            }
+        },
         setCartGroups: (state, action) => {
             state.cartGroups = action.payload
         },
@@ -243,5 +256,6 @@ export const {
     setCouponAmount,
     setCartGroups,
     removeCartGroupByRestaurantId,
+    setOrderPreferences,
 } = cartSlice.actions
 export default cartSlice.reducer

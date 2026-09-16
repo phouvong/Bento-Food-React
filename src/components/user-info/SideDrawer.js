@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import { IconButton, Stack, Typography, useMediaQuery } from '@mui/material'
+import { Box, IconButton, Stack, Typography, useMediaQuery } from '@mui/material'
 import CustomSideDrawer from '../side-drawer/CustomSideDrawer'
 import { useTheme } from '@mui/material/styles'
 import ProfileSideMenu from './ProfileSideMenu'
 import { t } from 'i18next'
-import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import { useDispatch, useSelector } from 'react-redux'
 import { setEditProfile } from '@/redux/slices/editProfile'
 import { RTL } from '../RTL/RTL'
 
-const SideDrawer = ({ page, setAttributeId }) => {
+const SideDrawer = ({ page, setAttributeId, isAuthenticated }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
     const [pageTitle, setPageTitle] = useState(page)
@@ -49,7 +48,9 @@ const SideDrawer = ({ page, setAttributeId }) => {
     return (
         <>
             {languageDirection && (
-                <CustomStackFullWidth>
+                <CustomStackFullWidth
+                    sx={{ display: { xs: 'block', md: 'none' } }}
+                >
                     {/* App-bar style mobile header. Layout: back-button slot
                         (left, fixed width) / centered title / menu button
                         (right, fixed width). Equal-width side slots keep
@@ -66,7 +67,7 @@ const SideDrawer = ({ page, setAttributeId }) => {
                             // location bar / app header rather than floating
                             // with extra room above the title.
                             py: '4px',
-                            minHeight: 44,
+                            minHeight: 60,
                             width: '100%',
                             borderBottom: (theme) =>
                                 `1px solid ${theme.palette.divider}`,
@@ -92,12 +93,11 @@ const SideDrawer = ({ page, setAttributeId }) => {
                                         theme.palette.primary.main,
                                 }}
                             >
-                                {/* MenuOpenIcon (hamburger + chevron) is
-                                    visually distinct from the plain
-                                    `MenuIcon` used in the global app
-                                    header — keeps the two affordances
-                                    from looking identical. */}
-                                <MenuOpenIcon sx={{ fontSize: 24 }} />
+                                <Box
+                                    component="i"
+                                    className="fi fi-sr-menu-burger"
+                                    sx={{ fontSize: 20, lineHeight: 1 }}
+                                />
                             </IconButton>
                         </Stack>
                         <Typography
@@ -151,6 +151,7 @@ const SideDrawer = ({ page, setAttributeId }) => {
                                 sidedrawer="true"
                                 page={page}
                                 setAttributeId={setAttributeId}
+                                isAuthenticated={isAuthenticated}
                             />
                         </CustomSideDrawer>
                     </RTL>

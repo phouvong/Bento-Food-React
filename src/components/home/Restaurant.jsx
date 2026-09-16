@@ -2,22 +2,31 @@ import { CustomChip } from '@/components/home/Search-filter-tag/FilterTag'
 import { AllRestaurantFilterData } from '@/components/home/restaurant/AllRestaurantFilterData'
 import { useRestaurantInfiniteList } from '@/hooks/react-query/restaurants/useRestaurantInfiniteList'
 import { removeDuplicates } from '@/utils/customFunctions'
-import { Box, Stack, Typography, alpha } from '@mui/material'
+import { Box, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setRestaurantIsSticky } from '@/redux/slices/scrollPosition'
-import useHideOnScroll from '@/hooks/custom-hooks/useHideOnScroll'
+import {
+    NAVBAR_HEIGHT,
+    NAVBAR_HEIGHT_MOBILE,
+} from '@/components/navbar/navbarConstants'
+import {
+    NAVBAR_MOBILE_TOP_VAR,
+    getNavbarMobileTopOffset,
+} from '@/components/navbar/navbarOffset'
 import noData from '../../../public/static/resturants.png'
 import { RTL } from '../RTL/RTL'
 import CustomEmptyResult from '../empty-view/CustomEmptyResult'
 import NewStoreCard from '@/components/new-store-card/NewStoreCard'
+import { SECTION_GUTTER_PX } from '@/components/container/Section'
+import { HOME_SECTION_SPACING } from './homeSectionSpacing'
 import { mockData } from './mockData'
 import DotSpin from './restaurant/DotSpin'
 import RestaurantTab from './restaurant/RestaurantTab'
 
-const STICKY_THRESHOLD = 120
+const SPACING = HOME_SECTION_SPACING.restaurant
 const PAGE_LIMIT = 6
 const SEARCH_KEY = ' '
 const MIN_SCROLL_BETWEEN_FETCHES = 120
@@ -27,7 +36,11 @@ const noop = () => {}
 const Restaurant = () => {
     const { t } = useTranslation()
     const dispatch = useDispatch()
-    const isNavHidden = useHideOnScroll({ threshold: 50 })
+    const theme = useTheme()
+    const isSmall = useMediaQuery(theme.breakpoints.down('md'))
+    const restaurantIsSticky = useSelector(
+        (state) => state.scrollPosition.restaurantIsSticky
+    )
 
     const [filterType, setFilterType] = useState('all')
     const [filterByData, setFilterByData] = useState({})
@@ -36,22 +49,17 @@ const Restaurant = () => {
     )
     const [forFilter, setForFilter] = useState(false)
 
-    const topSentinelRef = useRef(null)
+    const stickyHeaderRef = useRef(null)
     const gridRef = useRef(null)
     const bottomSentinelRef = useRef(null)
 
-    const {
-        data,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-        isLoading,
-    } = useRestaurantInfiniteList({
-        filterByData,
-        filterType,
-        searchKey: SEARCH_KEY,
-        pageLimit: PAGE_LIMIT,
-    })
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+        useRestaurantInfiniteList({
+            filterByData,
+            filterType,
+            searchKey: SEARCH_KEY,
+            pageLimit: PAGE_LIMIT,
+        })
 
     const fetchNextPageRef = useRef(fetchNextPage)
     fetchNextPageRef.current = fetchNextPage
@@ -117,13 +125,16 @@ const Restaurant = () => {
         fetchNextPageRef.current()
     }, [data, hasNextPage, isFetchingNextPage])
 
+    // A stuck element's rect.top equals its `top`, so this reads "is pinned".
     useEffect(() => {
         let isCurrentlySticky = false
         const handleScroll = () => {
-            const el = topSentinelRef.current
+            const el = stickyHeaderRef.current
             if (!el) return
-            const top = el.getBoundingClientRect().top
-            const nextSticky = top <= STICKY_THRESHOLD
+            const stickyTopPx = isSmall
+                ? getNavbarMobileTopOffset()
+                : NAVBAR_HEIGHT
+            const nextSticky = el.getBoundingClientRect().top <= stickyTopPx + 1
             if (nextSticky !== isCurrentlySticky) {
                 isCurrentlySticky = nextSticky
                 dispatch(setRestaurantIsSticky(nextSticky))
@@ -135,7 +146,7 @@ const Restaurant = () => {
             window.removeEventListener('scroll', handleScroll)
             dispatch(setRestaurantIsSticky(false))
         }
-    }, [dispatch])
+    }, [dispatch, isSmall])
 
     const totalSize = data?.pages?.[0]?.total_size ?? 0
 
@@ -188,92 +199,108 @@ const Restaurant = () => {
 
     return (
         <RTL direction={languageDirection}>
-            <Grid container rowGap="1rem">
-                <Box id="all-restaurant-tabs" ref={topSentinelRef} />
+            <Grid
+                container
+                rowGap={0}
+                // sx={{
+                //     pb: SPACING.pb,
+                //     background: {
+                //         xs: theme.palette.background.paper,
+                //         md: 'transparent',
+                //     },
+                // }}
+                sx={(theme) => ({
+                    pb: SPACING.pb,
+                    background: {
+                        xs: theme.palette.background.paper,
+                        md: 'transparent',
+                    },
+                })}
+            >
+                <Box id="all-restaurant-tabs" />
 
-                <Grid item xs={12}>
-                    <Stack spacing={0.5}>
-                        <Stack
-                            direction="row"
-                            alignItems="center"
-                            spacing={1}
-                        >
-                            <Typography
-                                component="h2"
-                                sx={{
-                                    fontSize: { xs: 16, md: 22 },
-                                    fontWeight: { xs: 700, md: 800 },
-                                    lineHeight: 1.2,
-                                    color: (th) => th.palette.text.primary,
-                                    textAlign: 'left',
-                                }}
-                            >
-                                {t('Restaurants')}
-                                {totalSize ? (
-                                    <Typography
-                                        component="span"
-                                        sx={{
-                                            ml: 1,
-                                            fontSize: { xs: 13, md: 15 },
-                                            fontWeight: 600,
-                                            color: (th) =>
-                                                th.palette.text.secondary,
-                                        }}
-                                    >
-                                        ({totalSize})
-                                    </Typography>
-                                ) : null}
-                            </Typography>
-                        </Stack>
-                        <Typography
-                            sx={{
-                                fontSize: { xs: 12, md: 13.5 },
-                                color: (th) => th.palette.text.secondary,
-                            }}
-                        >
-                            {t(
-                                'Browse and filter restaurants to match your vibe.'
-                            )}
-                        </Typography>
-                    </Stack>
-                </Grid>
-
+                {/* Sticky sits on the Grid item, whose parent spans the whole
+                    list — the inner Stack has no room to travel. */}
                 <Grid
                     item
                     xs={12}
-                    sx={{
+                    ref={stickyHeaderRef}
+                    sx={(theme) => ({
                         position: 'sticky',
                         top: {
-                            xs: '57px',
-                            md: isNavHidden ? '58px' : '99px',
+                            xs: `var(${NAVBAR_MOBILE_TOP_VAR}, ${NAVBAR_HEIGHT_MOBILE}px)`,
+                            md: `${NAVBAR_HEIGHT}px`,
                         },
-                        transition: 'top 0.25s ease',
-                        zIndex: 100,
-                        backgroundColor: (th) =>
-                            alpha(th.palette.background.default, 0.85),
-                        backdropFilter: 'saturate(180%) blur(10px)',
-                        WebkitBackdropFilter: 'saturate(180%) blur(10px)',
-                        borderBottom: (th) =>
-                            `1px solid ${th.palette.divider}`,
-                        paddingY: '10px',
-                    }}
+                        zIndex: 99,
+                        backgroundColor: {
+                            xs: theme.palette.background.paper,
+                            md: theme.palette.neutral[1800],
+                        },
+                        pl: SECTION_GUTTER_PX,
+                        pt: restaurantIsSticky && isSmall ? '10px' : SPACING.pt,
+                        pb: SPACING.headerGap,
+                        borderBottom: restaurantIsSticky
+                            ? `1px solid ${theme.palette.divider}`
+                            : 'none',
+
+                        transition:
+                            'top 0.25s ease, border-color 0.2s ease, padding-top 0.25s ease',
+                    })}
                 >
-                    <RestaurantTab
-                        filterType={filterType}
-                        handleChange={handleChange}
-                        mockData={mockData}
-                        setFilterByData={setFilterByData}
-                        setOffSet={noop}
-                        setForFilter={setForFilter}
-                        forFilter={forFilter}
-                        scrollToSection5={scrollToSection5}
-                        checkedFilterKey={checkedFilterKey}
-                        setCheckedFilterKey={setCheckedFilterKey}
-                    />
+                    <Stack
+                        sx={{
+                            width: '100%',
+                            flexDirection: { xs: 'column', md: 'row' },
+                            alignItems: { xs: 'flex-start', md: 'center' },
+                            justifyContent: {
+                                xs: 'flex-start',
+                                md: 'space-between',
+                            },
+                            gap: { xs: 1.5, md: 2 },
+                        }}
+                    >
+                        <Typography
+                            component="h2"
+                            sx={{
+                                fontSize: { xs: 20, md: 32 },
+                                fontWeight: 700,
+                                lineHeight: 1.1,
+                                letterSpacing: '-0.64px',
+                                color: (th) => th.palette.text.primary,
+                                textAlign: 'left',
+                                flexShrink: 0,
+                                display: {
+                                    xs: restaurantIsSticky ? 'none' : 'block',
+                                    md: 'block',
+                                },
+                            }}
+                        >
+                            {t('Explore Restaurants')}
+                        </Typography>
+
+                        <RestaurantTab
+                            filterType={filterType}
+                            handleChange={handleChange}
+                            mockData={mockData}
+                            setFilterByData={setFilterByData}
+                            setOffSet={noop}
+                            setForFilter={setForFilter}
+                            forFilter={forFilter}
+                            scrollToSection5={scrollToSection5}
+                            checkedFilterKey={checkedFilterKey}
+                            setCheckedFilterKey={setCheckedFilterKey}
+                        />
+                    </Stack>
                 </Grid>
 
                 {activeFilters.length > 0 && (
-                    <Grid item xs={12} sm={12} md={12}>
+                    <Grid
+                        item
+                        xs={12}
+                        sm={12}
+                        md={12}
+                        sx={{ px: SECTION_GUTTER_PX, mb: '16px' }}
+                    >
                         {activeFilters.map((item, i) => (
                             <CustomChip
                                 key={`${item?.name}-${i}`}
@@ -302,62 +329,59 @@ const Restaurant = () => {
                     xs={12}
                     sm={12}
                     md={12}
-                    container
-                    spacing={{ xs: 1.5, sm: 2, md: 2.5 }}
-                    ref={gridRef}
-                    sx={{
-                        minHeight: { xs: '20vh', md: '20vh' },
-                        width: '100%',
-                        marginInline: 0,
-                        '& > .MuiGrid-item': { maxWidth: '100%' },
-                    }}
+                    sx={{ px: SECTION_GUTTER_PX }}
                 >
-                    {restaurants.map((restaurantData) => (
-                        <Grid
-                            key={restaurantData?.id}
-                            item
-                            lg={4}
-                            md={4}
-                            sm={6}
-                            xs={12}
-                        >
+                    <Box
+                        ref={gridRef}
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: {
+                                xs: '1fr',
+                                sm: 'repeat(2, 1fr)',
+                                md: 'repeat(3, 1fr)',
+                            },
+                            columnGap: SPACING.gridColGap,
+                            rowGap: SPACING.gridRowGap,
+                            minHeight: { xs: '20vh', md: '20vh' },
+                            width: '100%',
+                        }}
+                    >
+                        {restaurants.map((restaurantData) => (
                             <NewStoreCard
+                                key={restaurantData?.id}
                                 restaurant={{
                                     ...restaurantData,
                                     opening_time:
                                         restaurantData?.current_opening_time,
                                 }}
                             />
-                        </Grid>
-                    ))}
+                        ))}
 
-                    <Box
-                        ref={bottomSentinelRef}
-                        aria-hidden
-                        sx={{
-                            gridColumn: '1 / -1',
-                            width: '100%',
-                            height: '1px',
-                        }}
-                    />
-
-                    {showEmpty && (
-                        <Grid
-                            item
-                            xs={12}
-                            sm={12}
-                            md={12}
+                        <Box
+                            ref={bottomSentinelRef}
+                            aria-hidden
                             sx={{
-                                paddingBlockEnd: '30px',
-                                paddingBlockStart: '30px',
+                                gridColumn: '1 / -1',
+                                width: '100%',
+                                height: '1px',
                             }}
-                        >
-                            <CustomEmptyResult
-                                image={noData}
-                                label="No restaurant found"
-                            />
-                        </Grid>
-                    )}
+                        />
+
+                        {showEmpty && (
+                            <Box
+                                sx={{
+                                    gridColumn: '1 / -1',
+                                    paddingBlockEnd: '30px',
+                                    paddingBlockStart: '30px',
+                                }}
+                            >
+                                <CustomEmptyResult
+                                    image={noData}
+                                    label="No restaurant found"
+                                />
+                            </Box>
+                        )}
+                    </Box>
                 </Grid>
 
                 {isFetchingNextPage && (

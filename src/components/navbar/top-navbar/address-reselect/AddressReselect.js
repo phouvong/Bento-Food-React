@@ -1,11 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react'
-import RoomIcon from '@mui/icons-material/Room'
-import { Stack, Typography, Tooltip, ClickAwayListener } from '@mui/material'
+import {
+    Box,
+    Stack,
+    Typography,
+    Tooltip,
+    ClickAwayListener,
+} from '@mui/material'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
-import AddressReselectPopover from './AddressReselectPopover'
+import AddressDrawer from '@/components/address-drawer/AddressDrawer'
+import { MODES } from '@/components/address-drawer/addressDrawerConstants'
 import { toast } from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { setClearCart } from '@/redux/slices/cart'
@@ -26,7 +32,6 @@ export const AddressTypographyGray = styled(Typography)(({ theme }) => ({
     fontSize: '13px',
 }))
 const AddressReselect = ({ location, isSticky }) => {
-    const [mapOpen, setMapOpen] = useState(false)
     const router = useRouter()
     const [open, setOpen] = useState(false)
     const { openMapDrawer, userLocationUpdate } = useSelector(
@@ -113,7 +118,6 @@ const AddressReselect = ({ location, isSticky }) => {
 
     const handleClosePopover = () => {
         dispatch(setOpenMapDrawer(false))
-        setMapOpen(false)
     }
     const handleClickToLandingPage = () => {
         if (router.pathname === '/') {
@@ -183,15 +187,27 @@ const AddressReselect = ({ location, isSticky }) => {
                                 minWidth: "174px"
                             }}
                         >
-                            <RoomIcon
-                                fontSize="small"
-                                color="primary"
-                                style={{ width: '16px', height: '16px' }}
+                            <Box
+                                component="i"
+                                className="fi fi-rs-marker"
+                                sx={{
+                                    fontSize: '16px',
+                                    lineHeight: 1,
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    color: (theme) => theme.palette.neutral[1000],
+                                    flexShrink: 0,
+                                }}
                             />
                             <AddressTypographyGray align="left">
                                 {t('Select your location')}
                             </AddressTypographyGray>
-                            <KeyboardArrowDownIcon sx={{ minWidth: "10px" }} />
+                            <KeyboardArrowDownIcon
+                                sx={{
+                                    minWidth: '10px',
+                                    color: (theme) => theme.palette.neutral[500],
+                                }}
+                            />
                         </Stack>
                     </Tooltip>
                 </ClickAwayListener>
@@ -208,28 +224,40 @@ const AddressReselect = ({ location, isSticky }) => {
                     gap="5px"
                     minWidth="174px"
                 >
-                    <RoomIcon
-                        fontSize="small"
-                        color="primary"
-                        style={{ width: '16px', height: '16px' }}
+                    <Box
+                        component="i"
+                        className="fi fi-rs-marker"
+                        sx={{
+                            fontSize: '16px',
+                            lineHeight: 1,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            color: (theme) => theme.palette.neutral[1000],
+                            flexShrink: 0,
+                        }}
                     />
                     <AddressTypographyGray align="left">
                         {displayLocation}
                     </AddressTypographyGray>
-                    <KeyboardArrowDownIcon sx={{ minWidth: "10px", fontSize: "1rem" }} />
+                    <KeyboardArrowDownIcon
+                        sx={{
+                            minWidth: '10px',
+                            fontSize: '1rem',
+                            color: (theme) => theme.palette.neutral[500],
+                        }}
+                    />
                 </Stack>
             )}
-            <AddressReselectPopover
-                anchorEl={anchorRef.current}
-                onClose={handleClosePopover}
-                open={openMapDrawer}
-                t={t}
-                address={address}
-                setAddress={setAddress}
-                mapOpen={mapOpen}
-                setMapOpen={setMapOpen}
-                coords={coords}
-            />
+            {openMapDrawer && (
+                <AddressDrawer
+                    mode={MODES.reselect}
+                    onClose={handleClosePopover}
+                    open={openMapDrawer}
+                    selectedAddress={address}
+                    setAddress={setAddress}
+                    coords={coords}
+                />
+            )}
             {open && <MapModal open={open} handleClose={handleClose} />}
         </>
     )

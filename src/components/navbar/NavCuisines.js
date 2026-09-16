@@ -1,14 +1,18 @@
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import React, { useEffect, useState } from 'react'
-import { Button, Grid, Menu, Stack } from '@mui/material'
+import { Grid, Menu, Stack, Typography } from '@mui/material'
 import { makeStyles } from '@mui/styles'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { useGetCuisines } from '@/hooks/react-query/cuisines/useGetCuisines'
 import { setCuisines } from '@/redux/slices/storedData'
+import { noRestaurantsImage } from '@/utils/LocalImages'
 import NavCuisinesList from '../cuisines-page/NavCuisinesList'
+import CustomEmptyResult from '../empty-view/CustomEmptyResult'
 import { NavMenuLink } from './Navbar.style'
+import ResShimmer from './ResShimmer'
 const useStyles = makeStyles((theme) => ({
     popover: {
         pointerEvents: 'none',
@@ -28,12 +32,16 @@ const NavCuisines = ({ setRestaurantModal, languageDirection }) => {
     const dispatch = useDispatch()
     const opendrop = Boolean(anchorEl)
 
-    const { data, refetch } = useGetCuisines()
+    const { data, refetch, isLoading, isFetching } = useGetCuisines()
+    const showCuisinesLoading =
+        (isLoading || isFetching) && !cuisines?.length
     useEffect(() => {
-        if (cuisines?.length === 0) {
+        // Deferred to the dropdown actually opening — menu content only;
+        // eager fetching spent a connection slot on every page load.
+        if (opendrop && cuisines?.length === 0) {
             refetch()
         }
-    }, [])
+    }, [opendrop])
 
     const handledropClick = (event) => {
         setAnchorEl(event.currentTarget)
@@ -73,7 +81,7 @@ const NavCuisines = ({ setRestaurantModal, languageDirection }) => {
             <Menu
                 disableScrollLock={true}
                 id="mouse-over-popover"
-                open={cuisines?.length>0 && opendrop}
+                open={opendrop}
                 anchorEl={anchorEl}
                 anchorOrigin={{
                     vertical: 'bottom',
@@ -87,10 +95,81 @@ const NavCuisines = ({ setRestaurantModal, languageDirection }) => {
                 classes={{
                     paper: classes.paper,
                 }}
+                PaperProps={{
+                    sx: {
+                        borderRadius: '16px',
+                        boxShadow: '0px 12px 32px -4px rgba(0, 0, 0, 0.12)',
+                    },
+                }}
             >
-                <Stack width="420px">
-                    <Grid container p="1.5rem" spacing={1}>
-                        {cuisines?.length > 12 ? (
+                <Stack width="380px">
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        sx={{ px: '24px', pt: '20px', pb: '4px' }}
+                    >
+                        <Typography
+                            fontSize="18px"
+                            fontWeight={700}
+                            sx={{
+                                color: (theme) =>
+                                    theme.palette.neutral[1000],
+                            }}
+                        >
+                            {t('Cuisines')}
+                        </Typography>
+                        {!showCuisinesLoading && cuisines?.length > 0 && (
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                gap="2px"
+                                onClick={handleClick}
+                                sx={{
+                                    cursor: 'pointer',
+                                    userSelect: 'none',
+                                }}
+                            >
+                                <Typography
+                                    fontSize="14px"
+                                    fontWeight={600}
+                                    sx={{
+                                        color: (theme) =>
+                                            theme.palette.primary.main,
+                                    }}
+                                >
+                                    {t('View All')}
+                                </Typography>
+                                <ChevronRightIcon
+                                    sx={{
+                                        fontSize: '18px',
+                                        color: (theme) =>
+                                            theme.palette.primary.main,
+                                    }}
+                                />
+                            </Stack>
+                        )}
+                    </Stack>
+                    <Grid container p="24px" pt="12px" columnSpacing="16px" rowSpacing="4px">
+                        {showCuisinesLoading ? (
+                            <>
+                                <ResShimmer shimmerfor="cuisines" mdSize={6} />
+                                <ResShimmer shimmerfor="cuisines" mdSize={6} />
+                            </>
+                        ) : cuisines?.length === 0 ? (
+                            <Grid
+                                item
+                                container
+                                alignItems="center"
+                                justifyContent="center"
+                            >
+                                <CustomEmptyResult
+                                    height="100px"
+                                    image={noRestaurantsImage}
+                                    label="No cuisine found"
+                                />
+                            </Grid>
+                        ) : cuisines?.length > 12 ? (
                             <>
                                 {cuisines?.slice(0, 12)?.map((item, index) => {
                                     return (
@@ -172,36 +251,6 @@ const NavCuisines = ({ setRestaurantModal, languageDirection }) => {
                             </>
                         )}
                     </Grid>
-                    {cuisines?.length > 0 && (
-                        <Grid
-                            container
-                            md={12}
-                            justifyContent="center"
-                            alignItems="center"
-                            pt=".4rem"
-                            px=".8rem"
-                            pb="1.5rem"
-                        >
-                            <Button
-                                sx={{
-                                    background: (theme) =>
-                                        theme.palette.primary.main,
-                                    color: (theme) =>
-                                        `${theme.palette.neutral[100]} !important`,
-                                    padding: '9px 25px',
-                                    borderRadius: '5px',
-                                    '&:hover': {
-                                        background: (theme) =>
-                                            theme.palette.primary.dark,
-                                    },
-                                }}
-                                size="medium"
-                                onClick={handleClick}
-                            >
-                                {t('View all')}
-                            </Button>
-                        </Grid>
-                    )}
                 </Stack>
             </Menu>
         </div>

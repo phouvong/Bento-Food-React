@@ -42,6 +42,26 @@ const offerChip = {
     text: '#F472B6',
     icon: '#F472B6',
 }
+const referBanner = {
+    bg: 'rgba(57, 121, 224, 0.16)',
+    title: '#7EA8F2',
+    subtitle: '#5B8FEA',
+}
+const happyHourBanner = {
+    bg: 'rgba(236, 34, 31, 0.14)',
+    timerBg: '#EC221F',
+    timerColon: '#FF8A87',
+    timerColonWarm: '#E0A23D',
+}
+const progressOffer = {
+    bg: 'rgba(229, 160, 0, 0.14)',
+    track: 'rgba(255, 255, 255, 0.06)',
+    fill: '#E5A000',
+    chip: '#1C1919',
+}
+const offerSection = {
+    bg: 'rgba(229, 160, 0, 0.12)',
+}
 const sectionBg = '#F5F6F80D'
 const cardBackground1 = '#1C1919'
 const cardBackground2 = 'rgba(255, 255, 255, 0.05)'
@@ -54,7 +74,7 @@ const skeletonColorAfter =
     'linear-gradient(78.58deg, #F5F6F8 3.23%, #FDFDFD 53.13%, #F6F7F8 100%)'
 
 const primary = {
-    main: '#E31B23',
+    main: '#FF7918',
     light: '#ff6700',
     dark: '#a3460a',
     contrastText: neutral[900],
@@ -285,6 +305,10 @@ export const darkThemeOptions = {
         footerTopBgColor,
         nonVeg,
         offerChip,
+        referBanner,
+        happyHourBanner,
+        progressOffer,
+        offerSection,
         sectionBg,
         cardBackground1,
         cardBackground2,

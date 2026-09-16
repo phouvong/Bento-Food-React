@@ -1,54 +1,29 @@
-import React, { useEffect, useState } from 'react'
-import { useScrollTrigger } from '@mui/material'
+import React, { useEffect } from 'react'
 import { AppBarStyle } from './Navbar.style'
-import TopNav from './top-navbar/TopNav'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@emotion/react'
 import { useSelector } from 'react-redux'
-import SecondNavbar, {
-    getSelectedAddons,
-    getSelectedVariations,
-} from './second-navbar/SecondNavbar'
+import NewNavbar from './new-navbar/NewNavbar'
+import { usesMobilePageHeader } from './navbarConstants'
 import { setCategoryIsSticky, setSticky } from '@/redux/slices/scrollPosition'
 import { useDispatch } from 'react-redux'
 import { useRouter } from 'next/router'
-import {
-    calculateItemBasePrice,
-    checkMaintenanceMode,
-    getConvertDiscount,
-    handleProductValueWithOutDiscount,
-} from '@/utils/customFunctions'
+import { checkMaintenanceMode } from '@/utils/customFunctions'
 import { cart } from '@/redux/slices/cart'
-import useGetAllCartList from '../../hooks/react-query/add-cart/useGetAllCartList'
-import { getGuestId } from '../checkout-page/functions/getGuestUserId'
+import useGetAllCartList, {
+    mapRestaurantCartRows,
+} from '../../hooks/react-query/add-cart/useGetAllCartList'
 import { ConfigApi } from '@/hooks/react-query/config/useConfig'
 import { useQuery } from 'react-query'
 import { onSingleErrorResponse } from '@/components/ErrorResponse'
 import { setGlobalSettings } from '@/redux/slices/global'
-import useHideOnScroll from '@/hooks/custom-hooks/useHideOnScroll'
 
 const Navigation = () => {
     const { global } = useSelector((state) => state.globalSettings)
     const router = useRouter()
-    const isHidden = useHideOnScroll({ threshold: 50 })
     const dispatch = useDispatch()
-    const guestId = getGuestId()
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
-    const { isSticky } = useSelector((state) => state.scrollPosition)
-    const scrolling = useScrollTrigger()
-    const [userLocation, setUserLocation] = useState(null)
-    const { userLocationUpdate } = useSelector((state) => state.globalSettings)
-    let location = undefined
-
-    if (typeof window !== 'undefined') {
-        location = localStorage.getItem('location')
-    }
-
-    useEffect(() => {
-        setUserLocation(location)
-    }, [userLocationUpdate])
-
     useEffect(() => {
         if (router.pathname !== '/home') dispatch(setSticky(false))
         dispatch(setCategoryIsSticky(false))
@@ -57,34 +32,12 @@ const Navigation = () => {
         if (!Array.isArray(res) || res.length === 0) return
         const isIndividualItemFormat = Boolean(res[0]?.item)
         if (!isIndividualItemFormat) return
-        const setItemIntoCart = () => {
-            return res.map((item) => ({
-                ...item?.item,
-                cartItemId: item?.id,
-                totalPrice: item?.price,
-                selectedAddons: getSelectedAddons(item?.item?.addons),
-                quantity: item?.quantity,
-                variations: item?.item?.variations,
-                itemBasePrice: getConvertDiscount(
-                    item?.item?.discount,
-                    item?.item?.discount_type,
-                    calculateItemBasePrice(
-                        item?.item,
-                        item?.item?.variations
-                    ),
-                    item?.item?.restaurant_discount
-                ),
-                selectedOptions: getSelectedVariations(
-                    item?.item?.variations
-                ),
-            }))
-        }
-        dispatch(cart(setItemIntoCart()))
+        dispatch(cart(mapRestaurantCartRows(res)))
     }
 
     const { data: cartData, refetch: cartListRefetch } = useGetAllCartList(
-        guestId,
-        cartListSuccessHandler
+        undefined,
+        { onSuccess: cartListSuccessHandler }
     )
     useEffect(() => {
         cartListRefetch()
@@ -116,36 +69,15 @@ const Navigation = () => {
         }
     }, [global])
 
+    if (isSmall && usesMobilePageHeader(router.pathname)) return null
+
     return (
         <AppBarStyle
-            sx={{
-                borderRadius: '0px',
-                zIndex: '1200',
-               transition: "all 0.25s ease" ,
-                transform: {
-                    xs: 'translateY(0)',
-                    md: isHidden ? 'translateY(-41px)' : 'translateY(0)',
-                },
-                
-            }}
+            sx={{ borderRadius: '0px', zIndex: '1200' }}
             disableGutters={true}
-            // scrolling={
-            //     userLocation && router.pathname !== '/home' ? scrolling : router.pathname !== '/' && !userLocation ? scrolling : false
-            // }
             isSmall={isSmall}
         >
-            <TopNav
-                isSticky={isSticky}
-                cartListRefetch={cartListRefetch}
-            />
-
-            {!isSmall && (router.pathname !== '/' || location) && (
-                <SecondNavbar
-                    isSticky={isSticky}
-                    cartListRefetch={cartListRefetch}
-                    location={userLocation}
-                />
-            )}
+            <NewNavbar cartListRefetch={cartListRefetch} />
         </AppBarStyle>
     )
 }

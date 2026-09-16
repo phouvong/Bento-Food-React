@@ -5,6 +5,7 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
+    Drawer,
     Stack,
     Typography,
 } from '@mui/material'
@@ -19,30 +20,57 @@ import CustomContainer from '../container'
 import RestaurantCategoryBar from './RestaurantCategoryBar'
 import { useQuery, useQueryClient } from 'react-query'
 import CategoriesWiseFood from './CategoriesWiseFood'
-import { getAmount, restaurantDiscountTag } from '@/utils/customFunctions'
+import { getAmount } from '@/utils/customFunctions'
+import { formatBogoValidUntil } from '@/utils/formatBogoValidUntil'
 import { smoothScrollTo } from '@/utils/smoothScrollTo'
 import RestaurentDetailsShimmer from './RestaurantShimmer/RestaurentDetailsShimmer'
+import CustomEmptyResult from '@/components/empty-view/CustomEmptyResult'
+import { noFoodFoundImage } from '@/utils/LocalImages'
 import { useGetRecommendProducts } from '@/hooks/react-query/config/useGetRecommendProduct'
 import { useRestaurantCategoriesFoods } from '@/hooks/react-query/restaurants/useRestaurantCategoriesFoods'
 import { debounce } from 'lodash'
 import { t } from 'i18next'
 import { useInView } from 'react-intersection-observer'
-import FloatingDiscountTag from '@/components/restaurant-details/FloatingDiscountTag'
 import useHideOnScroll from '@/hooks/custom-hooks/useHideOnScroll'
 import { useDispatch, useSelector } from 'react-redux'
 import toast from 'react-hot-toast'
 import { setUser } from '@/redux/slices/customer'
 import { setWalletAmount } from '@/redux/slices/cart'
+import { setCartDrawerOpen } from '@/redux/slices/utils'
+import useCloseOnBackButton from '@/hooks/custom-hooks/useCloseOnBackButton'
 import ProPlanTopBanner from './ProPlanTopBanner'
+import ProOfferCoupon from './ProOfferCoupon'
 import useGetProActiveOffer from '@/hooks/react-query/pro-plans/useGetProActiveOffer'
+import { useGetBogoHome } from '@/hooks/react-query/bogo/useGetBogoHome'
+import { useGetRestaurantBogoOffers } from '@/hooks/react-query/bogo/useGetRestaurantBogoOffers'
+import BogoItemDetailsModal from '@/components/bogo-page/BogoItemDetailsModal'
 import LastOrderSection from '@/components/home/last-order/LastOrderSection'
 import ProPlanSubscriptionModal from '@/components/floating-cart/restaurant-cart/ProPlanSubscriptionModal'
 import CustomModal from '@/components/custom-modal/CustomModal'
 import AllPaymentMethod from '@/components/checkout-page/AllPaymentMethod'
 import useSubscribeProPlan from '@/hooks/react-query/pro-plans/useSubscribeProPlan'
+import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
 import { ProfileApi } from '@/hooks/react-query/config/profileApi'
 import { onSingleErrorResponse } from '@/components/ErrorResponse'
 import { getToken } from '@/components/checkout-page/functions/getGuestUserId'
+import RestaurantCartSidebar from './RestaurantCartSidebar'
+import RestaurantMobileBottomBar from './RestaurantMobileBottomBar'
+import useHappyHourBanner from '@/hooks/custom-hooks/useHappyHourBanner'
+import MobilePageHeader from '@/components/page-header/MobilePageHeader'
+import { NAVBAR_HEIGHT } from '@/components/navbar/navbarConstants'
+import {
+    toFilterPanelValue,
+    toRestaurantFilterState,
+} from './restaurantFilterOptions'
+
+const MOST_POPULAR_SORT_COMPARATORS = {
+    price_high: (a, b) => (Number(b?.price) || 0) - (Number(a?.price) || 0),
+    price_low: (a, b) => (Number(a?.price) || 0) - (Number(b?.price) || 0),
+    a_to_z: (a, b) =>
+        String(a?.name || '').localeCompare(String(b?.name || '')),
+    z_to_a: (a, b) =>
+        String(b?.name || '').localeCompare(String(a?.name || '')),
+}
 
 const restaurantFoodMockData = [
     { id: 0, name: 'Veg', value: 'veg', isActive: false },
@@ -51,6 +79,18 @@ const restaurantFoodMockData = [
     { id: 3, name: 'Fast Delivery', value: 'fast_delivery', isActive: false },
     { id: 4, name: 'A to Z', value: 'a_to_z', isActive: false },
     { id: 5, name: 'Z to A', value: 'z_to_a', isActive: false },
+    {
+        id: 18,
+        name: 'Price: High to Low',
+        value: 'price_high',
+        isActive: false,
+    },
+    {
+        id: 19,
+        name: 'Price: Low to High',
+        value: 'price_low',
+        isActive: false,
+    },
     { id: 10, name: 'Rating 4+', value: 'rating4', isActive: false },
     { id: 11, name: 'Rating 3+', value: 'rating3', isActive: false },
     { id: 12, name: 'Rating 2+', value: 'rating2', isActive: false },
@@ -64,9 +104,14 @@ const restaurantFoodMockData = [
         isActive: false,
     },
     { id: 17, name: 'Halal', value: 'halal', isActive: false },
+    { id: 20, name: 'Free Delivery', value: 'free_delivery', isActive: false },
+    { id: 21, name: 'Popular', value: 'popular', isActive: false },
 ]
 
-const RestaurantDetails = ({ restaurantData, configData }) => {
+const RestaurantDetails = ({
+    restaurantData: staticRestaurantData,
+    configData,
+}) => {
     const [data, setData] = useState([])
     const [selectedId, setSelectedId] = useState(null)
     const [isFirstRender, setIsFirstRender] = useState(true)
@@ -80,8 +125,78 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
         rating: 0,
     })
     const [searchKey, setSearchKey] = useState('')
-    const restaurantId = restaurantData?.id
-    const activeFilters = checkedFilterKey?.filter((item) => item?.isActive)
+    const restaurantId = staticRestaurantData?.id
+
+    const { data: liveRestaurantData } = useQuery(
+        ['restaurant-details-live', restaurantId],
+        () => RestaurantsApi.restaurantDetails(restaurantId),
+        { enabled: Boolean(restaurantId) }
+    )
+    const restaurantData = liveRestaurantData?.data
+        ? {
+              ...staticRestaurantData,
+              distance: liveRestaurantData.data.distance,
+              distance_label: liveRestaurantData.data.distance_label,
+          }
+        : staticRestaurantData
+
+    // Skip the per-restaurant bogo-offers call entirely unless the global
+    // BOGO campaign is live — avoids a wasted request (and its bogo-offers
+    // section flicker) on every store page while BOGO is off.
+    const { data: bogoHome } = useGetBogoHome()
+    const { data: restaurantBogoOffers } = useGetRestaurantBogoOffers(
+        restaurantData?.slug || restaurantId,
+        undefined,
+        { enabled: Boolean(bogoHome?.is_live) }
+    )
+    const [activeBogoItem, setActiveBogoItem] = useState(null)
+
+    const [isBogoDetailsModalOpen, setIsBogoDetailsModalOpen] = useState(false)
+    const handleBogoCardClick = (offer) => {
+        setActiveBogoItem({
+            bundle: offer,
+            offerId: offer?.id,
+            offerTitle: offer?.title,
+            offerDescription: offer?.description,
+            offerImage: offer?.image_full_url,
+            validUntil: formatBogoValidUntil(offer),
+            restaurant: {
+                id: restaurantData?.id,
+                slug: restaurantData?.slug,
+                name: restaurantData?.name,
+                logoUrl: restaurantData?.logo_full_url,
+                deliveryTime: restaurantData?.delivery_time,
+                distance_label: restaurantData?.distance_label,
+            },
+        })
+        setIsBogoDetailsModalOpen(true)
+    }
+    const handleCloseBogoDetailsModal = () => {
+        setIsBogoDetailsModalOpen(false)
+        setActiveBogoItem(null)
+    }
+
+    const highestPrice = 8000
+
+    const hasPriceFilter =
+        Array.isArray(priceAndRating?.price) &&
+        priceAndRating.price.length === 2 &&
+        (priceAndRating.price[0] > 0 || priceAndRating.price[1] < highestPrice)
+
+    const activeFilters = [
+        ...(checkedFilterKey?.filter((item) => item?.isActive) ?? []),
+        ...(hasPriceFilter
+            ? [{ id: 'price-range', value: 'price_range', isActive: true }]
+            : []),
+    ]
+
+    const isSearchingOrFiltering =
+        Boolean(searchKey) || activeFilters.length > 0
+
+    const filterPanelValue = toFilterPanelValue(
+        checkedFilterKey,
+        priceAndRating?.price
+    )
 
     const has = (val) =>
         checkedFilterKey.some((item) => item.isActive && item.value === val)
@@ -100,6 +215,10 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
             ? 'a_to_z'
             : has('z_to_a')
             ? 'z_to_a'
+            : has('price_high')
+            ? 'price_high'
+            : has('price_low')
+            ? 'price_low'
             : '',
         rating: has('rating4')
             ? 4
@@ -112,23 +231,37 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
             : priceAndRating?.rating || 0,
     }
 
-    const { data: categoriesFoodsData } = useRestaurantCategoriesFoods({
-        restaurantId,
-        searchKey,
-        filterByData,
-        price: priceAndRating?.price,
-    })
+    const { data: categoriesFoodsData, isFetched: isFoodsFetched } =
+        useRestaurantCategoriesFoods({
+            restaurantId,
+            searchKey,
+            filterByData,
+            price: priceAndRating?.price,
+        })
 
-    const highestPrice = 8000
     const theme = useTheme()
     const isSmall = useMediaQuery(theme.breakpoints.down('md'))
+    // Same hook the bottom dock uses (react-query dedupes the lookup) — only
+    // to reserve the right amount of page padding under the dock.
+    const mobileHappyHour = useHappyHourBanner({
+        restaurantId: restaurantData?.id,
+    })
 
     // Pro Plan subscription flow (mirrors FloatingCart). Banner is shown to
     // non-Pro users only; clicking Subscribe opens the plan modal, then
     // AllPaymentMethod handles the payment step.
     const { global } = useSelector((state) => state.globalSettings)
-    const { token } = useSelector((state) => state.userToken)
+    const { token: reduxToken } = useSelector((state) => state.userToken)
+    const token = reduxToken || getToken()
     const { walletAmount: walletAmountRaw } = useSelector((state) => state.cart)
+    // Shared cart-drawer flag — on mobile this page renders its own bottom
+    // drawer for it (the floating side drawer is suppressed here).
+    const cartDrawerOpen = useSelector(
+        (state) => state.utilsData.cartDrawerOpen
+    )
+    useCloseOnBackButton(Boolean(isSmall && cartDrawerOpen), () =>
+        dispatch(setCartDrawerOpen(false))
+    )
     const walletAmount = Number(walletAmountRaw) || 0
     const { data: customerData } = useQuery(
         ['profile-info'],
@@ -141,8 +274,10 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
     const proStatus =
         Boolean(token) && Number(customerData?.data?.pro_status) === 1
 
+    // Guests can never have a pro offer — unauthenticated calls are a
+    // guaranteed 401 on every store page load.
     const { data: proActiveOffer } = useGetProActiveOffer({
-        
+        enabled: Boolean(token),
     })
     const benefit = proActiveOffer?.benefit
     const benefitType = benefit?.type
@@ -184,19 +319,39 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
             )}${capPart}${minOrderSuffix}`
         } else if (benefitType === 'delivery_fee') {
             if (offerType === 'full_free') {
-                activeOfferMessage = `${t('Free delivery as a Pro member')}${minOrderSuffix}`
+                activeOfferMessage = `${t(
+                    'Free delivery as a Pro member'
+                )}${minOrderSuffix}`
             } else if (offerType === 'partial_free' && chargeDiscountPct > 0) {
                 activeOfferMessage = `${chargeDiscountPct}% ${t(
                     'off delivery as a Pro member'
                 )}${minOrderSuffix}`
             }
         } else if (benefitType === 'coupon') {
-            activeOfferMessage = `${t('Pro coupon benefit unlocked')}${minOrderSuffix}`
+            activeOfferMessage = `${t(
+                'Pro coupon benefit unlocked'
+            )}${minOrderSuffix}`
         }
     }
     const hasActiveOfferMessage = Boolean(activeOfferMessage)
-    const showProBanner =
-        global?.pro_member_status === 1 
+
+    // Short "30% OFF"-style heading for the Pro coupon card (ProOfferCoupon)
+    // — same offer-type branching as activeOfferMessage above, just terser.
+    let proOfferHeading = ''
+    if (offerActive) {
+        if (benefitType === 'discount' && benefitPercentage > 0) {
+            proOfferHeading = `${benefitPercentage}% ${t('OFF')}`
+        } else if (benefitType === 'delivery_fee') {
+            if (offerType === 'full_free') {
+                proOfferHeading = t('Free Delivery')
+            } else if (offerType === 'partial_free' && chargeDiscountPct > 0) {
+                proOfferHeading = `${chargeDiscountPct}% ${t('OFF Delivery')}`
+            }
+        } else if (benefitType === 'coupon') {
+            proOfferHeading = t('Pro Benefit')
+        }
+    }
+    const showProBanner = global?.pro_member_status === 1
 
     const [proPlanModalOpen, setProPlanModalOpen] = useState(false)
 
@@ -306,9 +461,7 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
                 window.history.replaceState(
                     {},
                     '',
-                    url.pathname +
-                        (url.search ? url.search : '') +
-                        url.hash
+                    url.pathname + (url.search ? url.search : '') + url.hash
                 )
             }
         }
@@ -324,9 +477,26 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
     const { mutate: subscribeProPlan, isLoading: subscribing } =
         useSubscribeProPlan()
     const refs = useRef([])
+    const categoryBarAnchorRef = useRef(null)
     const scrollCancelRef = useRef(null)
     const [scrollingByClick, setScrollingByClick] = useState(false)
-    const { ref, inView } = useInView()
+
+    const scrollToCategoryBar = () => {
+        const node = categoryBarAnchorRef.current
+        if (!node) return
+        const offset = isSmall ? 58 : NAVBAR_HEIGHT
+        const targetY =
+            node.getBoundingClientRect().top + window.pageYOffset - offset
+        if (scrollCancelRef.current) {
+            scrollCancelRef.current()
+        }
+        scrollCancelRef.current = smoothScrollTo(Math.max(targetY, 0), 500)
+    }
+    // Mobile condensed header: appears once the restaurant name in the hero
+    // scrolls out of view. initialInView keeps it hidden on first paint.
+    const { ref: heroNameRef, inView: heroNameInView } = useInView({
+        initialInView: true,
+    })
     const isHidden = useHideOnScroll({ threshold: 50 })
     const [removeStickyBanner, setRemoveStickyBanner] = useState(false)
     useEffect(() => {
@@ -375,11 +545,54 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
         const categories = categoriesFoodsData?.categories || []
         const categoryWiseFoods = categoriesFoodsData?.category_wise_foods || {}
 
-        const recommend = {
-            id: 1233,
-            name: t('Recommend Products'),
-            products: recommendProducts?.products,
+        // "Most Popular" — the restaurant's recommended products first, then
+        // the top most-ordered items across every category. A food can live
+        // in multiple categories (and also be recommended), so dedupe by id.
+        const seenFoodIds = new Set()
+        const dedupe = (foods = []) =>
+            foods.filter((food) => {
+                if (!food?.id || seenFoodIds.has(food.id)) return false
+                seenFoodIds.add(food.id)
+                return true
+            })
+        const recommendedFoods = dedupe(recommendProducts?.products)
+        const allFoods = dedupe(Object.values(categoryWiseFoods).flat())
+        const sortComparator =
+            MOST_POPULAR_SORT_COMPARATORS[filterByData.sort_by]
+
+        let mergedFoods
+        if (sortComparator) {
+            mergedFoods = [...recommendedFoods, ...allFoods].sort(
+                sortComparator
+            )
+        } else if (isSearchingOrFiltering) {
+            mergedFoods = [...recommendedFoods, ...allFoods]
+        } else {
+            mergedFoods = [
+                ...recommendedFoods,
+                ...[...allFoods].sort(
+                    (a, b) =>
+                        (Number(b?.order_count) || 0) -
+                        (Number(a?.order_count) || 0)
+                ),
+            ]
+        }
+        const mostPopular = {
+            id: 1234,
+            name: t('Most Popular'),
+            products: mergedFoods.slice(0, 10),
             isBgColor: true,
+        }
+
+        // This store's own BOGO bundles. Kept in `data` alongside the food
+        // sections so the category bar, scroll anchor and scroll-spy all
+        // pick it up with no special-casing.
+        const bogoOffersList = restaurantBogoOffers?.offers || []
+        const bogo = {
+            id: 1235,
+            name: t('BOGO'),
+            offers: bogoOffersList,
+            isBogo: true,
         }
 
         // Backend already groups foods per category in `category_wise_foods`,
@@ -391,14 +604,20 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
             }))
             .filter((cat) => cat?.products?.length > 0)
 
-        const final =
-            recommendProducts?.products?.length > 0
-                ? [recommend, ...grouped]
-                : grouped
+        const final = [
+            ...(mostPopular.products.length > 0 ? [mostPopular] : []),
+            ...(bogoOffersList.length > 0 ? [bogo] : []),
+            ...grouped,
+        ]
 
         setData(final)
         setIsFirstRender(false)
-    }, [categoriesFoodsData, recommendProducts])
+    }, [
+        categoriesFoodsData,
+        recommendProducts,
+        restaurantBogoOffers,
+        isSearchingOrFiltering,
+    ])
 
     const handleFocusedSection = debounce((val) => {
         if (!clickedOnCategoryRef.current) {
@@ -433,22 +652,17 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
         setScrollingByClick(false)
     }, [selectedId, data, scrollingByClick])
 
-    const handlePrice = (value) => {
-        setPriceAndRating((prev) => ({ ...prev, price: value }))
+    const handleApplyFilters = (panelValue) => {
+        const { checkedFilterKey: nextFilterKeys, price } =
+            toRestaurantFilterState(panelValue, {
+                baseFilterKeys: restaurantFoodMockData,
+                highestPrice,
+            })
+        setCheckedFilterKey(nextFilterKeys)
+        setPriceAndRating((prev) => ({ ...prev, price }))
+        scrollToCategoryBar()
     }
 
-    const handleChangeRatings = (value) => {
-        setPriceAndRating((prev) => ({ ...prev, rating: value }))
-    }
-
-    const handleReset = () => {
-        setCheckedFilterKey(
-            restaurantFoodMockData.map((item) => ({ ...item, isActive: false }))
-        )
-        setPriceAndRating({ price: [], rating: 0 })
-    }
-
-    const handleFilterBy = () => {}
     const handleSearchResult = async (values) => {
         if (values === '') {
             setSearchKey('')
@@ -456,125 +670,313 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
             setSearchKey(values)
         }
     }
-    const restaurantDiscount = restaurantDiscountTag(
-        restaurantData?.discount,
-        restaurantData?.free_delivery
-    )
 
+    const hasFoodResults = data.some((item) => !item?.isBogo)
+    const hasBogoOnly = data.length > 0 && !hasFoodResults
 
     return (
-        <CustomContainer sx={{ mb: { xs: '7px', md: '0' } }}>
-            <CustomStackFullWidth
-                pb={isSmall ? '1rem' : '3rem'}
-                paddingTop={{ xs: '10px', md: '70px' }}
+        <CustomContainer
+            sx={{
+                mb: { xs: '7px', md: '0' },
+                // Full-bleed mobile layout: the container drops its gutters
+                // below md; sections that still need an inset (pro banner,
+                // food content) carry their own horizontal padding.
+                px: { xs: 0, md: 3 },
+            }}
+        >
+            {/* Mobile-only compact header — the global navbar is hidden on
+                this route (see MOBILE_PAGE_HEADER_ROUTES). Fixed and hidden
+                until the hero's restaurant name scrolls out of view, then it
+                slides down. */}
+            <Box
+                sx={{
+                    display: { xs: 'block', md: 'none' },
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 1200,
+                    transform: heroNameInView
+                        ? 'translateY(-110%)'
+                        : 'translateY(0)',
+                    transition: 'transform 250ms ease',
+                    // MobilePageHeader styles itself as a sticky in-flow bar
+                    // with bleed margins — neutralize those inside this
+                    // fixed shell.
+                    '& > div': { position: 'static', mx: 0, mb: 0 },
+                }}
             >
-                {restaurantData && (
-                    <TopBanner
-                        details={restaurantData}
-                        isHidden={isHidden}
-                        removeStickyBanner={removeStickyBanner}
-                    />
-                )}
-                {showProBanner ? (
-                    <Box sx={{ mt: 1.5 }}>
-                        {proStatus ? (
-                            <ProPlanTopBanner
-                                t={t}
-                                messageKey="Order now to enjoy exclusive offer with your"
-                                message={activeOfferMessage}
-                            />
-                        ) : (
-                            <ProPlanTopBanner
-                                t={t}
-                                onSubscribe={handleSubscribeClick}
+                <MobilePageHeader title={restaurantData?.name} />
+            </Box>
+            {/* 6amMart store-details layout: main content + sticky cart
+                sidebar in an 8.5 / 3.5 flex split with a 34px gutter. */}
+            <Box
+                sx={{
+                    mt: { xs: 0, md: '45px' },
+                    // Clear the fixed mobile bottom dock so it never covers
+                    // the last section — taller while the happy-hour banner
+                    // is stacked on the cart bar.
+                    pb: isSmall
+                        ? mobileHappyHour.show
+                            ? '150px'
+                            : '90px'
+                        : '3rem',
+                    display: 'flex',
+                    gap: '34px',
+                    flexDirection: { xs: 'column', md: 'row' },
+                    alignItems: 'stretch',
+                }}
+            >
+                <Box sx={{ flex: { xs: '1 1 auto', md: 8.5 }, minWidth: 0 }}>
+                    {/* 10px rhythm between the page sections. Safe to use Stack
+                spacing here: every direct child is a real layout box (the
+                modals live outside this stack). */}
+                    <CustomStackFullWidth spacing="16px">
+                        {restaurantData && (
+                            <TopBanner
+                                details={restaurantData}
+                                isHidden={isHidden}
+                                removeStickyBanner={removeStickyBanner}
+                                heroNameRef={heroNameRef}
+                                showProOffer={
+                                    showProBanner &&
+                                    proStatus &&
+                                    hasActiveOfferMessage
+                                }
+                                proOfferHeading={proOfferHeading}
+                                proOfferMessage={activeOfferMessage}
                             />
                         )}
-                    </Box>
-                ) : null}
+                        {showProBanner && !proStatus ? (
+                            <Box>
+                                <ProPlanTopBanner
+                                    t={t}
+                                    onSubscribe={handleSubscribeClick}
+                                />
+                            </Box>
+                        ) : null}
 
-                <CustomStackFullWidth>
-                    {!isFirstRender && (
-                        <>
-                            {restaurantData?.id &&
-                            configData?.repeat_order_option &&
-                            token ? (
-                                <Box sx={{ mt: { xs: '1rem', sm: '1.5rem' } }}>
-                                    <LastOrderSection
-                                        restaurantId={restaurantData.id}
-                                        isStoreDetails
-                                    />
-                                </Box>
-                            ) : null}
-
-                            <RestaurantCategoryBar
-                                data={data}
-                                selectedId={selectedId}
-                                handleClick={handleClick}
-                                isSmall={isSmall}
-                                handleSearchResult={handleSearchResult}
-                                searchKey={searchKey}
-                                isHidden={isHidden}
-                                setRemoveStickyBanner={setRemoveStickyBanner}
-                                removeStickyBanner={removeStickyBanner}
-                                highestPrice={highestPrice}
-                                handlePrice={handlePrice}
-                                handleChangeRatings={handleChangeRatings}
-                                handleReset={handleReset}
-                                handleFilterBy={handleFilterBy}
-                                checkedFilterKey={checkedFilterKey}
-                                setCheckedFilterKey={setCheckedFilterKey}
-                                priceAndRating={priceAndRating}
-                                activeFilters={activeFilters}
-                            />
-
-                            {data?.map((item, index) => {
-                                return (
-                                    <Box
-                                        sx={{ position: 'relative' }}
-                                        key={item?.id ?? `cat-${index}`}
-                                    >
+                        <CustomStackFullWidth>
+                            {!isFirstRender && (
+                                <>
+                                    {restaurantData?.id &&
+                                    configData?.repeat_order_option &&
+                                    token ? (
                                         <Box
                                             sx={{
-                                                position: 'absolute',
-                                                top: '-340px',
+                                                pt: 2,
+                                                pb: 2,
+                                                // LastOrderSection renders null when
+                                                // there are no reorderable items —
+                                                // collapse the padded wrapper too so
+                                                // no empty strip is left behind.
+                                                '&:empty': { display: 'none' },
                                             }}
-                                            ref={(el) =>
-                                                (refs.current[item?.id] = el)
-                                            }
-                                        />
-                                        <CategoriesWiseFood
-                                            disRef={ref}
-                                            data={item}
-                                            handleFocusedSection={
-                                                handleFocusedSection
-                                            }
-                                            indexNumber={index}
-                                            restaurantDiscount={
-                                                restaurantDiscount
-                                            }
-                                            hasFreeDelivery={
-                                                restaurantData?.free_delivery
-                                            }
-                                        />
-                                    </Box>
-                                )
-                            })}
-                            {data?.length === 0 && (
-                                <RestaurentDetailsShimmer
-                                    showComponent={showComponent}
-                                />
+                                        >
+                                            <LastOrderSection
+                                                restaurantId={restaurantData.id}
+                                            />
+                                        </Box>
+                                    ) : null}
+
+                                    {/* No inset wrapper here on purpose: the bar is
+                                position:sticky and can only travel within its
+                                parent, so a Box hugging it would kill the
+                                stickiness. Its mobile inset lives in the
+                                bar's own padding instead. */}
+                                    <Box
+                                        ref={categoryBarAnchorRef}
+                                        sx={{ height: 0 }}
+                                    />
+                                    <RestaurantCategoryBar
+                                        data={data}
+                                        selectedId={selectedId}
+                                        handleClick={handleClick}
+                                        isSmall={isSmall}
+                                        handleSearchResult={handleSearchResult}
+                                        searchKey={searchKey}
+                                        isHidden={isHidden}
+                                        setRemoveStickyBanner={
+                                            setRemoveStickyBanner
+                                        }
+                                        removeStickyBanner={removeStickyBanner}
+                                        highestPrice={highestPrice}
+                                        filterValue={filterPanelValue}
+                                        onApplyFilters={handleApplyFilters}
+                                        activeFilters={activeFilters}
+                                    />
+
+                                    {!isFoodsFetched && (
+                                        <Box
+                                            sx={{ px: { xs: 2, sm: 3, md: 0 } }}
+                                        >
+                                            <RestaurentDetailsShimmer
+                                                showComponent
+                                            />
+                                        </Box>
+                                    )}
+
+                                    {isFoodsFetched &&
+                                        isSearchingOrFiltering &&
+                                        hasBogoOnly && (
+                                            <Box
+                                                sx={{
+                                                    px: { xs: 2, sm: 3, md: 0 },
+                                                    pt: '10px',
+                                                }}
+                                            >
+                                                <CustomEmptyResult
+                                                    label="No Food Found"
+                                                    image={noFoodFoundImage}
+                                                    height={80}
+                                                    width={80}
+                                                    labelFontSize="13px"
+                                                />
+                                            </Box>
+                                        )}
+
+                                    {isFoodsFetched &&
+                                        data?.map((item, index) => {
+                                            return (
+                                                <Box
+                                                    sx={{
+                                                        position: 'relative',
+                                                        mt: '10px',
+                                                        pl: {
+                                                            xs: 2,
+                                                            sm: 3,
+                                                            md: 0,
+                                                        },
+                                                        pr: item?.isBgColor
+                                                            ? {
+                                                                  xs: 0,
+                                                                  sm: 0,
+                                                                  md: 0,
+                                                              }
+                                                            : {
+                                                                  xs: 2,
+                                                                  sm: 3,
+                                                                  md: 0,
+                                                              },
+                                                    }}
+                                                    key={
+                                                        item?.id ??
+                                                        `cat-${index}`
+                                                    }
+                                                >
+                                                    <Box
+                                                        sx={{
+                                                            position:
+                                                                'absolute',
+                                                            // Clears the fixed navbar +
+                                                            // sticky category bar so a
+                                                            // category click lands with
+                                                            // the section heading right
+                                                            // below the toolbar.
+                                                            top: {
+                                                                xs: '-185px',
+                                                                md: '-140px',
+                                                            },
+                                                        }}
+                                                        ref={(el) =>
+                                                            (refs.current[
+                                                                item?.id
+                                                            ] = el)
+                                                        }
+                                                    />
+                                                    <CategoriesWiseFood
+                                                        data={item}
+                                                        handleFocusedSection={
+                                                            handleFocusedSection
+                                                        }
+                                                        indexNumber={index}
+                                                        hasFreeDelivery={
+                                                            restaurantData?.free_delivery
+                                                        }
+                                                        onBogoCardClick={
+                                                            handleBogoCardClick
+                                                        }
+                                                        restaurantId={
+                                                            restaurantId
+                                                        }
+                                                    />
+                                                </Box>
+                                            )
+                                        })}
+
+                                    {isFoodsFetched && data?.length === 0 && (
+                                        <Box
+                                            sx={{
+                                                px: { xs: 2, sm: 3, md: 0 },
+                                            }}
+                                        >
+                                            <RestaurentDetailsShimmer
+                                                showComponent={showComponent}
+                                            />
+                                        </Box>
+                                    )}
+                                </>
                             )}
-                        </>
-                    )}
-                    {!inView && restaurantDiscount && (
-                        <FloatingDiscountTag
-                            resDiscount={restaurantData?.discount}
-                            freeDelivery={restaurantData?.free_delivery}
-                            restaurantDiscount={restaurantDiscount}
-                        />
-                    )}
-                </CustomStackFullWidth>
-            </CustomStackFullWidth>
+                        </CustomStackFullWidth>
+                    </CustomStackFullWidth>
+                </Box>
+                {/* Mobile-only bottom dock: happy-hour banner + cart bar */}
+                <RestaurantMobileBottomBar restaurantDetails={restaurantData} />
+                {/* Mobile bottom cart drawer — same panel as the desktop
+                sidebar, opened by the shared cartDrawerOpen flag (the
+                floating side drawer is suppressed on this page for mobile). */}
+                <Drawer
+                    anchor="bottom"
+                    open={Boolean(isSmall && cartDrawerOpen)}
+                    onClose={() => dispatch(setCartDrawerOpen(false))}
+                    sx={{
+                        display: { xs: 'block', md: 'none' },
+                        zIndex: 1300,
+                    }}
+                    PaperProps={{
+                        sx: {
+                            borderRadius: '16px 16px 0 0',
+                            overflow: 'hidden',
+                        },
+                    }}
+                >
+                    <RestaurantCartSidebar
+                        variant="drawer"
+                        alsoBoughtProducts={recommendProducts?.products}
+                        restaurantDetails={restaurantData}
+                        showProBanner={Boolean(showProBanner)}
+                        isProMember={proStatus}
+                        proOfferMessage={activeOfferMessage}
+                        onProSubscribe={() => {
+                            dispatch(setCartDrawerOpen(false))
+                            handleSubscribeClick()
+                        }}
+                    />
+                </Drawer>
+                {/* Desktop-only sticky cart sidebar */}
+                <Box
+                    sx={{
+                        display: { xs: 'none', md: 'block' },
+                        flex: { md: 3.5 },
+                        minWidth: 0,
+                    }}
+                >
+                    <RestaurantCartSidebar
+                        alsoBoughtProducts={recommendProducts?.products}
+                        restaurantDetails={restaurantData}
+                        showProBanner={Boolean(showProBanner)}
+                        isProMember={proStatus}
+                        proOfferMessage={activeOfferMessage}
+                        onProSubscribe={handleSubscribeClick}
+                    />
+                </Box>
+            </Box>
+            <BogoItemDetailsModal
+                isOpenModal={isBogoDetailsModalOpen}
+                onCloseModal={handleCloseBogoDetailsModal}
+                activeBogoItem={activeBogoItem}
+                disableRestaurantRedirect
+            />
             <ProPlanSubscriptionModal
                 open={proPlanModalOpen}
                 onClose={() => setProPlanModalOpen(false)}
@@ -616,7 +1018,7 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
                                 toast.error(t('Select a payment method'))
                                 return
                             }
-                             const payment_platform = 'web'
+                            const payment_platform = 'web'
                             let payment_type = 'digital_payment'
                             let payment_method = selected?.name
                             if (selected?.method === 'offline_payment') {
@@ -641,7 +1043,6 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
                                     payment_method,
                                     payment_platform,
                                     callback: callbackUrl,
-                                    
                                 },
                                 {
                                     onSuccess: (resp) => {
@@ -776,9 +1177,7 @@ const RestaurantDetails = ({ restaurantData, configData }) => {
                         </Typography>
                     </Stack>
                 </DialogContent>
-                <DialogActions
-                    sx={{ px: 3, pb: 2, justifyContent: 'center' }}
-                >
+                <DialogActions sx={{ px: 3, pb: 2, justifyContent: 'center' }}>
                     <Button
                         onClick={handleResultClose}
                         variant="contained"

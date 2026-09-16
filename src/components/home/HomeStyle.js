@@ -74,7 +74,8 @@ export const FoodDetailModalStyle = styled(Box)(({ theme }) => ({
     transform: 'translate(-50%, -50%)',
     maxWidth: '469px',
     width: '100%',
-    borderRadius: '5px',
+    borderRadius: '20px',
+    overflow: 'hidden',
     boxShadow: 24,
     border: 'none',
 
@@ -82,8 +83,22 @@ export const FoodDetailModalStyle = styled(Box)(({ theme }) => ({
     [theme.breakpoints.down('md')]: {
         width: '85%',
     },
-    [theme.breakpoints.down('xs')]: {
-        width: '85%',
+    // Phones get a bottom drawer instead of a centred dialog. The slide-up is
+    // a keyframe rather than a MUI Slide because Slide drives `transform`,
+    // which is what centres the dialog on larger screens.
+    [theme.breakpoints.down('sm')]: {
+        top: 'auto',
+        bottom: 0,
+        left: 0,
+        transform: 'none',
+        width: '100%',
+        maxWidth: '100%',
+        borderRadius: '20px 20px 0 0',
+        animation: 'foodModalSlideUp 0.28s ease-out',
+    },
+    '@keyframes foodModalSlideUp': {
+        from: { transform: 'translateY(100%)' },
+        to: { transform: 'translateY(0)' },
     },
 }))
 

@@ -51,11 +51,26 @@ const PushNotificationLayout = ({ children, refetch, pathName }) => {
     }
 
     useEffect(() => {
-        onMessageListener()
-            .then((payload) => {
-                setNotification(payload.data)
-            })
-            .catch((err) => toast(err))
+        let isMounted = true
+
+        const listenForMessages = () => {
+            onMessageListener()
+                .then((payload) => {
+                    if (!isMounted) return
+                    setNotification(payload.data)
+                    listenForMessages()
+                })
+                .catch(() => {})
+        }
+
+        listenForMessages()
+
+        return () => {
+            isMounted = false
+        }
+    }, [])
+
+    useEffect(() => {
         if (notification) {
             if (pathName === 'info' && notification.type === 'message') {
                 refetch()

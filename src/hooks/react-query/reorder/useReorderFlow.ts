@@ -8,11 +8,14 @@ import MainApi from '@/api/MainApi'
 import { OrderApi } from '@/hooks/react-query/config/orderApi'
 import useReorderAddToCart from '@/hooks/react-query/reorder/useReorderAddToCart'
 import useDeleteAllCartItem from '@/hooks/react-query/add-cart/useDeleteAllCartItem'
+import {
+    mapRestaurantCartRows,
+    refreshCartGroups,
+} from '@/hooks/react-query/add-cart/useGetAllCartList'
 import { onErrorResponse } from '@/components/ErrorResponse'
 import {
     cart,
     removeCartGroupByRestaurantId,
-    setCartGroups,
     setClearCart,
     setReorderCartItemByDispatch,
 } from '@/redux/slices/cart'
@@ -27,10 +30,7 @@ import {
     getToken,
 } from '@/components/checkout-page/functions/getGuestUserId'
 import { handleValuesFromCartItems } from '@/components/checkout-page/CheckoutPage'
-import {
-    getSelectedAddons,
-    getSelectedVariations,
-} from '@/components/navbar/second-navbar/SecondNavbar'
+import { getSelectedVariations } from '@/components/navbar/second-navbar/SecondNavbar'
 import { t as tStatic } from 'i18next'
 
 // The reorder builder operates on loosely-typed legacy payloads (food list,
@@ -418,13 +418,7 @@ export default function useReorderFlow(): UseReorderFlowReturn {
 
                         // Grouped view (used by FloatingCart on
                         // non-restaurant routes) — always refresh.
-                        const groupedQs = guestParam ? `?${guestParam}` : ''
-                        MainApi.get(`api/v1/customer/cart/get-all${groupedQs}`)
-                            .then(({ data }) => {
-                                if (Array.isArray(data))
-                                    dispatch(setCartGroups(data))
-                            })
-                            .catch(onErrorResponse)
+                        refreshCartGroups(dispatch)
 
                         // Per-restaurant view (used by FloatingCart on
                         // /restaurants/[id]) — refresh cartList from the
@@ -438,29 +432,7 @@ export default function useReorderFlow(): UseReorderFlowReturn {
                             )
                                 .then(({ data }) => {
                                     if (!Array.isArray(data)) return
-                                    const mapped = data.map((entry: any) => ({
-                                        ...entry?.item,
-                                        cartItemId: entry?.id,
-                                        totalPrice: entry?.price,
-                                        selectedAddons: getSelectedAddons(
-                                            entry?.item?.addons
-                                        ),
-                                        quantity: entry?.quantity,
-                                        variations: entry?.item?.variations,
-                                        itemBasePrice: getConvertDiscount(
-                                            entry?.item?.discount,
-                                            entry?.item?.discount_type,
-                                            calculateItemBasePrice(
-                                                entry?.item,
-                                                entry?.item?.variations
-                                            ),
-                                            entry?.item?.restaurant_discount
-                                        ),
-                                        selectedOptions: getSelectedVariations(
-                                            entry?.item?.variations
-                                        ),
-                                    }))
-                                    dispatch(cart(mapped))
+                                    dispatch(cart(mapRestaurantCartRows(data)))
                                 })
                                 .catch(onErrorResponse)
                         }

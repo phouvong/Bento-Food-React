@@ -148,11 +148,10 @@ const Logs = (props) => {
                             <CustomStackFullWidth spacing={2}>
                                 {logs?.pending_order_logs?.length > 0 &&
                                     logs?.pending_order_logs
-                                        ?.slice(0, 3)
                                         ?.map((log, index) => (
                                             <CustomStackFullWidth
                                                 direction="row"
-                                                key={log?.id}
+                                                key={`${log}-${index}`}
                                                 alignItems="center"
                                                 justifyContent="space-between"
                                                 spacing={2}
@@ -316,35 +315,72 @@ const Logs = (props) => {
     }
     return (
         <Paper
-            sx={{ padding: '1rem', minHeight: '200px', position: 'relative' }}
+            sx={{
+                padding: '1rem',
+                minHeight: '200px',
+                maxHeight: { xs: '90dvh', sm: '80vh' },
+                display: 'flex',
+                flexDirection: 'column',
+                position: 'relative',
+                backgroundImage: 'none',
+            }}
         >
-            <Box sx={{ position: 'absolute', right: '1%', top: '1%' }}>
+            <Box
+                sx={{ position: 'absolute', right: '1%', top: '1%', zIndex: 2 }}
+            >
                 <IconButton onClick={onClose}>
                     <CloseIcon sx={{ fontSize: '16px' }} />
                 </IconButton>
             </Box>
             <CustomStackFullWidth
                 alignItems="center"
-                justifyContent="center"
-                spacing={3}
+                spacing={2}
+                sx={{ flex: 1, minHeight: 0 }}
             >
                 <CustomTypography variant="h4" fontWeight="600">
                     {t(title)}
                 </CustomTypography>
-                <CustomStackFullWidth
-                    alignItems="center"
-                    justifyContent="space-between"
+                <Box
+                    sx={{
+                        width: '100%',
+                        flex: 1,
+                        minHeight: 0,
+                        overflowY: 'auto',
+                        overflowX: 'hidden',
+                        pl: '4px',
+                        pr: { xs: '4px', sm: '14px' },
+                        py: '4px',
+                        scrollbarWidth: 'thin',
+                        scrollbarColor: (theme) =>
+                            `${alpha(
+                                theme.palette.text.secondary,
+                                0.25
+                            )} transparent`,
+                        '&::-webkit-scrollbar': { width: 6 },
+                        '&::-webkit-scrollbar-track': {
+                            backgroundColor: 'transparent',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                            backgroundColor: (theme) =>
+                                alpha(theme.palette.text.secondary, 0.25),
+                            borderRadius: 999,
+                        },
+                        '&::-webkit-scrollbar-thumb:hover': {
+                            backgroundColor: (theme) =>
+                                alpha(theme.palette.text.secondary, 0.45),
+                        },
+                    }}
                 >
                     {title?.includes('Delivery') ? deliveryLogs() : pauseLogs()}
-                    {logs?.total_size > 10 && (
-                        <CustomePagination
-                            total_size={logs?.total_size}
-                            page_limit={logs?.limit}
-                            offset={offset}
-                            setOffset={setOffset}
-                        />
-                    )}
-                </CustomStackFullWidth>
+                </Box>
+                {logs?.total_size > 10 && (
+                    <CustomePagination
+                        total_size={logs?.total_size}
+                        page_limit={logs?.limit}
+                        offset={offset}
+                        setOffset={setOffset}
+                    />
+                )}
             </CustomStackFullWidth>
         </Paper>
     )

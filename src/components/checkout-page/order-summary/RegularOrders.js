@@ -1,20 +1,11 @@
 import React from 'react'
-import { Grid, Stack, Typography } from '@mui/material'
-import {
-    OrderFoodAmount,
-    OrderFoodName,
-    OrderFoodSubtitle,
-} from '../CheckOut.style'
-import { getAmount, getSelectedAddOn } from '@/utils/customFunctions'
+import { Grid, Stack } from '@mui/material'
 import { useSelector } from 'react-redux'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import Skeleton from '@mui/material/Skeleton'
-import CustomImageContainer from '../../CustomImageContainer'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@mui/material/styles'
-import VisibleVariations from '../../floating-cart/VisibleVariations'
-import { handleTotalAmountWithAddonsFF } from '@/utils/customFunctions'
-import CustomNextImage from '@/components/CustomNextImage'
+import CheckoutItemRow from './CheckoutItemRow'
 
 const RegularOrders = ({ orderType }) => {
     const theme = useTheme()
@@ -29,120 +20,33 @@ const RegularOrders = ({ orderType }) => {
         currencySymbolDirection = global.currency_symbol_direction
         digitAfterDecimalPoint = global.digit_after_decimal_point
     }
-    const languageDirection = localStorage.getItem('direction')
     const visibleCartItems = (cartList ?? []).filter((item) => {
         if (!item) return false
+        // A bogo bundle row has no `item` spread onto it (see FloatingCart's
+        // cartListSuccessHandler) — only `bogoDetails` — so it has neither
+        // id nor name and would otherwise be filtered out here.
+        if (item.bogoDetails) return true
         const hasId = item.id !== undefined && item.id !== null
         const hasName = typeof item.name === 'string' && item.name.length > 0
         return hasId || hasName
     })
 
-    console.log('visibleCartItems', cartList)
     return (
         <>
             {visibleCartItems.length > 0 ? (
-                visibleCartItems.map((item, index) => (
-                    <CustomStackFullWidth
-                        key={index}
-                        direction="row"
-                        alignItems="center"
-                        spacing={2}
-                        mt={index !== 0 && '1rem'}
-                    >
-                        <Stack position="relative" sx={{ flexShrink: 0 }}>
-                            <CustomNextImage
-                                height="90"
-                                width="90"
-                                src={item.image_full_url}
-                                borderRadius="10px"
-                                objectFit={item.image_full_url ? "cover" : "contain"}
-
-                            />
-                            <Stack
-                                sx={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    left: 0,
-                                    width: '100%',
-
-                                    background: (theme) =>
-                                        theme.palette.primary.overLay,
-                                    opacity: '0.6',
-                                    padding: '10px',
-                                    height: '30%',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    borderBottomRightRadius: '10px',
-                                    borderBottomLeftRadius: '10px',
-                                }}
-                            >
-                                <Typography
-                                    variant="h5"
-                                    align="center"
-                                    color={theme.palette.neutral[100]}
-                                >
-                                    {item?.veg === 0 ? t('non-veg') : t('veg')}
-                                </Typography>
-                            </Stack>
-                        </Stack>
-                        <Stack
-                            paddingRight={languageDirection === 'rtl' && '10px'}
-                            sx={{ overflow: 'hidden' }}
-                        >
-                            <OrderFoodName>{item.name}</OrderFoodName>
-                            {item?.variations?.length > 0 && (
-                                <VisibleVariations
-                                    variations={item?.variations}
-                                    t={t}
-                                />
-                            )}
-                            {item?.selectedAddons?.length > 0 && (
-                                <Stack
-                                    direction="row"
-                                    alignItems="center"
-                                    spacing={0.5}
-                                >
-                                    <OrderFoodSubtitle>
-                                        {t('Addon')}
-                                    </OrderFoodSubtitle>
-                                    <OrderFoodSubtitle>:</OrderFoodSubtitle>
-                                    <OrderFoodSubtitle>
-                                        {item.selectedAddons
-                                            .map(
-                                                (a) =>
-                                                    `${a?.name} × ${a?.quantity}`
-                                            )
-                                            .join(', ')}
-                                    </OrderFoodSubtitle>
-                                </Stack>
-                            )}
-                            <Stack
-                                direction="row"
-                                alignItems="center"
-                                spacing={0.5}
-                            >
-                                <OrderFoodSubtitle>
-                                    {t('Qty')}
-                                </OrderFoodSubtitle>
-                                <OrderFoodSubtitle>:</OrderFoodSubtitle>
-                                <OrderFoodSubtitle>
-                                    {item.quantity}
-                                </OrderFoodSubtitle>
-                            </Stack>
-                            <OrderFoodAmount>
-                                {getAmount(
-                                    handleTotalAmountWithAddonsFF(
-                                        item.totalPrice,
-                                        item?.selectedAddons
-                                    ),
-                                    currencySymbolDirection,
-                                    currencySymbol,
-                                    digitAfterDecimalPoint
-                                )}
-                            </OrderFoodAmount>
-                        </Stack>
-                    </CustomStackFullWidth>
-                ))
+                <Stack sx={{ gap: '16px', width: '100%' }}>
+                    {visibleCartItems.map((item, index) => (
+                        <CheckoutItemRow
+                            key={index}
+                            item={item}
+                            isLast={index === visibleCartItems.length - 1}
+                            currencySymbolDirection={currencySymbolDirection}
+                            currencySymbol={currencySymbol}
+                            digitAfterDecimalPoint={digitAfterDecimalPoint}
+                            t={t}
+                        />
+                    ))}
+                </Stack>
             ) : (
                 <CustomStackFullWidth
                     direction="row"
@@ -151,13 +55,13 @@ const RegularOrders = ({ orderType }) => {
                 >
                     <Skeleton
                         variant="rectangular"
-                        height="90px"
-                        width="95px"
+                        height="44px"
+                        width="44px"
+                        sx={{ borderRadius: '8px' }}
                     />
-                    <Stack>
-                        <Skeleton variant="text" width="50px" />
-                        <Skeleton variant="text" width="50px" />
-                        <Skeleton variant="text" width="50px" />
+                    <Stack sx={{ flex: 1, gap: '4px' }}>
+                        <Skeleton variant="text" width="60%" />
+                        <Skeleton variant="text" width="30%" />
                     </Stack>
                 </CustomStackFullWidth>
             )}

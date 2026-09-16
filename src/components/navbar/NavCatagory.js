@@ -56,10 +56,12 @@ const NavCatagory = ({ setRestaurantModal, languageDirection }) => {
         }
     )
     useEffect(() => {
-        if (featuredCategories?.length === 0) {
+        // Deferred to the dropdown actually opening — menu content only;
+        // eager fetching spent a connection slot on every page load.
+        if (opendrop && featuredCategories?.length === 0) {
             refetchCategories()
         }
-    }, [])
+    }, [opendrop])
     useEffect(() => {
         if (data?.data) {
             dispatch(setFeaturedCategories(data?.data))

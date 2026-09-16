@@ -311,7 +311,7 @@ export const baseThemeOptions = {
         button: {
             fontWeight: 600,
         },
-        fontFamily: '"Rubik", sans-serif',
+        fontFamily: '"DM Sans", sans-serif',
         textTransform: 'none',
 
         body1: {

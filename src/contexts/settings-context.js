@@ -18,9 +18,7 @@ export const restoreSettings = () => {
             settings = {
                 direction: 'ltr',
                 responsiveFontSizes: true,
-                theme: window.matchMedia('(prefers-color-scheme: dark)').matches
-                    ? 'dark'
-                    : 'light',
+                theme: 'light',
             }
         }
     } catch (err) {}

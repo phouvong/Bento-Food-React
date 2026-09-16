@@ -1,6 +1,6 @@
 import React from 'react'
 import { NoSsr } from '@mui/material'
-import TypeWiseResturant from '../../../components/type-wise-resturant-page/TypeWiseResturant'
+import TypeWiseResturant from '../../../components/type-wise-restaurant-page/TypeWiseRestaurant'
 
 const index = () => {
     return (

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Box, Grid, Stack } from '@mui/material'
+import { Box, Divider, Grid, Stack, Typography } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import OrderCard from './OrderCard'
 import { useDispatch, useSelector } from 'react-redux'
 import { useQuery } from 'react-query'
@@ -16,11 +17,12 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { onSingleErrorResponse } from '../ErrorResponse'
 import OutLineGroupButtons from './OutLineGroupButtons'
 import CustomEmptyResult from '../empty-view/CustomEmptyResult'
+import { groupOrdersByDate, formatOrderGroupLabel } from './groupOrdersByDate'
 
 export const buttonsData = [
     { title: 'Ongoing', value: 'running-orders' },
     { title: 'Previous', value: 'list' },
-    { title: 'Subscription', value: 'order-subscription-list' },
+    { title: 'Repeat Order', value: 'order-subscription-list' },
 ]
 import Meta from '../Meta'
 import { noOrderFound } from '@/utils/LocalImages'
@@ -28,6 +30,7 @@ import { noOrderFound } from '@/utils/LocalImages'
 const OrderHistoryPage = ({ noCard = false, limit: propLimit }) => {
     const dispatch = useDispatch()
     const theme = useTheme()
+    const { t } = useTranslation()
     const { global } = useSelector((state) => state.globalSettings)
     const { orderType } = useSelector((state) => state.orderType)
     const [limit, setLimit] = useState(propLimit || 10)
@@ -64,19 +67,64 @@ const OrderHistoryPage = ({ noCard = false, limit: propLimit }) => {
                         <CustomShimmerCard />
                     </Box>
                 ) : data?.data?.orders?.length > 0 ? (
-                    <Grid container spacing={3}>
-                        {data?.data?.orders?.map((order, index) => (
-                            <Grid item xs={12} sm={6} md={6} key={index}>
-                                <OrderCard
-                                    order={order}
-                                    index={index}
-                                    limit={limit}
-                                    offset={offset}
-                                    refetch={refetch}
-                                />
-                            </Grid>
+                    <Stack gap="32px">
+                        {groupOrdersByDate(data?.data?.orders).map((group) => (
+                            <Stack key={group.key} gap="16px">
+                                <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    gap="16px"
+                                >
+                                    <Divider
+                                        sx={{
+                                            flex: 1,
+                                            borderColor: (theme) =>
+                                                theme.palette.divider,
+                                        }}
+                                    />
+                                    <Typography
+                                        noWrap
+                                        sx={{
+                                            fontSize: '18px',
+                                            fontWeight: 700,
+                                            lineHeight: 1.1,
+                                            letterSpacing: '-0.54px',
+                                            color: (theme) =>
+                                                theme.palette.text.secondary,
+                                        }}
+                                    >
+                                        {formatOrderGroupLabel(group.key, t)}
+                                    </Typography>
+                                    <Divider
+                                        sx={{
+                                            flex: 1,
+                                            borderColor: (theme) =>
+                                                theme.palette.divider,
+                                        }}
+                                    />
+                                </Stack>
+                                <Stack gap="32px">
+                                    {group.orders.map((order, index) => (
+                                        <React.Fragment key={order?.id ?? index}>
+                                            <OrderCard
+                                                order={order}
+                                                refetch={refetch}
+                                            />
+                                            {index < group.orders.length - 1 && (
+                                                <Divider
+                                                    sx={{
+                                                        borderColor: (theme) =>
+                                                            theme.palette
+                                                                .neutral[200],
+                                                    }}
+                                                />
+                                            )}
+                                        </React.Fragment>
+                                    ))}
+                                </Stack>
+                            </Stack>
                         ))}
-                    </Grid>
+                    </Stack>
                 ) : null}
 
                 {data?.data?.orders?.length > 0 &&
@@ -124,11 +172,14 @@ const OrderHistoryPage = ({ noCard = false, limit: propLimit }) => {
                 content
             ) : (
                 <CustomPaperBigCard
-                    padding={isXSmall ? '10px 10px' : '30px 40px'}
+                    padding={
+                        isXSmall ? '16px' : '24px 24px 20px'
+                    }
                     border={false}
+                    noboxshadow="true"
                     sx={{
                         minHeight: !isXSmall && '558px',
-                        boxShadow: isXSmall && 'unset',
+                        borderRadius: '16px',
                     }}
                 >
                     {content}

@@ -79,10 +79,17 @@ export const InfoTypography = styled(Typography)(({ theme }) => ({
     fontSize: '13px',
     fontWeight: 400,
     lineHeight: '28px',
-    color: theme.palette.neutral[900],
+    color: theme.palette.text.secondary,
     [theme.breakpoints.down('sm')]: {
         fontSize: '13px',
         lineHeight: '20px',
+    },
+}))
+
+export const AmountTypography = styled(InfoTypography)(({ theme }) => ({
+    color: theme.palette.text.primary,
+    '& .MuiTypography-root': {
+        color: 'inherit',
     },
 }))
 
@@ -116,6 +123,16 @@ export const CustomOrderStatus = styled(Stack)(
         marginBottom: '0px !important',
     })
 )
+// Figma node 376:62874 — rounded status/order-type pill in the order-details header.
+export const StatusPill = styled(Stack)(({ color }) => ({
+    height: '20px',
+    padding: '2px 8px',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '9999px',
+    backgroundColor: alpha(color, 0.15),
+    marginBottom: '0px !important',
+}))
 export const InstructionWrapper = styled(Stack)(({ theme }) => ({
     padding: '15px',
     backgroundColor: theme.palette.neutral[1800],

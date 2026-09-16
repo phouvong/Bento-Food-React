@@ -1,7 +1,5 @@
 import React, { memo } from 'react'
 import { Typography, Button, Grid } from '@mui/material'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
 import { useSelector } from 'react-redux'
 import RestaurantCard from '../restaurant-details/RestaurantCard'
 import { useRouter } from 'next/router'
@@ -14,6 +12,7 @@ import {
 } from '@/styled-components/CustomStyles.style'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTheme } from '@mui/material/styles'
+import { getLanguageDirection } from '@/utils/localStorage'
 
 const PopularResturant = ({ data, latestRestaurantData }) => {
     const theme = useTheme()
@@ -21,7 +20,7 @@ const PopularResturant = ({ data, latestRestaurantData }) => {
     const { t } = useTranslation()
     const router = useRouter()
     const { global } = useSelector((state) => state.globalSettings)
-    const languageDirection = localStorage.getItem('direction')
+    const languageDirection = getLanguageDirection()
     const newtext = t('New On')
     return (
         <>

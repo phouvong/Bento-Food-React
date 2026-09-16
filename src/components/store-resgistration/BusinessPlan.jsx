@@ -4,8 +4,7 @@ import { Stack } from '@mui/system'
 import { t } from 'i18next'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { useDispatch, useSelector } from 'react-redux'
-import 'slick-carousel/slick/slick.css'
-import Slider from 'react-slick'
+import Slider from '@/components/slider/SlickToSwiper'
 import Box from '@mui/material/Box'
 import { setActiveStep } from '@/redux/slices/storeRegistrationData'
 
@@ -294,7 +293,7 @@ const BusinessPlan = ({ formSubmit, isLoading, configData }) => {
                                     }}
                                 >
                                     <SliderCustom padding="15px" gap="25px">
-                                        <Slider {...settings}>
+                                        <Slider {...settings} gap="25px">
                                             {data?.packages?.map((item) => (
                                                 <Plan
                                                     key={item.id}

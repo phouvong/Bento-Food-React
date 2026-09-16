@@ -1,9 +1,11 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import ReactPlayer from 'react-player'
 import { Stack, IconButton, useTheme } from '@mui/material'
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
 import ReplayIcon from '@mui/icons-material/Replay'
+
+const SCROLL_RESUME_DELAY_MS = 150
 
 const VideoPlayerWithCenteredControl = ({
     video,
@@ -17,6 +19,51 @@ const VideoPlayerWithCenteredControl = ({
     const playerRef = useRef(null)
     const theme = useTheme()
     const [muted, setMuted] = useState(true)
+    const scrollPausedRef = useRef(false)
+
+    useEffect(() => {
+        if (!playing) return
+
+        let ticking = false
+        let resumeTimeout = null
+
+        const pauseForScroll = () => {
+            const internalPlayer = playerRef.current?.getInternalPlayer?.()
+            if (internalPlayer?.pause && !internalPlayer.paused) {
+                scrollPausedRef.current = true
+                internalPlayer.pause()
+            }
+        }
+
+        const resumeAfterScroll = () => {
+            if (!scrollPausedRef.current) return
+            scrollPausedRef.current = false
+            playerRef.current?.getInternalPlayer?.()?.play?.()
+                ?.catch?.(() => undefined)
+        }
+
+        const handleScroll = () => {
+            if (!ticking) {
+                ticking = true
+                requestAnimationFrame(() => {
+                    ticking = false
+                    pauseForScroll()
+                })
+            }
+            if (resumeTimeout) clearTimeout(resumeTimeout)
+            resumeTimeout = setTimeout(
+                resumeAfterScroll,
+                SCROLL_RESUME_DELAY_MS
+            )
+        }
+
+        window.addEventListener('scroll', handleScroll, { passive: true })
+        return () => {
+            window.removeEventListener('scroll', handleScroll)
+            if (resumeTimeout) clearTimeout(resumeTimeout)
+            scrollPausedRef.current = false
+        }
+    }, [playing])
 
     const handlePlayPause = (e) => {
         e.stopPropagation()
@@ -31,6 +78,7 @@ const VideoPlayerWithCenteredControl = ({
         setEnded(true)
     }
     const handlePauseVideo = () => {
+        if (scrollPausedRef.current) return
         setPlaying(false)
     }
     const handlePlayVideo = () => {
@@ -63,7 +111,10 @@ const VideoPlayerWithCenteredControl = ({
                 height="100%"
                 playing={playing}
                 onEnded={handleEnded}
-                controls={true}
+                // Native controls consume pointer events over the whole video
+                // surface, which blocks horizontal swipes on the ads slider
+                // (mobile). The centered IconButton below is the control UI.
+                controls={false}
                 muted={true}
                 onPause={handlePauseVideo}
                 onPlay={handlePlayVideo}
@@ -73,6 +124,7 @@ const VideoPlayerWithCenteredControl = ({
                         attributes: {
                             playsInline: true,
                             disablePictureInPicture: true,
+                            preload: 'metadata',
                         },
                     },
                 }}

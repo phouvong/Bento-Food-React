@@ -69,7 +69,6 @@ const OfflineButton = styled(Button)(({ theme, value, paymentMethod }) => ({
     },
 }))
 
-
 export const BringChangeAmount = ({
     changeAmount,
     setChangeAmount,
@@ -85,7 +84,7 @@ export const BringChangeAmount = ({
                 backgroundColor: theme.palette.customColor.ten,
                 width: '100%',
                 overflow: 'hidden',
-                marginTop: "1rem"
+                marginTop: '1rem',
             }}
         >
             {/* Expanded Content */}
@@ -147,9 +146,9 @@ export const BringChangeAmount = ({
                                     backgroundColor: theme.palette.neutral[100],
                                     borderRadius: '5px',
                                     '& .MuiInputBase-input.MuiOutlinedInput-input':
-                                    {
-                                        padding: '5.5px 14px',
-                                    },
+                                        {
+                                            padding: '5.5px 14px',
+                                        },
                                 }}
                                 value={changeAmount}
                                 onChange={(e) =>
@@ -231,7 +230,7 @@ const AllPaymentMethod = ({
         }
     }, [selected])
 
-    console.log({ global });
+    console.log({ global })
     useEffect(() => {
         if (isCheckedOffline) {
             setOpenOfflineOptions(true)
@@ -282,10 +281,21 @@ const AllPaymentMethod = ({
         currencySymbolDirection = global.currency_symbol_direction
         digitAfterDecimalPoint = global.digit_after_decimal_point
     }
-    console.log({ global });
+    console.log({
+        global,
+        usePartialPayment,
+        hideCashOnDelivery,
+        cash_on_delivery: global?.cash_on_delivery,
+        cash_on_delivery2:
+            global?.partial_payment_methods?.includes('cash_on_delivery'),
+    })
     return (
-        <Stack width="100%" padding={{xs:"1rem", sm: "1.5rem", md: "2rem"}} spacing={2.4}>
-           {/* <IconButton>
+        <Stack
+            width="100%"
+            padding={{ xs: '1rem', sm: '1.5rem', md: '2rem' }}
+            spacing={2.4}
+        >
+            {/* <IconButton>
                 <CloseIcon fontSize="18px" />
             </IconButton> */}
 
@@ -346,7 +356,7 @@ const AllPaymentMethod = ({
                                 justifyContent: 'space-between',
                                 alignItems: 'start',
                                 padding: '0px 10px',
-                                marginBottom: "1rem"
+                                marginBottom: '1rem',
                             }}
                         >
                             <Box
@@ -502,8 +512,11 @@ const AllPaymentMethod = ({
                             >
                                 {usePartialPayment ? (
                                     <>
-                                        {!hideCashOnDelivery && global?.cash_on_delivery &&
-                                            (global?.partial_payment_method?.includes('cash_on_delivery')) ? (
+                                        {!hideCashOnDelivery &&
+                                        global?.cash_on_delivery &&
+                                        global?.partial_payment_methods?.includes(
+                                            'cash_on_delivery'
+                                        ) ? (
                                             <PayButton
                                                 value="cash_on_delivery"
                                                 paymentMethod={selected?.name}
@@ -526,17 +539,17 @@ const AllPaymentMethod = ({
                                                 >
                                                     {selected?.name ===
                                                         'cash_on_delivery' && (
-                                                            <CheckCircleIcon
-                                                                sx={{
-                                                                    fontSize:
-                                                                        '16px',
-                                                                    color: theme
-                                                                        .palette
-                                                                        .primary
-                                                                        .main,
-                                                                }}
-                                                            />
-                                                        )}
+                                                        <CheckCircleIcon
+                                                            sx={{
+                                                                fontSize:
+                                                                    '16px',
+                                                                color: theme
+                                                                    .palette
+                                                                    .primary
+                                                                    .main,
+                                                            }}
+                                                        />
+                                                    )}
                                                     <Stack
                                                         direction="row"
                                                         alignItems="center"
@@ -554,14 +567,14 @@ const AllPaymentMethod = ({
                                                             fontSize="12px"
                                                             color={
                                                                 selected?.name ===
-                                                                    'cash_on_delivery'
+                                                                'cash_on_delivery'
                                                                     ? theme
-                                                                        .palette
-                                                                        .neutral[1000]
+                                                                          .palette
+                                                                          .neutral[1000]
                                                                     : theme
-                                                                        .palette
-                                                                        .primary
-                                                                        .main
+                                                                          .palette
+                                                                          .primary
+                                                                          .main
                                                             }
                                                         >
                                                             {t(
@@ -575,7 +588,8 @@ const AllPaymentMethod = ({
                                     </>
                                 ) : (
                                     <>
-                                        {!hideCashOnDelivery && global?.cash_on_delivery ? (
+                                        {!hideCashOnDelivery &&
+                                        global?.cash_on_delivery ? (
                                             <PayButton
                                                 value="cash_on_delivery"
                                                 paymentMethod={selected?.name}
@@ -591,14 +605,14 @@ const AllPaymentMethod = ({
                                             >
                                                 {selected?.name ===
                                                     'cash_on_delivery' && (
-                                                        <CheckCircleIcon
-                                                            sx={{
-                                                                fontSize: '16px',
-                                                                color: theme.palette
-                                                                    .primary.main,
-                                                            }}
-                                                        />
-                                                    )}
+                                                    <CheckCircleIcon
+                                                        sx={{
+                                                            fontSize: '16px',
+                                                            color: theme.palette
+                                                                .primary.main,
+                                                        }}
+                                                    />
+                                                )}
                                                 <Stack
                                                     direction="row"
                                                     alignItems="center"
@@ -614,12 +628,12 @@ const AllPaymentMethod = ({
                                                         fontSize="12px"
                                                         color={
                                                             selected?.name ===
-                                                                'cash_on_delivery'
+                                                            'cash_on_delivery'
                                                                 ? theme.palette
-                                                                    .neutral[1000]
+                                                                      .neutral[1000]
                                                                 : theme.palette
-                                                                    .primary
-                                                                    .main
+                                                                      .primary
+                                                                      .main
                                                         }
                                                     >
                                                         {t('Cash on Delivery')}
@@ -636,12 +650,14 @@ const AllPaymentMethod = ({
 
                         {global?.digital_payment &&
                             subscriptionStates.order !== '1' && (
-                                <CustomStackFullWidth spacing={2.4} sx={{ marginTop: "1rem" }} >
+                                <CustomStackFullWidth
+                                    spacing={2.4}
+                                    sx={{ marginTop: '1rem' }}
+                                >
                                     <Typography
                                         fontSize="14px"
                                         fontWeight="600"
                                         color={theme.palette.neutral[1000]}
-
                                     >
                                         {t('Pay Via Online')}
                                         <Typography
@@ -650,7 +666,6 @@ const AllPaymentMethod = ({
                                             ml="5px"
                                             fontWeight="600"
                                             color={theme.palette.neutral[1000]}
-
                                         >
                                             {t(
                                                 '(Faster & secure way to pay bill)'
@@ -660,7 +675,9 @@ const AllPaymentMethod = ({
 
                                     <Grid container rowGap="2.1rem">
                                         {global?.digital_payment &&
-                                            (global?.partial_payment_method?.includes('digital_payment')) && (
+                                            global?.partial_payment_methods?.includes(
+                                                'digital_payment'
+                                            ) && (
                                                 <>
                                                     {global?.active_payment_method_list?.map(
                                                         (item, index) => {
@@ -826,7 +843,8 @@ const AllPaymentMethod = ({
                                     },
                                 }}
                             >
-                                {!hideCashOnDelivery && global?.cash_on_delivery ? (
+                                {!hideCashOnDelivery &&
+                                global?.cash_on_delivery ? (
                                     <PayButton
                                         value="cash_on_delivery"
                                         paymentMethod={selected?.name}
@@ -849,14 +867,14 @@ const AllPaymentMethod = ({
                                         >
                                             {selected?.name ===
                                                 'cash_on_delivery' && (
-                                                    <CheckCircleIcon
-                                                        sx={{
-                                                            fontSize: '16px',
-                                                            color: theme.palette
-                                                                .primary.main,
-                                                        }}
-                                                    />
-                                                )}
+                                                <CheckCircleIcon
+                                                    sx={{
+                                                        fontSize: '16px',
+                                                        color: theme.palette
+                                                            .primary.main,
+                                                    }}
+                                                />
+                                            )}
                                             <Stack
                                                 direction="row"
                                                 alignItems="center"
@@ -874,11 +892,11 @@ const AllPaymentMethod = ({
                                                     fontSize="12px"
                                                     color={
                                                         selected?.name ===
-                                                            'cash_on_delivery'
+                                                        'cash_on_delivery'
                                                             ? theme.palette
-                                                                .neutral[1000]
+                                                                  .neutral[1000]
                                                             : theme.palette
-                                                                .primary.main
+                                                                  .primary.main
                                                     }
                                                 >
                                                     {t('Cash on Delivery')}
@@ -905,13 +923,12 @@ const AllPaymentMethod = ({
                                 <CustomStackFullWidth
                                     spacing={2.4}
                                     padding="0px 10px"
-                                    sx={{ marginTop: "1rem" }}
+                                    sx={{ marginTop: '1rem' }}
                                 >
                                     <Typography
                                         fontSize="14px"
                                         fontWeight="600"
                                         color={theme.palette.neutral[1000]}
-
                                     >
                                         {t('Pay Via Online')}
                                         <Typography
@@ -920,7 +937,6 @@ const AllPaymentMethod = ({
                                             ml="5px"
                                             fontWeight="600"
                                             color={theme.palette.neutral[1000]}
-
                                         >
                                             {t(
                                                 '(Faster & secure way to pay bill)'
@@ -934,7 +950,12 @@ const AllPaymentMethod = ({
                                                 {global?.active_payment_method_list?.map(
                                                     (item, index) => {
                                                         return (
-                                                            <Grid item xs={12} sm={6} key={index}>
+                                                            <Grid
+                                                                item
+                                                                xs={12}
+                                                                sm={6}
+                                                                key={index}
+                                                            >
                                                                 <PaymentMethodCard
                                                                     paymentType={
                                                                         item?.gateway_title
@@ -976,7 +997,11 @@ const AllPaymentMethod = ({
                     typeof offlinePaymentOptions !== 'undefined' &&
                     Object?.keys(offlinePaymentOptions)?.length !== 0 &&
                     subscriptionStates.order !== '1' &&
-                    (usePartialPayment ? (global?.partial_payment_method?.includes('offline_payment')) : true) && (
+                    (usePartialPayment
+                        ? global?.partial_payment_methods?.includes(
+                              'offline_payment'
+                          )
+                        : true) && (
                         <CustomStackFullWidth
                             ref={offlineSectionRef}
                             sx={{
@@ -1040,8 +1065,10 @@ const AllPaymentMethod = ({
                                                         fontSize="14px"
                                                         fontWeight="500"
                                                         sx={{
-                                                            display: 'inline-flex',
-                                                            alignItems: 'center',
+                                                            display:
+                                                                'inline-flex',
+                                                            alignItems:
+                                                                'center',
                                                             flexWrap: 'wrap',
                                                             gap: '4px',
                                                         }}

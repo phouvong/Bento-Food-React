@@ -1,11 +1,11 @@
 import { Box, Stack, Typography, alpha, styled } from '@mui/material'
-import { memo, useEffect, useRef } from 'react'
+import { memo, useEffect } from 'react'
+import useDragScroll from '@/hooks/useDragScroll'
 
 import { useDispatch, useSelector } from 'react-redux'
 
 import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
 import Skeleton from '@mui/material/Skeleton'
-import Router from 'next/router'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from 'react-query'
 import { setNewRestaurant } from '@/redux/slices/scrollPosition'
@@ -14,7 +14,11 @@ import FoodCardShimmer from '../food-card/FoodCarShimmer'
 import NewStoreCard from '@/components/new-store-card/NewStoreCard'
 import useScrollSticky from './Search-filter-tag/useScrollSticky'
 import SliderSectionHeader from '@/components/slider-section-header/SliderSectionHeader'
+import { SECTION_GUTTER_PX } from '@/components/container/Section'
 import { SLIDE_GAP } from './Banner'
+import { HOME_SECTION_SPACING } from './homeSectionSpacing'
+
+const SPACING = HOME_SECTION_SPACING.newRestaurant
 
 const ScrollRow = styled(Box)(({ theme }) => ({
     display: 'flex',
@@ -23,25 +27,28 @@ const ScrollRow = styled(Box)(({ theme }) => ({
     overflowY: 'hidden',
     scrollSnapType: 'x mandatory',
     scrollBehavior: 'smooth',
-    padding: '4px 2px 0px',
+    padding: '0px 2px',
     scrollbarWidth: 'none',
     msOverflowStyle: 'none',
     '&::-webkit-scrollbar': { display: 'none' },
     '& > .scroll-item': {
-        flex: '0 0 248px',
+        flex: '0 0 300px',
         scrollSnapAlign: 'start',
         minWidth: 0,
     },
     [theme.breakpoints.down('sm')]: {
         gap: 12,
-        '& > .scroll-item': { flex: '0 0 72%' },
+        '& > .scroll-item': { flex: '0 0 300px' },
     },
 }))
 
 const NewRestaurant = () => {
     const dispatch = useDispatch()
     const { t } = useTranslation()
-    const scrollRef = useRef(null)
+    // Mouse drag-to-scroll for the row; dragScroll.ref doubles as the
+    // scroll target for the header arrows.
+    const dragScroll = useDragScroll()
+    const scrollRef = dragScroll.ref
     const { newOffsetElementRef } = useScrollSticky()
 
     useEffect(() => {
@@ -69,10 +76,6 @@ const NewRestaurant = () => {
         apiRefetch()
     }, [])
 
-    const handleClick = () => {
-        Router.push('/restaurants/latest')
-    }
-
     const scrollByAmount = (dir) => {
         const el = scrollRef.current
         if (!el) return
@@ -87,7 +90,7 @@ const NewRestaurant = () => {
         },
     }
 
-    const new_on = t('New on')
+    const new_on = t('New On')
     const items = newRestuarants?.data ?? []
 
     if (!isLoading && items.length === 0) return null
@@ -97,6 +100,9 @@ const NewRestaurant = () => {
             ref={newOffsetElementRef}
             sx={{
                 position: 'relative',
+                pl: SECTION_GUTTER_PX,
+                pt: SPACING.pt,
+                pb: SPACING.pb,
             }}
         >
             <SliderSectionHeader
@@ -123,13 +129,10 @@ const NewRestaurant = () => {
                         {t(`${new_on} ${global?.business_name}`)}
                     </Typography>
                 }
-                subtitle={t(
-                    'Fresh arrivals — be among the first to try them.'
-                )}
                 sliderRef={sliderRefShim}
+                scrollElRef={scrollRef}
                 itemsCount={items.length}
-                viewAllText={t('View all')}
-                onViewAll={handleClick}
+                sx={{ mb: SPACING.headerGap }}
             />
 
             {isLoading ? (
@@ -144,13 +147,16 @@ const NewRestaurant = () => {
                     ))}
                 </ScrollRow>
             ) : (
-                <ScrollRow ref={scrollRef}>
+                <ScrollRow {...dragScroll} sx={{ cursor: 'grab' }}>
                     {items.map((restaurantData) => (
                         <Box
                             key={restaurantData?.id}
                             className="scroll-item"
                         >
-                            <NewStoreCard restaurant={restaurantData} />
+                            <NewStoreCard
+                                restaurant={restaurantData}
+                                isNewStore
+                            />
                         </Box>
                     ))}
                 </ScrollRow>

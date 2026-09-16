@@ -1,13 +1,165 @@
-import { alpha, Button, Stack, Grid, styled, Typography } from '@mui/material'
+import {
+    alpha,
+    Box,
+    Button,
+    IconButton,
+    Stack,
+    Grid,
+    styled,
+    Typography,
+} from '@mui/material'
+
+// ── 6amMart store-details style primitives ──────────────────────────────
+// Visual shells only; all data/logic stays in the consuming components.
+
+export const HeroCard = styled(Box)(({ theme }) => ({
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: '16px',
+    boxShadow: 'none',
+    border: `1px solid ${theme.palette.divider}`,
+    overflow: 'hidden',
+    [theme.breakpoints.down('md')]: {
+        borderRadius: '0 0 16px 16px',
+        border: 'none',
+        width: '100%',
+        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.08)',
+    },
+}))
+
+export const LogoBox = styled(Box)(({ theme }) => ({
+    position: 'relative',
+    width: '68px',
+    height: '68px',
+    borderRadius: '12px',
+    overflow: 'hidden',
+    flexShrink: 0,
+    backgroundColor: alpha(theme.palette.primary.main, 0.08),
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    [theme.breakpoints.down('md')]: {
+        width: '44px',
+        height: '44px',
+        borderRadius: '10px',
+    },
+}))
+
+export const BannerWrapper = styled(Box)(({ theme }) => ({
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    minHeight: '180px',
+    overflow: 'hidden',
+    borderRadius: '16px 0 0 16px',
+    [theme.breakpoints.down('md')]: {
+        minHeight: '160px',
+        borderRadius: '0 0 8px 8px',
+    },
+}))
+
+export const FloatingIconButton = styled(IconButton)(({ theme }) => ({
+    backgroundColor: theme.palette.background.paper,
+    width: '40px',
+    height: '40px',
+    borderRadius: '50%',
+    boxShadow: '0px 2px 6px rgba(0,0,0,0.12)',
+    '&:hover': {
+        backgroundColor: theme.palette.background.paper,
+    },
+}))
+
+export const COUPON_PRO_ACCENT = '#2A61BA'
+
+export const CouponCard = styled(Box)(({ theme, variant }) => {
+    const isDark = theme.palette.mode === 'dark'
+    const bg = {
+        pro: isDark ? alpha('#2A61BA', 0.18) : '#F1F6FD',
+        discount: isDark ? alpha(theme.palette.warning.main, 0.14) : '#FFFBEB',
+        ticket: isDark ? alpha(theme.palette.error.main, 0.14) : '#FEE9E7',
+    }
+    return {
+        position: 'relative',
+        width: 300,
+        height: '100%',
+        minHeight: 100,
+        flexShrink: 0,
+        borderRadius: '16px',
+        border: `2px solid ${theme.palette.background.paper}`,
+        backgroundColor: bg[variant] || bg.discount,
+        padding: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+        overflow: variant === 'ticket' ? 'visible' : 'hidden',
+        cursor: 'pointer',
+        [theme.breakpoints.down('md')]: {
+            width: '100%',
+        },
+    }
+})
+
+export const PromoCouponCard = styled(Box)(({ theme }) => ({
+    position: 'relative',
+    width: '300px',
+    height: '100%',
+    minHeight: 100,
+    flexShrink: 0,
+    borderRadius: '16px',
+    border: `2px solid ${theme.palette.background.paper}`,
+    backgroundColor:
+        theme.palette.mode === 'dark'
+            ? alpha(theme.palette.error.main, 0.14)
+            : '#FEE9E7',
+    overflow: 'hidden',
+    [theme.breakpoints.down('md')]: {
+        width: '100%',
+    },
+}))
+
+export const TicketCutOut = styled(Box)(({ theme, side }) => ({
+    position: 'absolute',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    width: 20,
+    height: 20,
+    borderRadius: '50%',
+    backgroundColor: theme.palette.background.default,
+    border: `2px solid ${theme.palette.background.paper}`,
+    ...(side === 'left' ? { left: -10 } : { right: -10 }),
+}))
+
+export const StatPill = styled(Stack)(({ theme }) => ({
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // Dark palette's neutral[300] is a LIGHT grey, which made the pill's
+    // white value text invisible — use a translucent white surface instead.
+    backgroundColor:
+        theme.palette.mode === 'dark'
+            ? 'rgba(255, 255, 255, 0.06)'
+            : theme.palette.background.secondary || '#F2F2F2',
+    borderRadius: '10px',
+    padding: theme.spacing(1.1),
+}))
 
 export const CategoryButton = styled(Button)(({ theme, active }) => ({
     cursor: 'pointer',
-    color: `theme.palette.customColor.six !important`,
-    borderBottom:
-        active === 'true' && `3px solid ${theme.palette.primary.main}`,
     minWidth: 'auto',
+    height: '40px',
+    padding: '8px 4px',
     borderRadius: '0px',
     whiteSpace: 'nowrap',
+    borderBottom:
+        active === 'true'
+            ? `3px solid ${theme.palette.primary.main}`
+            : '3px solid transparent',
+    transition: 'border-color 120ms ease, color 120ms ease',
+    '&:hover': {
+        backgroundColor: 'transparent',
+        '& .MuiTypography-root': {
+            color: theme.palette.primary.main,
+        },
+    },
     [theme.breakpoints.down('sm')]: {
         minWidth: 'auto',
         padding: '8px 10px',
@@ -35,7 +187,9 @@ export const DiscountImageGrid = styled(Grid)(
             width: '100%',
             height: 'calc(100% - 2px)',
             left: '0',
-            backgroundColor: alpha(theme.palette.primary.main, 0.05),
+            // Paper-colored wash fades the background image (a CSS
+            // background can't take opacity directly).
+            backgroundColor: alpha(theme.palette.background.paper, 0.6),
             zIndex: '-1',
             top: '1px',
         },

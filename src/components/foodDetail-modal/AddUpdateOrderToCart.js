@@ -1,8 +1,8 @@
 import React from 'react'
 import NotAvailableCard from './NotAvailableCard'
 import { Button, Stack } from '@mui/material'
-import { CustomTypography } from '../custom-tables/Tables.style'
 import { isAvailable } from '@/utils/customFunctions'
+import { cartButtonSx } from './FoodModalStyle'
 
 const AddUpdateOrderToCart = (props) => {
     const {
@@ -35,6 +35,7 @@ const AddUpdateOrderToCart = (props) => {
                             onClick={() => addToCard()}
                             variant="contained"
                             fullWidth
+                            sx={cartButtonSx}
                         >
                             {t('Update to cart')}
                         </Button>
@@ -46,17 +47,9 @@ const AddUpdateOrderToCart = (props) => {
                                     onClick={() => addToCard()}
                                     variant="contained"
                                     fullWidth
+                                    sx={cartButtonSx}
                                 >
-                                    <CustomTypography
-                                        variant="h5"
-                                        sx={{
-                                            color: (theme) =>
-                                                theme.palette.whiteContainer
-                                                    .main,
-                                        }}
-                                    >
-                                        {t('Add to cart')}
-                                    </CustomTypography>
+                                    {t('Add to cart')}
                                 </Button>
                             ) : (
                                 <Button
@@ -69,6 +62,7 @@ const AddUpdateOrderToCart = (props) => {
                                     onClick={() => orderNow()}
                                     variant="contained"
                                     fullWidth
+                                    sx={cartButtonSx}
                                 >
                                     {t('Order Now')}
                                 </Button>

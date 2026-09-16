@@ -18,6 +18,7 @@ import useGetProTermsAndConditions, {
     resolveTermsBody,
     resolveTermsTitle,
 } from '@/hooks/react-query/pro-plans/useGetProTermsAndConditions'
+import useCloseOnBackButton from '@/hooks/custom-hooks/useCloseOnBackButton'
 
 interface ProTermsModalProps {
     open: boolean
@@ -121,6 +122,7 @@ const TermsBody: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 const ProTermsModal: React.FC<ProTermsModalProps> = ({ open, onClose }) => {
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+    useCloseOnBackButton(isMobile && open, onClose)
 
     if (isMobile) {
         return (

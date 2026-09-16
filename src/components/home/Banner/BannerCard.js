@@ -4,10 +4,13 @@ import Skeleton from '@mui/material/Skeleton'
 import Image from 'next/image'
 import placeholder from '../../../../public/static/notimage.png'
 import CustomNextImage from '@/components/CustomNextImage'
+import { useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 
 const BannerCard = ({ banner, handleBannerClick, onlyShimmer }) => {
     const bannerImage = banner?.image_full_url
-    const isSmall = window.innerWidth < 600
+    const theme = useTheme()
+    const isSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const bannerAspectRatio =
         banner?.width && banner?.height
             ? `${banner.width} / ${banner.height}`

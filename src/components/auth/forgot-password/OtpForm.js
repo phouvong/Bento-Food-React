@@ -110,6 +110,7 @@ const OtpForm = ({
                 justifyContent="center"
             >
                 <Typography
+                    sx={{ display: { xs: 'none', sm: 'block' } }}
                     fontSize="16px"
                     fontWeight="500"
                     color={theme.palette.neutral[1000]}

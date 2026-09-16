@@ -1,34 +1,41 @@
-import { Grid, Modal, Tooltip, Typography, Stack, Box, Button, alpha } from '@mui/material'
+import {
+    Grid,
+    Modal,
+    Typography,
+    Stack,
+    Box,
+    Button,
+    IconButton,
+    alpha,
+} from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied'
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ProductsApi } from '@/hooks/react-query/config/productsApi'
 import { useWishListDelete } from '@/hooks/react-query/config/wish-list/useWishListDelete'
-import MainApi from '@/api/MainApi'
 import {
     cart,
     setCampCart,
     setCart,
-    setCartGroups,
     setClearCart,
 } from '@/redux/slices/cart'
-import { addWishList, removeWishListFood } from '@/redux/slices/wishList'
 import {
-    calculateItemBasePrice,
-    getConvertDiscount,
-    handleProductValueWithOutDiscount,
-    isAvailable,
-} from '@/utils/customFunctions'
+    mapRestaurantCartRows,
+    refreshCartGroups,
+} from '@/hooks/react-query/add-cart/useGetAllCartList'
+import { addWishList, removeWishListFood } from '@/redux/slices/wishList'
+import { calculateItemBasePrice, isAvailable } from '@/utils/customFunctions'
+import { rawFoodDataNormalize } from '@/components/new-food-card/rawFoodDataNormalize'
 import { useTheme } from '@mui/material/styles'
 import { useRouter } from 'next/router'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
-import { useMutation } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 import SimpleBar from 'simplebar-react'
 import 'simplebar-react/dist/simplebar.min.css'
 import AuthModal from '../auth'
 import { FoodDetailModalStyle } from '../home/HomeStyle'
-import StartPriceView from './StartPriceView'
 import AddOnsManager from './AddOnsManager'
 import AddOrderToCart from './AddOrderToCart'
 import AddUpdateOrderToCart from './AddUpdateOrderToCart'
@@ -37,25 +44,22 @@ import TotalAmountVisibility from './TotalAmountVisibility'
 import UpdateToCartUi from './UpdateToCartUi'
 import VariationsManager from './VariationsManager'
 import { CustomToaster } from '@/components/custom-toaster/CustomToaster'
-import HalalSvg from '@/components/food-card/HalalSvg'
 import { useGetFoodDetails } from '@/hooks/react-query/food/useGetFoodDetails'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
-import IconButton from '@mui/material/IconButton'
 import Skeleton from '@mui/material/Skeleton'
 import useAddCartItem from '../../hooks/react-query/add-cart/useAddCartItem'
 import useCartItemUpdate from '../../hooks/react-query/add-cart/useCartItemUpdate'
-import { onErrorResponse } from '../ErrorResponse'
 import { handleValuesFromCartItems } from '../checkout-page/CheckoutPage'
 import { getGuestId, getToken } from '../checkout-page/functions/getGuestUserId'
 import LocationModalAlert from '../food-card/LocationModalAlert'
-import { ReadMore } from '../landingpage/ReadMore'
+import FoodDescription from './FoodDescription'
+import { requiredOptionButtonSx } from './FoodModalStyle'
 import {
     getSelectedAddons,
     getSelectedVariations,
 } from '../navbar/second-navbar/SecondNavbar'
 import FoodModalTopSection from './FoodModalTopSection'
 import IncrementDecrementManager from './IncrementDecrementManager'
-import VagSvg from './VagSvg'
 import { handleInitialTotalPriceVarPriceQuantitySet } from './helper-functions/handleDataOnFirstMount'
 
 const FoodDetailModal = ({
@@ -68,6 +72,8 @@ const FoodDetailModal = ({
     currencySymbol,
     digitAfterDecimalPoint,
     productUpdate,
+    // handleBadge is still passed by some callers; price/badges now render
+    // inside FoodModalTopSection so it is accepted but unused here.
     handleBadge,
     campaign,
     paperSx,
@@ -77,9 +83,16 @@ const FoodDetailModal = ({
     const router = useRouter()
     const { t } = useTranslation()
     const dispatch = useDispatch()
+    const queryClient = useQueryClient()
     const theme = useTheme()
     const { global } = useSelector((state) => state.globalSettings)
     const [selectedOptions, setSelectedOptions] = useState([])
+    // The modal's scrollable body — used to scroll a required variation group
+    // into view from the cart bar prompt.
+    const modalScrollRef = useRef(null)
+    // Compact header with the food name, shown once the real title has
+    // scrolled out of the modal's viewport.
+    const [showStickyHeader, setShowStickyHeader] = useState(false)
     const [isLocation, setIsLocation] = useState(false)
     const [totalPrice, setTotalPrice] = useState(null)
     const [modalFor, setModalFor] = useState('sign-in')
@@ -129,8 +142,8 @@ const FoodDetailModal = ({
         itemSuccess,
         productUpdate
     )
-    console.log({itemError});
-    
+    console.log({ itemError });
+
     const itemNotFound =
         itemError?.response?.status === 404 ||
         itemError?.code === 'ERR_NETWORK'
@@ -281,26 +294,19 @@ const FoodDetailModal = ({
                     variations: item?.item?.variations,
                     selectedAddons: add_on,
                     selectedOptions: selectedOptions,
-                    itemBasePrice: getConvertDiscount(
-                        item?.item?.discount,
-                        item?.item?.discount_type,
-                        calculateItemBasePrice(modalData[0], selectedOptions),
-                        item?.item?.restaurant_discount
-                    ),
+                    itemBasePrice: rawFoodDataNormalize({
+                        price: calculateItemBasePrice(
+                            modalData[0],
+                            selectedOptions
+                        ),
+                        discount: item?.item?.discount,
+                        discount_type: item?.item?.discount_type,
+                    }).discountedPrice,
                 }
             })
             dispatch(setCart(product))
-            // Refresh cartGroups directly from the grouped endpoint —
-            // FloatingCart only mounts one useGetAllCartList mode per page,
-            // so on a restaurant page the grouped query has no observer and
-            // queryClient invalidation alone would not refresh cartGroups.
-            const guestId = getGuestId()
-            const params = !token && guestId ? `?guest_id=${guestId}` : ''
-            MainApi.get(`api/v1/customer/cart/get-all${params}`)
-                .then(({ data }) => {
-                    if (Array.isArray(data)) dispatch(setCartGroups(data))
-                })
-                .catch(onErrorResponse)
+            refreshCartGroups(dispatch)
+            queryClient.refetchQueries('cart-item-restaurant')
             CustomToaster('success', 'Item added to cart')
             handleClose()
         }
@@ -308,35 +314,9 @@ const FoodDetailModal = ({
 
     const cartListSuccessHandler = (res) => {
         if (res) {
-            const setItemIntoCart = () => {
-                return res?.map((item) => ({
-                    ...item?.item,
-                    cartItemId: item?.id,
-                    totalPrice:
-                        getConvertDiscount(
-                            item?.item?.discount,
-                            item?.item?.discount_type,
-                            handleProductValueWithOutDiscount(item?.item),
-                            item?.item?.restaurant_discount
-                        ) * item?.quantity,
-                    selectedAddons: getSelectedAddons(item?.item?.addons),
-                    quantity: item?.quantity,
-                    variations: item?.item?.variations,
-                    itemBasePrice: getConvertDiscount(
-                        item?.item?.discount,
-                        item?.item?.discount_type,
-                        calculateItemBasePrice(
-                            item?.item,
-                            item?.item?.variations
-                        ),
-                        item?.item?.restaurant_discount
-                    ),
-                    selectedOptions: getSelectedVariations(
-                        item?.item?.variations
-                    ),
-                }))
-            }
-            dispatch(cart(setItemIntoCart()))
+            dispatch(cart(mapRestaurantCartRows(res)))
+            refreshCartGroups(dispatch)
+            queryClient.refetchQueries('cart-item-restaurant')
             CustomToaster('success', 'Item updated successfully')
             handleModalClose?.()
         }
@@ -369,13 +349,14 @@ const FoodDetailModal = ({
                         })
                         : [],
                 item_id: product?.id,
-                price: getConvertDiscount(
-                    product?.discount,
-                    product?.discount_type,
-                    totalPrice,
-                    product?.restaurant_discount,
+                price: rawFoodDataNormalize(
+                    {
+                        price: totalPrice,
+                        discount: product?.discount,
+                        discount_type: product?.discount_type,
+                    },
                     quantity
-                ),
+                ).discountedPrice,
                 quantity: quantity,
                 variation_options: selectedOptions?.map(
                     (item) => item.option_id
@@ -429,13 +410,14 @@ const FoodDetailModal = ({
                         })
                         : [],
                 item_id: modalData[0]?.id,
-                price: getConvertDiscount(
-                    modalData[0]?.discount,
-                    modalData[0]?.discount_type,
-                    totalPrice,
-                    modalData[0]?.restaurant_discount,
+                price: rawFoodDataNormalize(
+                    {
+                        price: totalPrice,
+                        discount: modalData[0]?.discount,
+                        discount_type: modalData[0]?.discount_type,
+                    },
                     quantity
-                ),
+                ).discountedPrice,
                 quantity: quantity,
                 variations:
                     getNewVariationForDispatch()?.length > 0
@@ -1007,34 +989,70 @@ const FoodDetailModal = ({
         router.push(`/checkout?page=campaign`)
     }
     const getFullFillRequirements = () => {
-        let isdisabled = false
-        if (modalData[0]?.variations?.length > 0) {
-            modalData[0]?.variations?.forEach((variation, index) => {
-                if (variation?.type === 'multi') {
-                    const selectedIndex = selectedOptions?.filter(
-                        (item) => item.choiceIndex === index
-                    )
-                    if (selectedIndex && selectedIndex.length > 0) {
-                        isdisabled =
-                            selectedIndex.length >= variation.min &&
-                            selectedIndex.length <= variation.max
-                    }
-                } else {
-                    const singleVariation = modalData[0]?.variations?.filter(
-                        (item) =>
-                            item?.type === 'single' && item?.required === 'on'
-                    )
-                    const requiredSelected = selectedOptions?.filter(
-                        (item) => item?.type === 'required'
-                    )
-                    isdisabled =
-                        singleVariation?.length === requiredSelected?.length
-                }
-            })
-        } else {
-            isdisabled = true
-        }
-        return isdisabled
+        if (!(modalData[0]?.variations?.length > 0)) return true
+        return modalData[0].variations.every((variation, index) => {
+            if (variation?.required !== 'on') return true
+            const selectedCount =
+                selectedOptions?.filter(
+                    (item) => item.choiceIndex === index
+                )?.length ?? 0
+            if (variation?.type === 'multi') {
+                return (
+                    selectedCount >= Number.parseInt(variation.min) &&
+                    selectedCount <= Number.parseInt(variation.max)
+                )
+            }
+            return selectedCount > 0
+        })
+    }
+
+    // Index of the first required variation group that still needs an answer,
+    // or -1 when they are all satisfied.
+    const getFirstUnfulfilledVariationIndex = () => {
+        if (!(modalData?.[0]?.variations?.length > 0)) return -1
+        return modalData[0].variations.findIndex((variation, index) => {
+            if (variation?.required !== 'on') return false
+            const selectedCount =
+                selectedOptions?.filter((item) => item.choiceIndex === index)
+                    .length ?? 0
+            return variation?.type === 'multi'
+                ? selectedCount < (variation?.min ?? 1)
+                : selectedCount === 0
+        })
+    }
+
+    // Bring that group into view inside the modal's own scroll area — the
+    // prompt sits in the fixed cart bar, so without this the customer has no
+    // hint about which group is blocking them.
+    const scrollToRequiredVariation = () => {
+        const container = modalScrollRef.current
+        if (!container) return
+        const index = Math.max(getFirstUnfulfilledVariationIndex(), 0)
+        const target = container.querySelector(`#variation-group-${index}`)
+        if (!target) return
+        const top =
+            target.getBoundingClientRect().top -
+            container.getBoundingClientRect().top +
+            container.scrollTop -
+            12
+        container.scrollTo({ top: Math.max(top, 0), behavior: 'smooth' })
+        // Flash the group's red outline (styles live on the group box in
+        // ChoiceValues). The reflow read restarts the animation when the
+        // prompt is clicked repeatedly.
+        target.classList.remove('required-blink')
+        void target.offsetWidth
+        target.classList.add('required-blink')
+        setTimeout(() => target.classList.remove('required-blink'), 1300)
+    }
+
+    const handleContentScroll = (event) => {
+        const container = event.currentTarget
+        const title = container.querySelector('#food-modal-title')
+        if (!title) return
+        setShowStickyHeader(
+            title.getBoundingClientRect().bottom <
+                container.getBoundingClientRect().top
+        )
     }
 
     const isUpdateDisabled = () => {
@@ -1046,8 +1064,8 @@ const FoodDetailModal = ({
 
     const text1 = t('only')
     const text2 = t('items available')
-    console.log({itemNotFound});
-    
+    console.log({ itemNotFound });
+
 
     return (
         <>
@@ -1058,7 +1076,18 @@ const FoodDetailModal = ({
                 aria-describedby="modal-modal-description"
                 disableAutoFocus={true}
             >
-                <FoodDetailModalStyle sx={{ bgcolor: 'background.paper', ...paperSx }}>
+                    <FoodDetailModalStyle
+                        sx={{
+                            bgcolor: 'background.paper',
+                            // Flex column so the content area scrolls on its
+                            // own while the cart bar sits outside the scroll.
+                            maxHeight: { xs: '90vh', sm: '600px' },
+                            display: 'flex',
+                            flexDirection: 'column',
+                            overflow: 'hidden',
+                            ...paperSx,
+                        }}
+                    >
                     {itemNotFound ? (
                         <Stack
                             alignItems="center"
@@ -1152,80 +1181,113 @@ const FoodDetailModal = ({
                                     setOpenAddressModalAlert={setOpen}
                                 />
                             ) : (
-                                <CustomStackFullWidth>
-                                    <FoodModalTopSection
-                                        product={modalData[0]}
-                                        image={image}
-                                        handleModalClose={handleModalClose}
-                                        isInList={isInList}
-                                        deleteWishlistItem={deleteWishlistItem}
-                                        addToFavorite={addToFavorite}
-                                        global={global}
-                                    />
-
-                                    <CustomStackFullWidth
-                                        sx={{ padding: { xs: '10px', md: '12px' } }}
-                                        spacing={1}
+                                <CustomStackFullWidth
+                                    sx={{
+                                        flex: 1,
+                                        minHeight: 0,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                    }}
+                                >
+                                    {/* Compact header — takes over once the
+                                        title scrolls past the top edge. */}
+                                    <Box
+                                        sx={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: 0,
+                                            right: 0,
+                                            zIndex: 5,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            gap: 1,
+                                            px: { xs: '12px', md: '16px' },
+                                            py: '12px',
+                                            backgroundColor: 'background.paper',
+                                            borderBottom: (th) =>
+                                                `1px solid ${th.palette.divider}`,
+                                            borderRadius: {
+                                                xs: '16px 16px 0 0',
+                                                sm: '5px 5px 0 0',
+                                            },
+                                            opacity: showStickyHeader ? 1 : 0,
+                                            visibility: showStickyHeader
+                                                ? 'visible'
+                                                : 'hidden',
+                                            transition: 'opacity .2s ease',
+                                        }}
                                     >
-                                        <SimpleBar
-                                            style={{
-                                                maxHeight: '35vh',
-                                                paddingRight: '6px',
+                                        <Typography
+                                            noWrap
+                                            sx={{
+                                                fontSize: {
+                                                    xs: '16px',
+                                                    md: '18px',
+                                                },
+                                                fontWeight: 700,
+                                                color: 'text.primary',
                                             }}
-                                            className="test123"
                                         >
-                                            <CustomStackFullWidth spacing={0.25}>
-                                                <Stack
-                                                    direction="row"
-                                                    justifyContent="flex-start"
-                                                    alignItems="center"
-                                                    flexWrap="wrap"
-                                                    spacing={0.25}
-                                                >
-                                                    <Typography variant="h4">
-                                                        {modalData.length > 0 &&
-                                                            modalData[0]?.name}
-                                                    </Typography>
-                                                    {global?.toggle_veg_non_veg ? (
-                                                        <VagSvg
-                                                            color={
-                                                                Number(
-                                                                    modalData[0]
-                                                                        ?.veg
-                                                                ) === 0
-                                                                    ? theme
-                                                                        .palette
-                                                                        .nonVeg
-                                                                    : theme
-                                                                        .palette
-                                                                        .success
-                                                                        .light
-                                                            }
-                                                        />
-                                                    ) : null}
-                                                    {modalData[0]
-                                                        ?.halal_tag_status ===
-                                                        1 &&
-                                                        modalData[0]
-                                                            ?.is_halal ===
-                                                        1 && (
-                                                            <Tooltip
-                                                                arrow
-                                                                title={t(
-                                                                    'This is a halal food'
-                                                                )}
-                                                            >
-                                                                <IconButton
-                                                                    sx={{
-                                                                        padding:
-                                                                            '0px',
-                                                                    }}
-                                                                >
-                                                                    <HalalSvg />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        )}
-                                                    {quantity >=
+                                            {modalData[0]?.name}
+                                        </Typography>
+                                        <IconButton
+                                            onClick={handleModalClose}
+                                            aria-label={t('Close')}
+                                            sx={{
+                                                padding: '4px',
+                                                flexShrink: 0,
+                                                color: 'text.primary',
+                                            }}
+                                        >
+                                            <CloseIcon
+                                                sx={{ fontSize: '20px' }}
+                                            />
+                                        </IconButton>
+                                    </Box>
+
+                                    {/* Scrollable content — scrollbar hidden */}
+                                    <Box
+                                        ref={modalScrollRef}
+                                        onScroll={handleContentScroll}
+                                        sx={{
+                                            flex: 1,
+                                            minHeight: 0,
+                                            overflowY: 'auto',
+                                            overflowX: 'hidden',
+                                            scrollbarWidth: 'none',
+                                            msOverflowStyle: 'none',
+                                            '&::-webkit-scrollbar': {
+                                                display: 'none',
+                                            },
+                                        }}
+                                    >
+                                        <FoodModalTopSection
+                                            product={modalData[0]}
+                                            image={image}
+                                            handleModalClose={handleModalClose}
+                                            isInList={isInList}
+                                            deleteWishlistItem={
+                                                deleteWishlistItem
+                                            }
+                                            addToFavorite={addToFavorite}
+                                            global={global}
+                                            selectedOptions={selectedOptions}
+                                        />
+
+                                        <CustomStackFullWidth
+                                            //sx={{ padding: { xs: '10px', md: '5px 12px 12px 12px' } }}
+                                            spacing={1}
+                                        >
+
+                                        <CustomStackFullWidth spacing={0.25}
+                                        sx={{ padding: { xs: '10px', md: '5px 12px 12px 12px' } }}
+                                        >
+                                            {/* Name, veg + halal icons, rating
+                                                    and price all live in
+                                                    FoodModalTopSection's info
+                                                    card. */}
+                                                {/* {quantity >=
                                                         modalData[0]
                                                             ?.item_stock &&
                                                         modalData[0]
@@ -1250,199 +1312,165 @@ const FoodDetailModal = ({
                                                                 }{' '}
                                                                 {text2})
                                                             </Typography>
-                                                        )}
-                                                </Stack>
-                                                <ReadMore
-                                                    limits="100"
-                                                    color={
-                                                        theme.palette
-                                                            .neutral[400]
+                                                        )} */}
+                                            <FoodDescription
+                                                lines={2}
+                                                text={
+                                                    modalData?.length > 0
+                                                        ? modalData[0]
+                                                            ?.description
+                                                        : ''
+                                                }
+                                            />
+                                            {/* Nutrition + allergen lists — same
+                                                label/value shape for both, and
+                                                they wrap instead of running off
+                                                the modal edge. */}
+                                            {[
+                                                {
+                                                    label: t(
+                                                        'Nutrition Details'
+                                                    ),
+                                                    items: modalData[0]
+                                                        ?.nutritions_name,
+                                                },
+                                                {
+                                                    label: t(
+                                                        'Allergic Ingredients'
+                                                    ),
+                                                    items: modalData[0]
+                                                        ?.allergies_name,
+                                                },
+                                            ]
+                                                .filter(
+                                                    (section) =>
+                                                        section.items?.length >
+                                                        0
+                                                )
+                                                .map((section) => (
+                                                    <Stack
+                                                        key={section.label}
+                                                        direction="row"
+                                                        flexWrap="wrap"
+                                                        alignItems="baseline"
+                                                        columnGap={0.5}
+                                                        sx={{ mt: '5px' }}
+                                                    >
+                                                        <Typography
+                                                            fontSize="14px"
+                                                            fontWeight="500"
+                                                        >
+                                                            {section.label}:
+                                                        </Typography>
+                                                        <Typography
+                                                            fontSize="12px"
+                                                            color={
+                                                                theme.palette
+                                                                    .neutral[400]
+                                                            }
+                                                        >
+                                                            {section.items.join(
+                                                                ', '
+                                                            )}
+                                                            .
+                                                        </Typography>
+                                                    </Stack>
+                                                ))}
+                                            {/* Price moved to
+                                                    FoodModalTopSection's info
+                                                    card (base/discounted price
+                                                    + badges). */}
+                                        </CustomStackFullWidth>
+                                        {modalData?.length > 0 &&
+                                            modalData[0]?.variations
+                                                ?.length > 0 && (
+                                                <VariationsManager
+                                                    quantity={quantity}
+                                                    selectedOptions={
+                                                        selectedOptions
                                                     }
-                                                >
-                                                    {modalData?.length > 0 &&
-                                                        modalData[0]
-                                                            ?.description}
-                                                </ReadMore>
-                                                {modalData[0]?.nutritions_name
-                                                    ?.length > 0 && (
-                                                        <>
-                                                            <Typography
-                                                                fontSize="14px"
-                                                                fontWeight="500"
-                                                                mt="5px"
-                                                            >
-                                                                {t(
-                                                                    'Nutrition Details'
-                                                                )}
-                                                            </Typography>
+                                                    t={t}
+                                                    modalData={modalData}
+                                                    radioCheckHandler={
+                                                        radioCheckHandler
+                                                    }
+                                                    changeChoices={
+                                                        changeChoices
+                                                    }
+                                                    currencySymbolDirection={
+                                                        currencySymbolDirection
+                                                    }
+                                                    currencySymbol={
+                                                        currencySymbol
+                                                    }
+                                                    digitAfterDecimalPoint={
+                                                        digitAfterDecimalPoint
+                                                    }
+                                                    itemIsLoading={
+                                                        isRefetching
+                                                    }
+                                                    productUpdate={
+                                                        productUpdate
+                                                    }
+                                                />
+                                            )}
+                                        {modalData?.length > 0 &&
+                                            modalData[0]?.add_ons?.length >
+                                            0 && (
+                                                <AddOnsManager
+                                                    t={t}
+                                                    modalData={modalData}
+                                                    setTotalPrice={
+                                                        setTotalPrice
+                                                    }
+                                                    changeAddOns={
+                                                        changeAddOns
+                                                    }
+                                                    product={modalData[0]}
+                                                    setAddOns={setAddOns}
+                                                    add_on={add_on}
+                                                    quantity={quantity}
+                                                    cartList={effectiveCart}
+                                                    itemIsLoading={
+                                                        isRefetching
+                                                    }
+                                                    variationInCart={
+                                                        variationInCart
+                                                    }
+                                                />
+                                            )}
+                                        </CustomStackFullWidth>
+                                    </Box>
 
-                                                            <Stack
-                                                                direction="row"
-                                                                spacing={0.5}
-                                                            >
-                                                                {modalData[0]?.nutritions_name?.map(
-                                                                    (
-                                                                        item,
-                                                                        index
-                                                                    ) => (
-                                                                        <Typography
-                                                                            fontSize="12px"
-                                                                            key={
-                                                                                index
-                                                                            }
-                                                                            color={
-                                                                                theme
-                                                                                    .palette
-                                                                                    .neutral[400]
-                                                                            }
-                                                                        >
-                                                                            {item}
-                                                                            {index !==
-                                                                                modalData[0]
-                                                                                    ?.nutritions_name
-                                                                                    .length -
-                                                                                1
-                                                                                ? ','
-                                                                                : '.'}
-                                                                        </Typography>
-                                                                    )
-                                                                )}
-                                                            </Stack>
-                                                        </>
-                                                    )}
-                                                {modalData[0]?.allergies_name
-                                                    ?.length > 0 && (
-                                                        <>
-                                                            <Typography
-                                                                fontSize="14px"
-                                                                fontWeight="500"
-                                                                mt="5px"
-                                                            >
-                                                                {t(
-                                                                    'Allergic Ingredients'
-                                                                )}
-                                                            </Typography>
-
-                                                            <Stack
-                                                                direction="row"
-                                                                spacing={0.5}
-                                                            >
-                                                                {modalData[0]?.allergies_name?.map(
-                                                                    (
-                                                                        item,
-                                                                        index
-                                                                    ) => (
-                                                                        <Typography
-                                                                            fontSize="12px"
-                                                                            key={
-                                                                                index
-                                                                            }
-                                                                            color={
-                                                                                theme
-                                                                                    .palette
-                                                                                    .neutral[400]
-                                                                            }
-                                                                        >
-                                                                            {item}
-                                                                            {index !==
-                                                                                modalData[0]
-                                                                                    ?.allergies_name
-                                                                                    .length -
-                                                                                1
-                                                                                ? ','
-                                                                                : '.'}
-                                                                        </Typography>
-                                                                    )
-                                                                )}
-                                                            </Stack>
-                                                        </>
-                                                    )}
-                                                <Stack
-                                                    spacing={1}
-                                                    direction="row"
-                                                    justifyContent="space-between"
-                                                    alignItems="center"
-                                                >
-                                                    <StartPriceView
-                                                        data={modalData[0]}
-                                                        currencySymbolDirection={
-                                                            currencySymbolDirection
-                                                        }
-                                                        currencySymbol={
-                                                            currencySymbol
-                                                        }
-                                                        digitAfterDecimalPoint={
-                                                            digitAfterDecimalPoint
-                                                        }
-                                                        hideStartFromText="false"
-                                                        handleBadge={
-                                                            handleBadge
-                                                        }
-                                                        selectedOptions={
-                                                            selectedOptions
-                                                        }
-                                                    />
-                                                </Stack>
-                                            </CustomStackFullWidth>
-                                            {modalData?.length > 0 &&
-                                                modalData[0]?.variations
-                                                    ?.length > 0 && (
-                                                    <VariationsManager
-                                                        quantity={quantity}
-                                                        selectedOptions={
-                                                            selectedOptions
-                                                        }
-                                                        t={t}
-                                                        modalData={modalData}
-                                                        radioCheckHandler={
-                                                            radioCheckHandler
-                                                        }
-                                                        changeChoices={
-                                                            changeChoices
-                                                        }
-                                                        currencySymbolDirection={
-                                                            currencySymbolDirection
-                                                        }
-                                                        currencySymbol={
-                                                            currencySymbol
-                                                        }
-                                                        digitAfterDecimalPoint={
-                                                            digitAfterDecimalPoint
-                                                        }
-                                                        itemIsLoading={
-                                                            isRefetching
-                                                        }
-                                                        productUpdate={
-                                                            productUpdate
-                                                        }
-                                                    />
-                                                )}
-                                            {modalData?.length > 0 &&
-                                                modalData[0]?.add_ons?.length >
-                                                0 && (
-                                                    <AddOnsManager
-                                                        t={t}
-                                                        modalData={modalData}
-                                                        setTotalPrice={
-                                                            setTotalPrice
-                                                        }
-                                                        changeAddOns={
-                                                            changeAddOns
-                                                        }
-                                                        product={modalData[0]}
-                                                        setAddOns={setAddOns}
-                                                        add_on={add_on}
-                                                        quantity={quantity}
-                                                        cartList={effectiveCart}
-                                                        itemIsLoading={
-                                                            isRefetching
-                                                        }
-                                                        variationInCart={
-                                                            variationInCart
-                                                        }
-                                                    />
-                                                )}
-                                        </SimpleBar>
+                                    {/* Cart bar — outside the scroll area */}
+                                    <Box
+                                        sx={{
+                                            flexShrink: 0,
+                                            borderTop: (th) =>
+                                                `1px solid ${th.palette.divider}`,
+                                            backgroundColor: 'background.paper',
+                                            padding: {
+                                                xs: '10px',
+                                                md: '10px 12px 12px',
+                                            },
+                                        }}
+                                    >
+                                        {modalData[0]?.variations?.length > 0 &&
+                                        !getFullFillRequirements() ? (
+                                            // Nothing else (price, quantity)
+                                            // until a required option is picked.
+                                            <Button
+                                                onClick={
+                                                    scrollToRequiredVariation
+                                                }
+                                                variant="contained"
+                                                fullWidth
+                                                disableRipple
+                                                sx={requiredOptionButtonSx}
+                                            >
+                                                {t('Choose Required Option')}
+                                            </Button>
+                                        ) : (
                                         <Grid container direction="row">
                                             <Grid
                                                 item
@@ -1470,21 +1498,16 @@ const FoodDetailModal = ({
                                                         modalData[0]
                                                             ?.discount_type
                                                     }
-                                                    productRestaurantDiscount={
-                                                        modalData[0]
-                                                            ?.restaurant_discount
-                                                    }
                                                     selectedAddOns={add_on}
                                                     quantity={quantity}
                                                 />
                                             </Grid>
                                             <Grid
                                                 item
-                                                md={7}
-                                                sm={12}
-                                                xs={12}
+                                                md={4}
+                                                sm={4}
+                                                xs={5}
                                                 alignSelf="center"
-                                                marginBottom={{ xs: "10px", md: "0px" }}
                                             >
                                                 <IncrementDecrementManager
                                                     decrementPrice={
@@ -1508,12 +1531,31 @@ const FoodDetailModal = ({
                                                             ?.available_time_ends
                                                     )
                                                         ? 12
-                                                        : 5
+                                                        : 8
                                                 }
-                                                sm={12}
-                                                xs={12}
+                                                sm={
+                                                    !isAvailable(
+                                                        modalData[0]
+                                                            ?.available_time_starts,
+                                                        modalData[0]
+                                                            ?.available_time_ends
+                                                    )
+                                                        ? 12
+                                                        : 8
+                                                }
+                                                xs={
+                                                    !isAvailable(
+                                                        modalData[0]
+                                                            ?.available_time_starts,
+                                                        modalData[0]
+                                                            ?.available_time_ends
+                                                    )
+                                                        ? 12
+                                                        : 7
+                                                }
+                                                alignSelf="center"
+                                                sx={{ pl: { xs: 0.75, sm: 1.25 } }}
                                             >
-                                                {console.log("vvv", isInCart(foodDetails?.id))}
                                                 {modalData?.length > 0 &&
                                                     isAvailable(
                                                         modalData[0]
@@ -1526,10 +1568,10 @@ const FoodDetailModal = ({
                                                             // 🟦 Case 1: Food has variations
                                                             (variationInCart || productUpdate) ? (
                                                                 <UpdateToCartUi
-    addToCard={addToCard}
-    t={t}
-    isLoading={updateToCartLoading}
-/>
+                                                                    addToCard={addToCard}
+                                                                    t={t}
+                                                                    isLoading={updateToCartLoading}
+                                                                />
                                                             ) : (
                                                                 <AddOrderToCart
                                                                     addToCartLoading={addToCartLoading}
@@ -1544,10 +1586,10 @@ const FoodDetailModal = ({
                                                             // 🟩 Case 2: Food has NO variations
                                                             (isInCart(modalData[0]?.id)) ? (
                                                                 <UpdateToCartUi
-    addToCard={addToCard}
-    t={t}
-    isLoading={updateToCartLoading}
-/>
+                                                                    addToCard={addToCard}
+                                                                    t={t}
+                                                                    isLoading={updateToCartLoading}
+                                                                />
                                                             ) : (
                                                                 <AddOrderToCart
                                                                     addToCartLoading={addToCartLoading}
@@ -1581,7 +1623,8 @@ const FoodDetailModal = ({
                                                 )}
                                             </Grid>
                                         </Grid>
-                                    </CustomStackFullWidth>
+                                        )}
+                                    </Box>
                                 </CustomStackFullWidth>
                             )}
                         </>
@@ -1647,7 +1690,7 @@ const FoodDetailModal = ({
                             </CustomStackFullWidth>
                         )
                     )}
-                </FoodDetailModalStyle>
+                    </FoodDetailModalStyle>
             </Modal>
             {authModalOpen && (
                 <AuthModal

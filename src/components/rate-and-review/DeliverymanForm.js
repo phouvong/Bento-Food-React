@@ -1,9 +1,9 @@
 import React from 'react'
-import { Button, Grid, Stack, Typography } from "@mui/material";
+import { Button, Grid, Stack, Typography } from '@mui/material'
 import {
     CustomStackFullWidth,
     CustomTypographyBold,
-} from "@/styled-components/CustomStyles.style"
+} from '@/styled-components/CustomStyles.style'
 import CustomImageContainer from '../CustomImageContainer'
 import { CustomTypographyGray } from '../error/Errors.style'
 import Divider from '@mui/material/Divider'
@@ -11,19 +11,25 @@ import CustomRatings from '../custom-ratings/CustomRatings'
 import CustomTextFieldWithFormik from '../form-fields/CustomTextFieldWithFormik'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { useTranslation } from 'react-i18next'
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from 'react-redux'
 import { useMutation } from 'react-query'
 import { ReviewApi } from './ReviewApi'
 import { useFormik } from 'formik'
 import toast from 'react-hot-toast'
 import { onErrorResponse } from '../ErrorResponse'
-import StarIcon from '@mui/icons-material/Star';
-import { useTheme } from "@mui/styles";
-import { setDeliveryManInfoByDispatch } from "@/redux/slices/searchFilter";
+import StarIcon from '@mui/icons-material/Star'
+import { useTheme } from '@mui/styles'
+import { setDeliveryManInfoByDispatch } from '@/redux/slices/searchFilter'
 
-const DeliverymanForm = ({ data, orderId,onClose,refetchTrackData }) => {
-    const theme=useTheme()
-    const dispatch=useDispatch()
+const DeliverymanForm = ({
+    data,
+    orderId,
+    onClose,
+    refetchTrackData,
+    refetchOrderDetails,
+}) => {
+    const theme = useTheme()
+    const dispatch = useDispatch()
     const { t } = useTranslation()
     const { global } = useSelector((state) => state.globalSettings)
     const productImage = global?.base_urls?.delivery_man_image_url
@@ -39,19 +45,18 @@ const DeliverymanForm = ({ data, orderId,onClose,refetchTrackData }) => {
         onSubmit: async (values, helpers) => {
             try {
                 handleFormsubmit(values)
-            } catch (err) {
-
-            }
+            } catch (err) {}
         },
     })
     const handleChangeRatings = (value) => {
         formik.setFieldValue('rating', value)
     }
-    const handleSuccess=(response)=>{
+    const handleSuccess = (response) => {
         formik.setFieldValue('rating', 0)
         formik.setFieldValue('comment', '')
         toast.success(response?.data?.message)
-        refetchTrackData()
+        refetchTrackData?.()
+        refetchOrderDetails?.()
         //onClose()
         // const restReviewItem
     }
@@ -62,11 +67,11 @@ const DeliverymanForm = ({ data, orderId,onClose,refetchTrackData }) => {
             order_id: orderId,
         }
         mutate(formData, {
-            onSuccess:handleSuccess,
+            onSuccess: handleSuccess,
             onError: onErrorResponse,
         })
     }
-    const notNow=(values) => {
+    const notNow = (values) => {
         dispatch(setDeliveryManInfoByDispatch(null))
         //onClose()
     }
@@ -93,21 +98,40 @@ const DeliverymanForm = ({ data, orderId,onClose,refetchTrackData }) => {
                                     borderRadius="50%"
                                 />
                                 <Stack>
-                                    <CustomTypographyBold fontSize="13px" fontWeight="600">
+                                    <CustomTypographyBold
+                                        fontSize="13px"
+                                        fontWeight="600"
+                                    >
                                         {data?.f_name.concat(' ', data?.l_name)}
                                     </CustomTypographyBold>
-                                    <Stack direction="row"  spacing={.5}>
-                                        <StarIcon sx={{width:"12px",height:"12px",color:theme=>theme.palette.primary.main}}/>
+                                    <Stack direction="row" spacing={0.5}>
+                                        <StarIcon
+                                            sx={{
+                                                width: '12px',
+                                                height: '12px',
+                                                color: (theme) =>
+                                                    theme.palette.primary.main,
+                                            }}
+                                        />
                                         <Stack direction="row">
-                                            <Typography fontSize="10px" color={theme.palette.neutral[500]}>
+                                            <Typography
+                                                fontSize="10px"
+                                                color={
+                                                    theme.palette.neutral[500]
+                                                }
+                                            >
                                                 {data?.avg_rating.toFixed(1)}
                                             </Typography>
-                                            <Typography fontSize="10px" color={theme.palette.neutral[500]}>
+                                            <Typography
+                                                fontSize="10px"
+                                                color={
+                                                    theme.palette.neutral[500]
+                                                }
+                                            >
                                                 ({data?.rating_count} )
                                             </Typography>
                                         </Stack>
                                     </Stack>
-
                                 </Stack>
                             </Stack>
                         </CustomStackFullWidth>
@@ -117,7 +141,10 @@ const DeliverymanForm = ({ data, orderId,onClose,refetchTrackData }) => {
                     </Grid>
                     <Grid item xs={12} md={12} align="center">
                         <Stack alignItems="center">
-                            <CustomTypographyBold fontSize="13px" fontWeight="600">
+                            <CustomTypographyBold
+                                fontSize="13px"
+                                fontWeight="600"
+                            >
                                 {t('Rate the deliveryman')}
                             </CustomTypographyBold>
                             <CustomRatings
@@ -128,7 +155,10 @@ const DeliverymanForm = ({ data, orderId,onClose,refetchTrackData }) => {
                     </Grid>
                     <Grid item xs={12} md={12} align="center">
                         <Stack alignItems="center" spacing={1}>
-                            <CustomTypographyGray sx={{ fontSize: '14px' }} fontWeight="400">
+                            <CustomTypographyGray
+                                sx={{ fontSize: '14px' }}
+                                fontWeight="400"
+                            >
                                 {t('Share your valuable feedback')}
                             </CustomTypographyGray>
                             <CustomTextFieldWithFormik
@@ -155,9 +185,7 @@ const DeliverymanForm = ({ data, orderId,onClose,refetchTrackData }) => {
                             >
                                 {t('Submit')}
                             </LoadingButton>
-                            <Button onClick={notNow}>
-                                {t("Not Now")}
-                            </Button>
+                            <Button onClick={notNow}>{t('Not Now')}</Button>
                         </Stack>
                     </Grid>
                 </Grid>

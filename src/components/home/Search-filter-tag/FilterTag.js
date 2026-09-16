@@ -585,6 +585,7 @@ const FilterTag = ({
                 >
                     <SearchBox
                         query={query}
+                        autoFocusOnMobile
                         //setOpenSearchBox={setOpenSearchBox}
                     />
                 </Box>

@@ -3,13 +3,11 @@ import { useTheme } from '@mui/material/styles'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
-import 'slick-carousel/slick/slick-theme.css'
-import 'slick-carousel/slick/slick.css'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
 } from '@/styled-components/CustomStyles.style'
-import { DistanceCalculate, getAmount, handleRestaurantRedirect } from '@/utils/customFunctions'
+import { getAmount, handleRestaurantRedirect } from '@/utils/customFunctions'
 import CustomImageContainer from '../CustomImageContainer'
 import { CustomChip } from '../food-card/FoodCard.style'
 import { HomeTextTypography } from '../home/HomeStyle'
@@ -36,7 +34,7 @@ const LatestRestaurantCard = (props) => {
         characteristics,
         slug,
         zone_id,
-        distance,
+        distance_label,
         discount,
         foods_count,
         delivery_fee,
@@ -353,9 +351,7 @@ const LatestRestaurantCard = (props) => {
                                             fontSize="12px"
                                             fontWeight={400}
                                         >
-                                            <DistanceCalculate
-                                                distance={distance}
-                                            />
+                                            {distance_label}
                                         </Typography>
                                     </Stack>
                                     <Stack

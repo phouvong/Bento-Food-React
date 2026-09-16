@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react'
+import React, { memo, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import {
@@ -16,6 +16,11 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 
 import NewFoodCard from '@/components/new-food-card/NewFoodCard'
 import FoodCardShimmer from '@/components/food-card/FoodCarShimmer'
+import useDragScroll from '@/hooks/useDragScroll'
+import { SECTION_GUTTER_PX } from '@/components/container/Section'
+import { HOME_SECTION_SPACING } from '../homeSectionSpacing'
+
+const SPACING = HOME_SECTION_SPACING.trendingFoodTabs
 import { SLIDE_GAP } from '../Banner'
 
 const NavBtn = styled(IconButton)(({ theme }) => ({
@@ -39,7 +44,7 @@ const TabBar = styled(Stack)(({ theme }) => ({
     alignItems: 'center',
     gap: 2,
     padding: 4,
-    borderRadius: 999,
+    borderRadius: 12,
     border: `1px solid ${theme.palette.divider}`,
     backgroundColor: theme.palette.background.paper,
     flexShrink: 0,
@@ -49,8 +54,10 @@ const TabBar = styled(Stack)(({ theme }) => ({
     msOverflowStyle: 'none',
     '&::-webkit-scrollbar': { display: 'none' },
     [theme.breakpoints.down('sm')]: {
-        width: '100%',
+        width: 'auto',
         flexShrink: 1,
+        gap: 0,
+        padding: 3,
         scrollSnapType: 'x mandatory',
         '& > *': { scrollSnapAlign: 'start' },
     },
@@ -63,15 +70,15 @@ const TabBtn = styled('button', {
     cursor: 'pointer',
     padding: '9px 18px',
     lineHeight: 1.2,
-    borderRadius: 999,
+    borderRadius: 6,
     fontSize: 12.5,
     fontWeight: 600,
     whiteSpace: 'nowrap',
     flexShrink: 0,
     transition: 'all .18s ease',
     [theme.breakpoints.down('sm')]: {
-        padding: '7px 14px',
-        fontSize: 12,
+        padding: '7px 10px',
+        fontSize: 11.5,
     },
     backgroundColor:
         isactive === 'true' ? theme.palette.primary.main : 'transparent',
@@ -83,10 +90,7 @@ const TabBtn = styled('button', {
         isactive === 'true'
             ? `0 2px 6px ${alpha(theme.palette.primary.main, 0.28)}`
             : 'none',
-    '&:hover':
-        isactive === 'true'
-            ? {}
-            : { color: theme.palette.primary.main },
+    '&:hover': isactive === 'true' ? {} : { color: theme.palette.primary.main },
 }))
 
 const ScrollRow = styled(Box)(({ theme }) => ({
@@ -101,13 +105,13 @@ const ScrollRow = styled(Box)(({ theme }) => ({
     msOverflowStyle: 'none',
     '&::-webkit-scrollbar': { display: 'none' },
     '& > .scroll-item': {
-        flex: '0 0 185px',
+        flex: '0 0 187px',
         scrollSnapAlign: 'start',
         minWidth: 0,
     },
     [theme.breakpoints.down('sm')]: {
         gap: 12,
-        '& > .scroll-item': { flex: '0 0 46%' },
+        '& > .scroll-item': { flex: '0 0 140px' },
     },
 }))
 
@@ -117,7 +121,6 @@ const TabHead = styled(Stack)(({ theme }) => ({
     justifyContent: 'space-between',
     flexWrap: 'wrap',
     gap: 12,
-    marginBottom: 24,
     [theme.breakpoints.down('sm')]: {
         alignItems: 'flex-start',
         flexDirection: 'column',
@@ -135,7 +138,8 @@ const TrendingFoodTabs = ({
     const isRtl = theme.direction === 'rtl'
     const PrevIcon = isRtl ? ChevronRightIcon : ChevronLeftIcon
     const NextIcon = isRtl ? ChevronLeftIcon : ChevronRightIcon
-    const scrollRef = useRef(null)
+    const dragScroll = useDragScroll()
+    const scrollRef = dragScroll.ref
 
     const { global } = useSelector((state) => state.globalSettings)
     const { campaignFoods, popularFood, bestReviewedFoods } = useSelector(
@@ -147,7 +151,6 @@ const TrendingFoodTabs = ({
             {
                 value: 'todays-trends',
                 title: t("Today's Trends"),
-                subtitle: t('Hot sellers and crowd favorites right now.'),
                 data: campaignFoods,
                 isLoading: campaignIsLoading,
                 isCampaign: true,
@@ -156,24 +159,26 @@ const TrendingFoodTabs = ({
             {
                 value: 'popular-foods',
                 title: t('Popular Foods'),
-                subtitle: t('Most-loved picks near you.'),
                 data: popularFood,
                 isLoading: popularIsLoading,
                 isCampaign: false,
                 imageUrl: global?.base_urls?.product_image_url,
+                enabled: Boolean(global?.popular_food),
             },
             {
                 value: 'best-reviewed',
                 title: t('Best Reviewed'),
-                subtitle: t('Top-rated by real diners.'),
                 data: bestReviewedFoods,
                 isLoading: bestReviewedIsLoading,
                 isCampaign: false,
                 imageUrl: global?.base_urls?.product_image_url,
+                enabled: Boolean(global?.most_reviewed_foods),
             },
         ]
         return list.filter(
-            (tab) => (tab.data?.length ?? 0) > 0 || tab.isLoading
+            (tab) =>
+                tab.enabled !== false &&
+                ((tab.data?.length ?? 0) > 0 || tab.isLoading)
         )
     }, [
         t,
@@ -187,6 +192,7 @@ const TrendingFoodTabs = ({
     ])
 
     const [active, setActive] = useState(null)
+    const [isScrollable, setIsScrollable] = useState(false)
 
     useEffect(() => {
         if (!tabs.length) return
@@ -196,6 +202,24 @@ const TrendingFoodTabs = ({
     }, [tabs, active])
 
     const current = tabs.find((tb) => tb.value === active) || tabs[0]
+    const products = current?.data ?? []
+
+    useEffect(() => {
+        const el = scrollRef.current
+        const check = () => {
+            if (!el) {
+                setIsScrollable(false)
+                return
+            }
+            setIsScrollable(el.scrollWidth > el.clientWidth + 1)
+        }
+        const id = setTimeout(check, 0)
+        window.addEventListener('resize', check)
+        return () => {
+            clearTimeout(id)
+            window.removeEventListener('resize', check)
+        }
+    }, [current?.data, current?.isLoading])
 
     if (!tabs.length) return null
 
@@ -205,11 +229,9 @@ const TrendingFoodTabs = ({
         el.scrollBy({ left: dir * el.clientWidth * 0.9, behavior: 'smooth' })
     }
 
-    const products = current?.data ?? []
-
     return (
-        <Box>
-            <TabHead>
+        <Box sx={{ pl: SECTION_GUTTER_PX, pt: SPACING.pt, pb: SPACING.pb }}>
+            <TabHead sx={{ pr: SECTION_GUTTER_PX, mb: SPACING.headerGap }}>
                 <Stack spacing={0.5} sx={{ minWidth: 0 }}>
                     <Typography
                         component="h2"
@@ -221,18 +243,16 @@ const TrendingFoodTabs = ({
                             color: (th) => th.palette.text.primary,
                         }}
                     >
-                        {current?.title}
+                        {t('Items You Will Love')}
                     </Typography>
-                    {current?.subtitle && (
-                        <Typography
-                            sx={{
-                                fontSize: { xs: 12, md: 13.5 },
-                                color: (th) => th.palette.text.secondary,
-                            }}
-                        >
-                            {current.subtitle}
-                        </Typography>
-                    )}
+                    <Typography
+                        sx={{
+                            fontSize: { xs: 12, md: 13.5 },
+                            color: (th) => th.palette.text.secondary,
+                        }}
+                    >
+                        {t("What everyone's watching and ordering")}
+                    </Typography>
                 </Stack>
 
                 <Stack
@@ -244,40 +264,40 @@ const TrendingFoodTabs = ({
                         minWidth: 0,
                     }}
                 >
-                    <TabBar role="tablist">
-                        {tabs.map((tab) => (
-                            <TabBtn
-                                key={tab.value}
-                                role="tab"
-                                type="button"
-                                isactive={
-                                    active === tab.value ? 'true' : 'false'
-                                }
-                                onClick={() => setActive(tab.value)}
-                            >
-                                {tab.title}
-                            </TabBtn>
-                        ))}
-                    </TabBar>
-                    {!isSmall && products.length > 0 && (
+                    {!isSmall && isScrollable && (
                         <Stack direction="row" alignItems="center" gap={1}>
                             <NavBtn
                                 aria-label="Previous"
-                                onClick={() =>
-                                    scrollByAmount(isRtl ? 1 : -1)
-                                }
+                                onClick={() => scrollByAmount(isRtl ? 1 : -1)}
                             >
                                 <PrevIcon />
                             </NavBtn>
                             <NavBtn
                                 aria-label="Next"
-                                onClick={() =>
-                                    scrollByAmount(isRtl ? -1 : 1)
-                                }
+                                onClick={() => scrollByAmount(isRtl ? -1 : 1)}
                             >
                                 <NextIcon />
                             </NavBtn>
                         </Stack>
+                    )}
+                    {tabs.length > 1 && (
+                        <TabBar role="tablist">
+                            {tabs.map((tab) => (
+                                <TabBtn
+                                    key={tab.value}
+                                    role="tab"
+                                    type="button"
+                                    isactive={
+                                        active === tab.value
+                                            ? 'true'
+                                            : 'false'
+                                    }
+                                    onClick={() => setActive(tab.value)}
+                                >
+                                    {tab.title}
+                                </TabBtn>
+                            ))}
+                        </TabBar>
                     )}
                 </Stack>
             </TabHead>
@@ -294,7 +314,7 @@ const TrendingFoodTabs = ({
                     ))}
                 </ScrollRow>
             ) : (
-                <ScrollRow ref={scrollRef}>
+                <ScrollRow {...dragScroll} sx={{ cursor: 'grab' }}>
                     {products.map((product) => {
                         const valid =
                             product?.variations === null ||
@@ -302,10 +322,7 @@ const TrendingFoodTabs = ({
                             product?.variations?.length === 0
                         if (!valid) return null
                         return (
-                            <Box
-                                key={product?.id}
-                                className="scroll-item"
-                            >
+                            <Box key={product?.id} className="scroll-item">
                                 <NewFoodCard
                                     product={product}
                                     productImageUrl={current?.imageUrl}

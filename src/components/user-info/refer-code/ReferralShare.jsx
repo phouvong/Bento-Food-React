@@ -38,7 +38,7 @@ import {
     WhatsappIcon,
     WhatsappShareButton,
 } from 'react-share'
-import Slider from 'react-slick'
+import Slider from '@/components/slider/SlickToSwiper'
 import {
     CodePreviewWrapper,
     ReferralShareBox,

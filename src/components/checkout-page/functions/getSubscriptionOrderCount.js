@@ -15,6 +15,20 @@ const isRestaurantOpen = (restaurantSchedule,dayNumber, selectedTime)=>{
     }
     return isOpen
 }
+
+// isRestaurantOpen only compares time-of-day against the weekly schedule —
+// it has no idea whether the *specific calendar date* it's being checked
+// against has already gone by (e.g. picking today's date with a time
+// earlier than right now). Filter those out separately so a stale
+// selection never gets counted as a deliverable occurrence.
+const isNotInThePast = (candidateDate, selectedTime) => {
+    if (!selectedTime) return false
+    const candidate = moment(
+        `${moment(candidateDate).format('YYYY-MM-DD')} ${selectedTime}`,
+        'YYYY-MM-DD HH:mm:ss'
+    )
+    return candidate.isAfter(moment())
+}
 export const getSubscriptionOrderCount = (restaurantSchedule, type, startDate, endDate,days)=>{
     let start_date = moment(startDate);
     let end_date = moment(endDate);
@@ -24,7 +38,10 @@ export const getSubscriptionOrderCount = (restaurantSchedule, type, startDate, e
     if(type==='daily') {
         while(startingDate <= end_date) {
             const dayNumber = moment(startingDate).day()
-            if(isRestaurantOpen(restaurantSchedule,dayNumber,days[0]?.time )){
+            if(
+                isRestaurantOpen(restaurantSchedule,dayNumber,days[0]?.time ) &&
+                isNotInThePast(startingDate, days[0]?.time)
+            ){
                 count++
             }
             dayCount++
@@ -32,30 +49,21 @@ export const getSubscriptionOrderCount = (restaurantSchedule, type, startDate, e
         }
     }
     else if(type==='weekly'){
-        let totalDays = []
         while(startingDate <= end_date) {
             const dayNumber = moment(startingDate).day()
-            if(dayCount<=6){
-                if(days.length>0){
-                    days.forEach(item=> {
-                        if(item?.day===dayNumber){
-                            totalDays.push(dayNumber)
+            if(days.length>0){
+                days.forEach(item=> {
+                    if(item?.day===dayNumber){
+                        if(
+                            isRestaurantOpen(restaurantSchedule,dayNumber,item?.time ) &&
+                            isNotInThePast(startingDate, item?.time)
+                        ){
+                            count++
                         }
-                    })
-                }
-                dayCount++
-            }
-            else{
-                dayCount = 0
+                    }
+                })
             }
             startingDate.add(1, 'days');
-        }
-        if(totalDays.length>0){
-            totalDays.forEach(day=>{
-                if(isRestaurantOpen(restaurantSchedule,day,days.find(item=> item.day===day)?.time )){
-                    count++
-                }
-            })
         }
     }
     else if(type==='monthly'){
@@ -65,7 +73,10 @@ export const getSubscriptionOrderCount = (restaurantSchedule, type, startDate, e
             if(days.length>0){
                 days.forEach(item=>{
                     if(Number.parseInt(item?.day)===Number.parseInt(dayNumberFromMonth)){
-                        if(isRestaurantOpen(restaurantSchedule,dayNumber,item?.time )){
+                        if(
+                            isRestaurantOpen(restaurantSchedule,dayNumber,item?.time ) &&
+                            isNotInThePast(startingDate, item?.time)
+                        ){
                             count++
                         }
                     }

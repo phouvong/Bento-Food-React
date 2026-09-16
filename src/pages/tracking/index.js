@@ -1,21 +1,26 @@
 import React from 'react'
-import { Container, Stack, NoSsr } from '@mui/material'
+import { NoSsr } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 
 import Meta from '../../components/Meta'
 import { CustomHeader } from '@/api/Headers'
 import TrackOrderInput from '../../components/Track-order/TrackOrderInput'
 import HomeGuard from '../../components/home-guard/HomeGuard'
+import CustomContainer from '@/components/container'
+import MobilePageHeader from '@/components/page-header/MobilePageHeader'
+
 const index = ({ configData }) => {
+    const { t } = useTranslation()
+
     return (
         <div className="div">
             <Meta title={`Order Tracking - ${configData?.business_name}`} />
             <NoSsr>
                 <HomeGuard>
-                    <Container maxWidth="lg" sx={{ mb: { xs: '72px', md: '0' } }}>
-                        <Stack mt={{ xs: '20px', md: '80px' }} minHeight="500px">
-                            <TrackOrderInput configData={configData} />
-                        </Stack>
-                    </Container>
+                    <CustomContainer sx={{ mb: { xs: '72px', md: '0' } }}>
+                        <MobilePageHeader title={t('Track Your Order')} />
+                        <TrackOrderInput configData={configData} />
+                    </CustomContainer>
                 </HomeGuard>
             </NoSsr>
         </div>

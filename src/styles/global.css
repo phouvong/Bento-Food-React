@@ -13,7 +13,9 @@ body {
 
 }
 #__next{
-    overflow: clip;
+    /* x-axis only: clipping both axes breaks position:sticky for every
+       descendant (restaurant page category bar, cart sidebar). */
+    overflow-x: clip;
 }
 .footer-wrap,
 .sm,
@@ -190,58 +192,10 @@ img {
     width: 75px !important;
 }
 
-.swiper {
-    width: 100%;
-    height: 100%;
-    border-radius: 10px;
-}
-
-.swiper-slide {
-    text-align: center;
-    font-size: 18px;
-    background: #fff;
-
-    /* Center slide text vertically */
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    -webkit-justify-content: center;
-    justify-content: center;
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    -webkit-align-items: center;
-    align-items: center;
-}
-
-.swiper-slide img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.swiper-button-prev,
-.swiper-button-next {
-    z-index: 1;
-    position: relative;
-}
-
-.swiper-button-prev:after,
-.swiper-button-next:after {
-    font-size: 10px !important;
-    color: #fff;
-}
-
-.swiper-button-prev,
-.swiper-button-next {
-    border: 1px solid #fff !important;
-    border-radius: 50%;
-    width: 24px !important;
-    height: 24px !important;
-}
+/* NOTE: generic .swiper / .swiper-slide / .swiper-slide img rules that used
+   to live here (leftovers from a removed feature) were deleted — they
+   force-stretched every image inside the migrated SlickToSwiper sliders.
+   Style swiper content per-component instead of globally. */
 
 .hero-slide-content {
     /* border-radius: 10px !important;
@@ -827,10 +781,7 @@ img {
 }
 
 .bottom-navigation-wrap {
-    border-bottom-left-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
     bottom: 0 !important;
-    padding-bottom: env(safe-area-inset-bottom) !important;
     background-clip: padding-box;
 }
 

@@ -1,20 +1,48 @@
 import { CustomToaster } from '@/components/custom-toaster/CustomToaster'
-import CustomEmptyResult from '@/components/empty-view/CustomEmptyResult'
 import FeedBackSvg from '@/components/rate-and-review/FeedBackSvg'
 import { OrderApi } from '@/hooks/react-query/config/orderApi'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
 } from '@/styled-components/CustomStyles.style'
-import { Stack } from '@mui/material'
+import { Stack, Typography } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
 import { useSelector } from 'react-redux'
+import { useTranslation } from 'react-i18next'
 import 'simplebar-react/dist/simplebar.min.css'
 import DeliverymanForm from './DeliverymanForm'
 import GroupButtonsRateAndReview from './GroupButtonsRateAndReview'
 import ItemForm from './ItemForm'
 import Shimmer from './Shimmer'
+
+const dedupeReviewItemsByFood = (details) => {
+    if (!Array.isArray(details)) return details
+    const seen = new Set()
+    return details.filter((detail) => {
+        const foodId = detail?.food_id ?? detail?.id
+        if (foodId == null) return true
+        if (seen.has(foodId)) return false
+        seen.add(foodId)
+        return true
+    })
+}
+
+const NothingToReview = () => {
+    const { t } = useTranslation()
+    return (
+        <Stack width="100%" alignItems="center" justifyContent="center" py={4}>
+            <Typography
+                fontSize="14px"
+                fontWeight={500}
+                textAlign="center"
+                color={(theme) => theme.palette.text.secondary}
+            >
+                {t('Nothing to review')}
+            </Typography>
+        </Stack>
+    )
+}
 
 const RateAndReview = ({
     id,
@@ -22,7 +50,7 @@ const RateAndReview = ({
     refetchTrackData,
     is_reviewed,
     is_dm_reviewed,
-    refetch,
+    refetchOrderDetails,
 }) => {
     const { deliveryManInfo } = useSelector((state) => state.searchFilterStore)
     const [type, setType] = useState('items')
@@ -40,7 +68,7 @@ const RateAndReview = ({
     }, [id])
 
     useEffect(() => {
-        setReviewItems(data?.data?.details)
+        setReviewItems(dedupeReviewItemsByFood(data?.data?.details))
     }, [data])
 
     const notNow = (reviewId) => {
@@ -51,19 +79,17 @@ const RateAndReview = ({
     }
 
     useEffect(() => {
+        if (!reviewedItem) return
         const tempData = reviewItems?.filter(
-            (review) => review?.id !== reviewedItem?.id
+            (review) => review?.food_id !== reviewedItem?.food_id
         )
         setReviewItems(tempData)
     }, [reviewedItem])
     useEffect(() => {
         if (reviewItems?.length === 0 && is_dm_reviewed) {
             setCompleteReview(true)
-            onClose()
-        } else if (!deliveryManInfo && reviewItems?.length === 0) {
-            onClose()
         }
-    }, [reviewItems, is_dm_reviewed, deliveryManInfo])
+    }, [reviewItems, is_dm_reviewed])
 
     useEffect(() => {
         if (is_reviewed && completeReview && is_dm_reviewed) {
@@ -122,9 +148,11 @@ const RateAndReview = ({
                 {type === 'items' ? (
                     isFetching ? (
                         <Shimmer />
-                    ) : data?.data?.details?.length > 0 ? (
+                    ) : reviewItems?.length > 0 ? (
                         reviewItems?.map((item, index) => (
-                            <CustomPaperBigCard key={index}>
+                            <CustomPaperBigCard
+                                key={item?.food_id ?? item?.id ?? index}
+                            >
                                 <ItemForm
                                     data={item}
                                     id={id}
@@ -132,28 +160,25 @@ const RateAndReview = ({
                                     refetchOrderReview={refetchOrderReview}
                                     refetchTrackData={refetchTrackData}
                                     setReviewedItem={setReviewedItem}
-                                    refetch={refetch}
+                                    refetchOrderDetails={refetchOrderDetails}
                                 />
                             </CustomPaperBigCard>
                         ))
                     ) : (
-                        <Stack width="100%" justifyContent="center">
-                            <CustomEmptyResult label="No Food" />
-                        </Stack>
+                        <NothingToReview />
                     )
+                ) : !is_dm_reviewed && deliveryManInfo ? (
+                    <CustomPaperBigCard>
+                        <DeliverymanForm
+                            onClose={onClose}
+                            data={deliveryManInfo}
+                            orderId={id}
+                            refetchTrackData={refetchTrackData}
+                            refetchOrderDetails={refetchOrderDetails}
+                        />
+                    </CustomPaperBigCard>
                 ) : (
-                    <>
-                        {!is_dm_reviewed && deliveryManInfo && (
-                            <CustomPaperBigCard>
-                                <DeliverymanForm
-                                    onClose={onClose}
-                                    data={deliveryManInfo}
-                                    orderId={id}
-                                    refetchTrackData={refetchTrackData}
-                                />
-                            </CustomPaperBigCard>
-                        )}
-                    </>
+                    <NothingToReview />
                 )}
             </CustomStackFullWidth>
         </CustomStackFullWidth>

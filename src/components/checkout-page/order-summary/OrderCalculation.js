@@ -3,7 +3,6 @@ import { CouponApi } from '@/hooks/react-query/config/couponApi'
 import { setCouponAmount, setSubscriptionSubTotal, setTotalAmount } from '@/redux/slices/cart'
 import { setCouponType } from '@/redux/slices/global'
 import {
-    bad_weather_fees,
     getAmount,
     getCalculatedTotal,
     getCouponDiscount,
@@ -30,7 +29,6 @@ import PlaceOrder from './PlaceOrder'
 import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import Skeleton from '@mui/material/Skeleton'
 import { CustomTooltip } from '@/components/user-info/coupon/CustomCopyWithToolTip'
-import InfoIcon from '@mui/icons-material/Info'
 import { getToken } from '@/components/checkout-page/functions/getGuestUserId'
 
 
@@ -58,6 +56,7 @@ const OrderCalculation = (props) => {
         placeOrder,
         orderLoading,
         offlinePaymentLoading,
+        checkoutApisFetching,
         checked,
         offlineFormRef,
         page,
@@ -83,6 +82,18 @@ const OrderCalculation = (props) => {
         // the Delivery row already shows "Free", so an extra "(-) amount"
         // line would double-count visually.
         proOfferType = '',
+        // Normalized surge object from useGetSurgePrice ({ price,
+        // price_type, name }) or null when no surge window is active.
+        surgePrice = null,
+        // Selected coverage area's charge (number) when the zone's
+        // area/zip delivery rule is active, else null.
+        coverageDeliveryCharge = null,
+        // checkout-summary API objects — when present, `delivery` is the
+        // fee authority (surge already folded into delivery_charge) and
+        // `surge` carries the tooltip copy.
+        checkoutSummaryDelivery = null,
+        checkoutSummarySurge = null,
+        discountEligibility = null,
     } = props
     const dispatch = useDispatch()
     const { couponType, zoneData } = useSelector(
@@ -94,7 +105,19 @@ const OrderCalculation = (props) => {
     const { t } = useTranslation()
     const [freeDelivery, setFreeDelivery] = useState('false')
     const theme = useTheme()
-console.log({proSavedAmount});
+    const eligibilityDiscountAmount = discountEligibility?.is_qualified
+        ? Number(discountEligibility.discount_amount) || 0
+        : 0
+    const isEligibilityDiscount = eligibilityDiscountAmount > 0
+    const discountAmountToShow = isEligibilityDiscount
+        ? eligibilityDiscountAmount
+        : getProductDiscount(cartList)
+    const discountSourceText =
+        discountEligibility?.source === 'happy_hour'
+            ? t('Happy Hour discount')
+            : discountEligibility?.source === 'restaurant_discount'
+            ? t('Restaurant discount')
+            : ''
 
     let currencySymbol
     let currencySymbolDirection
@@ -117,10 +140,9 @@ console.log({proSavedAmount});
     // total product amount aftetr all discount
     const totalAmountForRefer = couponDiscount
         ? getSubTotalPrice(cartList) -
-          getProductDiscount(cartList, restaurantData) -
+          discountAmountToShow -
           getCouponDiscount(couponDiscount, restaurantData, cartList)
-        : getSubTotalPrice(cartList) -
-          getProductDiscount(cartList, restaurantData)
+        : getSubTotalPrice(cartList) - discountAmountToShow
 
 
     const referDiscount = getReferDiscount(
@@ -134,6 +156,50 @@ console.log({proSavedAmount});
             ? Number(selectedDeliveryOption?.surcharge) || 0
             : 0
 
+    const rawDeliveryFee = getDeliveryFees(
+        restaurantData,
+        global,
+        cartList,
+        distanceData,
+        couponDiscount,
+        couponType,
+        orderType,
+        zoneData,
+        origin,
+        destination,
+        tempExtraCharge
+    )
+    // checkout-summary is the delivery-fee authority when present — its
+    // delivery_charge already folds the surge in. The coverage/surge math
+    // below stays only as the fallback for backends without the endpoint.
+    const summaryFeeActive =
+        checkoutSummaryDelivery != null && orderType === 'delivery'
+    // Area/zip delivery rule (fallback path): the selected area's charge
+    // replaces the distance-based fee. Only while a fee is actually payable
+    // (rawDeliveryFee > 0), so every existing free-delivery path
+    // (coupon / restaurant / Pro) stays free.
+    const coverageOverrideActive =
+        !summaryFeeActive &&
+        coverageDeliveryCharge != null &&
+        orderType === 'delivery' &&
+        rawDeliveryFee > 0
+    const baseDeliveryFee = summaryFeeActive
+        ? Number(checkoutSummaryDelivery?.delivery_charge) || 0
+        : coverageOverrideActive
+          ? Number(coverageDeliveryCharge) || 0
+          : rawDeliveryFee
+    // Client-side surge only on the fallback path — the summary's charge
+    // already contains surge_amount. Percentage surges scale the pre-surge
+    // fee; anything else is a flat amount.
+    const surgeAmount =
+        !summaryFeeActive &&
+        orderType === 'delivery' &&
+        baseDeliveryFee > 0 &&
+        surgePrice
+            ? surgePrice?.price_type === 'percentage'
+                ? (baseDeliveryFee * (Number(surgePrice?.price) || 0)) / 100
+                : Number(surgePrice?.price) || 0
+            : 0
     const baseTotalPrice = getCalculatedTotal(
         cartList,
         couponDiscount,
@@ -151,27 +217,43 @@ console.log({proSavedAmount});
         global?.additional_charge_status != 0 ? additionalCharge : 0,
         extraPackagingCharge,
         referDiscount,
-        taxData?.tax_status === 'excluded' ? taxData?.tax_amount : 0
-
+        taxData?.tax_status === 'excluded' ? taxData?.tax_amount : 0,
+        discountAmountToShow,
+        baseDeliveryFee
     )
-    const totalPrice = baseTotalPrice + (couponDiscount?.coupon_type === 'free_delivery' ? 0 : deliveryOptionSurcharge)
+    const totalPrice =
+        baseTotalPrice +
+        (couponDiscount?.coupon_type === 'free_delivery'
+            ? 0
+            : deliveryOptionSurcharge + surgeAmount)
+    // The summary's `delivery_charge` is ALREADY net of the Pro saving
+    // (original_delivery_charge - pro_customer_savings), and `totalPrice` above
+    // is built from that net fee. So the benefit is surfaced here, on the fee
+    // row, and must never also become a deducting "(-) Pro" savings row — that
+    // would subtract a discount the fee has already had, undercharging the
+    // order by the saving a second time.
+    const proDeliverySavings = summaryFeeActive
+        ? Number(checkoutSummaryDelivery?.pro_customer_savings) || 0
+        : 0
+    const originalDeliveryCharge = summaryFeeActive
+        ? Number(checkoutSummaryDelivery?.original_delivery_charge) || 0
+        : 0
+    // Only claim a Pro reduction when the summary actually shows one: a saving
+    // recorded AND an original above what is being charged.
+    const showProDeliveryDiscount =
+        proDeliverySavings > 0 && originalDeliveryCharge > baseDeliveryFee
+    const proDeliveryDiscountTooltip = t(
+        'Your Pro membership reduced this delivery fee.'
+    )
+
     const handleDeliveryFee = () => {
-        let price = getDeliveryFees(
-            restaurantData,
-            global,
-            cartList,
-            distanceData,
-            couponDiscount,
-            couponType,
-            orderType,
-            zoneData,
-            origin,
-            destination,
-            tempExtraCharge
-        )
-        console.log({price});
-        
-        if (price === 0) {
+        let price = baseDeliveryFee + surgeAmount
+        // A Pro reduction states the fee at its full amount here and deducts
+        // the saving on its own row below, so the rows still sum to the total.
+        // That holds even when the reduction takes the fee to zero — showing
+        // "Free" there would leave the deduction row with nothing to subtract
+        // from and the breakdown would no longer add up.
+        if (price === 0 && !showProDeliveryDiscount) {
             return <Typography variant="h4">{t('Free')}</Typography>
         } else {
             return (
@@ -186,7 +268,9 @@ console.log({proSavedAmount});
                     <Typography variant="h4">
                         {restaurantData &&
                             getAmount(
-                                price,
+                                showProDeliveryDiscount
+                                    ? originalDeliveryCharge
+                                    : price,
                                 currencySymbolDirection,
                                 currencySymbol,
                                 digitAfterDecimalPoint
@@ -196,8 +280,31 @@ console.log({proSavedAmount});
             )
         }
     }
-    console.log({proSavedAmount});
-    
+
+    const isFullFreeDelivery =
+        proBenefitType === 'delivery_fee' && proOfferType === 'full_free'
+    // A Pro delivery-fee discount makes no sense when the fee row already
+    // reads "Free" (zone/restaurant free delivery or a free-delivery
+    // coupon) — neither the savings row nor the deduction may apply, or the
+    // total would silently drop for a fee that was never charged.
+    const deliveryFeeIsFree =
+        couponDiscount?.coupon_type === 'free_delivery' ||
+        baseDeliveryFee + surgeAmount <= 0
+    // The summary nets the Pro saving into `delivery_charge` before sending it,
+    // and `totalPrice` is built from that net fee — so on a delivery benefit the
+    // saving is ALREADY deducted and must not come off the total a second time.
+    // It is surfaced on the Delivery Fee Discount row instead. A cart `discount`
+    // benefit is the opposite case: the client totals the cart itself, nothing
+    // has been applied, and the deduction below is what makes it real.
+    const proSavingAlreadyInFee = summaryFeeActive && proDeliverySavings > 0
+    const effectiveProSavedAmount =
+        proSavingAlreadyInFee ||
+        (proBenefitType === 'delivery_fee' &&
+            !isFullFreeDelivery &&
+            deliveryFeeIsFree)
+            ? 0
+            : Number(proSavedAmount) || 0
+
     const handleOrderAmount = () => {
         let totalAmount = 0
         if (subscriptionOrderCount > 0) {
@@ -207,7 +314,7 @@ console.log({proSavedAmount});
         } else {
             totalAmount = totalPrice
         }
-        const proDiscount = Number(proSavedAmount) || 0
+        const proDiscount = effectiveProSavedAmount
         const totalAfterPro = Math.max(0, totalAmount - proDiscount)
 
         dispatch(setTotalAmount(totalAfterPro))
@@ -221,15 +328,28 @@ console.log({proSavedAmount});
         )
     }
 
+    // Mirrors handleOrderAmount()'s arithmetic (without the setTotalAmount
+    // dispatch) so the mobile sticky bar can show the same payable/original
+    // amounts without re-triggering that side effect.
+    const originalAmountRaw =
+        subscriptionOrderCount > 0
+            ? truncate(totalPrice.toString(), digitAfterDecimalPoint) *
+              subscriptionOrderCount
+            : totalPrice
+    const payableAmountRaw = (() => {
+        const totalAfterPro = Math.max(
+            0,
+            originalAmountRaw - effectiveProSavedAmount
+        )
+        return userData?.is_valid_for_discount
+            ? totalAfterPro - referDiscount
+            : totalAfterPro
+    })()
+
     const proSavedAmountNumber = Number(proSavedAmount) || 0
-    console.log({proSavedAmountNumber,proSavedLabel});
-    
-    const isFullFreeDelivery =
-        proBenefitType === 'delivery_fee' && proOfferType === 'full_free'
-        console.log({isFullFreeDelivery});
-        
+
     const renderProSavingsRow = () =>
-        proSavedAmountNumber > 0 && !isFullFreeDelivery ? (
+        effectiveProSavedAmount > 0 && !isFullFreeDelivery ? (
             <>
                 <Grid item md={8} xs={8}>
                     {proSavedLabel || t('Pro User Discount')}
@@ -257,7 +377,7 @@ console.log({proSavedAmount});
         ) : null
 
     const handleOrderAmountWithoutSubscription = () => {
-        const proDiscount = Number(proSavedAmount) || 0
+        const proDiscount = effectiveProSavedAmount
         return getAmount(
             Math.max(0, totalPrice - proDiscount),
             currencySymbolDirection,
@@ -276,27 +396,56 @@ console.log({proSavedAmount});
     const totalAmountAfterPartial = totalPrice - walletBalance
 
     const vat = t('VAT/TAX')
-    const extraText = t('This charge includes extra vehicle charge')
-    const badText = t('and bad weather charge')
-    const deliveryToolTipsText = `${extraText} ${getAmount(
-        tempExtraCharge,
-        currencySymbolDirection,
-        currencySymbol,
-        digitAfterDecimalPoint
-    )}${
-        bad_weather_fees !== 0
-            ? ` ${badText} ${getAmount(
-                  bad_weather_fees,
-                  currencySymbolDirection,
-                  currencySymbol,
-                  digitAfterDecimalPoint
-              )}`
-            : ''
-    }`
+    // Tooltip is informational only: it shows when there is actually
+    // something folded into the fee to explain (extra vehicle charge and/or
+    // surge), and never on a free delivery. Surge shows its amount and the
+    // admin's customer note — never the internal surge title.
+    const tooltipSurgeAmount = summaryFeeActive
+        ? Number(checkoutSummaryDelivery?.surge_amount) || 0
+        : surgeAmount
+    const tooltipSurgeNote =
+        summaryFeeActive && checkoutSummarySurge?.customer_note
+            ? checkoutSummarySurge.customer_note
+            : null
+    const deliveryTooltipParts = []
+    if (Number(tempExtraCharge) > 0) {
+        deliveryTooltipParts.push(
+            `${t('This charge includes extra vehicle charge')} ${getAmount(
+                tempExtraCharge,
+                currencySymbolDirection,
+                currencySymbol,
+                digitAfterDecimalPoint
+            )}`
+        )
+    }
+    if (tooltipSurgeAmount > 0) {
+        deliveryTooltipParts.push(
+            `${
+                deliveryTooltipParts.length > 0
+                    ? t('and surge charge')
+                    : t('Surge charge')
+            } ${getAmount(
+                tooltipSurgeAmount,
+                currencySymbolDirection,
+                currencySymbol,
+                digitAfterDecimalPoint
+            )}${tooltipSurgeNote ? ` — ${tooltipSurgeNote}` : ''}`
+        )
+    }
+    const deliveryToolTipsText = deliveryTooltipParts.join(' ')
+    const showDeliveryFeeTooltip =
+        deliveryTooltipParts.length > 0 &&
+        baseDeliveryFee + surgeAmount > 0 &&
+        couponDiscount?.coupon_type !== 'free_delivery' &&
+        !(
+            isFullFreeDelivery &&
+            proSavedAmountNumber > 0 &&
+            baseDeliveryFee + surgeAmount <= 0
+        )
 
     return (
         <>
-            <CalculationGrid container md={12} xs={12} spacing={1}>
+            <CalculationGrid id="order-calculation-card" container md={12} xs={12} spacing={1}>
                 <Grid item md={8} xs={8}>
                     {subscriptionOrderCount > 0 ? (
                         <>
@@ -337,7 +486,34 @@ console.log({proSavedAmount});
                     </Typography>
                 </Grid>
                 <Grid item md={8} xs={8}>
-                    {t('Discount')}
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={0.5}
+                    >
+                        <Typography component="span">
+                            {t('Discount')}
+                        </Typography>
+                        {isEligibilityDiscount && discountSourceText && (
+                            <Tooltip
+                                title={discountSourceText}
+                                placement="top"
+                                arrow
+                            >
+                                <Box
+                                    component="i"
+                                    className="fi fi-br-info"
+                                    sx={{
+                                        fontSize: '14px',
+                                        lineHeight: 1,
+                                        display: 'flex',
+                                        color: 'text.primary',
+                                        cursor: 'pointer',
+                                    }}
+                                />
+                            </Tooltip>
+                        )}
+                    </Stack>
                 </Grid>
                 <Grid item md={4} xs={4} align="right">
                     <Stack
@@ -351,10 +527,7 @@ console.log({proSavedAmount});
                         <Typography variant="h4">
                             {restaurantData &&
                                 getAmount(
-                                    getProductDiscount(
-                                        cartList,
-                                        restaurantData
-                                    ),
+                                    discountAmountToShow,
                                     currencySymbolDirection,
                                     currencySymbol,
                                     digitAfterDecimalPoint
@@ -549,37 +722,58 @@ console.log({proSavedAmount});
                 {orderType !== 'dine_in' && orderType !== 'take_away' && (
                     <>
                         <Grid item md={8} xs={8}>
-                            <Typography
-                                component="span"
-                                align="center"
-                                color={theme.palette.neutral[1000]}
-                                fontSize="15px"
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={0.5}
                             >
-                                {t('Delivery fee')}
-                                {Number.parseInt(
-                                    restaurantData?.data?.self_delivery_system
-                                ) !== 1 && (
-                                    <Typography component="span">
-                                        <Tooltip
-                                            title={deliveryToolTipsText}
-                                            placement="top"
-                                            arrow
-                                        >
-                                            {' '}
-                                            <InfoIcon
-                                                sx={{ fontSize: '11px' }}
-                                            />
-                                        </Tooltip>
-                                    </Typography>
+                                <Typography
+                                    component="span"
+                                    align="center"
+                                    color={theme.palette.neutral[1000]}
+                                    fontSize="15px"
+                                >
+                                    {t('Delivery fee')}
+                                </Typography>
+                                {showDeliveryFeeTooltip &&
+                                    Number.parseInt(
+                                        restaurantData?.data
+                                            ?.self_delivery_system
+                                    ) !== 1 && (
+                                    <Tooltip
+                                        title={deliveryToolTipsText}
+                                        placement="top"
+                                        arrow
+                                    >
+                                        <Box
+                                            component="i"
+                                            className="fi fi-br-info"
+                                            sx={{
+                                                fontSize: '14px',
+                                                lineHeight: 1,
+                                                display: 'flex',
+                                                color: theme.palette
+                                                    .neutral[1000],
+                                                cursor: 'pointer',
+                                            }}
+                                        />
+                                    </Tooltip>
                                 )}
-                            </Typography>
+                            </Stack>
                         </Grid>
                         <Grid item md={4} xs={4} align="right">
                             {!distanceLoading ? (
                                 <>
                                     {orderType === 'delivery' ? (
                                         isFullFreeDelivery &&
-                                        proSavedAmountNumber > 0 ? (
+                                        proSavedAmountNumber > 0 &&
+                                        // `isFullFreeDelivery` comes from the
+                                        // pro-active-offer API, which can
+                                        // disagree with the summary. Never
+                                        // print "Free" over a fee the summary
+                                        // says is payable.
+                                        !showProDeliveryDiscount &&
+                                        baseDeliveryFee + surgeAmount <= 0 ? (
                                             // Pro "full_free" delivery is
                                             // active and applied — surface it
                                             // here so the user sees the benefit
@@ -633,10 +827,71 @@ console.log({proSavedAmount});
                     </>
                 )}
 
-                {(proBenefitType === 'delivery_fee' ||
-                    (proBenefitType !== 'discount' &&
-                        proBenefitType !== 'coupon')) &&
+                {/* Never alongside the dedicated Delivery Fee Discount row
+                    below: that row deducts a saving the summary's
+                    `delivery_charge` has already applied, whereas this one also
+                    subtracts from the total. Showing both would list the
+                    discount twice and undercharge the order. */}
+                {!showProDeliveryDiscount &&
+                    (proBenefitType === 'delivery_fee' ||
+                        (proBenefitType !== 'discount' &&
+                            proBenefitType !== 'coupon')) &&
                     renderProSavingsRow()}
+
+                {showProDeliveryDiscount && (
+                    <>
+                        <Grid item md={8} xs={8}>
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={0.5}
+                            >
+                                <Typography
+                                    component="span"
+                                    color={theme.palette.neutral[1000]}
+                                    fontSize="15px"
+                                >
+                                    {t('Delivery Fee Discount')} ({t('pro')})
+                                </Typography>
+                                <Tooltip
+                                    title={proDeliveryDiscountTooltip}
+                                    placement="top"
+                                    arrow
+                                >
+                                    <Box
+                                        component="i"
+                                        className="fi fi-br-info"
+                                        sx={{
+                                            fontSize: '14px',
+                                            lineHeight: 1,
+                                            display: 'flex',
+                                            color: theme.palette.neutral[1000],
+                                            cursor: 'pointer',
+                                        }}
+                                    />
+                                </Tooltip>
+                            </Stack>
+                        </Grid>
+                        <Grid item md={4} xs={4} align="right">
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                justifyContent="flex-end"
+                                spacing={0.5}
+                            >
+                                <Typography variant="h4">{'(-)'}</Typography>
+                                <Typography variant="h4">
+                                    {getAmount(
+                                        proDeliverySavings,
+                                        currencySymbolDirection,
+                                        currencySymbol,
+                                        digitAfterDecimalPoint
+                                    )}
+                                </Typography>
+                            </Stack>
+                        </Grid>
+                    </>
+                )}
 
                 {selectedDeliveryOption &&
                     selectedDeliveryOption.deliveryType !== 'standard' &&
@@ -731,7 +986,13 @@ console.log({proSavedAmount});
                     </>
                 )}
 
-                <TotalGrid container md={12} xs={12} mt="1rem">
+                <TotalGrid
+                    container
+                    md={12}
+                    xs={12}
+                    mt="1rem"
+                    sx={{ display: { xs: 'flex', sm: 'none' } }}
+                >
                     <Grid item md={8} xs={8} pl=".5rem">
                         <Typography color={theme.palette.primary.main}>
                             {t('Total')}
@@ -855,10 +1116,25 @@ console.log({proSavedAmount});
                         orderLoading={orderLoading}
                         checked={checked}
                         offlinePaymentLoading={offlinePaymentLoading}
+                        checkoutApisFetching={checkoutApisFetching}
                         offlineFormRef={offlineFormRef}
                         page={page}
                         paymentMethodDetails={paymentMethodDetails}
                         distanceLoading={distanceLoading}
+                        restaurantReady={Boolean(restaurantData?.data)}
+                        payableAmount={
+                            restaurantData && cartList && !distanceLoading
+                                ? payableAmountRaw
+                                : null
+                        }
+                        originalAmount={
+                            originalAmountRaw > payableAmountRaw
+                                ? originalAmountRaw
+                                : null
+                        }
+                        currencySymbol={currencySymbol}
+                        currencySymbolDirection={currencySymbolDirection}
+                        digitAfterDecimalPoint={digitAfterDecimalPoint}
                     />
                 </Grid>
             </CalculationGrid>

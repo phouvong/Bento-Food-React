@@ -114,9 +114,6 @@ const MapWithSearch = ({
         successHandler
     )
 
-console.log({locationAddress});
-
-
     return (
         <CustomStackFullWidth spacing={1} gap="12px">
             {!searchBoxInside && (

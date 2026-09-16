@@ -323,7 +323,14 @@ const ChoosePlanContent: React.FC<ChoosePlanContentProps> = ({
 
     const heading = !hideHeading && (
         <Stack alignItems="center" spacing={0.5}>
-            <Typography fontSize="20px" fontWeight={700} textAlign="center">
+            <Typography
+                fontSize="20px"
+                fontWeight={700}
+                textAlign="center"
+                // Explicit theme color — an unset color inherits a dark tone
+                // inside the modal portal and vanishes in dark mode.
+                color="text.primary"
+            >
                 {t('Choose Your Plan')}
             </Typography>
             <Typography
@@ -865,6 +872,7 @@ const ChoosePlanContent: React.FC<ChoosePlanContentProps> = ({
             <Divider />
             <Typography
                 textAlign="center"
+                color="text.primary"
                 sx={{ textDecoration: 'underline', cursor: 'pointer' }}
                 onClick={() => setTermsOpen(true)}
             >

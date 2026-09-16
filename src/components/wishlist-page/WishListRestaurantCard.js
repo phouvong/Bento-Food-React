@@ -25,7 +25,6 @@ import WishListImage from '../../assets/images/WishListImage'
 import CustomPopoverWithItem from '../custom-popover/CustomPopoverWithItem'
 import DeleteIcon from '../../assets/images/icons/DeleteIcon'
 import {
-    DistanceCalculate,
     handleRestaurantRedirect,
     restaurantDiscountTag,
 } from '@/utils/customFunctions'
@@ -50,7 +49,7 @@ const WishListRestaurantCard = ({ restaurant, deleteWishlistRes }) => {
         characteristics,
         cuisine,
         delivery_time,
-        distance,
+        distance_label,
         free_delivery,
         active,
         open,
@@ -296,14 +295,14 @@ const WishListRestaurantCard = ({ restaurant, deleteWishlistRes }) => {
                                 <span>{delivery_time}</span>
                             </Stack>
                         )}
-                        {distance !== undefined && distance !== null && (
+                        {distance_label && (
                             <Stack
                                 direction="row"
                                 alignItems="center"
                                 spacing={0.4}
                             >
                                 <LocationOnOutlinedIcon />
-                                <DistanceCalculate distance={distance} />
+                                <span>{distance_label}</span>
                             </Stack>
                         )}
                     </Stack>

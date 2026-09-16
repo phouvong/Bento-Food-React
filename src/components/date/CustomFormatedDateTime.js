@@ -1,11 +1,9 @@
-import { useSelector } from 'react-redux'
 import moment from 'moment/moment'
+import { store } from '@/redux/store'
 
 const CustomFormatedDateTime = ({ date }) => {
-    const { global } = useSelector((state) => state.globalSettings)
+    const global = store.getState()?.globalSettings?.global
     let timeFormat = global?.timeformat
-
-
 
     if (timeFormat === '12') {
         return moment(date).format('ll hh:mm a')

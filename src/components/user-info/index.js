@@ -3,56 +3,43 @@ import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { Grid, useMediaQuery, useTheme } from '@mui/material'
 import ProfileSideMenu from './ProfileSideMenu'
 import ProfileBody from './ProfileBody'
-import SideDRawerForProfile from './SideDrawer'
 import 'simplebar-react/dist/simplebar.min.css'
-import { getToken } from '../checkout-page/functions/getGuestUserId'
 
-const UserInfo = ({ page, orderId, setAttributeId }) => {
+const UserInfo = ({ page, orderId, setAttributeId, isAuthenticated }) => {
     const theme = useTheme()
-    const token = getToken()
     const isXs = useMediaQuery(theme.breakpoints.down('sm'))
 
     return (
-        <CustomStackFullWidth sx={{ paddingTop: { xs: 0, md: '66px' } }}>
+        <CustomStackFullWidth sx={{ paddingTop: { xs: '15px', md: '24px' } }}>
             <Grid container spacing={2}>
-                <Grid
-                    container
-                    item
-                    sx={{
-                        display: { sm: 'block', md: 'none' },
-                        zIndex: 1155,
-                    }}
-                    alignItems="center"
-                >
-                    <SideDRawerForProfile
-                        page={page}
-                        setAttributeId={setAttributeId}
-                    />
-                </Grid>
                 <Grid
                     item
                     xs={0}
                     sm={0}
-                    md={token ? 3 : 0}
+                    md={3}
                     sx={{
                         display: { xs: 'none', md: 'block' },
-                        paddingTop: '2px',
                     }}
                     mb={isXs ? '20px' : '20px'}
                 >
                     <ProfileSideMenu
                         page={page}
                         setAttributeId={setAttributeId}
+                        isAuthenticated={isAuthenticated}
                     />
                 </Grid>
                 <Grid
                     item
                     xs={12}
                     sm={12}
-                    md={token ? 9 : 12}
+                    md={9}
                     mb={isXs ? '20px' : '20px'}
                 >
-                    <ProfileBody page={page} orderId={orderId} />
+                    <ProfileBody
+                        page={page}
+                        orderId={orderId}
+                        isAuthenticated={isAuthenticated}
+                    />
                 </Grid>
             </Grid>
         </CustomStackFullWidth>

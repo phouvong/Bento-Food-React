@@ -1,12 +1,12 @@
 import React from 'react'
 import { useTheme } from '@emotion/react'
 
-const PartialSvg = () => {
+const PartialSvg = ({ size = 20 }) => {
     const theme = useTheme()
     return (
         <svg
-            width="20"
-            height="20"
+            width={size}
+            height={size}
             viewBox="0 0 30 30"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"

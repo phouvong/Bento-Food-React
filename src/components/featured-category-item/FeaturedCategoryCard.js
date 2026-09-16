@@ -16,6 +16,7 @@ const FeaturedCategoryCard = ({
     id,
     categoryIsSticky,
     slug,
+    type,
 }) => {
     const theme = useTheme()
     const router = useRouter()
@@ -47,6 +48,14 @@ const FeaturedCategoryCard = ({
             draggedRef.current = false
             return
         }
+        if (type === 'cuisine') {
+            Router.push(
+                { pathname: `/cuisines/${slug || id}` },
+                undefined,
+                { shallow: true }
+            )
+            return
+        }
         Router.push(
             {
                 pathname: `/category/${slug || id}`,
@@ -70,14 +79,7 @@ const FeaturedCategoryCard = ({
             sx={{
                 overflow: 'hidden',
                 cursor: 'pointer',
-                '&:hover .cat-ring': {
-                    transform: 'translateY(-3px)',
-                    boxShadow: '0 12px 24px rgba(15,23,42,.12)',
-                },
-                '&:hover .cat-label': {
-                    color: (theme) => theme.palette.primary.main,
-                    fontWeight: 600,
-                },
+                width: { xs: '72px', md: '102px' },
             }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -86,27 +88,23 @@ const FeaturedCategoryCard = ({
             <FeatureImageBox
                 justifyContent="center"
                 alignItems="center"
-                spacing={{ xs: 0.75, md: 1 }}
+                spacing={{ xs: 1, md: 1.5 }}
                 sx={{ borderRadius: '50%' }}
             >
                 <Box
                     className="cat-ring"
                     sx={{
-                        height: { xs: '60px', md: '86px' },
-                        width: { xs: '60px', md: '86px' },
+                        height: { xs: '56px', md: '86px' },
+                        width: { xs: '56px', md: '86px' },
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        border: (theme) => `3px solid ${theme.palette.neutral[100]}`,
-                        borderColor: (theme) => theme.palette.neutral[100],
-                        backgroundColor: '#FFF4EC',
+                        border: (theme) =>
+                            `2px solid ${theme.palette.background.paper}`,
+                        backgroundColor: (theme) => theme.palette.neutral[200],
                         borderRadius: '50%',
                         padding: 0,
                         overflow: 'hidden',
-                        transition:
-                            'border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease',
-                        willChange: 'transform, box-shadow',
-                        boxShadow: '0 8px 18px rgba(15,23,42,.08)',
                     }}
                 >
                     <Box
@@ -116,7 +114,7 @@ const FeaturedCategoryCard = ({
                             borderRadius: '50%',
                             overflow: 'hidden',
                             backgroundColor: (theme) =>
-                                theme.palette.neutral[100],
+                                theme.palette.neutral[200],
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -135,19 +133,20 @@ const FeaturedCategoryCard = ({
                 <Typography
                     className="cat-label"
                     sx={{
-                        color: (theme) => theme.palette.neutral[1000],
+                        color: (theme) => theme.palette.text.secondary,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         display: '-webkit-box',
                         WebkitLineClamp: '1',
                         WebkitBoxOrient: 'vertical',
-                        transition: 'color 0.2s ease, font-weight 0.2s ease',
                         textTransform: 'capitalize',
                         textAlign: 'center',
-                        maxWidth: { xs: '70px', md: '100px' },
+                        letterSpacing: '-0.48px',
+                        maxWidth: { xs: '72px', md: '102px' },
                     }}
-                    fontSize={{ xs: '12px', sm: '12.5px', md: '12.5px' }}
-                    fontWeight={700}
+                    fontSize={{ xs: '12px', md: '16px' }}
+                    fontWeight={500}
+                    lineHeight={1.1}
                     component="h3"
                 >
                     {name}

@@ -3,7 +3,7 @@ import CustomShimmerCategories from '../CustomShimmer/CustomShimmerCategories'
 import { Grid } from '@mui/material'
 import { SliderCustom } from '@/styled-components/CustomStyles.style'
 import { t } from 'i18next'
-import Slider from 'react-slick'
+import Slider from '@/components/slider/SlickToSwiper'
 import { useRouter } from 'next/router'
 import { useRecentlyViewRestaurants } from '@/hooks/react-query/recently-view-restaurants/useRecentlyViewRestaurants'
 import RestaurantBoxCard from '../restaurant-details/RestaurantBoxCard'
@@ -48,6 +48,7 @@ const RecentlyViewRestaurants = () => {
                             <SliderCustom gap="16px">
                                 <Slider
                                     {...recentlySettings}
+                                    gap="16px"
                                     arrows={false}
                                     ref={sliderRef}
                                     className="slick__slider"

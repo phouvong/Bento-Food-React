@@ -9,7 +9,7 @@ import { t } from 'i18next'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-const CashBackPopup = () => {
+const CashBackPopup = ({ mobileBottom = 83 }) => {
     const [open, setOpen] = useState(false)
     const [scrolling, setScrolling] = useState(false)
     const theme = useTheme()
@@ -50,6 +50,7 @@ const CashBackPopup = () => {
                     onClick={() => setOpen(!open)}
                     open={open}
                     scrolling={scrolling}
+                    mobileBottom={mobileBottom}
                 >
                     <img
                         src="/static/cash-back.svg"
@@ -77,7 +78,7 @@ const CashBackPopup = () => {
                     }}
                     onClick={() => setOpen(false)}
                 />
-                <CustomPopupBox>
+                <CustomPopupBox mobileBottom={mobileBottom}>
                     <Collapse in={open}>
                         <Box position="relative">
                             <Stack gap="10px">
@@ -155,7 +156,9 @@ const CashBackPopup = () => {
     return <></>
 }
 
-const CustomPopupButtonBox = styled(Box)(({ open, theme, scrolling }) => ({
+const CustomPopupButtonBox = styled(Box, {
+    shouldForwardProp: (prop) => prop !== 'mobileBottom',
+})(({ open, theme, scrolling, mobileBottom }) => ({
     position: 'fixed',
     cursor: 'pointer',
     display: 'flex',
@@ -168,7 +171,7 @@ const CustomPopupButtonBox = styled(Box)(({ open, theme, scrolling }) => ({
         bottom: '73px',
     },
     [theme.breakpoints.down('sm')]: {
-        bottom: '83px',
+        bottom: `${mobileBottom}px`,
         img: {
             width: '50px',
             height: '50px',
@@ -176,7 +179,9 @@ const CustomPopupButtonBox = styled(Box)(({ open, theme, scrolling }) => ({
     },
 }))
 
-const CustomPopupBox = styled(Box)(({ theme }) => ({
+const CustomPopupBox = styled(Box, {
+    shouldForwardProp: (prop) => prop !== 'mobileBottom',
+})(({ theme, mobileBottom }) => ({
     position: 'fixed',
     bottom: '130px',
     insetInlineEnd: '23px',
@@ -210,7 +215,7 @@ const CustomPopupBox = styled(Box)(({ theme }) => ({
         bottom: '130px',
     },
     [theme.breakpoints.down('sm')]: {
-        bottom: '110px',
+        bottom: `${mobileBottom + 27}px`,
         maxHeight: 'calc(100dvh - 170px)',
     },
 }))

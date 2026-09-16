@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { Grid, useTheme, useMediaQuery, Stack, Typography, IconButton } from '@mui/material'
 import { useQuery } from 'react-query'
 
-import wallet from '../../../../public/static/profile/wallate.png'
-import wishlist from '../../../../public/static/profile/wishlist.png'
-import order from '../../../../public/static/profile/image 38 (2).png'
-import lotaly from '../../../../public/static/profile/point.png'
+import {
+    WalletIcon,
+    WishlistIcon,
+    OrderIcon,
+    LoyaltyPointIcon,
+} from './ProfileStatIcon'
 import CustomShimmerForProfile from '../../customShimmerForProfile/customShimmerForProfile'
 import ProfileStatistics from './ProfileStatistics'
 import { ProfileApi } from "@/hooks/react-query/config/profileApi"
@@ -25,16 +27,13 @@ import MyAddresses from './MyAddresses'
 import EditProfile from './EditProfile'
 import Meta from '../../Meta'
 import { removeToken } from "@/redux/slices/userToken"
-import { PrimaryButton } from '../../products-page/FoodOrRestaurant'
-import EditSvg from './EditSvg'
+import { clearWishList } from "@/redux/slices/wishList"
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import UserIcon from '../../../assets/images/icons/UserIcon'
 import DeleteAccount from './DeleteAccount'
 import MoreDotIcon from '../../../assets/images/icons/MoreDotIcon'
 import CustomPopover from '../../custom-popover/CustomPopover'
-import Slider from 'react-slick'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
+import Slider from '@/components/slider/SlickToSwiper'
 import { setEditProfile } from "@/redux/slices/editProfile"
 
 const ProfilePage = () => {
@@ -86,6 +85,7 @@ const ProfilePage = () => {
     const onSuccessHandlerForUserDelete = async (res) => {
         localStorage.removeItem('token')
         dispatch(removeToken())
+        dispatch(clearWishList([]))
         toast.success('Account has been deleted')
         handleCloseAuthModal()
         handleOpenAuthModal()
@@ -219,18 +219,18 @@ const ProfilePage = () => {
                             languageDirection={languageDirection}
                             gap="0"
                         >
-                            <Slider {...settings}>
+                            <Slider {...settings} gap="16px">
                                 <ProfileStatistics
                                     value={userData?.order_count}
                                     title="Orders"
-                                    image={order.src}
+                                    icon={OrderIcon}
                                     pathname="order"
                                 />
                                 {global?.customer_wallet_status !== 0 && (
                                     <ProfileStatistics
                                         value={addCurrencySymbol}
                                         title="Amount in Wallet"
-                                        image={wallet.src}
+                                        icon={WalletIcon}
                                         pathname="wallets"
                                     />
                                 )}
@@ -238,22 +238,23 @@ const ProfilePage = () => {
                                     <ProfileStatistics
                                         value={userData?.loyalty_point}
                                         title="Loyalty Points"
-                                        image={lotaly.src}
+                                        icon={LoyaltyPointIcon}
                                         pathname="loyalty"
                                     />
                                 )}
                                 <ProfileStatistics
                                     value={wishLists?.food?.length}
                                     title="Products in wishlist"
-                                    image={wishlist.src}
+                                    icon={WishlistIcon}
                                     pathname="wishlist"
                                 />
                             </Slider>
                         </SliderCustom>
                     }
-                    <Stack gap={isEditProfile ? 0 : "15px"} paddingInline={{ xs: "0", sm: "2px 10px" }} >
+                    <Stack gap={isEditProfile ? 0 : "15px"}>
                         <CustomPaperBigCard
                             padding={isSmall ? "8px 10px" : "20px 25px"}
+                            noboxshadow="true"
                             sx={{
                                 minHeight: isEditProfile ? (!isSmall ? '558px' : "450px") : 0,
                                 // Anchor for the mobile edit button so it can
@@ -288,7 +289,16 @@ const ProfilePage = () => {
                                     paddingBottom={isSmall ? "0" : "12px"}
                                 >
                                     {(!isSmall) &&
-                                        <Typography fontSize="16px" fontWeight="500" padding="0">
+                                        <Typography
+                                            fontSize="18px"
+                                            fontWeight="700"
+                                            padding="0"
+                                            color={theme.palette.text.primary}
+                                            sx={{
+                                                letterSpacing: '-0.54px',
+                                                lineHeight: 1.1,
+                                            }}
+                                        >
                                             {t('Personal Details')}
                                         </Typography>
                                     }
@@ -307,34 +317,48 @@ const ProfilePage = () => {
                                             </IconButton>
                                         </Stack>
                                     ) : (
-                                        <Stack>
-                                            <PrimaryButton
-                                                variant="outlined"
-                                                sx={{
-                                                    marginTop: isSmall ? '0px' : '-5px',
-                                                    borderRadius: '20px',
-                                                    minWidth: "0"
+                                        // Figma node 261:38739 — plain link-style
+                                        // button (no border/fill): pencil icon
+                                        // then label, in the theme's info color.
+                                        <Stack
+                                            direction="row"
+                                            alignItems="center"
+                                            gap="6px"
+                                            onClick={() =>
+                                                dispatch(setEditProfile(true))
+                                            }
+                                            sx={{
+                                                cursor: 'pointer',
+                                                marginTop: isSmall
+                                                    ? '0px'
+                                                    : '-5px',
+                                            }}
+                                        >
+                                            <i
+                                                className="fi fi-rr-pencil"
+                                                style={{
+                                                    fontSize: '16px',
+                                                    lineHeight: 1,
+                                                    color: theme.palette.text
+                                                        .info,
                                                 }}
-                                                padding={isSmall ? "5px" : "5px 10px"}
-                                                onClick={() => dispatch(setEditProfile(true))}
-                                            >
-                                                <Stack
-                                                    direction="row"
-                                                    spacing={0.5}
-                                                    color={theme.palette.neutral[1000]}
-                                                    alignItems="center"
+                                            />
+                                            {!isSmall && (
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: '16px',
+                                                        fontWeight: 500,
+                                                        letterSpacing:
+                                                            '-0.48px',
+                                                    }}
+                                                    color={
+                                                        theme.palette.text
+                                                            .info
+                                                    }
                                                 >
-                                                    {!isSmall && (
-                                                        <Typography
-                                                            fontSize="14px"
-                                                            fontWeight="400"
-                                                        >
-                                                            {t('Edit Profile')}
-                                                        </Typography>
-                                                    )}
-                                                    <EditSvg />
-                                                </Stack>
-                                            </PrimaryButton>
+                                                    {t('Edit Profile')}
+                                                </Typography>
+                                            )}
                                         </Stack>
                                     )}
                                 </CustomStackFullWidth>

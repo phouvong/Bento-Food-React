@@ -1,60 +1,45 @@
-import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined'
-import { Box, Popover, Stack, alpha, styled } from '@mui/material'
+import { Box, alpha, styled } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { t } from 'i18next'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { handleFilterData } from '../../category/helper'
-import RestaurantFilterCard from './RestaurantFilterCard'
 
 const TabBtn = styled('button', {
     shouldForwardProp: (p) => p !== 'isactive',
-})(({ theme, isactive }) => ({
-    border: `1px solid ${theme.palette.divider}`,
-    cursor: 'pointer',
-    padding: '8px 16px',
-    borderRadius: 999,
-    fontSize: 12.5,
-    fontWeight: 600,
-    whiteSpace: 'nowrap',
-    transition: 'all .15s ease',
-    backgroundColor:
-        isactive === 'true' ? theme.palette.text.primary : 'transparent',
-    color:
-        isactive === 'true'
-            ? theme.palette.background.paper
-            : theme.palette.text.secondary,
-    borderColor:
-        isactive === 'true'
-            ? theme.palette.text.primary
-            : theme.palette.divider,
-    '&:hover':
-        isactive === 'true'
-            ? {}
-            : {
-                  borderColor: theme.palette.primary.main,
-                  color: theme.palette.primary.main,
-              },
-}))
+})(({ theme, isactive }) => {
+    const active = isactive === 'true'
 
-const FilterBtn = styled('button')(({ theme }) => ({
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 6,
-    marginInlineStart: 'auto',
-    padding: '8px 16px',
-    borderRadius: 999,
-    border: 'none',
-    cursor: 'pointer',
-    backgroundColor: alpha(theme.palette.primary.main, 0.1),
-    color: theme.palette.primary.main,
-    fontWeight: 600,
-    fontSize: 12.5,
-    transition: 'all .15s ease',
-    '&:hover': {
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.primary.contrastText,
-    },
-}))
+    return {
+        border: 'none',
+        cursor: 'pointer',
+        padding: '8px 16px',
+        borderRadius: 999,
+        fontSize: 16,
+        fontWeight: 700,
+        letterSpacing: '-0.48px',
+        whiteSpace: 'nowrap',
+        transition: 'all .15s ease',
+        [theme.breakpoints.down('sm')]: {
+            padding: '7px 12px',
+            fontSize: 13,
+        },
+        ...(active
+            ? {
+                  backgroundColor: theme.palette.primary.main,
+                  color: theme.palette.primary.contrastText,
+              }
+            : {
+                  backgroundColor: theme.palette.neutral[1800],
+                  color: theme.palette.text.secondary,
+                  [theme.breakpoints.up('md')]: {
+                      backgroundColor: theme.palette.background.paper,
+                  },
+                  '&:hover': {
+                      color: theme.palette.primary.main,
+                  },
+              }),
+    }
+})
 
 const RestaurantTab = (props) => {
     const {
@@ -67,10 +52,7 @@ const RestaurantTab = (props) => {
         forFilter,
         scrollToSection5,
         checkedFilterKey,
-        setCheckedFilterKey,
     } = props
-    const [anchorEl, setAnchorEl] = useState(null)
-    const open = Boolean(anchorEl)
     const theme = useTheme()
     const scrollContainerRef = useRef(null)
     const activeTabRef = useRef(null)
@@ -90,9 +72,6 @@ const RestaurantTab = (props) => {
         })
     }, [filterType, mockData])
 
-    const handleDropClick = (event) => setAnchorEl(event.currentTarget)
-    const handleDropClose = () => setAnchorEl(null)
-
     useEffect(() => {
         if (forFilter) scrollToSection5()
         handleFilterData(
@@ -103,115 +82,65 @@ const RestaurantTab = (props) => {
         )
     }, [checkedFilterKey])
 
-    useEffect(() => {
-        if (!open) return
-
-        const handleScroll = () => {
-            handleDropClose()
-        }
-
-        window.addEventListener('scroll', handleScroll, { passive: true })
-        return () => {
-            window.removeEventListener('scroll', handleScroll)
-        }
-    }, [open])
-
-    const handleClearAll = () => handleDropClose()
-    const handleReset = () => {
-        const data = checkedFilterKey?.map((item) => ({
-            ...item,
-            isActive: false,
-        }))
-        setCheckedFilterKey(data)
-        handleDropClose()
-    }
-
     return (
-        <>
-            <Stack
-                direction="row"
-                alignItems="center"
-                gap={1}
-                sx={{ width: '100%', flexWrap: { xs: 'nowrap', md: 'wrap' } }}
+        <Box
+            sx={{
+                position: 'relative',
+                minWidth: 0,
+                // Mobile: fill the row so the tab strip can scroll horizontally.
+                // Desktop: shrink to content (never grow) so the parent's
+                // space-between can push the tabs to the row's end.
+                width: { xs: '100%', md: 'auto' },
+                flex: { xs: 1, md: '0 1 auto' },
+            }}
+        >
+            <Box
+                ref={scrollContainerRef}
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    overflowX: { xs: 'auto', md: 'visible' },
+                    flexWrap: { xs: 'nowrap', md: 'wrap' },
+                    pr: { xs: 2, md: 0 },
+                    scrollbarWidth: 'none',
+                    '&::-webkit-scrollbar': { display: 'none' },
+                    WebkitOverflowScrolling: 'touch',
+                    scrollBehavior: 'smooth',
+                }}
             >
-                <Box sx={{ position: 'relative', flex: 1, minWidth: 0 }}>
-                    <Box
-                        ref={scrollContainerRef}
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 1,
-                            overflowX: { xs: 'auto', md: 'visible' },
-                            flexWrap: { xs: 'nowrap', md: 'wrap' },
-                            scrollbarWidth: 'none',
-                            '&::-webkit-scrollbar': { display: 'none' },
-                            WebkitOverflowScrolling: 'touch',
-                            scrollBehavior: 'smooth',
-                        }}
-                    >
-                        {mockData?.map((item) => {
-                            const isActive = filterType === item.value
-                            return (
-                                <TabBtn
-                                    key={item?.id}
-                                    ref={isActive ? activeTabRef : undefined}
-                                    type="button"
-                                    isactive={isActive ? 'true' : 'false'}
-                                    onClick={(e) => handleChange(e, item.value)}
-                                    style={{ flexShrink: 0 }}
-                                >
-                                    {t(item?.category_name)}
-                                </TabBtn>
-                            )
-                        })}
-                    </Box>
-                    <Box
-                        sx={{
-                            display: { xs: 'block', md: 'none' },
-                            position: 'absolute',
-                            top: 0,
-                            bottom: 0,
-                            right: 0,
-                            width: '32px',
-                            pointerEvents: 'none',
-                            background: `linear-gradient(to right, ${alpha(
-                                theme.palette.background.default,
-                                0
-                            )}, ${theme.palette.background.default})`,
-                        }}
-                    />
-                </Box>
-                <FilterBtn
-                    type="button"
-                    onClick={handleDropClick}
-                    style={{ flexShrink: 0 }}
-                >
-                    <FilterAltOutlinedIcon sx={{ fontSize: 14 }} />
-                    {t('Filter')}
-                </FilterBtn>
-            </Stack>
-            <Popover
-                onClose={handleDropClose}
-                id="fade-button"
-                open={open}
-                anchorEl={anchorEl}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                disableScrollLock
-                sx={{ zIndex: 1400, top: '5px' }}
-            >
-                <RestaurantFilterCard
-                    handleReset={handleReset}
-                    homeRestaurant="true"
-                    checkboxData={checkedFilterKey}
-                    handleDropClose={handleDropClose}
-                    anchorEl={anchorEl}
-                    setFilterByData={setFilterByData}
-                    handleClearAll={handleClearAll}
-                    setCheckedFilterKey={setCheckedFilterKey}
-                />
-            </Popover>
-        </>
+                {mockData?.map((item) => {
+                    const isActive = filterType === item.value
+                    return (
+                        <TabBtn
+                            key={item?.id}
+                            ref={isActive ? activeTabRef : undefined}
+                            type="button"
+                            isactive={isActive ? 'true' : 'false'}
+                            onClick={(e) => handleChange(e, item.value)}
+                            style={{ flexShrink: 0 }}
+                        >
+                            {t(item?.category_name)}
+                        </TabBtn>
+                    )
+                })}
+            </Box>
+            <Box
+                sx={{
+                    display: { xs: 'block', md: 'none' },
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    right: 0,
+                    width: '32px',
+                    pointerEvents: 'none',
+                    background: `linear-gradient(to right, ${alpha(
+                        theme.palette.background.default,
+                        0
+                    )}, ${theme.palette.background.default})`,
+                }}
+            />
+        </Box>
     )
 }
 

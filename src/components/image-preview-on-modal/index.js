@@ -2,9 +2,7 @@ import React from "react";
 import CloseIcon from '@mui/icons-material/Close'
 import CustomImageContainer from '../CustomImageContainer'
 import { CustomStackFullWidth } from "@/styled-components/CustomStyles.style"
-import Slider from 'react-slick'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
+import Slider from '@/components/slider/SlickToSwiper'
 import { LeftArrowStyle, RightArrowStyle } from "@/components/home/HomeStyle";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";

@@ -6,20 +6,25 @@ import LoyalityList from '../loyality/LoyalityList'
 import ReferCodePage from '../refer-code/ReferCodePage'
 import SettingPage from '../settings/SettingPage'
 import OrderHistoryPage from '../../order-history/OrderHistoryPage'
+import PushNotificationLayout from '../../PushNotificationLayout'
 import Chat from '../../chat/Chat'
 import WishlistPage from '../../wishlist-page/WishlistPage'
 import { RTL } from '../../RTL/RTL'
 import OrderDetail from '../../order-details/OrderDetail'
 import SubscriptionPlanPage from '../subscription/SubscriptionPlanPage'
+import GuestAuthPrompt from '../GuestAuthPrompt'
+import { isGuestAccessiblePage } from '../infoPageAccess'
 
-const ProfileBody = ({ page, orderId }) => {
+const ProfileBody = ({ page, orderId, isAuthenticated }) => {
     let languageDirection = undefined
     if (typeof window !== 'undefined') {
         languageDirection = localStorage.getItem('direction')
     }
-    console.log({page});
-    
+
     const activeComponent = () => {
+        if (isAuthenticated === false && !isGuestAccessiblePage(page)) {
+            return <GuestAuthPrompt />
+        }
         if (page === 'profile') {
             return <ProfilePage />
         }
@@ -51,7 +56,11 @@ const ProfileBody = ({ page, orderId }) => {
             return <SettingPage />
         }
         if (page === 'order' && !orderId) {
-            return <OrderHistoryPage />
+            return (
+                <PushNotificationLayout>
+                    <OrderHistoryPage />
+                </PushNotificationLayout>
+            )
         }
         if (page === 'inbox') {
             return <Chat />

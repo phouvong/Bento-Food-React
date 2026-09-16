@@ -1,315 +1,271 @@
 import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
-import { Box, Chip, Grid, Popover } from '@mui/material'
+import { Badge, Box, Grid, IconButton } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import NewStoreCard from '@/components/new-store-card/NewStoreCard'
-//import LinearProgress from '@mui/material/LinearProgress'
-import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { useTheme } from '@mui/material/styles'
-import useMediaQuery from '@mui/material/useMediaQuery'
 import { useTranslation } from 'react-i18next'
 import CustomePagination from '../pagination/Pagination'
 
 import { noRestaurantsImage } from '@/utils/LocalImages'
 import { Stack } from '@mui/system'
-import SimpleBar from 'simplebar-react'
-import 'simplebar-react/dist/simplebar.min.css'
-import FilterButton from '../Button/FilterButton'
-import CustomDivider from '../CustomDivider'
 import CustomShimmerRestaurant from '../CustomShimmer/CustomShimmerRestaurant'
 import { onErrorResponse } from '../ErrorResponse'
-import PageSearchWithTitle from '../category/PageSearchWithTitle'
-import { handleFilterData } from '../category/helper'
+import CustomPageTitleSubtitle from '../CustomPageTitleSubtitle'
+import CustomSearch from '../custom-search/CustomSearch'
 import CustomEmptyResult from '../empty-view/CustomEmptyResult'
-import RestaurantFilterCard from '../home/restaurant/RestaurantFilterCard'
-import { mockData } from './restaurantpageData'
-import { useRouter } from 'next/router'
+import FilterPanel from '../home/filter-tabs/FilterPanel'
+import { useGetCuisines } from '@/hooks/react-query/cuisines/useGetCuisines'
+import { setCuisines } from '@/redux/slices/storedData'
+import {
+    RESTAURANT_LIST_FILTER_BY_OPTIONS,
+    RESTAURANT_LIST_ORDER_TYPE_OPTIONS,
+    RESTAURANT_LIST_TYPE_OPTIONS,
+    RESTAURANT_RATING_OPTIONS,
+    RESTAURANT_SORT_OPTIONS,
+    toRestaurantListFilterState,
+    toRestaurantListPanelValue,
+} from './restaurantListFilterOptions'
 
 const RestaurantList = () => {
     const { t } = useTranslation()
     const theme = useTheme()
-    const router = useRouter()
-    const [checkedFilterKey, setCheckedFilterKey] = useState(mockData)
+    const dispatch = useDispatch()
     const [filterByData, setFilterByData] = useState({})
-    const [forFilter, setForFilter] = useState(false)
+    const [cuisineIds, setCuisineIds] = useState([])
     const [page_limit, setPageLimit] = useState(20)
     const [offset, setOffset] = useState(1)
     const [searchKey, setSearchKey] = useState('')
     const [anchorEl, setAnchorEl] = useState(null)
-    const [filterBy, setFilterBy] = useState([])
-    const open = Boolean(anchorEl)
     const { global } = useSelector((state) => state.globalSettings)
-    const [priceAndRating, setPriceAndRating] = useState({
-        price: [],
-        rating: 0,
-    })
-    const [languageDirection, setLanguageDirection] = React.useState('ltr')
+    const { cuisines } = useSelector((state) => state.storedData)
+
+    const { data: cuisinesData, refetch: refetchCuisines } = useGetCuisines()
     useEffect(() => {
-        if (localStorage.getItem('direction')) {
-            setLanguageDirection(localStorage.getItem('direction'))
+        if (!cuisines?.length) refetchCuisines()
+    }, [cuisines?.length, refetchCuisines])
+    useEffect(() => {
+        if (cuisinesData?.Cuisines?.length) {
+            dispatch(setCuisines(cuisinesData.Cuisines))
         }
-    }, [])
+    }, [cuisinesData, dispatch])
 
     useEffect(() => {
-        if (offset !== undefined) {
-            const url = `/restaurants?page=${offset}`
-            window.history.replaceState(null, '', url)
-        }
+        const url = `/restaurants?page=${offset}`
+        window.history.replaceState(null, '', url)
     }, [offset])
 
-    const { isLoading, data, isError, error, refetch, isRefetching } = useQuery(
-        [
-            'all-restaurants',
-            offset,
-            page_limit,
-            filterByData,
-            priceAndRating,
-            filterBy,
-        ],
+    const { isFetched, data } = useQuery(
+        ['all-restaurants', offset, page_limit, searchKey, filterByData, cuisineIds],
         () =>
             RestaurantsApi.restaurants({
                 offset,
                 page_limit,
                 searchKey,
-                filterByData,
-                priceAndRating,
-                filterBy,
+                filterByData: { ...filterByData, cuisine: cuisineIds },
             }),
         {
             onError: onErrorResponse,
         }
     )
 
-    useEffect(() => {
-        handleFilterData(
-            checkedFilterKey,
-            setFilterByData,
-            setOffset,
-            setForFilter
-        )
-    }, [checkedFilterKey])
-
-    useEffect(() => {
-        const apiRefetch = async () => {
-            await refetch()
-        }
-
-        apiRefetch()
-    }, [searchKey])
-
     const handleSearchResult = async (values) => {
-        if (values === '') {
-            await refetch()
-            setSearchKey('')
-        } else {
-            //setType('all')
-            setSearchKey(values)
-        }
+        setOffset(1)
+        setSearchKey(values)
     }
 
-    const handleDropClick = (event) => {
-        setAnchorEl(event.currentTarget)
-    }
-    const handleDropClose = () => {
-        setAnchorEl(null)
-    }
-    const getSelectedFilter = checkedFilterKey?.filter((item) => item?.isActive)
-    const handleDelete = (chipItem) => {
-        const tempData = checkedFilterKey?.map((items) =>
-            items?.value === chipItem?.value
-                ? { ...items, isActive: false }
-                : items
-        )
-        setCheckedFilterKey(tempData)
-        setFilterBy((prev) =>
-            prev?.filter((value) => value !== chipItem?.value)
-        )
-    }
+    const handleDropClick = (event) => setAnchorEl(event.currentTarget)
+    const handleDropClose = () => setAnchorEl(null)
 
-    const handleChangeRatings = (value) => {
-        setPriceAndRating({
-            ...priceAndRating,
-            rating: value,
-        })
-        setForFilter(true)
+    const filterPanelValue = toRestaurantListPanelValue({
+        filterByData,
+        cuisineIds,
+    })
+    const activeFilterCount = Object.keys(filterPanelValue).length
+
+    const handleApplyFilters = (panelValue) => {
+        const nextState = toRestaurantListFilterState(panelValue)
+        setFilterByData(nextState.filterByData)
+        setCuisineIds(nextState.cuisineIds)
+        setOffset(1)
     }
-    const handleReset = () => {
-        const data = checkedFilterKey?.map((item) => ({
-            ...item,
-            isActive: false,
-        }))
-        setCheckedFilterKey(data)
-        setFilterBy([])
-        setPriceAndRating({
-            price: [],
-            rating: 0,
-        })
-        //handleDropClose()
-    }
-    const handleFilterBy = (value) => {
-        setFilterBy(value)
-    }
-    console.log({ priceAndRating, filterBy })
 
     return (
-        <>
-            {languageDirection && (
-                <Box mb="1rem">
-                    <Grid
-                        container
-                        spacing={{ xs: 1, sm: 2, md: 2 }}
-                        alignItems="center"
-                        justifyContent="center"
-                       // mt="1rem"
-                    >
-                        <Grid item md={12} sm={12} xs={12}>
-                            <PageSearchWithTitle
-                                handleSearchResult={handleSearchResult}
-                                label="Search restaurants..."
-                                action={
-                                    <FilterButton
-                                        id="fade-button"
-                                        handleClick={handleDropClick}
-                                        activeFilters={getSelectedFilter}
-                                        height="42px"
-                                    />
-                                }
-                            />
-                        </Grid>
-                        {/* {getSelectedFilter?.length > 0 && (
-                            <Grid item md={12} align="right" sm={12} xs={12}>
-                                <CustomStackFullWidth
-                                    direction="row"
-                                    justifyContent="flex-end"
-                                    alignItems="center"
-                                    spacing={1}
-                                >
-                                    <SimpleBar style={{ width: '100%' }}>
-                                        <Stack
-                                            direction="row"
-                                            spacing={1}
-                                            justifyContent={{
-                                                xs: 'flex-start',
-                                                sm: 'flex-start',
-                                                md: 'flex-end',
-                                            }}
-                                            alignItems="center"
-                                        >
-                                            {getSelectedFilter?.map((item) => (
-                                                <Chip
-                                                    sx={{
-                                                        fontWeight: '400',
-                                                        color: theme.palette
-                                                            .neutral[500],
-                                                        fontSize: '12px',
-                                                        padding: '0px 5px',
-                                                        height: '30px',
-                                                        '.MuiChip-deleteIcon': {
-                                                            color: `${theme.palette.neutral[400]} !important`,
-                                                        },
-                                                    }}
-                                                    label={item?.name}
-                                                    variant="outlined"
-                                                    onDelete={() =>
-                                                        handleDelete(item)
-                                                    }
-                                                />
-                                            ))}
-                                        </Stack>
-                                    </SimpleBar>
-                                </CustomStackFullWidth>
-                            </Grid>
-                        )} */}
-
-                        <Grid
-                            item
-                            xs={12}
-                            sm={12}
-                            md={12}
-                            container
-                            spacing={{ xs: 1, sm: 2, md: 3 }}
-                            marginTop={{ xs: '0rem', md: '.1rem' }}
-                        >
-                            {data?.data?.restaurants?.map((restaurantData) => {
-                                if (restaurantData) {
-                                    return (
-                                        <Grid
-                                            item
-                                            xs={12}
-                                            sm={4}
-                                            md={3}
-                                            key={restaurantData?.id}
-                                        >
-                                            <NewStoreCard
-                                                restaurant={{
-                                                    ...restaurantData,
-                                                    opening_time:
-                                                        restaurantData?.current_opening_time,
-                                                }}
-                                            />
-                                        </Grid>
-                                    )
-                                }
-                            })}
-                            {isLoading && <CustomShimmerRestaurant />}
-                            {data?.data?.restaurants?.length === 0 && (
-                                <CustomEmptyResult
-                                    label="No Restaurants found"
-                                    image={noRestaurantsImage}
-                                />
-                            )}
-                        </Grid>
-                        {data?.data?.restaurants?.length > 0 && (
-                            <Grid item xs={12} sm={12} md={12}>
-                                <CustomePagination
-                                    total_size={data?.data?.total_size}
-                                    page_limit={page_limit}
-                                    offset={offset}
-                                    setOffset={setOffset}
-                                />
-                            </Grid>
-                        )}
-                    </Grid>
-                    <Popover
-                        onClose={() => handleDropClose()}
-                        id="fade-button"
-                        open={open}
-                        anchorEl={anchorEl}
-                        anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'right',
-                        }}
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
+        <Box mb="1rem">
+            <Grid
+                container
+                spacing={{ xs: 1, sm: 2, md: 2 }}
+                alignItems="center"
+                justifyContent="center"
+            >
+                <Grid item md={12} sm={12} xs={12}>
+                    <Box
                         sx={{
-                            zIndex: 999,
-                            top: '5px',
+                            display: 'flex',
+                            flexDirection: { xs: 'column', md: 'row' },
+                            justifyContent: 'space-between',
+                            alignItems: { xs: 'stretch', md: 'center' },
+                            gap: { xs: 2, md: 3 },
                         }}
-                        disableScrollLock={true}
-                        disableRestoreFocus
                     >
-                        <RestaurantFilterCard
-                            mockData={mockData}
-                            rowWise
-                            foodOrRestaurant="restaurants"
-                            checkboxData={checkedFilterKey}
-                            handleDropClose={handleDropClose}
-                            anchorEl={anchorEl}
-                            // setFilterByData={setFilterByData}
-                            //handleFilter={handleFilter}
-                            setCheckedFilterKey={setCheckedFilterKey}
-                            handleChangeRatings={handleChangeRatings}
-                            priceAndRating={priceAndRating}
-                            handleReset={handleReset}
-                            handleFilterBy={handleFilterBy}
+                        <CustomPageTitleSubtitle
+                            title={t('Restaurants')}
+                            subtitle={t(
+                                'Browse and discover restaurants — filter, explore, and order your favorites.'
+                            )}
+                            mb={0}
+                            hideTitle={{ xs: true, md: false }}
                         />
-                    </Popover>
-                </Box>
-            )}
-        </>
+                        <Stack
+                            direction="row"
+                            spacing={1}
+                            alignItems="stretch"
+                            sx={{ width: { xs: '100%', md: 'auto' } }}
+                        >
+                            <Box
+                                sx={{
+                                    flex: '1 1 auto',
+                                    minWidth: 0,
+                                    width: { md: '260px' },
+                                }}
+                            >
+                                <CustomSearch
+                                    handleSearchResult={handleSearchResult}
+                                    label="Search restaurants..."
+                                    backgroundColor={
+                                        theme.palette.background.paper
+                                    }
+                                    borderRadius="12px"
+                                />
+                            </Box>
+                            <Badge
+                                color="primary"
+                                badgeContent={activeFilterCount}
+                                sx={{
+                                    '& .MuiBadge-badge': {
+                                        fontSize: '10px',
+                                        height: 16,
+                                        minWidth: 16,
+                                    },
+                                }}
+                            >
+                                <IconButton
+                                    onClick={handleDropClick}
+                                    aria-label={t('Filter')}
+                                    sx={{
+                                        width: 40,
+                                        height: 40,
+                                        borderRadius: '8px',
+                                        backgroundColor:
+                                            theme.palette.background.paper,
+                                        border: `1px solid ${
+                                            activeFilterCount
+                                                ? theme.palette.primary.main
+                                                : theme.palette.divider
+                                        }`,
+                                        color: activeFilterCount
+                                            ? theme.palette.primary.main
+                                            : theme.palette.neutral[1000],
+                                        transition: 'all 120ms ease',
+                                        '&:hover': {
+                                            borderColor:
+                                                theme.palette.primary.main,
+                                            color: theme.palette.primary.main,
+                                            backgroundColor:
+                                                theme.palette.background
+                                                    .paper,
+                                        },
+                                    }}
+                                >
+                                    <i
+                                        className="fi fi-rr-filter"
+                                        style={{
+                                            fontSize: 20,
+                                            lineHeight: 1,
+                                            display: 'flex',
+                                        }}
+                                    />
+                                </IconButton>
+                            </Badge>
+                        </Stack>
+                    </Box>
+                </Grid>
+
+                <Grid
+                    item
+                    xs={12}
+                    sm={12}
+                    md={12}
+                    container
+                    spacing={{ xs: 1, sm: 2, md: 3 }}
+                    marginTop={{ xs: '0rem', md: '.1rem' }}
+                >
+                    {!isFetched && <CustomShimmerRestaurant />}
+
+                    {isFetched &&
+                        data?.data?.restaurants?.map((restaurantData) => {
+                            if (!restaurantData) return null
+                            return (
+                                <Grid
+                                    item
+                                    xs={12}
+                                    sm={4}
+                                    md={3}
+                                    key={restaurantData?.id}
+                                >
+                                    <NewStoreCard
+                                        restaurant={{
+                                            ...restaurantData,
+                                            opening_time:
+                                                restaurantData?.current_opening_time,
+                                        }}
+                                    />
+                                </Grid>
+                            )
+                        })}
+
+                    {isFetched && data?.data?.restaurants?.length === 0 && (
+                        <CustomEmptyResult
+                            label="No Restaurants found"
+                            image={noRestaurantsImage}
+                        />
+                    )}
+                </Grid>
+
+                {isFetched && data?.data?.restaurants?.length > 0 && (
+                    <Grid item xs={12} sm={12} md={12}>
+                        <CustomePagination
+                            total_size={data?.data?.total_size}
+                            page_limit={page_limit}
+                            offset={offset}
+                            setOffset={setOffset}
+                        />
+                    </Grid>
+                )}
+            </Grid>
+
+            <FilterPanel
+                anchorEl={anchorEl}
+                onClose={handleDropClose}
+                onApply={handleApplyFilters}
+                filterValue={filterPanelValue}
+                anchorHorizontal="right"
+                sortOptions={RESTAURANT_SORT_OPTIONS}
+                showType={global?.toggle_veg_non_veg !== false}
+                typeOptions={RESTAURANT_LIST_TYPE_OPTIONS}
+                showOrderType
+                orderTypeOptions={RESTAURANT_LIST_ORDER_TYPE_OPTIONS}
+                orderTypeLabel="Order Type"
+                discoverOptions={RESTAURANT_LIST_FILTER_BY_OPTIONS}
+                discoverLabel="Filter By"
+                ratingOptions={RESTAURANT_RATING_OPTIONS}
+                showCategories={false}
+                showCuisines
+                cuisines={cuisines}
+                showPriceRange={false}
+            />
+        </Box>
     )
 }
 

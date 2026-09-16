@@ -9,11 +9,13 @@ import {
     Skeleton,
     Stack,
     Typography,
+    useMediaQuery,
 } from '@mui/material'
+import { styled, useTheme } from '@mui/material/styles'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import TrendingIcon, { TrendingReelsIcon } from './TrendingIcon'
+import { FoodStoriesIcon } from './TrendingIcon'
 import ReelsModal, { TrendingBiteItem } from './ReelsModal'
 import useGetReelsList, {
     Reel,
@@ -21,8 +23,16 @@ import useGetReelsList, {
 import { getGuestId } from '@/components/checkout-page/functions/getGuestUserId'
 import MainApi from '@/api/MainApi'
 import VerifiedBadge from '@/components/verified-badge/VerifiedBadge'
+import { SECTION_GUTTER_PX } from '@/components/container/Section'
+import { HOME_SECTION_SPACING } from '../homeSectionSpacing'
+import useDragScroll from '@/hooks/useDragScroll'
 
-const GAP = 12
+const SPACING = HOME_SECTION_SPACING.trendingBites
+
+const GAP = { xs: '16px', md: '20px' }
+const CARD_WIDTH = { xs: '160px', md: '215px' }
+const CARD_HEIGHT = { xs: '284.67px', md: '382.52px' }
+const CARD_FLEX = { xs: '0 0 160px', md: '0 0 215px' }
 const PAGE_LIMIT = 10
 const REELS_LIST_API = '/api/v1/customer/reels/list'
 
@@ -30,6 +40,26 @@ const formatViewCount = (count: number): string => {
     if (count >= 1000) return `${(count / 1000).toFixed(1)}K`
     return String(count)
 }
+
+const NavBtn = styled(IconButton)(({ theme }) => ({
+    width: 32,
+    height: 32,
+    padding: 0,
+    borderRadius: '50%',
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.divider}`,
+    color: theme.palette.text.primary,
+    transition: 'all .15s ease',
+    '&:hover': {
+        backgroundColor: theme.palette.primary.main,
+        color: theme.palette.primary.contrastText,
+        borderColor: theme.palette.primary.main,
+    },
+    '&.Mui-disabled': {
+        opacity: 0.4,
+    },
+    '& svg': { fontSize: 16 },
+}))
 
 interface TrendingBiteCardProps {
     item: TrendingBiteItem
@@ -62,17 +92,18 @@ const TrendingBiteCard: React.FC<TrendingBiteCardProps> = ({
                 position: 'relative',
                 borderRadius: '8px',
                 overflow: 'hidden',
-                flex: {
-                    xs: '0 0 calc(78% - 6px)',
-                    sm: '0 0 calc(45% - 6px)',
-                    md: '0 0 calc(28.57% - 9px)',
-                    lg: '0 0 calc(22.22% - 10px)',
-                },
+                flex: CARD_FLEX,
+                width: CARD_WIDTH,
                 minWidth: 0,
-                height: { xs: '300px', sm: '320px', md: '400px' },
+                height: CARD_HEIGHT,
                 cursor: 'pointer',
                 backgroundColor: '#000',
                 flexShrink: 0,
+                '& .card-hover-overlay': {
+                    opacity: 0,
+                    transition: 'opacity 0.25s ease',
+                },
+                '&:hover .card-hover-overlay': { opacity: 1 },
             }}
         >
             {item.videoUrl ? (
@@ -104,17 +135,52 @@ const TrendingBiteCard: React.FC<TrendingBiteCardProps> = ({
                         height: '100%',
                         objectFit: 'cover',
                         display: 'block',
-                        transition: 'transform 0.3s ease',
-                        '&:hover': { transform: 'scale(1.04)' },
                     }}
                 />
             )}
 
             <Box
+                className="card-hover-overlay"
+                sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundColor: alpha('#000000', 0.18),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 3,
+                    pointerEvents: 'none',
+                }}
+            >
+                <Box
+                    sx={{
+                        width: 52,
+                        height: 52,
+                        borderRadius: '50%',
+                        backgroundColor: alpha('#ffffff', 0.2),
+                        backdropFilter: 'blur(4px)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <i
+                        className="fi fi-sr-play"
+                        style={{
+                            fontSize: '22px',
+                            lineHeight: 1,
+                            display: 'flex',
+                            color: 'white',
+                        }}
+                    />
+                </Box>
+            </Box>
+
+            <Box
                 sx={{
                     position: 'absolute',
                     top: '10px',
-                    right: '10px',
+                    insetInlineEnd: '10px',
                     backgroundColor: alpha('#000000', 0.5),
                     borderRadius: '20px',
                     px: 1,
@@ -124,8 +190,14 @@ const TrendingBiteCard: React.FC<TrendingBiteCardProps> = ({
                     gap: 0.5,
                 }}
             >
-                <VisibilityOutlinedIcon
-                    sx={{ fontSize: '13px', color: 'white' }}
+                <i
+                    className="fi fi-rr-eye"
+                    style={{
+                        fontSize: '13px',
+                        lineHeight: 1,
+                        display: 'flex',
+                        color: 'white',
+                    }}
                 />
                 <Typography
                     sx={{
@@ -157,17 +229,19 @@ const TrendingBiteCard: React.FC<TrendingBiteCardProps> = ({
                         src={item.storeLogo}
                         alt={item.storeName}
                         sx={{
-                            width: 22,
-                            height: 22,
-                            border: '1.5px solid white',
+                            width: 14,
+                            height: 14,
+                            border: '1px solid white',
                         }}
                     />
                     <Typography
                         sx={{
                             color: 'white',
                             fontWeight: 700,
-                            fontSize: '13px',
-                            lineHeight: 1.2,
+                            fontSize: '14px',
+                            lineHeight: 1.1,
+                            letterSpacing: '-0.42px',
+                            textTransform: 'capitalize',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
@@ -201,9 +275,13 @@ const TrendingBiteCard: React.FC<TrendingBiteCardProps> = ({
 
 const TrendingBites: React.FC = () => {
     const { t } = useTranslation()
+    const theme = useTheme()
+    const isSmall = useMediaQuery(theme.breakpoints.down('md'))
+    const isRtl = theme.direction === 'rtl'
+    const PrevIcon = isRtl ? ChevronRightIcon : ChevronLeftIcon
+    const NextIcon = isRtl ? ChevronLeftIcon : ChevronRightIcon
     const [showLeft, setShowLeft] = useState(false)
     const [showRight, setShowRight] = useState(false)
-    const [isHover, setIsHover] = useState(false)
     const [reelsOpen, setReelsOpen] = useState(false)
     const [activeReelIndex, setActiveReelIndex] = useState(0)
     const [items, setItems] = useState<TrendingBiteItem[]>([])
@@ -211,7 +289,8 @@ const TrendingBites: React.FC = () => {
     const [nextOffset, setNextOffset] = useState(2)
     const [isLoadingMore, setIsLoadingMore] = useState(false)
     const [isInitialLoading, setIsInitialLoading] = useState(true)
-    const trackRef = useRef<HTMLDivElement>(null)
+    const dragScroll = useDragScroll<HTMLDivElement>()
+    const trackRef = dragScroll.ref
 
     const mapReel = (reel: Reel): TrendingBiteItem => ({
         id: reel.reel_id,
@@ -291,8 +370,10 @@ const TrendingBites: React.FC = () => {
     const updateArrows = useCallback(() => {
         const el = trackRef.current
         if (!el) return
-        setShowLeft(el.scrollLeft > 4)
-        setShowRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
+        const scrolled = Math.abs(el.scrollLeft)
+        const maxScroll = el.scrollWidth - el.clientWidth
+        setShowLeft(scrolled > 4)
+        setShowRight(scrolled < maxScroll - 4)
     }, [])
 
     useEffect(() => {
@@ -312,9 +393,11 @@ const TrendingBites: React.FC = () => {
         const el = trackRef.current
         if (!el) return
         const card = el.querySelector<HTMLElement>('[data-card]')
-        const step = (card ? card.offsetWidth + GAP : 220) * 2
+        const gapPx = parseFloat(getComputedStyle(el).columnGap) || 16
+        const step = (card ? card.offsetWidth + gapPx : 220) * 2
+        const delta = dir === 'right' ? step : -step
         el.scrollBy({
-            left: dir === 'right' ? step : -step,
+            left: isRtl ? -delta : delta,
             behavior: 'smooth',
         })
     }
@@ -349,51 +432,69 @@ const TrendingBites: React.FC = () => {
 
     if (isInitialLoading) {
         return (
-            <Box sx={{ width: '100%' }}>
-                <Stack alignItems="center" mb="10px" spacing={1} width="100%">
+            <Box sx={{
+                    width: '100%',
+                    pl: SECTION_GUTTER_PX,
+                    pt: SPACING.pt,
+                    pb: SPACING.pb,
+                }}>
+                <Stack alignItems="center" width="100%">
                     <Stack
                         alignItems="center"
                         justifyContent="space-between"
                         direction="row"
                         width="100%"
+                        sx={{ mb: SPACING.headerGap }}
                     >
                         <Stack direction="row" alignItems="center" gap={1}>
                             <Skeleton
                                 variant="rectangular"
                                 sx={{
                                     width: { xs: 24, md: 32 },
-                                    height: { xs: 26, md: 35 },
-                                    borderRadius: '4px',
+                                    height: { xs: 24, md: 32 },
+                                    borderRadius: '8px',
                                     bgcolor: (theme) =>
                                         theme.palette.mode === 'dark'
                                             ? 'neutral.700'
                                             : 'neutral.400',
                                 }}
                             />
-                            <Skeleton
-                                variant="text"
-                                width={140}
-                                height={28}
-                                sx={{
-                                    bgcolor: (theme) =>
-                                        theme.palette.mode === 'dark'
-                                            ? 'neutral.700'
-                                            : 'neutral.400',
-                                }}
-                            />
+                            <Stack gap={0.5}>
+                                <Skeleton
+                                    variant="text"
+                                    width={110}
+                                    height={24}
+                                    sx={{
+                                        bgcolor: (theme) =>
+                                            theme.palette.mode === 'dark'
+                                                ? 'neutral.700'
+                                                : 'neutral.400',
+                                    }}
+                                />
+                                <Skeleton
+                                    variant="text"
+                                    width={200}
+                                    height={18}
+                                    sx={{
+                                        bgcolor: (theme) =>
+                                            theme.palette.mode === 'dark'
+                                                ? 'neutral.700'
+                                                : 'neutral.400',
+                                    }}
+                                />
+                            </Stack>
                         </Stack>
                     </Stack>
 
                     <Box
                         sx={{
                             display: 'flex',
-                            gap: `${GAP}px`,
+                            gap: GAP,
                             width: '100%',
                             overflowX: 'auto',
                             scrollSnapType: 'x mandatory',
                             scrollbarWidth: 'none',
                             '&::-webkit-scrollbar': { display: 'none' },
-                            py: '10px',
                         }}
                     >
                         {Array.from({ length: 5 }).map((_, i) => (
@@ -402,18 +503,10 @@ const TrendingBites: React.FC = () => {
                                 sx={{
                                     scrollSnapAlign: 'start',
                                     flexShrink: 0,
-                                    flex: {
-                                        xs: '0 0 calc(50% - 6px)',
-                                        sm: '0 0 calc(33.33% - 8px)',
-                                        md: '0 0 calc(28.57% - 9px)',
-                                        lg: '0 0 calc(22.22% - 10px)',
-                                    },
+                                    flex: CARD_FLEX,
+                                    width: CARD_WIDTH,
                                     minWidth: 0,
-                                    height: {
-                                        xs: '300px',
-                                        sm: '320px',
-                                        md: '400px',
-                                    },
+                                    height: CARD_HEIGHT,
                                 }}
                             >
                                 <Skeleton
@@ -439,80 +532,106 @@ const TrendingBites: React.FC = () => {
     return (
         <>
             <Box
-                onMouseEnter={() => setIsHover(true)}
-                onMouseLeave={() => setIsHover(false)}
-                sx={{ width: '100%', px: { xs: 0 } }}
+                sx={{
+                    width: '100%',
+                    pl: SECTION_GUTTER_PX,
+                    pt: SPACING.pt,
+                    pb: SPACING.pb,
+                }}
             >
-                <Stack alignItems="center" mb="10px" spacing={1} width="100%">
+                <Stack alignItems="center" width="100%">
                     <Stack
                         alignItems="center"
                         justifyContent="space-between"
                         direction="row"
                         width="100%"
+                        sx={{ mb: SPACING.headerGap }}
                     >
                         <Stack direction="row" alignItems="center" gap={1}>
                             <Box
                                 sx={{
                                     width: { xs: 24, md: 32 },
-                                    height: { xs: 26, md: 35 },
+                                    height: { xs: 24, md: 32 },
                                     flexShrink: 0,
+                                    color: (theme) =>
+                                        (theme.palette.error as any)
+                                            .pureRed,
                                     '& svg': {
                                         width: '100%',
                                         height: '100%',
                                     },
                                 }}
                             >
-                                <TrendingReelsIcon />
+                                <FoodStoriesIcon />
                             </Box>
-                            <Typography
-                                component="h2"
-                                sx={{
-                                    fontSize: { xs: '16px', md: '18px' },
-                                    fontWeight: 700,
-                                    textAlign: 'start',
-                                    color: 'text.primary',
-                                }}
-                            >
-                                {t('Trending Bites')}
-                            </Typography>
+                            <Stack gap={0.25} sx={{ minWidth: 0 }}>
+                                <Typography
+                                    component="h2"
+                                    sx={{
+                                        fontSize: { xs: '16px', md: '22px' },
+                                        fontWeight: { xs: 700, md: 800 },
+                                        letterSpacing: '-0.02em',
+                                        lineHeight: 1.2,
+                                        textAlign: 'start',
+                                        color: 'text.primary',
+                                    }}
+                                >
+                                    {t('Food Stories')}
+                                </Typography>
+                                <Typography
+                                    sx={{
+                                        fontSize: { xs: '12px', md: '13.5px' },
+                                        textAlign: 'start',
+                                        color: 'text.secondary',
+                                    }}
+                                >
+                                    {t(
+                                        "What everyone's watching and ordering"
+                                    )}
+                                </Typography>
+                            </Stack>
                         </Stack>
+
+                        {!isSmall && items.length > 0 && (
+                            <Stack direction="row" alignItems="center" gap={1}>
+                                <NavBtn
+                                    aria-label={t('Previous')}
+                                    onClick={() => scroll('left')}
+                                    disabled={!showLeft}
+                                >
+                                    <PrevIcon />
+                                </NavBtn>
+                                <NavBtn
+                                    aria-label={t('Next')}
+                                    onClick={() => scroll('right')}
+                                    disabled={!showRight}
+                                >
+                                    <NextIcon />
+                                </NavBtn>
+                            </Stack>
+                        )}
                     </Stack>
 
-                    <Box sx={{ position: 'relative', width: '100%' }}>
-                        <IconButton
-                            onClick={() => scroll('left')}
-                            size="small"
-                            sx={{
-                                position: 'absolute',
-                                left: { xs: 4, md: 8 },
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                                zIndex: 2,
-                                backgroundColor: 'background.paper',
-                                boxShadow: 2,
-                                opacity: isHover && showLeft ? 1 : 0,
-                                pointerEvents:
-                                    isHover && showLeft ? 'auto' : 'none',
-                                transition: 'opacity 0.2s',
-                                '&:hover': {
-                                    backgroundColor: 'background.paper',
-                                },
-                            }}
-                        >
-                            <ChevronLeftIcon />
-                        </IconButton>
-
+                    <Box sx={{ width: '100%' }}>
                         <Box
                             ref={trackRef}
+                            onPointerDown={dragScroll.onPointerDown}
+                            onPointerMove={dragScroll.onPointerMove}
+                            onPointerUp={dragScroll.onPointerUp}
+                            onPointerCancel={dragScroll.onPointerCancel}
+                            onClickCapture={dragScroll.onClickCapture}
+                            onDragStart={dragScroll.onDragStart}
+                            onMouseDown={dragScroll.onMouseDown}
                             sx={{
                                 display: 'flex',
-                                gap: `${GAP}px`,
+                                gap: GAP,
                                 overflowX: 'auto',
                                 scrollSnapType: 'x mandatory',
                                 WebkitOverflowScrolling: 'touch',
                                 scrollbarWidth: 'none',
+                                cursor: 'grab',
+                                '&:active': { cursor: 'grabbing' },
                                 '&::-webkit-scrollbar': { display: 'none' },
-                                py: '10px',
                             }}
                         >
                             {items.map((item, index) => (
@@ -522,12 +641,8 @@ const TrendingBites: React.FC = () => {
                                     sx={{
                                         scrollSnapAlign: 'start',
                                         flexShrink: 0,
-                                        flex: {
-                                            xs: '0 0 calc(50% - 6px)',
-                                            sm: '0 0 calc(33.33% - 8px)',
-                                            md: '0 0 calc(28.57% - 9px)',
-                                            lg: '0 0 calc(22.22% - 10px)',
-                                        },
+                                        flex: CARD_FLEX,
+                                        width: CARD_WIDTH,
                                         minWidth: 0,
                                     }}
                                 >
@@ -547,11 +662,7 @@ const TrendingBites: React.FC = () => {
                                         flexShrink: 0,
                                         flex: '0 0 110px',
                                         width: '110px',
-                                        height: {
-                                            xs: '300px',
-                                            sm: '320px',
-                                            md: '400px',
-                                        },
+                                        height: CARD_HEIGHT,
                                         borderRadius: '8px',
                                         cursor: 'pointer',
                                         display: 'flex',
@@ -597,29 +708,6 @@ const TrendingBites: React.FC = () => {
                                 </Box>
                             )}
                         </Box>
-
-                        <IconButton
-                            onClick={() => scroll('right')}
-                            size="small"
-                            sx={{
-                                position: 'absolute',
-                                right: { xs: 4, md: 8 },
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                                zIndex: 2,
-                                backgroundColor: 'background.paper',
-                                boxShadow: 2,
-                                opacity: isHover && showRight ? 1 : 0,
-                                pointerEvents:
-                                    isHover && showRight ? 'auto' : 'none',
-                                transition: 'opacity 0.2s',
-                                '&:hover': {
-                                    backgroundColor: 'background.paper',
-                                },
-                            }}
-                        >
-                            <ChevronRightIcon />
-                        </IconButton>
                     </Box>
                 </Stack>
             </Box>

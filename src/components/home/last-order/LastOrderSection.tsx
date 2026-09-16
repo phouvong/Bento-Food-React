@@ -1,5 +1,6 @@
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Box, Button, Stack, Typography } from '@mui/material'
+import useDragScroll from '@/hooks/useDragScroll'
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
@@ -12,7 +13,11 @@ import useReorderFlow from '@/hooks/react-query/reorder/useReorderFlow'
 import { OrderApi } from '@/hooks/react-query/config/orderApi'
 import { getToken } from '@/components/checkout-page/functions/getGuestUserId'
 import SliderSectionHeaderRaw from '@/components/slider-section-header/SliderSectionHeader'
+import { SECTION_GUTTER_PX } from '@/components/container/Section'
+import { HOME_SECTION_SPACING } from '../homeSectionSpacing'
 import CustomModalRaw from '@/components/custom-modal/CustomModal'
+
+const SPACING = HOME_SECTION_SPACING.lastOrder
 
 const CustomModal = CustomModalRaw as unknown as React.ComponentType<
     Record<string, unknown>
@@ -84,8 +89,7 @@ const LastOrderSection: React.FC<LastOrderSectionProps> = ({
     })
     const orders: LatestOrder[] = data?.orders ?? []
 
-    console.log({cartGroups});
-    
+    console.log({ cartGroups })
 
     const { triggerReorder, isWorking } = useReorderFlow()
 
@@ -148,12 +152,20 @@ const LastOrderSection: React.FC<LastOrderSectionProps> = ({
     }, [])
 
     // ── Slider track + arrow controls (matches NewRestaurant pattern) ──
-    const trackRef = useRef<HTMLDivElement>(null)
-    const scrollByAmount = useCallback((dir: number) => {
-        const el = trackRef.current
-        if (!el) return
-        el.scrollBy({ left: dir * el.clientWidth * 0.9, behavior: 'smooth' })
-    }, [])
+    // Mouse drag-to-scroll; dragScroll.ref doubles as the arrows' target.
+    const dragScroll = useDragScroll<HTMLDivElement>()
+    const trackRef = dragScroll.ref
+    const scrollByAmount = useCallback(
+        (dir: number) => {
+            const el = trackRef.current
+            if (!el) return
+            el.scrollBy({
+                left: dir * el.clientWidth * 0.9,
+                behavior: 'smooth',
+            })
+        },
+        [trackRef]
+    )
 
     // SliderSectionHeader was written for react-slick — it calls
     // `sliderRef.current.slickPrev/slickNext` and reads
@@ -172,18 +184,27 @@ const LastOrderSection: React.FC<LastOrderSectionProps> = ({
     if (!isLoggedIn || orders.length === 0) return null
 
     return (
-        <Box sx={{ width: '100%', position: 'relative' }}>
+        <Box
+            sx={{
+                width: '100%',
+                position: 'relative',
+                pl: SECTION_GUTTER_PX,
+                pt: SPACING.pt,
+                pb: SPACING.pb,
+            }}
+        >
             <SliderSectionHeader
-                title={t('Last Order')}
+                title={t('Order Again')}
                 titleComponent="h2"
                 sliderRef={sliderRefShim}
+                scrollElRef={trackRef}
                 itemsCount={orders.length}
+                sx={{ mb: SPACING.headerGap }}
             />
 
             <Box
-                ref={trackRef}
+                {...dragScroll}
                 sx={{
-
                     display: 'flex',
                     gap: `${GAP}px`,
                     overflowX: 'auto',
@@ -191,7 +212,7 @@ const LastOrderSection: React.FC<LastOrderSectionProps> = ({
                     WebkitOverflowScrolling: 'touch',
                     scrollbarWidth: 'none',
                     '&::-webkit-scrollbar': { display: 'none' },
-                   
+                    cursor: 'grab',
                 }}
             >
                 {orders.map((order) => (
@@ -201,12 +222,14 @@ const LastOrderSection: React.FC<LastOrderSectionProps> = ({
                         sx={{
                             scrollSnapAlign: 'start',
                             flexShrink: 0,
-                            flex: {
-                                xs: '0 0 calc(85% - 6px)',
-                                sm: '0 0 calc(50% - 6px)',
-                                md: '0 0 calc(33.33% - 8px)',
-                                lg: '0 0 calc(25% - 9px)',
-                            },
+                            flex: isStoreDetails
+                                ? '0 0 265px'
+                                : {
+                                      xs: '0 0 300px',
+                                      sm: '0 0 calc(50% - 6px)',
+                                      md: '0 0 calc(33.33% - 8px)',
+                                      lg: '0 0 calc(25% - 9px)',
+                                  },
                             minWidth: 0,
                         }}
                     >

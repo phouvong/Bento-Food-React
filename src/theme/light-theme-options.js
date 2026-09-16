@@ -17,7 +17,7 @@ const neutral = {
     1500: 'rgba(239, 120, 34, 0.3)',
     1600: '#FFEBDD',
     1700: '#fff5cf',
-    1800: '#FCFCFC',
+    1800: '#F7F7F7',
 }
 
 const table = {
@@ -36,6 +36,26 @@ const offerChip = {
     bg: '#FDE7EF',
     text: '#BE185D',
     icon: '#EC4899',
+}
+const referBanner = {
+    bg: '#DBE9FF',
+    title: '#2A61BA',
+    subtitle: '#3979E0',
+}
+const happyHourBanner = {
+    bg: '#FEE9E7',
+    timerBg: '#EC221F',
+    timerColon: '#900B09',
+    timerColonWarm: '#BF6A02',
+}
+const progressOffer = {
+    bg: '#FFF1C2',
+    track: '#FFFBEB',
+    fill: '#E5A000',
+    chip: '#303030',
+}
+const offerSection = {
+    bg: '#FFFBEB',
 }
 const cardBackground1 = '#FFFFFF'
 const cardBackground2 = '#FFFFFF'
@@ -60,7 +80,7 @@ const divider = '#E6E8F0'
 // main: '#EF7822',
 // secondary main: '#ff903f',
 const primary = {
-    main: '#E31B23',
+    main: '#FF7918',
     light: 'rgba(255, 121, 24, 0.60)',
     dark: '#a3460a',
     contrastText: '#FFFFFF',
@@ -146,7 +166,7 @@ const text = {
 export const lightThemeOptions = {
     typography: {
         allVariants: {
-            fontFamily: 'Public Sans',
+            fontFamily: '"DM Sans", sans-serif',
             textTransform: 'none',
         },
     },
@@ -165,10 +185,10 @@ export const lightThemeOptions = {
             styleOverrides: {
                 root: {
                     background:
-                        'linear-gradient(78.58deg, #F5F6F8 3.23%, #FBFBFB 53.13%, #F6F7F8 100%)',
+                        'linear-gradient(78.58deg, #E4E6EA 3.23%, #EEEFF2 53.13%, #E4E6EA 100%)',
                     '&::after': {
                         background:
-                            'linear-gradient(78.58deg, #F5F6F8 3.23%, #FDFDFD 53.13%, #F6F7F8 100%)',
+                            'linear-gradient(78.58deg, #E4E6EA 3.23%, #F6F7F9 53.13%, #E4E6EA 100%)',
                     },
                 },
             },
@@ -284,7 +304,6 @@ export const lightThemeOptions = {
                 },
             },
         },
-
     },
 
     palette: {
@@ -321,6 +340,10 @@ export const lightThemeOptions = {
         footerTopBgColor,
         nonVeg,
         offerChip,
+        referBanner,
+        happyHourBanner,
+        progressOffer,
+        offerSection,
         sectionBg,
         cardBackground1,
         cardBackground2,

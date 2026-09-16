@@ -29,8 +29,6 @@ export const useGetLocation = (coords,setInZone) => {
     const [currentLocationValue, setCurrentLactionValue] = useState({
         description: '',
     })
-    console.log({ location });
-
     const { data: places, isLoading: isLoadingPlacesApi } = useQuery(
         ['places', searchKey.description],
         async () => GoogleApi.placeApiAutocomplete(searchKey.description),
@@ -62,8 +60,6 @@ export const useGetLocation = (coords,setInZone) => {
                     error?.response?.data?.errors?.[0]?.message ===
                     'Service not available in this area' || error?.response?.data?.errors?.[0]?.message ==="We are temporarily unavailable in this area"
                 setInZone?.(!isOutOfZone)
-                console.log('error', !isOutOfZone)
-                //onErrorResponse(error)
             },
         }
     )

@@ -18,14 +18,15 @@ import { RouteLinksData } from '@/components/footer/RouteLinksData'
 
 const NewsletterCard = styled(Box)(({ theme }) => ({
     borderRadius: 20,
-    padding: '24px 28px',
+    padding: '26px 32px',
     [theme.breakpoints.down('sm')]: {
-        padding: '12px',
+        padding: '18px',
+        borderRadius: 16,
     },
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 20,
+    gap: 24,
     flexWrap: 'wrap',
     position: 'relative',
     overflow: 'hidden',
@@ -34,13 +35,13 @@ const NewsletterCard = styled(Box)(({ theme }) => ({
         theme.palette.mode === 'dark'
             ? `linear-gradient(120deg, ${alpha(
                   theme.palette.primary.main,
-                  0.12
+                  0.14
               )} 0%, ${theme.palette.background.paper} 100%)`
             : `linear-gradient(120deg, ${alpha(
                   theme.palette.primary.main,
                   0.08
               )} 0%, ${theme.palette.background.paper} 100%)`,
-    boxShadow: theme.shadows[1],
+    boxShadow: theme.shadows[2],
     '&::after': {
         content: '""',
         position: 'absolute',
@@ -63,32 +64,37 @@ const NewsForm = styled(Box)(({ theme }) => ({
     gap: 8,
     backgroundColor: theme.palette.neutral[200],
     borderRadius: 999,
-    padding: 5,
+    padding: 6,
     border: `1px solid ${theme.palette.divider}`,
     boxShadow: theme.shadows[1],
     width: '100%',
     maxWidth: 460,
     position: 'relative',
     zIndex: 1,
+    transition: 'border-color 0.15s ease',
+    '&:focus-within': {
+        borderColor: theme.palette.primary.main,
+    },
 }))
 
 const ServiceGrid = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
-    gap: 12,
+    gap: 14,
     '& > *': {
-        flex: '1 1 calc(25% - 9px)',
+        flex: '1 1 calc(25% - 10.5px)',
         minWidth: 220,
-        maxWidth: 'calc(25% - 9px)',
+        maxWidth: 'calc(25% - 10.5px)',
     },
     [theme.breakpoints.down('md')]: {
         '& > *': {
-            flex: '1 1 calc(50% - 6px)',
-            maxWidth: 'calc(50% - 6px)',
+            flex: '1 1 calc(50% - 7px)',
+            maxWidth: 'calc(50% - 7px)',
         },
     },
     [theme.breakpoints.down('sm')]: {
+        gap: 10,
         '& > *': {
             flex: '1 1 100%',
             maxWidth: '100%',
@@ -97,36 +103,30 @@ const ServiceGrid = styled(Box)(({ theme }) => ({
 }))
 
 const ServiceCard = styled(Box)(({ theme }) => ({
-    backgroundColor: theme.palette.neutral[200],
-    border: `1px solid ${theme.palette.divider}`,
-    borderRadius: 14,
-    padding: '14px 16px',
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: 16,
+    padding: '16px 18px',
     display: 'flex',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
     cursor: 'pointer',
-    transition: 'all 0.15s ease',
+    transition: 'box-shadow 0.15s ease',
     '&:hover': {
-        borderColor: theme.palette.primary.main,
-        backgroundColor: alpha(theme.palette.primary.main, 0.06),
-    },
-    '&:hover .svc-chev': {
-        color: theme.palette.primary.main,
-        transform: 'translateX(2px)',
+        boxShadow: theme.shadows[3],
     },
 }))
 
 const ServiceIcon = styled(Box)(({ theme }) => ({
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: alpha(theme.palette.primary.main, 0.08),
     color: theme.palette.primary.main,
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    '& svg': { fontSize: 20 },
+    '& svg': { fontSize: 22 },
 }))
 
 const SERVICE_ICONS = {
@@ -218,26 +218,27 @@ const SubscribeServices = () => {
                 width: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: { xs: 2, md: 4 },
-               
+                gap: { xs: '20px', md: '28px' },
             }}
         >
             <NewsletterCard>
                 <Box sx={{ position: 'relative', zIndex: 1 }}>
                     <Typography
                         sx={{
-                            fontSize: { xs: '18px', md: '20px' },
+                            fontSize: { xs: '16px', md: '20px' },
                             fontWeight: 800,
-                            letterSpacing: '-0.01em',
+                            letterSpacing: '-0.02em',
+                            lineHeight: 1.2,
                             color: (theme) => theme.palette.text.primary,
-                            mb: '4px',
+                            mb: '6px',
                         }}
                     >
-                        {landingPageData?.news_letter_title || t("Let's Connect!")}
+                        {landingPageData?.news_letter_title ||
+                            t("Let's Connect!")}
                     </Typography>
                     <Typography
                         sx={{
-                            fontSize: '13.5px',
+                            fontSize: { xs: '12px', md: '13.5px' },
                             color: (theme) => theme.palette.text.secondary,
                         }}
                     >
@@ -256,8 +257,8 @@ const SubscribeServices = () => {
                         placeholder={t('Your Email Address')}
                         sx={{
                             flex: 1,
-                            px: '14px',
-                            fontSize: '13px',
+                            px: '16px',
+                            fontSize: '13.5px',
                             color: (theme) => theme.palette.text.primary,
                         }}
                         inputProps={{ 'aria-label': t('Your Email Address') }}
@@ -269,7 +270,7 @@ const SubscribeServices = () => {
                         disabled={isLoading}
                         sx={{
                             borderRadius: 999,
-                            px: { xs: '10px', sm: '18px' },
+                            px: { xs: '12px', sm: '20px' },
                             py: '10px',
                             minWidth: { xs: 'unset', sm: 'auto' },
                             fontSize: '13px',
@@ -282,8 +283,13 @@ const SubscribeServices = () => {
                             gap: '6px',
                         }}
                     >
-                        <SendIcon sx={{ fontSize: 16, transform: 'rotate(-45deg)' }} />
-                        <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                        <SendIcon
+                            sx={{ fontSize: 16, transform: 'rotate(-45deg)' }}
+                        />
+                        <Box
+                            component="span"
+                            sx={{ display: { xs: 'none', sm: 'inline' } }}
+                        >
                             {t('Subscribe')}
                         </Box>
                     </Button>
@@ -299,11 +305,12 @@ const SubscribeServices = () => {
                         tabIndex={0}
                     >
                         <ServiceIcon>{SERVICE_ICONS[item.value]}</ServiceIcon>
-                        <Stack spacing={0} sx={{ minWidth: 0, flex: 1 }}>
+                        <Stack spacing={0.25} sx={{ minWidth: 0, flex: 1 }}>
                             <Typography
                                 sx={{
-                                    fontSize: '13px',
+                                    fontSize: '13.5px',
                                     fontWeight: 700,
+                                    letterSpacing: '-0.01em',
                                     color: (theme) =>
                                         theme.palette.text.primary,
                                     overflow: 'hidden',
@@ -315,7 +322,7 @@ const SubscribeServices = () => {
                             </Typography>
                             <Typography
                                 sx={{
-                                    fontSize: '11px',
+                                    fontSize: '11.5px',
                                     fontWeight: 600,
                                     color: (theme) =>
                                         theme.palette.text.secondary,

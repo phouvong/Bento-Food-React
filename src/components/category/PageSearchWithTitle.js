@@ -6,7 +6,14 @@ import { useTranslation } from 'react-i18next'
 import { Stack } from '@mui/material'
 import { useTheme } from '@mui/styles'
 
-const PageSearchWithTitle = ({ title, handleSearchResult, label, action }) => {
+const PageSearchWithTitle = ({
+    title,
+    handleSearchResult,
+    label,
+    action,
+    backgroundColor,
+    borderRadius,
+}) => {
     const { t } = useTranslation()
     const theme = useTheme()
 
@@ -29,8 +36,10 @@ const PageSearchWithTitle = ({ title, handleSearchResult, label, action }) => {
                     <CustomSearch
                         handleSearchResult={handleSearchResult}
                         label={t(label)}
-                        backgroundColor={theme.palette.neutral[200]}
-                        borderRadius=".5rem"
+                        backgroundColor={
+                            backgroundColor ?? theme.palette.neutral[200]
+                        }
+                        borderRadius={borderRadius ?? '.5rem'}
                     />
                 </Stack>
                 {action}

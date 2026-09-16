@@ -5,11 +5,13 @@ import { ProfileApi } from '@/hooks/react-query/config/profileApi'
 import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
 import {
     formatPhoneNumber,
+    formatSnakeCaseText,
     getAmount,
     getCouponDiscount,
     getDeliveryFees,
     getFinalTotalPrice,
     getProductDiscount,
+    getStoredCheckoutContactInfo,
     getSubTotalPrice,
     getTaxableTotalPrice,
     getVariation,
@@ -19,9 +21,11 @@ import {
 } from '@/utils/customFunctions'
 import {
     Box,
+    Breadcrumbs,
     Checkbox,
     FormControlLabel,
     Grid,
+    Link,
     Stack,
     Typography,
     alpha,
@@ -29,7 +33,8 @@ import {
 } from '@mui/material'
 import moment from 'moment'
 import Router, { useRouter } from 'next/router'
-import React, { useEffect, useReducer, useRef, useState } from 'react'
+import NextLink from 'next/link'
+import React, { useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery } from 'react-query'
@@ -37,9 +42,15 @@ import { useDispatch, useSelector } from 'react-redux'
 import { onErrorResponse, onSingleErrorResponse } from '../ErrorResponse'
 import { DeliveryTitle, OrderSummary } from './CheckOut.style'
 import DeliveryDetails from './DeliveryDetails'
+import DeliveryInstruction from './DeliveryInstruction'
 import RestaurantScheduleTime from './RestaurantScheduleTime'
 import { getDayNumber } from './const'
 import OrderCalculation from './order-summary/OrderCalculation'
+import useGetSurgePrice, {
+    normalizeSurgePrice,
+} from '@/hooks/react-query/orders/useGetSurgePrice'
+import useGetCoverageList from '@/hooks/react-query/delivery-charge/useGetCoverageList'
+import useGetCheckoutSummary from '@/hooks/react-query/order-place/useGetCheckoutSummary'
 import OrderSummaryDetails from './order-summary/OrderSummaryDetails'
 import PaymentOptions from './order-summary/PaymentOptions'
 
@@ -51,7 +62,7 @@ import {
     setOfflineWithPartials,
     setOrderDetailsModal,
 } from '@/redux/slices/OfflinePayment'
-import { setCouponAmount, setWalletAmount } from '@/redux/slices/cart'
+import { cart, setCouponAmount, setWalletAmount } from '@/redux/slices/cart'
 import { setUser } from '@/redux/slices/customer'
 import { setCouponType, setZoneData } from '@/redux/slices/global'
 import {
@@ -64,16 +75,12 @@ import 'simplebar-react/dist/simplebar.min.css'
 import useGetVehicleCharge from '../../hooks/react-query/config/useGetVehicleCharge'
 import useGetOfflinePaymentOptions from '../../hooks/react-query/offline-payment/useGetOfflinePaymentOptions'
 import CustomImageContainer from '../CustomImageContainer'
-import ItemSelectWithChip from '../ItemSelectWithChip'
 import CustomModal from '../custom-modal/CustomModal'
-import Cutlery from './Cutlery'
 import DeliveryManTips from './DeliveryManTips'
 import OfflinePaymentForm from './OfflinePaymentForm'
 import PartialPayment from './PartialPayment'
 import PartialPaymentModal from './PartialPaymentModal'
-import thunderstorm from './assets/thunderstorm.svg'
 import wallet from './assets/walletpayment.png'
-import { deliveryInstructions, productUnavailableData } from './demo'
 import { getGuestId, getToken } from './functions/getGuestUserId'
 import { getSubscriptionOrderCount } from './functions/getSubscriptionOrderCount'
 import { subscriptionReducer, subscriptionsInitialState } from './states'
@@ -83,15 +90,18 @@ import {
 } from './states/additionalInformationStates'
 import useGetMostTrips from '@/hooks/react-query/useGetMostTrips'
 import { setIsNeedLoad } from '@/redux/slices/utils'
-import GuestUserInforForm from '@/components/checkout-page/guest-user/GuestUserInforForm'
-import DineInPreferableTime from '@/components/checkout-page/DineInPreferableTime'
 import CustomNextImage from '@/components/CustomNextImage'
 import { useGetTax } from '@/hooks/react-query/order-place/useGetTax'
 import { CouponApi } from '@/hooks/react-query/config/couponApi'
 import HaveCoupon from '@/components/checkout-page/HaveCoupon'
-import AddIcon from '@mui/icons-material/Add'
 import money from '@/components/checkout-page/assets/fi_2704332.png'
 import useGetProActiveOffer from '@/hooks/react-query/pro-plans/useGetProActiveOffer'
+import useGetAllCartList, {
+    mapRestaurantCartRows,
+} from '@/hooks/react-query/add-cart/useGetAllCartList'
+import useGetDiscountEligibility from '@/hooks/react-query/add-cart/useGetDiscountEligibility'
+import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined'
+import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 
 let currentDate = moment().format('YYYY/MM/DD HH:mm')
 let nextday = moment(currentDate).add(1, 'days').format('YYYY/MM/DD')
@@ -102,6 +112,18 @@ let tomorrow = moment(nextday).format('dddd')
 var CurrentDatee = moment().format()
 
 let todayTime = moment(CurrentDatee).format('HH:mm')
+
+const isChosenDayWithinRange = (type, day, startMoment, endMoment) => {
+    if (!startMoment.isValid() || !endMoment.isValid()) return false
+    const cursor = startMoment.clone().startOf('day')
+    const last = endMoment.clone().startOf('day')
+    while (cursor.isSameOrBefore(last, 'day')) {
+        if (type === 'weekly' && cursor.day() === day) return true
+        if (type === 'monthly' && cursor.date() === day) return true
+        cursor.add(1, 'day')
+    }
+    return false
+}
 
 export const handleValuesFromCartItems = (variationValues) => {
     let value = []
@@ -134,7 +156,24 @@ const CheckoutPage = ({ isDineIn }) => {
         walletAmount,
         subscriptionSubTotal,
         couponAmount,
+        orderPreferences,
     } = useSelector((state) => state.cart)
+
+    const checkoutRestaurantId = cartList?.[0]?.restaurant_id
+    useGetAllCartList(checkoutRestaurantId, {
+        enabled:
+            router.query.page !== 'campaign' && Boolean(checkoutRestaurantId),
+        onSuccess: (res) => {
+            if (!Array.isArray(res)) return
+            dispatch(cart(mapRestaurantCartRows(res)))
+        },
+    })
+
+    const hasBogoItem = useMemo(
+        () => cartList?.some((item) => Boolean(item?.bogoDetails)),
+        [cartList]
+    )
+
     let currentLatLng = undefined
     const [address, setAddress] = useState(undefined)
     const [paymenMethod, setPaymenMethod] = useState('cash_on_delivery')
@@ -144,8 +183,11 @@ const CheckoutPage = ({ isDineIn }) => {
     const [scheduleAt, setScheduleAt] = useState('now')
     const [orderSuccess, setOrderSuccess] = useState(false)
     const [taxAmount, setTaxAmount] = useState(0)
-    const [cutlery, setCutlery] = useState(0)
-    const [unavailable_item_note, setUnavailable_item_note] = useState(null)
+    // Owned by the restaurant-page cart's preference rows (cart slice);
+    // checkout no longer shows its own controls for these, it only relays
+    // the values into the order payload.
+    const cutlery = orderPreferences?.addCutlery ? 1 : 0
+    const unavailable_item_note = orderPreferences?.unavailableNote ?? null
     const [delivery_instruction, setDelivery_instruction] = useState(null)
     const [total_order_amount, setTotalOrderAmount] = useState(0)
     const [orderId, setOrderId] = useState(null)
@@ -153,6 +195,7 @@ const CheckoutPage = ({ isDineIn }) => {
     const [switchToWallet, setSwitchToWallet] = useState(false)
     const [openModal, setOpenModal] = useState(false)
     const [openPartialModel, setOpenPartialModel] = useState(false)
+    const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
     const [deliveryTip, setDeliveryTip] = useState(0)
     const [selectedDeliveryOption, setSelectedDeliveryOption] = useState(null)
     const [selected, setSelected] = useState({})
@@ -160,12 +203,13 @@ const CheckoutPage = ({ isDineIn }) => {
         name: 'cash_on_delivery',
         image: money,
     })
+
     const [cashbackAmount, setCashbackAmount] = useState(null)
     const [extraPackagingCharge, setExtraPackagingCharge] = useState(0)
     const [changeAmount, setChangeAmount] = useState()
     const [couponCode, setCouponCode] = useState(null)
-    const [anchorEl, setAnchorEl] = useState(null)
     const [open, setOpen] = useState(false)
+    const [paymentPromptTick, setPaymentPromptTick] = useState(0)
     const { method } = router.query
     const { mutate: offlineMutate, isLoading: offlinePaymentLoading } =
         useOfflinePayment()
@@ -173,8 +217,18 @@ const CheckoutPage = ({ isDineIn }) => {
     const { offLineWithPartial, offlinePaymentInfo } = useSelector(
         (state) => state.offlinePayment
     )
+
+    useEffect(() => {
+        dispatch(setOfflineWithPartials(false))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
     const { data: tripsData } = useGetMostTrips()
-    const { data: taxData, refetch: taxRefetch, mutate } = useGetTax()
+    const {
+        data: taxData,
+        refetch: taxRefetch,
+        mutate,
+        isLoading: taxLoading,
+    } = useGetTax()
 
     const { data, refetch: refetchNotification } =
         useGetOrderPlaceNotification(orderId)
@@ -184,8 +238,8 @@ const CheckoutPage = ({ isDineIn }) => {
             dispatch(setIsNeedLoad(data?.reload_home))
         }
     }, [data])
-    console.log({selectedDeliveryOption});
-    
+    console.log({ selectedDeliveryOption })
+
     const { data: offlinePaymentOptions, refetch: OfflinePaymentRefetch } =
         useGetOfflinePaymentOptions({})
 
@@ -212,7 +266,7 @@ const CheckoutPage = ({ isDineIn }) => {
 
     const text1 = t('You can not Order more then')
     const text2 = t('on COD order')
-    const { page } = router.query
+    const { page, restaurant: restaurantSlug, restuId } = router.query
     const checkoutCartList = page === 'campaign' ? campFoodList : cartList
     let currencySymbol
     let currencySymbolDirection
@@ -239,15 +293,15 @@ const CheckoutPage = ({ isDineIn }) => {
             }
         }
     }, [zoneData])
-    const { data: restaurantData, refetch } = useQuery(
-        [`restaurant-details`],
-        () =>
-            RestaurantsApi.restaurantDetails(
-                page === 'campaign'
-                    ? campFoodList?.[0]?.restaurant_id
-                    : cartList[0].restaurant_id
-            ),
-        { enabled: false, onError: onErrorResponse }
+    const restaurantDetailsId =
+        page === 'campaign'
+            ? campFoodList?.[0]?.restaurant_id
+            : restuId || checkoutRestaurantId
+
+    const { data: restaurantData } = useQuery(
+        ['restaurant-details', restaurantDetailsId],
+        () => RestaurantsApi.restaurantDetails(restaurantDetailsId),
+        { enabled: Boolean(restaurantDetailsId), onError: onErrorResponse }
     )
 
     const {
@@ -269,19 +323,98 @@ const CheckoutPage = ({ isDineIn }) => {
     useEffect(() => {
         extraChargeRefetch()
     }, [distanceData])
-    const deliveryFeeForOptions = getDeliveryFees(
-        restaurantData,
-        global,
-        checkoutCartList,
-        distanceData,
-        couponDiscount,
-        couponType,
-        orderType,
-        zoneData?.data?.zone_data,
-        restaurantData?.data,
-        address,
-        Number(extraCharge) || 0
+    // Area/zip based delivery charge — when the zone's rule is active
+    // (delivery_charge_type non-null and coverage rows exist), the customer
+    // must pick their area and its charge replaces the distance-based fee.
+    const coverageRestaurantId =
+        restaurantData?.data?.id ??
+        checkoutCartList?.[0]?.restaurant_id ??
+        restuId
+    const { data: coverageData } = useGetCoverageList(
+        orderType === 'delivery',
+        coverageRestaurantId
     )
+    const [selectedCoverageArea, setSelectedCoverageArea] = useState(null)
+    const coverageAreas = coverageData?.data ?? []
+    // Self-delivery restaurants deliver with their own fleet — the zone's
+    // area/zip charge rule doesn't apply, so the field never shows and no
+    // area id is priced or submitted.
+    const isSelfDeliveryRestaurant =
+        Number.parseInt(restaurantData?.data?.self_delivery_system) === 1
+    const coverageRuleActive = Boolean(
+        !isSelfDeliveryRestaurant &&
+            coverageData?.delivery_charge_type &&
+            coverageAreas.length > 0
+    )
+    const coverageDeliveryCharge =
+        coverageRuleActive && selectedCoverageArea
+            ? Number(selectedCoverageArea.delivery_charge) || 0
+            : null
+
+    const { data: discountEligibility } = useGetDiscountEligibility(
+        page === 'campaign' ? undefined : restaurantData?.data?.id,
+        getSubTotalPrice(checkoutCartList)
+    )
+    const eligibilityDiscountAmount = discountEligibility?.is_qualified
+        ? Number(discountEligibility.discount_amount) || 0
+        : 0
+    const getEffectiveProductDiscount = (items, rData) =>
+        eligibilityDiscountAmount > 0
+            ? eligibilityDiscountAmount
+            : getProductDiscount(items, rData)
+
+    // Single source of truth for checkout-time charges: tax, delivery fee
+    // (surge already folded in) and cashback. Every request input sits in
+    // the query key, so changing the delivery address, the area/zip pick,
+    // or the amount recalls the API; client-side math below stays only as
+    // the fallback for backends without this endpoint.
+    //
+    // order_amount is the discounted items subtotal, NOT redux totalAmount:
+    // totalAmount includes the delivery fee this API returns, so keying on
+    // it loops (response → new total → new key → recall) and every fee/tip/
+    // packaging tweak would refetch the summary for nothing.
+    const summaryOrderAmount =
+        (getSubTotalPrice(checkoutCartList) || 0) -
+        (getEffectiveProductDiscount(checkoutCartList, restaurantData) || 0)
+    const { data: checkoutSummary, isFetching: checkoutSummaryFetching } =
+        useGetCheckoutSummary({
+            restaurantId: restaurantData?.data?.id,
+            orderAmount: Number(summaryOrderAmount) || 0,
+            orderType,
+            distanceKm:
+                distanceData?.data?.distanceMeters != null
+                    ? distanceData.data.distanceMeters / 1000
+                    : null,
+            latitude: address?.latitude ?? address?.lat ?? null,
+            longitude: address?.longitude ?? address?.lng ?? null,
+            coverageId: selectedCoverageArea?.id ?? null,
+            coverageType: coverageData?.delivery_charge_type ?? null,
+        })
+
+    // Fee the delivery-type (express / slightly delay) section prices and
+    // gates itself against. The summary fee is authoritative — with zone
+    // free delivery it is 0 (or free_delivery_by is set), which hides the
+    // section; the legacy client-side figure only backs up older backends.
+    const summaryDeliveryForOptions =
+        orderType === 'delivery' ? checkoutSummary?.delivery : null
+    const deliveryFeeForOptions =
+        summaryDeliveryForOptions != null
+            ? summaryDeliveryForOptions?.free_delivery_by
+                ? 0
+                : Number(summaryDeliveryForOptions?.delivery_charge) || 0
+            : getDeliveryFees(
+                  restaurantData,
+                  global,
+                  checkoutCartList,
+                  distanceData,
+                  couponDiscount,
+                  couponType,
+                  orderType,
+                  zoneData?.data?.zone_data,
+                  restaurantData?.data,
+                  address,
+                  Number(extraCharge) || 0
+              )
     const handleChange = (event) => {
         setDayNumber(event.target.value)
     }
@@ -297,16 +430,22 @@ const CheckoutPage = ({ isDineIn }) => {
         ['profile-info'],
         ProfileApi.profileInfo,
         {
+            enabled: Boolean(token) && Boolean(getToken()),
             onSuccess: userOnSuccessHandler,
             onError: onSingleErrorResponse,
         }
+    )
+
+    const storedContactInfo = getStoredCheckoutContactInfo(
+        guestUserInfo,
+        customerData
     )
 
     const proStatus = Number(customerData?.data?.pro_status) === 1
     const { data: proActiveOffer } = useGetProActiveOffer({
         enabled: proStatus,
     })
-console.log({proActiveOffer});
+    console.log({ proActiveOffer })
 
     // Active-offer payload shape varies by benefit.type:
     //   - 'discount'     → { percentage, max_amount, min_order_amount }
@@ -316,12 +455,18 @@ console.log({proActiveOffer});
     //                      proSavedAmount stays 0 to avoid double-counting.
     const proCouponDiscount =
         couponDiscount && couponDiscount.coupon_type !== 'free_delivery'
-            ? getCouponDiscount(couponDiscount, restaurantData, checkoutCartList) || 0
+            ? getCouponDiscount(
+                  couponDiscount,
+                  restaurantData,
+                  checkoutCartList
+              ) || 0
             : 0
     const proCartSubtotal = Math.max(
         0,
-        (checkoutCartList?.reduce((sum, item) => sum + (item?.totalPrice || 0), 0) || 0) -
-            proCouponDiscount
+        (checkoutCartList?.reduce(
+            (sum, item) => sum + (item?.totalPrice || 0),
+            0
+        ) || 0) - proCouponDiscount
     )
     const proBenefit = proActiveOffer?.benefit
     const proBenefitType = proBenefit?.type
@@ -338,14 +483,18 @@ console.log({proActiveOffer});
 
     let proSavedAmount = 0
     let proSavedLabel = ''
-    console.log({proBenefitMinOrderAmount,proCartSubtotal,cartList,campFoodList});
-    
+    console.log({
+        proBenefitMinOrderAmount,
+        proCartSubtotal,
+        cartList,
+        campFoodList,
+    })
+
     // When a free-delivery coupon is applied alongside a Pro "discount"
     // benefit, the Pro savings row would double up against the coupon's
     // free-delivery line — suppress the cart-discount calculation in that
     // edge case so we don't show the "Pro User Discount" row.
-    const isFreeDeliveryCoupon =
-        couponDiscount?.coupon_type === 'free_delivery'
+    const isFreeDeliveryCoupon = couponDiscount?.coupon_type === 'free_delivery'
 
     if (proOfferActive) {
         if (proBenefitType === 'discount' && !isFreeDeliveryCoupon) {
@@ -371,8 +520,44 @@ console.log({proActiveOffer});
             }
         }
     }
-    console.log({proSavedLabel});
-    
+    // checkout-summary is the authority for Pro savings when it carries
+    // them — the client-side math above stays only as the fallback for
+    // backends without the field. The envelope isn't pinned yet, so both
+    // `pro` / `pro_discount` spellings and the common amount keys are read.
+    const summaryPro =
+        checkoutSummary?.pro ?? checkoutSummary?.pro_discount ?? null
+    // Live shape is { status, type, discount, delivery_savings, total_savings }.
+    // `total_savings` leads because it is the whole benefit whatever the type;
+    // `discount` is 0 on a delivery_fee benefit, so reading it first would
+    // wrongly resolve to zero. The older speculative spellings stay last for
+    // backends that still send them.
+    const summaryProAmount = Number(
+        summaryPro?.total_savings ??
+            summaryPro?.delivery_savings ??
+            summaryPro?.discount ??
+            summaryPro?.amount ??
+            summaryPro?.discount_amount ??
+            summaryPro?.calculated_amount
+    )
+    const proFromSummary =
+        summaryPro != null &&
+        summaryPro?.status !== false &&
+        Number.isFinite(summaryProAmount)
+    if (proFromSummary) {
+        proSavedAmount = summaryProAmount
+        proSavedLabel =
+            summaryPro?.label ??
+            summaryPro?.title ??
+            (proSavedLabel || t('Pro User Discount'))
+    }
+    // The API names this `type`; `benefit_type` is the older spelling.
+    const effectiveProBenefitType = proFromSummary
+        ? summaryPro?.benefit_type ?? summaryPro?.type ?? proBenefitType
+        : proBenefitType
+    const effectiveProOfferType = proFromSummary
+        ? summaryPro?.offer_type ?? proOfferType
+        : proOfferType
+
     useEffect(() => {
         orderId && refetchNotification()
     }, [orderId])
@@ -387,12 +572,6 @@ console.log({proActiveOffer});
             address: location,
             address_type: 'Selected Address',
         })
-
-        const apiRefetch = async () => {
-            await refetch()
-        }
-
-        apiRefetch()
     }, [])
 
     useEffect(() => {
@@ -422,8 +601,7 @@ console.log({proActiveOffer});
         const taxAmount = getTaxableTotalPrice(
             cartList,
             couponDiscount,
-            restaurantData?.data?.tax,
-            restaurantData?.data
+            restaurantData
         )
 
         setTaxAmount(taxAmount)
@@ -457,6 +635,12 @@ console.log({proActiveOffer});
 
     const handleProductList = (productList, totalQty) => {
         return productList?.map((cart) => {
+            if (cart?.bogoDetails) {
+                return {
+                    bogo_group_id: cart?.bogoGroupId,
+                    quantity: cart?.quantity,
+                }
+            }
             return {
                 add_on_ids: cart?.selectedAddons?.map((add) => {
                     return add.id
@@ -504,9 +688,9 @@ console.log({proActiveOffer});
         )
         const isDigital =
             paymenMethod !== 'cash_on_delivery' &&
-                paymenMethod !== 'wallet' &&
-                paymenMethod !== 'offline_payment' &&
-                paymenMethod !== ''
+            paymenMethod !== 'wallet' &&
+            paymenMethod !== 'offline_payment' &&
+            paymenMethod !== ''
                 ? 'digital_payment'
                 : paymenMethod
 
@@ -517,8 +701,8 @@ console.log({proActiveOffer});
                 scheduleAt === 'now'
                     ? null
                     : moment(scheduleAt)
-                        .subtract(1, 'minutes')
-                        .format('YYYY-MM-DD HH:mm'),
+                          .subtract(1, 'minutes')
+                          .format('YYYY-MM-DD HH:mm'),
             //additional address
             address_type: !getToken()
                 ? guestUserInfo?.address_type
@@ -540,13 +724,27 @@ console.log({proActiveOffer});
             coupon_code: couponDiscount?.code,
             coupon_discount_amount: couponDiscount?.discount,
             coupon_discount_title: couponDiscount?.title,
-            discount_amount: getProductDiscount(productList),
+            discount_amount: getEffectiveProductDiscount(productList),
             distance: handleDistance(
                 distanceData,
                 restaurantData?.data,
                 address
             ),
+            // Route travel time from the distance API — arrives as "468s",
+            // sent as plain seconds. Null when the route lookup had no
+            // result (straight-line distance fallback path).
+            duration: Number.parseInt(distanceData?.data?.duration) || null,
             order_amount: totalAmount,
+            // Selected coverage row when the zone's area/zip delivery-charge
+            // rule is active — same id the checkout-summary call prices the
+            // delivery fee with. zip_code_wise rows go as zip_code_id,
+            // area_wise rows as area_id.
+            ...(orderType === 'delivery' &&
+                selectedCoverageArea?.id != null && {
+                    [coverageData?.delivery_charge_type === 'zip_code_wise'
+                        ? 'zip_code_id'
+                        : 'area_id']: selectedCoverageArea.id,
+                }),
             dm_tips: deliveryTip,
             ...(couponDiscount?.coupon_type !== 'free_delivery' && {
                 delivery_id: selectedDeliveryOption?.id,
@@ -562,13 +760,17 @@ console.log({proActiveOffer});
             guest_id: getGuestId(),
             contact_person_name:
                 additionalInformationStates?.dine_in_contact?.name ||
-                guestUserInfo?.contact_person_name,
+                storedContactInfo?.contact_person_name ||
+                customerData?.data?.f_name,
             contact_person_number: additionalInformationStates?.dine_in_contact
                 ?.phone
                 ? formatPhoneNumber(
-                    additionalInformationStates?.dine_in_contact?.phone
-                )
-                : formatPhoneNumber(guestUserInfo?.contact_person_number),
+                      additionalInformationStates?.dine_in_contact?.phone
+                  )
+                : formatPhoneNumber(
+                      storedContactInfo?.contact_person_number ||
+                          customerData?.data?.phone
+                  ),
             is_guest: token ? 0 : 1,
             is_buy_now: page === 'campaign' ? 1 : 0,
             cart_id: page === 'campaign' ? cartList[0]?.cartItemId : null,
@@ -576,7 +778,9 @@ console.log({proActiveOffer});
             delivery_instruction,
             extra_packaging_amount: extraPackagingCharge,
             contact_person_email:
-                additionalInformationStates?.dine_in_contact?.email,
+                additionalInformationStates?.dine_in_contact?.email ||
+                storedContactInfo?.contact_person_email ||
+                customerData?.data?.email,
             bring_change_amount: changeAmount,
         }
     }
@@ -596,6 +800,7 @@ console.log({proActiveOffer});
         cartList,
         extraPackagingCharge,
         selectedDeliveryOption?.id,
+        selectedCoverageArea?.id,
     ])
     const orderPlaceMutation = (
         carts,
@@ -607,18 +812,40 @@ console.log({proActiveOffer});
         orderMutation(order, {
             onSuccess: handleSuccess,
             onError: (error) => {
-                error?.response?.data?.errors?.forEach((item) =>
-                    toast.error(item.message, {
-                        position: 'bottom-right',
-                    })
-                )
+                error?.response?.data?.errors?.forEach((item) => {
+                    // Only bogo-related error codes get the "Code: message"
+                    // prefix — every other error (area_id, stock, etc.) just
+                    // shows its plain message, same as before this was added.
+                    const isBogoCode = item?.code
+                        ?.toString()
+                        .toLowerCase()
+                        .includes('bogo')
+                    toast.error(
+                        isBogoCode
+                            ? `${formatSnakeCaseText(item.code)}: ${
+                                  item.message
+                              }`
+                            : item.message,
+                        {
+                            position: 'bottom-right',
+                        }
+                    )
+                })
             },
         })
     }
 
     const handlePlaceOrder = () => {
+        if (!paymenMethod) {
+            toast.error(t('Please select a payment method'), {
+                position: 'bottom-right',
+                id: 'payment_method',
+            })
+            setPaymentPromptTick((prev) => prev + 1)
+            return
+        }
         let productList = page === 'campaign' ? campFoodList : cartList
-        if(!restaurantData?.data?.active)
+        if (!restaurantData?.data?.active)
             return toast.error(t('Restaurant is currently closed'))
         let isAvailable =
             page === 'campaign'
@@ -642,12 +869,15 @@ console.log({proActiveOffer});
                                 toast.success(response?.data?.message)
                                 const newBaseUrl = baseUrl.substring(0, 31)
                                 const callBackUrl = `${window.location.origin}/order`
-                                const url = `${window.location.origin
-                                    }/payment-mobile?order_id=${response?.data?.order_id
-                                    }&customer_id=${customerData?.data?.id
+                                const url = `${
+                                    window.location.origin
+                                }/payment-mobile?order_id=${
+                                    response?.data?.order_id
+                                }&customer_id=${
+                                    customerData?.data?.id
                                         ? customerData?.data?.id
                                         : getGuestId()
-                                    }&callback=${callBackUrl}`
+                                }&callback=${callBackUrl}`
                             } else if (paymenMethod === 'wallet') {
                                 toast.success(response?.data?.message)
                                 setOrderSuccess(true)
@@ -682,7 +912,7 @@ console.log({proActiveOffer});
                 if (
                     totalMaxCodAmount !== 0 &&
                     Number.parseInt(totalAmountOrSubTotalAmount) >
-                    Number.parseInt(totalMaxCodAmount)
+                        Number.parseInt(totalMaxCodAmount)
                 ) {
                     toast.error(
                         `${text1} ${getAmount(
@@ -733,19 +963,19 @@ console.log({proActiveOffer});
                 let carts = handleProductList(productList, totalQty)
                 const handleSuccess = (response) => {
                     const payment_platform = 'web'
-                    const page = 'order'
                     setOrderId(response?.data?.order_id)
                     if (response?.data) {
                         if (paymenMethod !== 'cash_on_delivery') {
                             const callBackUrl = token
-                                ? // ? `${window.location.origin}/order-history/${response?.data?.order_id}`
-                                `${window.location.origin}/info?page=${page}`
+                                ? `${window.location.origin}/info`
                                 : `${window.location.origin}/order`
-                            const url = `${baseUrl}/payment-mobile?order_id=${response?.data?.order_id
-                                }&customer_id=${customerData?.data?.id
+                            const url = `${baseUrl}/payment-mobile?order_id=${
+                                response?.data?.order_id
+                            }&customer_id=${
+                                customerData?.data?.id
                                     ? customerData?.data?.id
                                     : getGuestId()
-                                }&payment_platform=${payment_platform}&callback=${callBackUrl}&payment_method=${paymenMethod}`
+                            }&payment_platform=${payment_platform}&callback=${callBackUrl}&payment_method=${paymenMethod}`
                             Router.push(url)
                         } else {
                             toast.success(response?.data?.message)
@@ -771,9 +1001,59 @@ console.log({proActiveOffer});
         }
     }
     const placeOrder = () => {
+        const hasContactName =
+            additionalInformationStates?.dine_in_contact?.name ||
+            storedContactInfo?.contact_person_name ||
+            customerData?.data?.f_name
+        const hasContactPhone =
+            additionalInformationStates?.dine_in_contact?.phone ||
+            storedContactInfo?.contact_person_number ||
+            customerData?.data?.phone
+        if (orderType !== 'dine_in' && (!hasContactName || !hasContactPhone)) {
+            toast.error(t('Please add your contact information to continue'), {
+                id: 'contact_info_required',
+                position: 'bottom-right',
+            })
+            return
+        }
         localStorage.setItem('access', totalAmount)
         if (page !== 'campaign') {
             if (subscriptionStates.order === '1') {
+                if (subscriptionStates.type === '') {
+                    toast(t('You must choose a subscription type'), {
+                        id: 'subscription-type-required',
+                        duration: 4000,
+                        icon: '⚠️',
+                        style: {
+                            textTransform: 'none',
+                        },
+                    })
+                    return
+                }
+                // Missing dates make the schedule count below meaningless —
+                // catch them first so the user gets pointed at "Select Date
+                // & Time" instead of the unrelated "restaurant not
+                // available" message. One combined toast (not a separate
+                // one per missing field) names the section to fix, and a
+                // fixed id stops repeat clicks from stacking duplicates.
+                if (
+                    subscriptionStates.startDate === '' ||
+                    subscriptionStates.endDate === ''
+                ) {
+                    toast(
+                        t('Please select a date & time for your repeat order'),
+                        {
+                            id: 'subscription-date-time-required',
+                            duration: 4000,
+                            icon: '⚠️',
+                            style: {
+                                textTransform: 'none',
+                            },
+                        }
+                    )
+                    return
+                }
+
                 const subscriptionOrderCount = getSubscriptionOrderCount(
                     restaurantData?.data?.schedules,
                     subscriptionStates.type,
@@ -782,79 +1062,39 @@ console.log({proActiveOffer});
                     subscriptionStates.days
                 )
 
-                if (subscriptionStates.type === '') {
-                    toast(t('You must choose a subscription type'), {
-                        duration: 4000,
-                        icon: '⚠️',
-                        style: {
-                            textTransform: 'none',
-                        },
-                    })
-                } else {
-                    if (subscriptionStates.type !== 'daily') {
-                        let startDate = moment(
-                            subscriptionStates.startDate
-                        ).format('D')
-                        let endDate = moment(subscriptionStates.endDate).format(
-                            'D'
-                        )
-                        let dateEnd = moment(
-                            subscriptionStates.endDate,
-                            'YYYY/MM/DD HH:mm'
-                        )
-                        const dayNumberOfWeekEnd = dateEnd.day()
-                        let dateStart = moment(
-                            subscriptionStates.startDate,
-                            'YYYY/MM/DD HH:mm'
-                        )
-                        const dayNumberOfWeekStart = dateStart.day()
-                        let totalNumbers = endDate - startDate + 1
-                        let finalEndDay = dayNumberOfWeekEnd + totalNumbers
+                if (
+                    subscriptionStates.type === 'weekly' ||
+                    subscriptionStates.type === 'monthly'
+                ) {
+                    const dateStart = moment(
+                        subscriptionStates.startDate,
+                        'yyyy/MM/DD HH:mm'
+                    )
+                    const dateEnd = moment(
+                        subscriptionStates.endDate,
+                        'yyyy/MM/DD HH:mm'
+                    )
 
-                        if (subscriptionStates.days.length > 0) {
-                            const isInsideChoseDate =
-                                subscriptionStates.days.every(
-                                    (item) =>
-                                        item.day >= dayNumberOfWeekStart &&
-                                        item.day <= finalEndDay
+                    if (subscriptionStates.days.length > 0) {
+                        const isInsideChoseDate = subscriptionStates.days.every(
+                            (item) =>
+                                isChosenDayWithinRange(
+                                    subscriptionStates.type,
+                                    Number(item.day),
+                                    dateStart,
+                                    dateEnd
                                 )
-                            if (isInsideChoseDate) {
-                                if (subscriptionOrderCount > 0) {
-                                    handlePlaceOrder()
-                                } else {
-                                    toast(
-                                        t(
-                                            `Your chosen delivery ${subscriptionStates?.days
-                                                ?.length > 1
-                                                ? 'days'
-                                                : 'day'
-                                            } and ${subscriptionStates?.days
-                                                ?.length > 1
-                                                ? 'times'
-                                                : 'time'
-                                            } must be in between start date and end date`
-                                        ),
-                                        {
-                                            duration: 5000,
-                                            icon: '⚠️',
-                                            style: {
-                                                textTransform: 'none',
-                                            },
-                                        }
-                                    )
-                                }
+                        )
+                        if (isInsideChoseDate) {
+                            if (subscriptionOrderCount > 0) {
+                                handlePlaceOrder()
                             } else {
                                 toast(
                                     t(
-                                        `Your chosen delivery ${subscriptionStates?.days?.length > 1
-                                            ? 'days'
-                                            : 'day'
-                                        } and ${subscriptionStates?.days?.length > 1
-                                            ? 'times'
-                                            : 'time'
-                                        } must be in between start date and end date`
+                                        'Restaurant is not available at the selected date(s)/time(s). Please choose a different date or time.'
                                     ),
                                     {
+                                        id: 'subscription-restaurant-unavailable',
                                         duration: 5000,
                                         icon: '⚠️',
                                         style: {
@@ -863,48 +1103,21 @@ console.log({proActiveOffer});
                                     }
                                 )
                             }
-                        }
-                        if (subscriptionStates.days.length === 0) {
-                            toast(
-                                t('You must choose delivery days and times'),
-                                {
-                                    duration: 5000,
-                                    icon: '⚠️',
-                                    style: {
-                                        textTransform: 'none',
-                                    },
-                                }
-                            )
-                        }
-                    }
-                }
-                if (subscriptionStates.type === 'monthly') {
-                    let startDate = moment(subscriptionStates.startDate).format(
-                        'D'
-                    )
-                    let endDate = moment(subscriptionStates.endDate).format('D')
-                    if (subscriptionStates.days.length > 0) {
-                        const isInsideChoseDate = subscriptionStates.days.every(
-                            (item) =>
-                                item.day >= startDate && item.day <= endDate
-                        )
-
-                        if (isInsideChoseDate) {
-                            if (subscriptionOrderCount > 0) {
-                                handlePlaceOrder()
-                            }
                         } else {
                             toast(
                                 t(
-                                    `Your chosen delivery ${subscriptionStates?.days?.length > 1
-                                        ? 'days'
-                                        : 'day'
-                                    } and ${subscriptionStates?.days?.length > 1
-                                        ? 'times'
-                                        : 'time'
+                                    `Your chosen delivery ${
+                                        subscriptionStates?.days?.length > 1
+                                            ? 'days'
+                                            : 'day'
+                                    } and ${
+                                        subscriptionStates?.days?.length > 1
+                                            ? 'times'
+                                            : 'time'
                                     } must be in between start date and end date`
                                 ),
                                 {
+                                    id: 'subscription-days-out-of-range',
                                     duration: 5000,
                                     icon: '⚠️',
                                     style: {
@@ -913,32 +1126,34 @@ console.log({proActiveOffer});
                                 }
                             )
                         }
+                    } else {
+                        toast(t('You must choose delivery days and times'), {
+                            id: 'subscription-days-required',
+                            duration: 5000,
+                            icon: '⚠️',
+                            style: {
+                                textTransform: 'none',
+                            },
+                        })
                     }
-                }
-                if (subscriptionStates.endDate === '') {
-                    toast(t('You must pick an end date'), {
-                        duration: 4000,
-                        icon: '⚠️',
-                        style: {
-                            textTransform: 'none',
-                        },
-                    })
-                }
-                if (subscriptionStates.startDate === '') {
-                    toast(t('You must pick a start date'), {
-                        duration: 4000,
-                        icon: '⚠️',
-                        style: {
-                            textTransform: 'none',
-                        },
-                    })
-                }
-                if (
-                    subscriptionStates.type !== 'monthly' &&
-                    subscriptionStates.type !== 'weekly' &&
-                    subscriptionOrderCount > 0
-                ) {
-                    handlePlaceOrder()
+                } else if (subscriptionStates.type === 'daily') {
+                    if (subscriptionOrderCount > 0) {
+                        handlePlaceOrder()
+                    } else {
+                        toast(
+                            t(
+                                'Restaurant is not available at the selected date(s)/time(s). Please choose a different date or time.'
+                            ),
+                            {
+                                id: 'subscription-restaurant-unavailable',
+                                duration: 5000,
+                                icon: '⚠️',
+                                style: {
+                                    textTransform: 'none',
+                                },
+                            }
+                        )
+                    }
                 }
             } else {
                 handlePlaceOrder()
@@ -947,9 +1162,9 @@ console.log({proActiveOffer});
             handlePlaceOrder()
         }
     }
-    const counponRemove = () => { }
+    const counponRemove = () => {}
     if (orderSuccess) {
-        if (token) {
+        if (getToken()) {
             router.push(
                 {
                     pathname: '/info',
@@ -962,7 +1177,12 @@ console.log({proActiveOffer});
             router.push(
                 {
                     pathname: '/order',
-                    query: { orderId: orderId },
+                    query: {
+                        orderId: orderId,
+                        ...(storedContactInfo?.contact_person_number && {
+                            phone: storedContactInfo.contact_person_number,
+                        }),
+                    },
                 },
                 undefined,
                 { shallow: true }
@@ -970,61 +1190,6 @@ console.log({proActiveOffer});
         }
     }
 
-    const handleBadWeatherUi = (zoneData) => {
-        const currentZoneInfo = zoneData?.find(
-            (item) => item.id === restaurantData?.data?.zone_id
-        )
-        if (currentZoneInfo) {
-            if (
-                Number.parseInt(
-                    currentZoneInfo?.increased_delivery_fee_status
-                ) === 1
-            ) {
-                return (
-                    <>
-                        {currentZoneInfo?.increase_delivery_charge_message && (
-                            <CustomStackFullWidth
-                                alignItems="center"
-                                justifyContent="flex-start"
-                                gap="10px"
-                                direction="row"
-                                sx={{
-                                    backgroundColor: (theme) =>
-                                        alpha(theme.palette.primary.main, 0.3),
-                                    borderRadius: '4px',
-                                    padding: '5px 10px',
-                                }}
-                            >
-                                <CustomNextImage
-                                    height="40"
-                                    width="40"
-                                    src={thunderstorm.src}
-                                    objectFit="contain"
-                                />
-
-                                <Typography>
-                                    {
-                                        currentZoneInfo?.increase_delivery_charge_message
-                                    }
-                                </Typography>
-                            </CustomStackFullWidth>
-                        )}
-                    </>
-                )
-            }
-        }
-    }
-
-    const handleCutlery = (status) => {
-        if (status) {
-            setCutlery(1)
-        } else {
-            setCutlery(0)
-        }
-    }
-    const handleItemUnavailableNote = (value) => {
-        setUnavailable_item_note(value)
-    }
     const handleDeliveryInstructionNote = (value) => {
         setDelivery_instruction(value)
     }
@@ -1150,13 +1315,17 @@ console.log({proActiveOffer});
     const handleCashbackAmount = (data) => {
         setCashbackAmount(data)
     }
-    const { refetch: refetchCashbackAmount } = useGetCashBackAmount({
-        amount: totalAmount,
-        handleSuccess: handleCashbackAmount,
-    })
+    const { refetch: refetchCashbackAmount, isFetching: cashbackFetching } =
+        useGetCashBackAmount({
+            amount: totalAmount,
+            handleSuccess: handleCashbackAmount,
+        })
     useEffect(() => {
         refetchCashbackAmount()
     }, [totalAmount])
+
+    const checkoutApisFetching =
+        taxLoading || checkoutSummaryFetching || cashbackFetching
 
     useEffect(() => {
         if (
@@ -1168,6 +1337,27 @@ console.log({proActiveOffer});
             )
         }
     }, [restaurantData, global])
+
+    // Seed the optional extra-packaging choice made on the restaurant
+    // page's cart once the restaurant amount is available.
+    useEffect(() => {
+        if (
+            orderPreferences?.extraPackaging &&
+            restaurantData?.data?.extra_packaging_amount
+        ) {
+            setExtraPackagingCharge(
+                restaurantData?.data?.extra_packaging_amount
+            )
+        }
+    }, [restaurantData, orderPreferences])
+
+    // Surge charge for the (scheduled) delivery time — added on top of the
+    // delivery fee inside OrderCalculation. Only meaningful for deliveries.
+    const { data: surgeData } = useGetSurgePrice(
+        scheduleAt,
+        orderType === 'delivery'
+    )
+    const surgePrice = normalizeSurgePrice(surgeData)
 
     const handleExtraPackaging = (e) => {
         setExtraPackagingCharge(e.target.checked)
@@ -1207,17 +1397,16 @@ console.log({proActiveOffer});
         }
     }
 
-
     useEffect(() => {
         hasOnlyPaymentMethod()
     }, [global])
 
     const totalAmountForRefer = couponDiscount
         ? getSubTotalPrice(cartList) -
-        getProductDiscount(cartList, restaurantData) -
-        getCouponDiscount(couponDiscount, restaurantData, cartList)
+          getEffectiveProductDiscount(cartList, restaurantData) -
+          getCouponDiscount(couponDiscount, restaurantData, cartList)
         : getSubTotalPrice(cartList) -
-        getProductDiscount(cartList, restaurantData)
+          getEffectiveProductDiscount(cartList, restaurantData)
 
     useEffect(() => {
         dispatch(setCouponAmount(totalAmountForRefer))
@@ -1248,9 +1437,6 @@ console.log({proActiveOffer});
     const handleClose = () => {
         setOpen(false)
     }
-    const handleClick = (event) => {
-        setOpen(true)
-    }
     const { isLoading, data: couponData } = useQuery(
         ['coupon-list'],
         () =>
@@ -1264,389 +1450,467 @@ console.log({proActiveOffer});
             onError: onSingleErrorResponse,
         }
     )
-console.log({selectedDeliveryOption});
+    console.log({ selectedDeliveryOption })
+
+    const restaurantBreadcrumbSlug =
+        restaurantData?.data?.slug || restaurantSlug
+    const restaurantBreadcrumbName =
+        restaurantData?.data?.name || restaurantSlug || ''
 
     return (
-        <Grid
-            container
-            spacing={3}
-            mb="2rem"
-            paddingTop={{ xs: '0px', md: '60px' }}
-            sx={{ minHeight: '50vh' }}
-        >
-            <Grid item xs={12} md={7}>
-                {method !== 'offline' ? (
-                    <Stack spacing={3}>
-                        <DeliveryDetails
-                            token={token}
-                            global={global}
-                            restaurantData={restaurantData}
-                            deliveryFee={deliveryFeeForOptions}
-                            setOrderType={setOrderType}
-                            orderType={orderType}
-                            setAddress={setAddress}
-                            address={address}
-                            subscriptionStates={subscriptionStates}
-                            subscriptionDispatch={subscriptionDispatch}
-                            page={page}
-                            setPaymenMethod={setPaymenMethod}
-                            additionalInformationStates={
-                                additionalInformationStates
-                            }
-                            additionalInformationDispatch={
-                                additionalInformationDispatch
-                            }
-                            setDeliveryTip={setDeliveryTip}
-                            setPaymentMethodDetails={setPaymentMethodDetails}
-                            setUsePartialPayment={setUsePartialPayment}
-                            setSwitchToWallet={setSwitchToWallet}
-                            zoneData={zoneData?.data?.zone_data}
-                            setSelectedDeliveryOption={
-                                setSelectedDeliveryOption
-                            }
-                            couponDiscount={couponDiscount}
-                            isProFullFreeDelivery={
-                                proBenefitType === 'delivery_fee' &&
-                                proOfferType === 'full_free' &&
-                                proSavedAmount > 0
-                            }
-                        />
-                        {orderType === 'dine_in' && (
-                            <CustomPaperBigCard padding=".5rem">
-                                <CustomStackFullWidth>
-                                    <GuestUserInforForm
-                                        key={orderType}
-                                        dine_in
-                                        additionalInformationDispatch={
-                                            additionalInformationDispatch
+        <>
+            <Breadcrumbs
+                separator={
+                    <NavigateNextIcon sx={{ fontSize: { xs: 12, md: 14 } }} />
+                }
+                sx={{
+                    position: 'relative',
+                    zIndex: 1,
+                    width: 'fit-content',
+                    mt: { xs: '16px', md: '24px' },
+                    mb: '16px',
+                    fontSize: { xs: '12px', md: '14px' },
+                    color: (theme) => theme.palette.text.secondary,
+                    '& .MuiBreadcrumbs-separator': {
+                        mx: { xs: '4px', md: '8px' },
+                    },
+                }}
+            >
+                <Link
+                    component={NextLink}
+                    href="/home"
+                    underline="hover"
+                    color="text.secondary"
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontSize: 'inherit',
+                    }}
+                >
+                    <HomeOutlinedIcon sx={{ fontSize: { xs: 12, md: 14 } }} />
+                    {t('Home')}
+                </Link>
+                {restaurantBreadcrumbName && (
+                    <Link
+                        component={NextLink}
+                        href={`/restaurants/${
+                            restaurantBreadcrumbSlug || restuId
+                        }`}
+                        underline="hover"
+                        color="text.secondary"
+                        sx={{
+                            fontSize: 'inherit',
+                            maxWidth: '200px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                        }}
+                    >
+                        {restaurantBreadcrumbName}
+                    </Link>
+                )}
+                <Typography color="text.secondary" fontSize="inherit">
+                    {t('Checkout')}
+                </Typography>
+            </Breadcrumbs>
+            <Grid
+                container
+                spacing={{ xs: 3, md: 4 }}
+                mb="2rem"
+                sx={{ minHeight: '50vh' }}
+            >
+                <Grid
+                    item
+                    xs={12}
+                    sx={{
+                        flexBasis: { xs: '100%', md: '71.4%' },
+                        maxWidth: { xs: '100%', md: '71.4%' },
+                    }}
+                >
+                    {method !== 'offline' ? (
+                        <Stack spacing={3}>
+                            <DeliveryDetails
+                                token={token}
+                                global={global}
+                                hasBogoItem={hasBogoItem}
+                                coverageAreas={coverageAreas}
+                                coverageRuleActive={coverageRuleActive}
+                                selectedCoverageArea={selectedCoverageArea}
+                                setSelectedCoverageArea={
+                                    setSelectedCoverageArea
+                                }
+                                coverageType={
+                                    coverageData?.delivery_charge_type ?? null
+                                }
+                                restaurantData={restaurantData}
+                                deliveryFee={deliveryFeeForOptions}
+                                freeDeliveryCouponApplied={
+                                    couponDiscount?.coupon_type ===
+                                    'free_delivery'
+                                }
+                                setOrderType={setOrderType}
+                                orderType={orderType}
+                                setAddress={setAddress}
+                                address={address}
+                                subscriptionStates={subscriptionStates}
+                                subscriptionDispatch={subscriptionDispatch}
+                                page={page}
+                                setPaymenMethod={setPaymenMethod}
+                                additionalInformationStates={
+                                    additionalInformationStates
+                                }
+                                additionalInformationDispatch={
+                                    additionalInformationDispatch
+                                }
+                                setDeliveryTip={setDeliveryTip}
+                                setPaymentMethodDetails={
+                                    setPaymentMethodDetails
+                                }
+                                setUsePartialPayment={setUsePartialPayment}
+                                setSwitchToWallet={setSwitchToWallet}
+                                zoneData={zoneData?.data?.zone_data}
+                                setSelectedDeliveryOption={
+                                    setSelectedDeliveryOption
+                                }
+                                couponDiscount={couponDiscount}
+                                isProFullFreeDelivery={
+                                    proBenefitType === 'delivery_fee' &&
+                                    proOfferType === 'full_free' &&
+                                    proSavedAmount > 0
+                                }
+                                showScheduleIcon={
+                                    page !== 'campaign' &&
+                                    subscriptionStates.order === '0' &&
+                                    token &&
+                                    Boolean(
+                                        restaurantData?.data?.schedule_order
+                                    )
+                                }
+                                onOpenSchedule={() =>
+                                    setScheduleModalOpen(true)
+                                }
+                                scheduleAt={scheduleAt}
+                                customerData={customerData}
+                            />
+                            {orderType === 'delivery' && (
+                                <DeliveryInstruction
+                                    selected={delivery_instruction}
+                                    onSelect={handleDeliveryInstructionNote}
+                                />
+                            )}
+                            {page !== 'campaign' &&
+                                subscriptionStates.order === '0' &&
+                                token && (
+                                    <RestaurantScheduleTime
+                                        restaurantData={restaurantData}
+                                        handleChange={handleChange}
+                                        today={today}
+                                        tomorrow={tomorrow}
+                                        numberOfDay={numberOfDay}
+                                        global={global}
+                                        scheduleAt={scheduleAt}
+                                        setScheduleAt={setScheduleAt}
+                                        orderType={orderType}
+                                        open={scheduleModalOpen}
+                                        onClose={() =>
+                                            setScheduleModalOpen(false)
                                         }
-                                        configData={global}
+                                    />
+                                )}
+
+                            {orderType !== 'dine_in' &&
+                                orderType !== 'take_away' &&
+                                Number.parseInt(global?.dm_tips_status) ===
+                                    1 && (
+                                    <DeliveryManTips
+                                        deliveryTip={deliveryTip}
+                                        setDeliveryTip={setDeliveryTip}
+                                        tripsData={tripsData}
+                                        global={global}
                                         customerData={customerData}
                                     />
-                                </CustomStackFullWidth>
-                            </CustomPaperBigCard>
-                        )}
-                        {page !== 'campaign' &&
-                            subscriptionStates.order === '0' &&
-                            token &&
-                            orderType !== 'dine_in' && (
-                                <RestaurantScheduleTime
-                                    restaurantData={restaurantData}
-                                    handleChange={handleChange}
-                                    today={today}
-                                    tomorrow={tomorrow}
-                                    numberOfDay={numberOfDay}
-                                    global={global}
-                                    setScheduleAt={setScheduleAt}
-                                />
-                            )}
+                                )}
 
-                        {orderType === 'dine_in' && (
-                            <DineInPreferableTime
-                                restaurantData={restaurantData}
-                                handleChange={handleChange}
-                                today={today}
-                                tomorrow={tomorrow}
-                                numberOfDay={numberOfDay}
+                            <PaymentOptions
                                 global={global}
-                                setScheduleAt={setScheduleAt}
-                            />
-                        )}
-                        {subscriptionStates.order === '0' &&
-                            orderType !== 'dine_in' &&
-                            orderType !== 'take_away' &&
-                            Number.parseInt(global?.dm_tips_status) === 1 && (
-                                <DeliveryManTips
-                                    deliveryTip={deliveryTip}
-                                    setDeliveryTip={setDeliveryTip}
-                                    tripsData={tripsData}
-                                />
-                            )}
-
-                        <PaymentOptions
-                            global={global}
-                            paymenMethod={paymenMethod}
-                            setPaymenMethod={setPaymenMethod}
-                            subscriptionStates={subscriptionStates}
-                            usePartialPayment={usePartialPayment}
-                            setSelected={setSelected}
-                            selected={selected}
-                            paymentMethodDetails={paymentMethodDetails}
-                            setPaymentMethodDetails={setPaymentMethodDetails}
-                            setSwitchToWallet={setSwitchToWallet}
-                            offlinePaymentOptions={offlinePaymentOptions}
-                            walletAmount={walletAmount}
-                            totalAmount={totalAmount}
-                            switchToWallet={switchToWallet}
-                            handlePartialPayment={handlePartialPayment}
-                            removePartialPayment={removePartialPayment}
-                            setChangeAmount={setChangeAmount}
-                            changeAmount={changeAmount}
-                            orderType={orderType}
-                        />
-                    </Stack>
-                ) : (
-                    <OfflinePaymentForm
-                        key={method}
-                        offlinePaymentOptions={offlinePaymentOptions}
-                        paymenMethod={paymenMethod}
-                        setPaymenMethod={setPaymenMethod}
-                        // handleSubmitOfflineForm={handleSubmitOfflineForm}
-                        totalAmount={totalAmount}
-                        currencySymbolDirection={currencySymbolDirection}
-                        currencySymbol={currencySymbol}
-                        digitAfterDecimalPoint={digitAfterDecimalPoint}
-                        walletBalance={walletAmount}
-                        usePartialPayment={usePartialPayment}
-                        offlineFormRef={offlineFormRef}
-                        placeOrder={placeOrder}
-                    />
-                )}
-            </Grid>
-
-            <Grid item xs={12} md={5} height="auto">
-                <CustomPaperBigCard height="auto">
-                    <Stack spacing={2} justifyContent="space-between">
-                        <OrderSummary variant="h4">
-                            {t('Order Summary')}
-                        </OrderSummary>
-                        {zoneData &&
-                            orderType !== 'dine_in' &&
-                            orderType !== 'take_away' &&
-                            handleBadWeatherUi(zoneData?.data?.zone_data)}
-                        <SimpleBar
-                            style={{ maxHeight: '500px', width: '100%' }}
-                        >
-                            <OrderSummaryDetails
-                                type={type}
-                                page={page}
-                                global={global}
+                                paymenMethod={paymenMethod}
+                                setPaymenMethod={setPaymenMethod}
+                                openPaymentPrompt={paymentPromptTick}
+                                subscriptionStates={subscriptionStates}
+                                usePartialPayment={usePartialPayment}
+                                setSelected={setSelected}
+                                selected={selected}
+                                paymentMethodDetails={paymentMethodDetails}
+                                setPaymentMethodDetails={
+                                    setPaymentMethodDetails
+                                }
+                                setSwitchToWallet={setSwitchToWallet}
+                                offlinePaymentOptions={offlinePaymentOptions}
+                                walletAmount={walletAmount}
+                                totalAmount={totalAmount}
+                                switchToWallet={switchToWallet}
+                                handlePartialPayment={handlePartialPayment}
+                                removePartialPayment={removePartialPayment}
+                                setChangeAmount={setChangeAmount}
+                                changeAmount={changeAmount}
                                 orderType={orderType}
                             />
-                        </SimpleBar>
-                        <Stack>
-                            {token && (
-                                <Grid
-                                    item
-                                    md={12}
-                                    xs={12}
-                                    marginTop="5px"
-                                    mb="5px"
-                                >
-                                    <Stack
-                                        direction="row"
-                                        justifyContent="space-between"
-                                        alignItems="center"
-                                    >
-                                        <Typography
-                                            fontSize="14px"
-                                            fontWeight="600"
-                                            color={theme.palette.neutral[1000]}
-                                        >
-                                            {t('Promo Code')}
-                                        </Typography>
-                                        <Button
-                                            endIcon={
-                                                <AddIcon
-                                                    style={{
-                                                        fontSize: '18px',
-                                                        fontWeight: '700',
-                                                    }}
-                                                />
-                                            }
-                                            onClick={handleClick}
-                                        >
-                                            {t('Add Voucher')}
-                                        </Button>
-                                    </Stack>
-                                </Grid>
-                            )}
                             {restaurantData?.data && token && (
                                 <HaveCoupon
                                     restaurant_id={restaurantData?.data?.id}
                                     setCouponDiscount={setCouponDiscount}
-                                    counponRemove={counponRemove}
                                     couponDiscount={couponDiscount}
                                     cartList={cartList}
-                                    total_order_amount={total_order_amount}
                                     setCouponCode={setCouponCode}
                                     couponCode={couponCode}
                                     data={couponData}
-                                    anchorEl={anchorEl}
-                                    setAnchorEl={setAnchorEl}
                                     handleClose={handleClose}
                                     totalAmountForRefer={totalAmountForRefer}
                                     open={open}
                                     setOpen={setOpen}
                                 />
                             )}
-                            {restaurantData?.data?.cutlery &&
-                                orderType === 'delivery' && (
-                                    <Box mb={1}>
-                                        <Cutlery
-                                            isChecked={cutlery}
-                                            handleChange={handleCutlery}
-                                        />
-                                    </Box>
-                                )}
-                            {orderType === 'delivery' && (
-                                <Box mb={1}>
-                                    <ItemSelectWithChip
-                                        title="If Any product is not available"
-                                        data={productUnavailableData}
-                                        handleChange={handleItemUnavailableNote}
-                                    />
-                                </Box>
-                            )}
-                            {orderType === 'delivery' && (
-                                <Box mb={1}>
-                                    <ItemSelectWithChip
-                                        title="Add More Delivery Instruction"
-                                        data={deliveryInstructions}
-                                        handleChange={
-                                            handleDeliveryInstructionNote
-                                        }
-                                    />
-                                </Box>
-                            )}
-                            {restaurantData?.data?.is_extra_packaging_active &&
-                                global?.extra_packaging_charge
-                                ? !restaurantData?.data
-                                    ?.extra_packaging_status &&
-                                restaurantData?.data
-                                    ?.extra_packaging_amount != null &&
-                                restaurantData?.data?.extra_packaging_amount >
-                                0 &&
-                                orderType !== 'take_away' &&
-                                orderType !== 'dine_in' && (
-                                    <Stack
-                                        direction="row"
-                                        justifyContent="space-between"
-                                        alignItems="center"
-                                        boxShadow={theme.shadows2[0]}
-                                        borderRadius="8px"
-                                        minHeight="50px"
-                                        py={0.5}
-                                        px={2}
-                                    >
-                                        <FormControlLabel
-                                            onChange={(e) =>
-                                                handleExtraPackaging(e)
-                                            }
-                                            control={<Checkbox />}
-                                            label={
-                                                <Typography
-                                                    fontWeight="700"
-                                                    fontSize="14px"
-                                                    color={
-                                                        theme.palette.primary
-                                                            .main
-                                                    }
-                                                >
-                                                    {t(
-                                                        'Need Extra Packaging'
-                                                    )}
-                                                </Typography>
-                                            }
-                                        />
-                                        <Typography
-                                            component="span"
-                                            m="0"
-                                            fontWeight="700"
-                                            fontSize="14px"
-                                            mt="6px"
-                                        >
-                                            {getAmount(
-                                                restaurantData.data
-                                                    .extra_packaging_amount,
-                                                currencySymbolDirection,
-                                                currencySymbol,
-                                                digitAfterDecimalPoint
-                                            )}
-                                        </Typography>
-                                    </Stack>
-                                )
-                                : null}
                         </Stack>
-
-                        <OrderCalculation
-                            subscriptionStates={subscriptionStates}
-                            cartList={
-                                page === 'campaign' ? campFoodList : cartList
-                            }
-                            restaurantData={restaurantData}
-                            couponDiscount={couponDiscount}
-                            taxAmount={taxAmount}
-                            distanceData={distanceData}
-                            total_order_amount={total_order_amount}
-                            global={global}
-                            couponInfo={couponInfo}
-                            orderType={orderType}
-                            deliveryTip={deliveryTip}
-                            origin={restaurantData?.data}
-                            destination={address}
-                            extraCharge={extraCharge}
-                            additionalCharge={global?.additional_charge}
+                    ) : (
+                        <OfflinePaymentForm
+                            key={method}
+                            offlinePaymentOptions={offlinePaymentOptions}
+                            paymenMethod={paymenMethod}
+                            setPaymenMethod={setPaymenMethod}
+                            // handleSubmitOfflineForm={handleSubmitOfflineForm}
                             totalAmount={totalAmount}
+                            currencySymbolDirection={currencySymbolDirection}
+                            currencySymbol={currencySymbol}
+                            digitAfterDecimalPoint={digitAfterDecimalPoint}
                             walletBalance={walletAmount}
                             usePartialPayment={usePartialPayment}
-                            placeOrder={placeOrder}
-                            orderLoading={orderLoading}
-                            offlinePaymentLoading={offlinePaymentLoading}
-                            setCouponDiscount={setCouponDiscount}
-                            counponRemove={counponRemove}
                             offlineFormRef={offlineFormRef}
-                            setOfflineCheck={setOfflineCheck}
-                            page={page}
-                            paymentMethodDetails={paymentMethodDetails}
-                            cashbackAmount={cashbackAmount}
-                            extraPackagingCharge={extraPackagingCharge}
-                            distanceLoading={distanceLoading}
-                            taxData={taxData}
-                            handleCouponDiscount={handleCouponDiscount}
-                            selectedDeliveryOption={selectedDeliveryOption}
-                            proSavedAmount={proSavedAmount}
-                            proSavedLabel={proSavedLabel}
-                            proBenefitType={proBenefitType}
-                            proOfferType={proOfferType}
+                            placeOrder={placeOrder}
                         />
-                    </Stack>
-                </CustomPaperBigCard>
-            </Grid>
+                    )}
+                </Grid>
 
-            {openModal && (
-                <CustomModal
-                    openModal={openModal}
-                    bgColor={theme.palette.customColor.ten}
-                //handleClose={() => setOpenModal(false)}
+                <Grid
+                    item
+                    xs={12}
+                    height="auto"
+                    sx={{
+                        flexBasis: { xs: '100%', md: '28.6%' },
+                        maxWidth: { xs: '100%', md: '28.6%' },
+                    }}
                 >
-                    <PartialPaymentModal
-                        global={global}
-                        payableAmount={totalAmount}
-                        agree={agreeToWallet}
-                        reject={notAgreeToWallet}
-                        colorTitle=" Want to pay via your wallet ? "
-                        title="You can pay the full amount with your wallet."
-                        remainingBalance={walletAmount - totalAmount}
-                    />
-                </CustomModal>
-            )}
-            {openPartialModel && (
-                <CustomModal
-                    openModal={openPartialModel}
-                    bgColor={theme.palette.customColor.ten}
-                >
-                    <PartialPaymentModal
-                        global={global}
-                        payableAmount={totalAmount}
-                        agree={agreeToPartial}
-                        reject={notAgreeToPartial}
-                        colorTitle=" Want to pay partially with wallet ? "
-                        title="You do not have sufficient balance to pay full amount via wallet."
-                    />
-                </CustomModal>
-            )}
-        </Grid>
+                    <CustomPaperBigCard height="auto" nopadding="true">
+                        <Stack
+                            spacing={2}
+                            justifyContent="space-between"
+                            sx={{ p: { xs: '16px', sm: '20px' } }}
+                        >
+                            <OrderSummary variant="h4">
+                                {t('Billing')}
+                            </OrderSummary>
+                            <Box
+                                sx={{
+                                    mr: { xs: '-16px', sm: '-20px' },
+                                    '& .simplebar-track.simplebar-vertical': {
+                                        width: '8px',
+                                    },
+                                    '& .simplebar-scrollbar:before': {
+                                        left: '2px',
+                                        right: '2px',
+                                        backgroundColor: (theme) =>
+                                            theme.palette.neutral[400],
+                                    },
+                                }}
+                            >
+                                <SimpleBar
+                                    style={{
+                                        maxHeight: '500px',
+                                        width: '100%',
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            pr: { xs: '16px', sm: '20px' },
+                                        }}
+                                    >
+                                        <OrderSummaryDetails
+                                            type={type}
+                                            page={page}
+                                            global={global}
+                                            orderType={orderType}
+                                        />
+                                    </Box>
+                                </SimpleBar>
+                            </Box>
+                            <Stack>
+                                {/* Cutlery and unavailable-item preferences
+                                    are collected in the restaurant page's
+                                    cart (RestaurantCartSidebar) and arrive
+                                    here via the cart slice's
+                                    orderPreferences — the checkout no longer
+                                    repeats those controls, but their values
+                                    still flow into the order payload. */}
+                                {restaurantData?.data
+                                    ?.is_extra_packaging_active &&
+                                global?.extra_packaging_charge
+                                    ? !restaurantData?.data
+                                          ?.extra_packaging_status &&
+                                      restaurantData?.data
+                                          ?.extra_packaging_amount != null &&
+                                      restaurantData?.data
+                                          ?.extra_packaging_amount > 0 &&
+                                      orderType !== 'take_away' &&
+                                      orderType !== 'dine_in' && (
+                                          <Stack
+                                              direction="row"
+                                              justifyContent="space-between"
+                                              alignItems="center"
+                                              boxShadow={theme.shadows2[0]}
+                                              borderRadius="8px"
+                                              minHeight="50px"
+                                              py={0.5}
+                                              px={2}
+                                          >
+                                              <FormControlLabel
+                                                  onChange={(e) =>
+                                                      handleExtraPackaging(e)
+                                                  }
+                                                  control={
+                                                      <Checkbox
+                                                          checked={Boolean(
+                                                              extraPackagingCharge
+                                                          )}
+                                                      />
+                                                  }
+                                                  label={
+                                                      <Typography
+                                                          fontWeight="700"
+                                                          fontSize="14px"
+                                                          color={
+                                                              theme.palette
+                                                                  .primary.main
+                                                          }
+                                                      >
+                                                          {t(
+                                                              'Need Extra Packaging'
+                                                          )}
+                                                      </Typography>
+                                                  }
+                                              />
+                                              <Typography
+                                                  component="span"
+                                                  m="0"
+                                                  fontWeight="700"
+                                                  fontSize="14px"
+                                                  mt="6px"
+                                              >
+                                                  {getAmount(
+                                                      restaurantData.data
+                                                          .extra_packaging_amount,
+                                                      currencySymbolDirection,
+                                                      currencySymbol,
+                                                      digitAfterDecimalPoint
+                                                  )}
+                                              </Typography>
+                                          </Stack>
+                                      )
+                                    : null}
+                            </Stack>
+
+                            <OrderCalculation
+                                subscriptionStates={subscriptionStates}
+                                cartList={
+                                    page === 'campaign'
+                                        ? campFoodList
+                                        : cartList
+                                }
+                                restaurantData={restaurantData}
+                                discountEligibility={discountEligibility}
+                                couponDiscount={couponDiscount}
+                                taxAmount={taxAmount}
+                                distanceData={distanceData}
+                                total_order_amount={total_order_amount}
+                                global={global}
+                                couponInfo={couponInfo}
+                                orderType={orderType}
+                                deliveryTip={deliveryTip}
+                                origin={restaurantData?.data}
+                                destination={address}
+                                extraCharge={extraCharge}
+                                additionalCharge={global?.additional_charge}
+                                totalAmount={totalAmount}
+                                walletBalance={walletAmount}
+                                usePartialPayment={usePartialPayment}
+                                placeOrder={placeOrder}
+                                orderLoading={orderLoading}
+                                offlinePaymentLoading={offlinePaymentLoading}
+                                checkoutApisFetching={checkoutApisFetching}
+                                setCouponDiscount={setCouponDiscount}
+                                counponRemove={counponRemove}
+                                offlineFormRef={offlineFormRef}
+                                setOfflineCheck={setOfflineCheck}
+                                page={page}
+                                paymentMethodDetails={paymentMethodDetails}
+                                cashbackAmount={
+                                    checkoutSummary?.cashback ?? cashbackAmount
+                                }
+                                extraPackagingCharge={extraPackagingCharge}
+                                surgePrice={surgePrice}
+                                coverageDeliveryCharge={coverageDeliveryCharge}
+                                checkoutSummaryDelivery={
+                                    checkoutSummary?.delivery ?? null
+                                }
+                                checkoutSummarySurge={
+                                    checkoutSummary?.surge ?? null
+                                }
+                                distanceLoading={distanceLoading}
+                                taxData={checkoutSummary?.tax ?? taxData}
+                                handleCouponDiscount={handleCouponDiscount}
+                                selectedDeliveryOption={selectedDeliveryOption}
+                                proSavedAmount={proSavedAmount}
+                                proSavedLabel={proSavedLabel}
+                                proBenefitType={effectiveProBenefitType}
+                                proOfferType={effectiveProOfferType}
+                            />
+                        </Stack>
+                    </CustomPaperBigCard>
+                </Grid>
+
+                {openModal && (
+                    <CustomModal
+                        openModal={openModal}
+                        bgColor={theme.palette.customColor.ten}
+                        //handleClose={() => setOpenModal(false)}
+                    >
+                        <PartialPaymentModal
+                            global={global}
+                            payableAmount={totalAmount}
+                            agree={agreeToWallet}
+                            reject={notAgreeToWallet}
+                            colorTitle=" Want to pay via your wallet ? "
+                            title="You can pay the full amount with your wallet."
+                            remainingBalance={walletAmount - totalAmount}
+                        />
+                    </CustomModal>
+                )}
+                {openPartialModel && (
+                    <CustomModal
+                        openModal={openPartialModel}
+                        bgColor={theme.palette.customColor.ten}
+                    >
+                        <PartialPaymentModal
+                            global={global}
+                            payableAmount={totalAmount}
+                            agree={agreeToPartial}
+                            reject={notAgreeToPartial}
+                            colorTitle=" Want to pay partially with wallet ? "
+                            title="You do not have sufficient balance to pay full amount via wallet."
+                        />
+                    </CustomModal>
+                )}
+            </Grid>
+        </>
     )
 }
 

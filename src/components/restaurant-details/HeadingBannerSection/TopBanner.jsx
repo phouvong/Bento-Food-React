@@ -1,29 +1,32 @@
 import React, { useRef, useLayoutEffect, memo } from 'react'
-import { Grid, NoSsr, Stack, Box, Container } from '@mui/material'
+import { Box, NoSsr, Stack } from '@mui/material'
 import { useSelector } from 'react-redux'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useQuery } from 'react-query'
-import Slider from 'react-slick'
+import Slider from '@/components/slider/SlickToSwiper'
 import RestaurantLeftDetails from '../RestaurantLeftDetails'
-import RestaurantRightDetails from '../RestaurantRightDetails'
-import RestaurantCoupon from '../RestaurantCoupon'
-import RestaurantAnnouncementMessege from '../RestaurantAnnouncementMessege'
-import { RestaurantCouponStack } from '../restaurant-details.style'
-import { useGetScreenPosition } from '@/hooks/custom-hooks/useGetScreenPosition'
+import RestaurantCouponCard from '../RestaurantCouponCard'
+import RestaurantDiscountCoupon from '../RestaurantDiscountCoupon'
+import ProOfferCoupon from '../ProOfferCoupon'
+import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
 import { CouponApi } from '@/hooks/react-query/config/couponApi'
+import { restaurantDiscountTag } from '@/utils/customFunctions'
+import useHappyHourBanner from '@/hooks/custom-hooks/useHappyHourBanner'
 import { onErrorResponse } from '../../ErrorResponse'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
 
-const TopBanner = ({ details, isHidden, removeStickyBanner }) => {
+const TopBanner = ({
+    details,
+    isHidden,
+    removeStickyBanner,
+    heroNameRef,
+    showProOffer,
+    proOfferHeading,
+    proOfferMessage,
+}) => {
     const theme = useTheme()
-    const isSmall = useMediaQuery(theme.breakpoints.down('md'))
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
     const bannerRef = useRef(null)
-
-    const threshold =  100
-    const scrollPosition = useGetScreenPosition(threshold)
 
     const { global } = useSelector((state) => state.globalSettings)
     const { userData } = useSelector((state) => state.user)
@@ -44,22 +47,40 @@ const TopBanner = ({ details, isHidden, removeStickyBanner }) => {
             onError: onErrorResponse,
         }
     )
+    const coupons = data?.data ?? []
+    // Same rule as RestaurantDetails.js's own restaurantDiscount tag — the
+    // happy-hour banner already covers "extra discount right now", so the
+    // restaurant's own discount card steps aside while happy hour is live
+    // and comes back once it ends.
+    const happyHour = useHappyHourBanner({ restaurantId: details?.id })
+    const restaurantDiscountLabel = happyHour.show
+        ? null
+        : restaurantDiscountTag(
+              details?.discount,
+              details?.free_delivery,
+              currencySymbolDirection,
+              currencySymbol,
+              digitAfterDecimalPoint
+          )
+    const hasRestaurantDiscount = Boolean(restaurantDiscountLabel)
+    const slideCount =
+        coupons.length +
+        (showProOffer ? 1 : 0) +
+        (hasRestaurantDiscount ? 1 : 0)
 
-    // Slider settings
-    const settings = {
-        dots: true,
-        infinite: data?.data?.length > 1,
-        speed: 500,
-        slidesToShow: 1,
+    const couponSliderSettings = {
+        dots: false,
+        arrows: false,
+        infinite: slideCount > 4,
+        speed: 400,
+        slidesToShow: 3.1,
         slidesToScroll: 1,
-        autoplay: true,
-        autoplaySpeed: 2000,
+        rtl: theme.direction === 'rtl',
+        responsive: [
+            { breakpoint: 1200, settings: { slidesToShow: 2.8 } },
+            { breakpoint: 900, settings: { slidesToShow: 1.15 } },
+        ],
     }
-
-    // On mobile, never collapse the banner — let it scroll naturally with the page.
-    // Sticky/fixed banner behavior is desktop-only.
-    const showRightSection = isXSmall ? true : scrollPosition <= threshold
-    const isFixedBanner = !isXSmall && !showRightSection
 
     // Measure banner height and expose as a CSS variable consumed by sticky
     // offsets elsewhere. Uses useLayoutEffect to avoid a paint with the stale
@@ -89,185 +110,81 @@ const TopBanner = ({ details, isHidden, removeStickyBanner }) => {
                 '--top-banner-total-height'
             )
         }
-    }, [showRightSection, isXSmall, data])
+    }, [isXSmall, data])
 
     return (
-        <>
-            <Box
-                minHeight={
-                    isXSmall
-                        ? 'auto'
-                        : showRightSection
-                        ? { sm: 450, md: 250 }
-                        : { sm: 110, md: 110 }
-                }
-                sx={{
-                    // easeOutQuint — strong acceleration into a gentle
-                    // landing. Feels much smoother than the default `ease`.
-                    transition:
-                        'min-height 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
-                }}
-            >
-                <Box
-                    ref={bannerRef}
-                    className={isFixedBanner ? 'fadeInTop' : undefined}
-                    sx={{
-                        // Tween only animatable properties — `all` was also
-                        // trying to tween `position` and `top: auto`, both
-                        // of which snap and were adding micro-jitter.
-                        transition:
-                            'top 0.35s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
-                        position: isFixedBanner ? 'fixed' : 'static',
-                        top: isFixedBanner
-                            ? isHidden
-                                ? removeStickyBanner
-                                    ? 'calc(-163px)'
-                                    : isSmall
-                                    ? '48px'
-                                    : '60px'
-                                : removeStickyBanner
-                                ? 'calc(163px + 58px * -1)'
-                                : isSmall
-                                ? 'calc(48px)'
-                                : 'calc(45px + 58px)'
-                            : 'auto',
-                        insetInlineStart: 0,
-                        zIndex: 100,
-                        width: '100%',
-                    }}
-                >
-                    <Container
-                        maxWidth="lg"
-                        sx={{
-                            paddingLeft: showRightSection ? '0 !important' : undefined,
-                            paddingRight: showRightSection ? '0 !important' : undefined,
-                            transition:
-                                'padding 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
-                        }}
-                    >
-                        <Grid
-                            container
+        <Box
+            ref={bannerRef}
+            sx={{
+                // The page container has no gutters below md, so the hero
+                // is naturally full-bleed on mobile; BannerWrapper squares
+                // its top corners below md for this.
+                pt: { xs: 0, md: '24px' },
+            }}
+        >
+            {/* No Stack spacing here on purpose: RestaurantLeftDetails renders
+                its (closed) modals as extra DOM siblings, and Stack spacing
+                would give each of them a phantom margin. The coupon block
+                carries its own margin instead. */}
+            <CustomStackFullWidth>
+                <RestaurantLeftDetails
+                    details={details}
+                    restaurantCoverUrl={restaurantCoverUrl}
+                    currencySymbol={currencySymbol}
+                    currencySymbolDirection={currencySymbolDirection}
+                    digitAfterDecimalPoint={digitAfterDecimalPoint}
+                    nameRef={heroNameRef}
+                />
+
+                {slideCount > 0 && (
+                    <NoSsr>
+                        <Box
                             sx={{
-                                flexDirection: isSmall
-                                    ? 'column-reverse'
-                                    : 'row',
+                                mt: '10px',
+                                pt: { xs: 1, md: 0.5 },
+                                pl: { xs: 2, sm: 3, md: 0 },
+                                position: 'relative',
+                                '& .swiper': {
+                                    paddingTop: { xs: 0, md: '4px' },
+                                },
+                                '& .swiper-wrapper': {
+                                    alignItems: 'stretch',
+                                },
+                                '& .swiper-slide': {
+                                    height: '100% !important',
+                                },
                             }}
                         >
-                            {/* Mobile Coupon Section — `showRightSection` is
-                                always true on mobile, so it's redundant here */}
-                            {isXSmall && data?.data?.length > 0 && (
-                                    <Grid item xs={12}>
-                                        <RestaurantCouponStack
-                                            isSmall={isSmall}
-                                        >
-                                            <Stack
-                                                sx={{
-                                                    '& .slick-slider .slick-list .slick-track':
-                                                        {
-                                                            gap: '0px',
-                                                        },
-                                                }}
-                                            >
-                                                <Slider {...settings}>
-                                                    {data.data.map((coupon) => (
-                                                        <Stack key={coupon?.id}>
-                                                            <RestaurantCoupon
-                                                                coupon={coupon}
-                                                            />
-                                                        </Stack>
-                                                    ))}
-                                                </Slider>
-                                            </Stack>
-                                        </RestaurantCouponStack>
-                                    </Grid>
-                                )}
-
-                            {/* Left Section — md prop still flips 5↔12, but
-                                the transition makes the width change tween
-                                instead of snap. */}
-                            <Grid
-                                item
-                                xs={12}
-                                sm={12}
-                                md={showRightSection ? 5 : 12}
-                                sx={{
-                                    transition:
-                                        'flex-basis 0.35s cubic-bezier(0.22, 1, 0.36, 1), max-width 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
-                                }}
-                            >
-                                <RestaurantLeftDetails
-                                    details={details}
-                                    restaurantCoverUrl={restaurantCoverUrl}
-                                    currencySymbol={currencySymbol}
-                                    currencySymbolDirection={
-                                        currencySymbolDirection
-                                    }
-                                    digitAfterDecimalPoint={
-                                        digitAfterDecimalPoint
-                                    }
-                                    scrollPosition={scrollPosition}
-                                    threshold={threshold}
-                                />
-                            </Grid>
-
-                            {/* Right Section — always mounted now so the
-                                collapse can be CSS-driven. On md+, flex-basis
-                                + max-width tween down to 0 and opacity fades
-                                when scrolled past threshold; on xs/sm it's
-                                always full width (matches original
-                                showRightSection=true on mobile). */}
-                            <Grid
-                                item
-                                xs={12}
-                                sm={12}
-                                sx={{
-                                    overflow: 'hidden',
-                                    flexBasis: {
-                                        xs: '100%',
-                                        md: showRightSection
-                                            ? '58.333333%'
-                                            : '0%',
-                                    },
-                                    maxWidth: {
-                                        xs: '100%',
-                                        md: showRightSection
-                                            ? '58.333333%'
-                                            : '0%',
-                                    },
-                                    opacity: {
-                                        xs: 1,
-                                        md: showRightSection ? 1 : 0,
-                                    },
-                                    pointerEvents: {
-                                        xs: 'auto',
-                                        md: showRightSection
-                                            ? 'auto'
-                                            : 'none',
-                                    },
-                                    transition:
-                                        'flex-basis 0.35s cubic-bezier(0.22, 1, 0.36, 1), max-width 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
-                                }}
-                            >
-                                <RestaurantRightDetails
-                                    details={details}
-                                    data={data}
-                                    restaurantCoverUrl={restaurantCoverUrl}
-                                    scrollPosition={scrollPosition}
-                                    threshold={threshold}
-                                />
-                            </Grid>
-                        </Grid>
-                    </Container>
-                </Box>
-            </Box>
-
-            {/* Announcement */}
-            {details?.announcement === 1 && details?.announcement_message && (
-                <RestaurantAnnouncementMessege
-                    storeAnnouncement={details?.announcement_message}
-                />
-            )}
-        </>
+                            <Slider {...couponSliderSettings} gap={16}>
+                                {showProOffer ? (
+                                    <Stack key="pro-offer" sx={{ height: '100%' }}>
+                                        <ProOfferCoupon
+                                            heading={proOfferHeading}
+                                            body={proOfferMessage}
+                                        />
+                                    </Stack>
+                                ) : null}
+                                {hasRestaurantDiscount ? (
+                                    <Stack
+                                        key="restaurant-discount"
+                                        sx={{ height: '100%' }}
+                                    >
+                                        <RestaurantDiscountCoupon
+                                            discount={details?.discount}
+                                        />
+                                    </Stack>
+                                ) : null}
+                                {coupons.map((coupon) => (
+                                    <Stack key={coupon?.id} sx={{ height: '100%' }}>
+                                        <RestaurantCouponCard coupon={coupon} />
+                                    </Stack>
+                                ))}
+                            </Slider>
+                        </Box>
+                    </NoSsr>
+                )}
+            </CustomStackFullWidth>
+        </Box>
     )
 }
 

@@ -7,7 +7,9 @@ import {
     IconButton,
     styled,
     Typography,
+    useTheme,
 } from '@mui/material'
+import { RTL } from '@/components/RTL/RTL'
 import {
     OrderFoodAmount,
     OrderFoodName,
@@ -37,6 +39,7 @@ import { RestaurantsApi } from '@/hooks/react-query/config/restaurantApi'
 import CustomImageContainer from '../CustomImageContainer'
 
 const CustomDrawerCart = () => {
+    const theme = useTheme()
     const router = useRouter()
     const dispatch = useDispatch()
     const [open, setDrawerOpen] = useState(false)
@@ -68,7 +71,7 @@ const CustomDrawerCart = () => {
         refetch()
     }, [])
     return (
-        <>
+        <RTL direction={theme.direction}>
             <Drawer
                 anchor={'right'}
                 open={open}
@@ -291,7 +294,7 @@ const CustomDrawerCart = () => {
                     </>
                 )}
             </Drawer>
-        </>
+        </RTL>
     )
 }
 export default CustomDrawerCart

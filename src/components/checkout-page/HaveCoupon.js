@@ -1,59 +1,47 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { Grid, InputAdornment, InputBase } from '@mui/material'
-import { CouponButton, InputField } from './CheckOut.style'
+import { Box, Button, IconButton, Stack, Typography, alpha } from '@mui/material'
 import { useQuery } from 'react-query'
 import { CouponApi } from '@/hooks/react-query/config/couponApi'
 import { useTranslation } from 'react-i18next'
 import { onErrorResponse } from '../ErrorResponse'
 import { toast } from 'react-hot-toast'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setCouponInfo, setCouponType } from '@/redux/slices/global'
-import { useTheme } from '@mui/material/styles'
 import { cartItemsTotalAmount, getAmount } from '@/utils/customFunctions'
-import CouponStartSvg from './assets/couponStartSvg'
-import CustomPopover from '@/components/custom-popover/CustomPopover'
-import CheckOutPromo from '@/components/checkout-page/order-summary/CheckOutPromo'
-import CloseIcon from '@mui/icons-material/Close'
-import IconButton from '@mui/material/IconButton'
+import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined'
+import AddIcon from '@mui/icons-material/Add'
 import CustomModal from '@/components/custom-modal/CustomModal'
+import CheckOutPromo from '@/components/checkout-page/order-summary/CheckOutPromo'
+import { CustomPaperBigCard } from '@/styled-components/CustomStyles.style'
+import moment from 'moment'
 
 const HaveCoupon = ({
     restaurant_id,
     setCouponDiscount,
     couponDiscount,
     cartList,
-    total_order_amount,
     couponCode,
     setCouponCode,
     data,
-
     handleClose,
     totalAmountForRefer,
     open,
     setOpen,
 }) => {
-    const theme = useTheme()
     const router = useRouter()
     const { method } = router.query
     const [zoneId, setZoneId] = useState(0)
-    const [enable, setEnable] = useState(false)
-    const [inputValue, setInputValue] = useState(null)
-    const [tempInputValue, setTempInputValue] = useState('')
     const [isRefetchCall, setIsRefetchCall] = useState(false)
     const { t } = useTranslation()
     const dispatch = useDispatch()
-    let currencySymbol
-    let currencySymbolDirection
-    let digitAfterDecimalPoint
-    if (cartList?.length > 0) {
-    }
-
-    if (global) {
-        currencySymbol = global.currency_symbol
-        currencySymbolDirection = global.currency_symbol_direction
-        digitAfterDecimalPoint = global.digit_after_decimal_point
-    }
+    const { global } = useSelector((state) => state.globalSettings)
+    const currencySymbol = global?.currency_symbol
+    const currencySymbolDirection = global?.currency_symbol_direction
+    const digitAfterDecimalPoint = Number.parseInt(
+        global?.digit_after_decimal_point,
+        10
+    )
 
     const handleSuccess = (response) => {
         const totalCartPrice = getAmount(cartItemsTotalAmount(cartList))
@@ -63,46 +51,34 @@ const HaveCoupon = ({
             currencySymbol,
             digitAfterDecimalPoint
         )
+        const applyCoupon = () => {
+            dispatch(setCouponInfo(response.data))
+            toast.success(t('Coupon Applied'))
+            dispatch(setCouponType(response.data.coupon_type))
+            setCouponDiscount({ ...response.data, zoneId })
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('coupon', response.data.code)
+            }
+        }
         if (
             Number.parseInt(response?.data?.min_purchase) <=
             Number.parseInt(totalCartPrice)
         ) {
             if (response?.data?.discount_type === 'percent') {
-                setInputValue(tempInputValue)
-                dispatch(setCouponInfo(response.data))
-                toast.success(t('Coupon Applied'))
-                dispatch(setCouponType(response.data.coupon_type))
-                setCouponDiscount({ ...response.data, zoneId: zoneId })
-                if (typeof window !== 'undefined') {
-                    if (response) {
-                        localStorage.setItem('coupon', response.data.code)
-                    }
-                }
+                applyCoupon()
+            } else if (totalCartPrice >= response?.data?.discount) {
+                applyCoupon()
             } else {
-                if (totalCartPrice >= response?.data?.discount) {
-                    setInputValue(tempInputValue)
-                    dispatch(setCouponInfo(response.data))
-                    toast.success(t('Coupon Applied'))
-                    dispatch(setCouponType(response.data.coupon_type))
-                    setCouponDiscount({ ...response.data, zoneId: zoneId })
-                    if (typeof window !== 'undefined') {
-                        if (response) {
-                            localStorage.setItem('coupon', response.data.code)
-                        }
-                    }
-                } else {
-                    toast.error(
-                        t('Your total price must be more then coupon amount')
-                    )
-                }
+                toast.error(
+                    t('Your total price must be more then coupon amount')
+                )
             }
         } else {
-            toast.error(`$${t('Minimum purchase amount')} ${min_purchase}`)
+            toast.error(`${t('Minimum purchase amount')} ${min_purchase}`)
         }
         handleClose()
     }
     const handelError = (error) => {
-        setInputValue(null)
         setCouponDiscount(null)
         localStorage.removeItem('coupon')
         onErrorResponse(error)
@@ -125,34 +101,24 @@ const HaveCoupon = ({
         }
     )
 
-    let couponStorage = undefined
-    if (typeof window !== 'undefined') {
-        couponStorage = localStorage.getItem('coupon')
-    }
     useEffect(() => {
-        setCouponCode(couponStorage)
-        setInputValue(couponStorage)
         if (typeof window !== 'undefined') {
-            let zoneid = JSON.parse(localStorage.getItem('zoneid'))
-            setZoneId(zoneid[0])
-        }
-        if (couponStorage) {
-            setEnable(true)
+            const couponStorage = localStorage.getItem('coupon')
+            setCouponCode(couponStorage)
+            const zoneid = JSON.parse(localStorage.getItem('zoneid'))
+            setZoneId(zoneid?.[0])
         }
         return () => {
             localStorage.removeItem('coupon')
         }
     }, [])
     const removeCoupon = () => {
-        setInputValue(null)
         setCouponDiscount(null)
         localStorage.removeItem('coupon')
         setCouponCode(null)
-        //dispatch(setCouponInfo(null))
     }
     const handleApply = (value) => {
         setIsRefetchCall(true)
-        setTempInputValue(value)
         setCouponCode(value)
     }
     useEffect(() => {
@@ -160,72 +126,221 @@ const HaveCoupon = ({
             refetch().then()
         }
     }, [couponCode])
-    const borderColor = theme.palette.primary.main
+
+    if (method === 'offline') return null
+
+    const isApplied = Boolean(couponDiscount)
+    const discountLabel =
+        couponDiscount?.coupon_type === 'free_delivery'
+            ? t('Free Delivery')
+            : couponDiscount?.discount_type === 'percent'
+                ? `${couponDiscount?.discount}% ${t('OFF')}`
+                : `${getAmount(
+                    couponDiscount?.discount,
+                    currencySymbolDirection,
+                    currencySymbol,
+                    digitAfterDecimalPoint
+                )} ${t('OFF')}`
+    const validityLabel =
+        couponDiscount?.start_date && couponDiscount?.expire_date
+            ? `${t('Valid from')} ${moment(couponDiscount.start_date).format(
+                'MMM D, YYYY'
+            )} - ${moment(couponDiscount.expire_date).format('MMM D, YYYY')}`
+            : null
+
     return (
-        <Grid
-            container
-            spacing={{ xs: 1, md: 2 }}
-            justifyContent="flex-start"
-            mb="10px"
-        >
-            {method !== 'offline' && (
-                <Grid item md={12} xs={12} sm={7}>
-                    <InputField
-                        variant="outlined"
-                        sx={{
-                            border: `.5px solid ${borderColor}`,
-                            display: 'flex',
-                            flexDirection: 'row',
-                            padding: '3px',
-                            borderRadius: '8px',
-                            alignItems: 'center',
-                        }}
+        <>
+            <CustomPaperBigCard padding="16px" noboxshadow="true">
+                <Stack sx={{ gap: '16px' }}>
+                    <Stack
+                        direction="row"
+                        alignItems="flex-start"
+                        justifyContent="space-between"
+                        gap="12px"
                     >
-                        <InputBase
-                            placeholder={t('Enter Voucher')}
+                        <Stack sx={{ gap: '2px' }}>
+                            <Typography
+                                sx={{
+                                    fontSize: '16px',
+                                    fontWeight: 700,
+                                    letterSpacing: '-0.48px',
+                                    color: 'text.primary',
+                                }}
+                            >
+                                {t('Add Coupon')}
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    fontSize: '13px',
+                                    color: 'text.secondary',
+                                }}
+                            >
+                                {t('To save more use available coupons')}
+                            </Typography>
+                        </Stack>
+                        <IconButton
+                            onClick={() => setOpen(true)}
                             sx={{
-                                ml: 1,
-                                flex: 1,
-                                width: '100%',
-                                [theme.breakpoints.down('sm')]: {
-                                    fontSize: '12px',
-                                    padding: '5px 0px 5px',
-                                },
+                                flexShrink: 0,
+                                width: '36px',
+                                height: '36px',
+                                borderRadius: '8px',
+                                color: isApplied ? 'text.info' : 'text.primary',
+                                backgroundColor: isApplied
+                                    ? 'transparent'
+                                    : (theme) => theme.palette.neutral[200],
                             }}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            value={inputValue ? inputValue : ''}
-                            startAdornment={
-                                <InputAdornment position="start">
-                                    <CouponStartSvg />
-                                </InputAdornment>
-                            }
-                        />
-                        <>
-                            {!couponStorage && (
-                                <CouponButton
-                                    loading={isLoading}
-                                    loadingPosition="start"
-                                    variant="contained"
-                                    onClick={() => handleApply(inputValue)}
-                                    disabled={inputValue === '' || !inputValue}
-                                >
-                                    {t('Apply Now')}
-                                </CouponButton>
+                        >
+                            {isApplied ? (
+                                <i
+                                    className="fi fi-rr-pencil"
+                                    style={{
+                                        fontSize: '16px',
+                                        lineHeight: 1,
+                                        color: 'inherit',
+                                    }}
+                                />
+                            ) : (
+                                <AddIcon sx={{ fontSize: 18 }} />
                             )}
-                            {couponStorage && (
-                                <IconButton
-                                    // loading={isLoading}
-                                    loadingPosition="start"
-                                    variant="contained"
+                        </IconButton>
+                    </Stack>
+
+                    {isApplied && (
+                        <Box
+                            sx={{
+                                borderRadius: '12px',
+                                overflow: 'hidden',
+                                backgroundColor: (theme) =>
+                                    alpha(theme.palette.error.main, 0.1),
+                            }}
+                        >
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                justifyContent="space-between"
+                                flexWrap="wrap"
+                                gap="8px"
+                                sx={{ px: '16px', pt: '12px', pb: '8px' }}
+                            >
+                                <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    gap="8px"
+                                    sx={{ minWidth: 0, flex: 1 }}
+                                >
+                                    <ConfirmationNumberOutlinedIcon
+                                        sx={{
+                                            fontSize: 18,
+                                            color: 'error.main',
+                                            flexShrink: 0,
+                                        }}
+                                    />
+                                    <Typography
+                                        noWrap
+                                        sx={{
+                                            fontSize: '14px',
+                                            fontWeight: 500,
+                                            letterSpacing: '-0.42px',
+                                            color: 'text.primary',
+                                            textTransform: 'capitalize',
+                                        }}
+                                    >
+                                        {couponDiscount?.code}
+                                    </Typography>
+                                </Stack>
+                                <Typography
+                                    sx={{
+                                        fontSize: '16px',
+                                        fontWeight: 700,
+                                        letterSpacing: '-0.48px',
+                                        color: 'text.primary',
+                                        whiteSpace: 'nowrap',
+                                    }}
+                                >
+                                    {discountLabel}
+                                </Typography>
+                            </Stack>
+
+                            <Box sx={{ position: 'relative', mx: '20px' }}>
+                                <Box
+                                    sx={{
+                                        borderTop: '2px dashed',
+                                        borderColor: (theme) =>
+                                            alpha(
+                                                theme.palette.error.main,
+                                                0.35
+                                            ),
+                                    }}
+                                />
+                                <Box
+                                    sx={{
+                                        position: 'absolute',
+                                        top: '-10px',
+                                        left: '-30px',
+                                        width: '20px',
+                                        height: '20px',
+                                        borderRadius: '50%',
+                                        backgroundColor: 'background.paper',
+                                    }}
+                                />
+                                <Box
+                                    sx={{
+                                        position: 'absolute',
+                                        top: '-10px',
+                                        right: '-30px',
+                                        width: '20px',
+                                        height: '20px',
+                                        borderRadius: '50%',
+                                        backgroundColor: 'background.paper',
+                                    }}
+                                />
+                            </Box>
+
+                            <Stack
+                                direction="row"
+                                alignItems="center"
+                                justifyContent="space-between"
+                                flexWrap="wrap"
+                                gap="8px"
+                                sx={{ px: '16px', pt: '8px', pb: '12px' }}
+                            >
+                                {validityLabel && (
+                                    <Typography
+                                        sx={{
+                                            fontSize: '12px',
+                                            color: 'text.secondary',
+                                            flex: 1,
+                                            minWidth: 0,
+                                        }}
+                                    >
+                                        {validityLabel}
+                                    </Typography>
+                                )}
+                                <Button
                                     onClick={removeCoupon}
+                                    variant="contained"
+                                    color="error"
+                                    sx={{
+                                        flexShrink: 0,
+                                        minWidth: 'auto',
+                                        px: '12px',
+                                        py: '6px',
+                                        fontSize: '12px',
+                                        fontWeight: 600,
+                                        borderRadius: '4px',
+                                        boxShadow: 'none',
+                                        '&:hover': { boxShadow: 'none' },
+                                    }}
                                 >
-                                    <CloseIcon sx={{ fontSize: '16px' }} />
-                                </IconButton>
-                            )}
-                        </>
-                    </InputField>
-                </Grid>
-            )}
+                                    {t('Cancel')}
+                                </Button>
+                            </Stack>
+                        </Box>
+                    )}
+                </Stack>
+            </CustomPaperBigCard>
+
             <CustomModal
                 openModal={open}
                 handleClose={handleClose}
@@ -239,7 +354,7 @@ const HaveCoupon = ({
                     handleApply={handleApply}
                 />
             </CustomModal>
-        </Grid>
+        </>
     )
 }
 export default HaveCoupon

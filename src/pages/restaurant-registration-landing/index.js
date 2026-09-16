@@ -1,11 +1,15 @@
 import CssBaseline from '@mui/material/CssBaseline'
+import { useTranslation } from 'react-i18next'
 import Meta from '@/components/Meta'
 import { checkMaintenanceMode } from '@/utils/customFunctions'
 import { fetchPageMetadata, processMetadata } from '@/utils/fetchPageMetadata'
 import RestaurantRegistrationLanding from '@/components/restaurant-resgistration-landing/Index'
 import { NoSsr } from '@mui/material'
+import CustomContainer from '@/components/container'
+import MobilePageHeader from '@/components/page-header/MobilePageHeader'
 
 const Index = ({ configData, registrationLandingPageData, metaData, pathName }) => {
+    const { t } = useTranslation()
     const metadata = processMetadata(metaData, {
         title: `Store registration Landing - ${configData?.business_name}`,
         description: '',
@@ -23,6 +27,9 @@ const Index = ({ configData, registrationLandingPageData, metaData, pathName }) 
                 robotsMeta={metadata.robotsMeta}
             />
             <NoSsr>
+                <CustomContainer>
+                    <MobilePageHeader title={t('Restaurant Registration')} />
+                </CustomContainer>
                 <RestaurantRegistrationLanding configData={configData} data={registrationLandingPageData} />
             </NoSsr>
         </>

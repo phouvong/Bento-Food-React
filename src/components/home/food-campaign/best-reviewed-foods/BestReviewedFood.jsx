@@ -1,9 +1,7 @@
 import React, { memo, useRef } from 'react'
-import Slider from 'react-slick'
+import Slider from '@/components/slider/SlickToSwiper'
 import { Grid, Stack } from '@mui/material'
 import FoodCard from '../../../food-card/FoodCard'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
 import { useSelector } from 'react-redux'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'react-i18next'
@@ -18,6 +16,7 @@ import CustomImageContainer from '../../../CustomImageContainer'
 import FoodCardShimmer from '../../../food-card/FoodCarShimmer'
 import Skeleton from '@mui/material/Skeleton'
 import SliderSectionHeader from '@/components/slider-section-header/SliderSectionHeader'
+import { getLanguageDirection } from '@/utils/localStorage'
 const BestReviewedFood = ({ isLoading }) => {
     const { t } = useTranslation()
     const { bestReviewedFoods } = useSelector((state) => state.storedData)
@@ -27,7 +26,7 @@ const BestReviewedFood = ({ isLoading }) => {
     const isXSmall = useMediaQuery(theme.breakpoints.down('sm'))
 
     const { global } = useSelector((state) => state.globalSettings)
-    const languageDirection = localStorage.getItem('direction')
+    const languageDirection = getLanguageDirection()
 
     const settings = {
         speed: 500,
@@ -211,7 +210,7 @@ const BestReviewedFood = ({ isLoading }) => {
                             height="20px"
                         />
                         <SliderCustom>
-                            <Slider {...settings}>
+                            <Slider {...settings} gap="16px">
                                 <FoodCardShimmer />
                                 <FoodCardShimmer />
                                 <FoodCardShimmer />

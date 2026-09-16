@@ -434,7 +434,7 @@ const MapModal = ({ open, handleClose, redirectUrl, }) => {
                     )}
 
                     <CustomStackFullWidth
-                        justifyConatent="center"
+                        justifyContent="center"
                         alignItems="center"
                     ></CustomStackFullWidth>
 

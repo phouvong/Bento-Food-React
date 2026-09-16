@@ -1,18 +1,19 @@
 import React from 'react'
-import { CustomStackFullWidth } from '@/styled-components/CustomStyles.style'
-import { Stack, Grid, IconButton, Typography } from '@mui/material'
-import CustomImageContainer from '../CustomImageContainer'
-import couponimage from '../../../public/static/rescoupon.svg'
+import { Box, Stack, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import CustomCopyWithTooltip from '../user-info/coupon/CustomCopyWithToolTip'
+import LocalOfferRoundedIcon from '@mui/icons-material/LocalOfferRounded'
+import LoyaltyRoundedIcon from '@mui/icons-material/LoyaltyRounded'
+import { toast } from 'react-hot-toast'
 import { t } from 'i18next'
 import { formatedDate, getAmount } from '@/utils/customFunctions'
 import { useSelector } from 'react-redux'
-import { CouponCodeBorderBox, CouponStack } from './restaurant-details.style'
+import { CouponCard, TicketCutOut } from './restaurant-details.style'
 
+// 6amMart store-details style coupon card. Clicking anywhere on the card
+// copies the coupon code.
 const RestaurantCoupon = ({ coupon }) => {
     const theme = useTheme()
-    const borderColor = theme.palette.primary.main
+    const isDark = theme.palette.mode === 'dark'
     const { global } = useSelector((state) => state.globalSettings)
     let currencySymbol
     let currencySymbolDirection
@@ -23,112 +24,121 @@ const RestaurantCoupon = ({ coupon }) => {
         currencySymbolDirection = global.currency_symbol_direction
         digitAfterDecimalPoint = global.digit_after_decimal_point
     }
+
+    const isFreeDelivery = coupon?.coupon_type === 'free_delivery'
+    const variant = isFreeDelivery ? 'ticket' : 'discount'
+
+    const heading = isFreeDelivery
+        ? t('Free Delivery')
+        : `${
+              coupon?.discount_type === 'percent'
+                  ? `${coupon?.discount} %`
+                  : getAmount(
+                        coupon?.discount,
+                        currencySymbolDirection,
+                        currencySymbol,
+                        digitAfterDecimalPoint
+                    )
+          } ${t('OFF')}`
+
+    const body =
+        Number(coupon?.min_purchase) > 0
+            ? `${t('Min purchase')} ${getAmount(
+                  coupon?.min_purchase,
+                  currencySymbolDirection,
+                  currencySymbol,
+                  digitAfterDecimalPoint
+              )} — ${t('Code')}: ${coupon?.code}`
+            : `${t('Code')}: ${coupon?.code} — ${formatedDate(
+                  coupon?.start_date
+              )} ${t('to')} ${formatedDate(coupon?.expire_date)}`
+
+    const handleCopy = () => {
+        if (!coupon?.code) return
+        navigator.clipboard.writeText(coupon.code)
+        toast.success(t('Coupon code copied.'))
+    }
+
     return (
-        <CouponStack>
-            <Grid container>
-                <Grid
-                    item
-                    xs={4}
-                    sm={4}
-                    md={5}
-                    sx={{ padding: '5px' }}
-                    alignSelf="center"
-                >
-                    <CustomImageContainer
-                        src={couponimage.src}
-                        width="26px"
-                        height="26px"
+        <CouponCard
+            variant={variant}
+            onClick={handleCopy}
+            sx={isFreeDelivery ? { pl: '34px' } : undefined}
+        >
+            <Stack direction="row" alignItems="center" spacing={1}>
+                {isFreeDelivery ? (
+                    <LocalOfferRoundedIcon
+                        sx={{
+                            fontSize: 20,
+                            color: theme.palette.error.main,
+                        }}
                     />
-                    <Typography
-                        color={theme.palette.neutral[1000]}
-                        fontSize={{ xs: '18px', sm: '20px', md: '22px' }}
-                        fontWeight="700"
-                    >
-                        {' '}
-                        {coupon?.coupon_type === 'free_delivery'
-                            ? 'Free Delivery'
-                            : coupon?.discount_type === 'percent'
-                            ? `${coupon?.discount} %`
-                            : getAmount(
-                                  coupon.discount,
-                                  currencySymbolDirection,
-                                  currencySymbol,
-                                  digitAfterDecimalPoint
-                              )}{' '}
-                        {coupon?.coupon_type === 'free_delivery'
-                            ? ''
-                            : t('OFF')}
-                    </Typography>
-                    <Typography fontSize="14px" fontWeight="500">
-                        {coupon?.coupon_type === 'fast_order' &&
-                            t('On First Order')}
-                    </Typography>
-                </Grid>
-                <Grid item xs={8} sm={8} md={7} justifySelf="center">
-                    <CustomStackFullWidth
-                        spacing={1}
-                        sx={{ padding: '5px', position: 'relative' }}
-                        justifyContent="center"
+                ) : (
+                    // filled circle badge, matching the reference design
+                    <Stack
                         alignItems="center"
+                        justifyContent="center"
+                        sx={{
+                            width: 26,
+                            height: 26,
+                            borderRadius: '50%',
+                            backgroundColor: theme.palette.warning.main,
+                            flexShrink: 0,
+                        }}
                     >
-                        <IconButton
+                        <LoyaltyRoundedIcon
                             sx={{
-                                position: 'absolute',
-                                top: '-10px',
-                                right: '-5px',
+                                fontSize: 15,
+                                color: theme.palette.background.paper,
                             }}
-                        >
-                            <CustomCopyWithTooltip t={t} value={coupon?.code} />
-                        </IconButton>
-                        <CouponCodeBorderBox borderColor={borderColor}>
-                            <Typography
-                                textAlign="center"
-                                color={theme.palette.primary.main}
-                                fontSize="12px"
-                                fontWeight="600"
-                            >
-                                {coupon?.code}
-                            </Typography>
-                            <Stack
-                                backgroundColor={theme.palette.primary.main}
-                                width="80px"
-                                paddingY="5px"
-                                paddingX="10px"
-                                alignItems="center"
-                                sx={{
-                                    borderRadius: '8px',
-                                    position: 'absolute',
-                                    top: '-10px',
-                                    right: '50%',
-                                    transform: 'translateX(50%)',
-                                }}
-                            >
-                                <Typography
-                                    fontSize="9px"
-                                    fontWeight="600"
-                                    color={theme.palette.neutral[100]}
-                                >
-                                    {t('Coupon Code')}
-                                </Typography>
-                            </Stack>
-                        </CouponCodeBorderBox>
-                        <CustomStackFullWidth
-                            justifyContent="center"
-                            alignItems="center"
-                        >
-                            <Typography
-                                color={theme.palette.neutral[1000]}
-                                fontSize="13px"
-                                fontWeight="500"
-                            >
-                                {formatedDate(coupon?.start_date)} {t('to')}{' '}
-                                {formatedDate(coupon?.expire_date)}
-                            </Typography>
-                        </CustomStackFullWidth>
-                    </CustomStackFullWidth>
-                </Grid>
-            </Grid>
-        </CouponStack>
+                        />
+                    </Stack>
+                )}
+                <Typography
+                    sx={{
+                        fontSize: '16px',
+                        fontWeight: 700,
+                        color: isDark ? theme.palette.text.primary : '#1F2937',
+                        lineHeight: 1.1,
+                        letterSpacing: '-0.48px',
+                        textTransform: 'capitalize',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                    }}
+                >
+                    {heading}
+                </Typography>
+            </Stack>
+            <Typography
+                sx={{
+                    fontSize: '12px',
+                    color: isDark ? theme.palette.text.secondary : '#4B5563',
+                    lineHeight: 1.3,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                }}
+            >
+                {body}
+            </Typography>
+            {isFreeDelivery && (
+                <>
+                    <TicketCutOut side="left" />
+                    <TicketCutOut side="right" />
+                    {/* ticket stub separator */}
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            left: 18,
+                            top: 10,
+                            bottom: 10,
+                            borderLeft: `2px dashed ${theme.palette.background.paper}`,
+                        }}
+                    />
+                </>
+            )}
+        </CouponCard>
     )
 }
 

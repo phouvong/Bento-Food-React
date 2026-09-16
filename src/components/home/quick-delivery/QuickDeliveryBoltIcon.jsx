@@ -1,0 +1,34 @@
+import { Box, keyframes } from '@mui/material'
+
+const boltPulse = keyframes`
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.15); opacity: 0.85; }
+`
+
+const QuickDeliveryBoltIcon = ({ size = 22, sx }) => (
+    <Box
+        component="svg"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        sx={{
+            width: size,
+            height: size,
+            transformOrigin: 'center',
+            animation: `${boltPulse} 1.6s ease-in-out infinite`,
+            ...sx,
+        }}
+    >
+        <path
+            opacity="0.3"
+            d="M0.37714 7.91215L7.98059 0.313331C8.79645 -0.501979 10.0363 0.397311 9.74689 1.59458L9.70795 1.75577L4.96289 6.49808C4.02228 7.4382 3.74506 8.85044 4.24353 10.1113H1.09265C0.0841097 10.1113 -0.38396 8.67283 0.37714 7.91215ZM3.99927 18.437C3.73413 19.6561 5.02094 20.5153 5.81098 19.6468L8.27973 16.9328L9.32813 12.1114H7.09278C6.50208 12.1114 5.95087 11.9397 5.4784 11.637L3.99927 18.437Z"
+            fill="currentColor"
+        />
+        <path
+            d="M6.37714 7.91215L13.9806 0.313332C14.7964 -0.501978 16.0362 0.397311 15.7469 1.59458L13.9914 8.85795H18.9073C19.8906 8.85795 20.3716 10.2358 19.6611 11.017L11.811 19.6468C11.0209 20.5153 9.73413 19.6561 9.99926 18.437L11.8103 10.1113H7.09265C6.08411 10.1113 5.61604 8.67283 6.37714 7.91215Z"
+            fill="currentColor"
+        />
+    </Box>
+)
+
+export default QuickDeliveryBoltIcon

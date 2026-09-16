@@ -1,38 +1,39 @@
 import React, { memo, useRef } from 'react'
-import { Box, Grid, Skeleton, Stack, Typography } from '@mui/material'
+import { Box, Grid, Skeleton, Stack } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
-import Slider from 'react-slick'
+import Slider from '@/components/slider/SlickToSwiper'
 
 import FeaturedCategoryCard from '../../featured-category-item/FeaturedCategoryCard'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
-import { useRouter } from 'next/router'
 import Card from '@mui/material/Card'
 import CustomContainer from '../../container'
 import { useQuery } from 'react-query'
 import { CategoryApi } from '@/hooks/react-query/config/categoryApi'
 import { onErrorResponse } from '@/components/ErrorResponse'
 import SliderSectionHeader from '@/components/slider-section-header/SliderSectionHeader'
+import { SECTION_GUTTER_PX } from '@/components/container/Section'
+import { HOME_SECTION_SPACING } from '../homeSectionSpacing'
+
+const SPACING = HOME_SECTION_SPACING.featuredCategories
 
 const FeaturedCategoryShimmer = () => (
     <Stack
         alignItems="center"
-        spacing={{ xs: 0.75, md: 1 }}
-        sx={{ width: { xs: '60px', md: '86px' } }}
+        spacing={{ xs: 1, md: 1.5 }}
+        sx={{ width: { xs: '72px', md: '102px' } }}
     >
         <Skeleton
             variant="circular"
             sx={{
-                height: { xs: '60px', md: '86px' },
-                width: { xs: '60px', md: '86px' },
+                height: { xs: '56px', md: '86px' },
+                width: { xs: '56px', md: '86px' },
             }}
         />
         <Skeleton
             variant="text"
             sx={{
                 width: { xs: '50px', md: '70px' },
-                fontSize: { xs: '12px', md: '12.5px' },
+                fontSize: { xs: '12px', md: '16px' },
             }}
         />
     </Stack>
@@ -40,15 +41,12 @@ const FeaturedCategoryShimmer = () => (
 
 const FeatureCatagories = () => {
     const { t } = useTranslation()
-    const router = useRouter()
     const { global } = useSelector((state) => state.globalSettings)
     const sliderRef = useRef(null)
 
-    const searchKey = ''
-
     const { data } = useQuery(
-        ['category', searchKey],
-        () => CategoryApi.categories(searchKey),
+        ['categories-cuisines'],
+        () => CategoryApi.categoriesCuisines(),
         {
             staleTime: 1000 * 60 * 8,
             onError: onErrorResponse,
@@ -56,7 +54,8 @@ const FeatureCatagories = () => {
         }
     )
 
-    const totalItems = data?.data?.length ?? 0
+    const items = data?.data?.data ?? []
+    const totalItems = items.length
     const shouldAutoplay = totalItems > 9
     const settings = {
         dots: false,
@@ -117,7 +116,7 @@ const FeatureCatagories = () => {
             {
                 breakpoint: 600,
                 settings: {
-                    slidesToShow: 4.5,
+                    slidesToShow: 5.5,
                     slidesToScroll: 1,
                     infinite: false,
                     autoplay: false,
@@ -128,19 +127,32 @@ const FeatureCatagories = () => {
             {
                 breakpoint: 480,
                 settings: {
-                    slidesToShow: 4,
+                    slidesToShow: 5.5,
                     slidesToScroll: 1,
-                    infinite: totalItems > 4,
-                    autoplay: totalItems > 4,
+                    infinite: totalItems > 6,
+                    autoplay: totalItems > 6,
                     speed: 450,
                     cssEase: 'ease-out',
                 },
             },
             {
-                breakpoint: 380,
+                breakpoint: 390,
                 settings: {
-                    slidesToShow: 3.5,
-                    slidesToScroll: 1,
+                    slidesToShow: 5.5,
+                    slidesToScroll: 2,
+                    infinite: false,
+                    autoplay: false,
+                    speed: 450,
+                    cssEase: 'ease-out',
+                },
+            },
+            {
+                breakpoint: 330,
+                settings: {
+                    // 5 fixed-width (72px) items don't fit under 330px —
+                    // keep a peek-slide count so nothing clips.
+                    slidesToShow: 4.5,
+                    slidesToScroll: 2,
                     infinite: false,
                     autoplay: false,
                     speed: 450,
@@ -155,6 +167,9 @@ const FeatureCatagories = () => {
             sx={{
                 background: (theme) => theme.palette.neutral[1800],
                 boxShadow: 'none',
+                pl: SECTION_GUTTER_PX,
+                pt: SPACING.pt,
+                pb: SPACING.pb,
                 WebkitTapHighlightColor: 'transparent',
                 '& *': {
                     WebkitTapHighlightColor: 'transparent',
@@ -168,73 +183,56 @@ const FeatureCatagories = () => {
                 },
             }}
         >
-            
-                <Grid container gap={{ xs: '.3rem', md: '0rem' }}>
-                    <Grid item xs={12} md={12}>
-                        <SliderSectionHeader
-                            title={t('Whats on Your Mind?')}
-                            subtitle={t(
-                                "Pick a cuisine — we'll bring the feast."
-                            )}
-                            titleIcon={
-                                <Typography
-                                    fontSize={{ xs: '18px', md: '22px' }}
-                                    sx={{ lineHeight: 1 }}
-                                    component="span"
-                                >
-                                    🍽️
-                                </Typography>
-                            }
-                            sliderRef={sliderRef}
-                            itemsCount={totalItems}
-                            viewAllText={t('Explore More')}
-                            onViewAll={() => router.push('/categories')}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={12}>
-                        {totalItems > 0 ? (
-                            <Slider
-                                className="slick__slider"
-                                {...settings}
-                                ref={sliderRef}
-                            >
-                                {data?.data?.map((categoryItem) => (
-                                    <FeaturedCategoryCard
-                                        key={categoryItem?.id}
-                                        id={categoryItem?.id}
-                                        slug={categoryItem?.slug}
-                                        categoryImage={
-                                            categoryItem?.image_full_url
-                                        }
-                                        name={categoryItem?.name}
-                                        categoryImageUrl={
-                                            global?.base_urls
-                                                ?.category_image_url
-                                        }
-                                        height="40px"
-                                    />
-                                ))}
-                            </Slider>
-                        ) : (
-                            <Stack
-                                direction="row"
-                                spacing={{ xs: 1, md: 1.5 }}
-                                sx={{
-                                    overflow: 'hidden',
-                                    width: '100%',
-                                    py: { xs: '4px', md: '8px' },
-                                }}
-                            >
-                                {[...Array(9)].map((_, i) => (
-                                    <Box key={i} sx={{ flexShrink: 0 }}>
-                                        <FeaturedCategoryShimmer />
-                                    </Box>
-                                ))}
-                            </Stack>
-                        )}
-                    </Grid>
+            <Grid container gap={0}>
+                <Grid item xs={12} md={12}>
+                    <SliderSectionHeader
+                        title={t('What You Need?')}
+                        sliderRef={sliderRef}
+                        itemsCount={totalItems}
+                        sx={{ mb: SPACING.headerGap }}
+                    />
                 </Grid>
-            
+                <Grid item xs={12} md={12}>
+                    {totalItems > 0 ? (
+                        <Slider
+                            className="slick__slider"
+                            {...settings}
+                            ref={sliderRef}
+                        >
+                            {items.map((categoryItem) => (
+                                <FeaturedCategoryCard
+                                    key={`${categoryItem?.type}-${categoryItem?.id}`}
+                                    id={categoryItem?.id}
+                                    slug={categoryItem?.slug}
+                                    type={categoryItem?.type}
+                                    categoryImage={categoryItem?.image_full_url}
+                                    name={categoryItem?.name}
+                                    categoryImageUrl={
+                                        global?.base_urls?.category_image_url
+                                    }
+                                    height="40px"
+                                />
+                            ))}
+                        </Slider>
+                    ) : (
+                        <Stack
+                            direction="row"
+                            spacing={{ xs: 1, md: 1.5 }}
+                            sx={{
+                                overflow: 'hidden',
+                                width: '100%',
+                                py: { xs: '4px', md: '8px' },
+                            }}
+                        >
+                            {[...Array(9)].map((_, i) => (
+                                <Box key={i} sx={{ flexShrink: 0 }}>
+                                    <FeaturedCategoryShimmer />
+                                </Box>
+                            ))}
+                        </Stack>
+                    )}
+                </Grid>
+            </Grid>
         </Stack>
     )
 }

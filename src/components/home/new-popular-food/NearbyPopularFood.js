@@ -2,8 +2,6 @@ import React, { memo, useRef } from 'react'
 import { Box, Grid, Stack, styled } from '@mui/material'
 import fire_image from '../../../../public/static/fire.svg'
 import FoodCard from '../../food-card/FoodCard'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
 import { useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import CustomImageContainer from '../../CustomImageContainer'
@@ -12,7 +10,7 @@ import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import FoodCardHorizontalShimmer from '../../food-card/FoodCardHorizontalShimmer'
 import { useRouter } from 'next/router'
-import Slider from 'react-slick'
+import Slider from '@/components/slider/SlickToSwiper'
 import SliderSectionHeader from '@/components/slider-section-header/SliderSectionHeader'
 
 const SliderCustom1 = styled(Box)(({ theme, nopadding }) => ({
@@ -196,7 +194,7 @@ const NearbyPopularFood = ({ isLoading }) => {
                         paddingBottom={isSmall ? '10px' : '20px'}
                     >
                       {popularFood?.length > 0 && (  <CustomStackFullWidth>
-                            <Slider {...settings} ref={sliderRef}>
+                            <Slider {...settings} gap="12px" ref={sliderRef}>
                                 {popularFood?.map((product) => {
                                     if (
                                         product?.variations === null ||
@@ -225,7 +223,7 @@ const NearbyPopularFood = ({ isLoading }) => {
                 ) : (
                     <CustomStackFullWidth>
                         <SliderCustom1 nopadding="true">
-                            <Slider {...settings}>
+                            <Slider {...settings} gap="12px">
                                 {[...Array(12)].map((item, index) => (
                                     <FoodCardHorizontalShimmer
                                         key={index}

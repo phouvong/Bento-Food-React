@@ -3,12 +3,17 @@ import { useOrderAgainRestaurants } from '@/hooks/react-query/wanna-try-again/us
 import { useRecommendedRestaurant } from '@/hooks/react-query/wanna-try-again/useRecommendedRestaurant'
 import { Box, styled } from '@mui/material'
 import { t } from 'i18next'
-import { memo, useEffect, useRef, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
+import useDragScroll from '@/hooks/useDragScroll'
 import { getToken } from '../../checkout-page/functions/getGuestUserId'
 import FoodCardShimmer from '../../food-card/FoodCarShimmer'
 import NewStoreCard from '@/components/new-store-card/NewStoreCard'
 import SliderSectionHeader from '@/components/slider-section-header/SliderSectionHeader'
+import { SECTION_GUTTER_PX } from '@/components/container/Section'
 import { SLIDE_GAP } from '../Banner'
+import { HOME_SECTION_SPACING } from '../homeSectionSpacing'
+
+const SPACING = HOME_SECTION_SPACING.visitAgain
 
 export const Puller = styled('div')(({ theme }) => ({
     width: '80px',
@@ -26,23 +31,26 @@ const ScrollRow = styled(Box)(({ theme }) => ({
     overflowY: 'hidden',
     scrollSnapType: 'x mandatory',
     scrollBehavior: 'smooth',
-    padding: '4px 2px 0px',
+    padding: '0px 2px',
     scrollbarWidth: 'none',
     msOverflowStyle: 'none',
     '&::-webkit-scrollbar': { display: 'none' },
     '& > .scroll-item': {
-        flex: '0 0 248px',
+        flex: '0 0 300px',
         scrollSnapAlign: 'start',
         minWidth: 0,
     },
     [theme.breakpoints.down('sm')]: {
         gap: 12,
-        '& > .scroll-item': { flex: '0 0 72%' },
+        '& > .scroll-item': { flex: '0 0 300px' },
     },
 }))
 
 const VisitAgain = () => {
-    const scrollRef = useRef(null)
+    // Mouse drag-to-scroll for the row; dragScroll.ref doubles as the
+    // scroll target for the header arrows.
+    const dragScroll = useDragScroll()
+    const scrollRef = dragScroll.ref
     const token = getToken()
     const [userData, setUserData] = useState(null)
     const [text, setText] = useState({
@@ -107,12 +115,20 @@ const VisitAgain = () => {
     if (!userData?.length && !loading) return null
 
     return (
-        <Box>
+        <Box
+            sx={{
+                pl: SECTION_GUTTER_PX,
+                pt: SPACING.pt,
+                pb: SPACING.pb,
+            }}
+        >
             <SliderSectionHeader
                 title={text?.title}
                 subtitle={text?.subTitle}
                 sliderRef={sliderRefShim}
+                scrollElRef={scrollRef}
                 itemsCount={userData?.length}
+                sx={{ mb: SPACING.headerGap }}
             />
 
             {loading ? (
@@ -127,7 +143,7 @@ const VisitAgain = () => {
                     ))}
                 </ScrollRow>
             ) : (
-                <ScrollRow ref={scrollRef}>
+                <ScrollRow {...dragScroll} sx={{ cursor: 'grab' }}>
                     {userData?.map((restaurantData) => (
                         <Box
                             key={restaurantData?.id}

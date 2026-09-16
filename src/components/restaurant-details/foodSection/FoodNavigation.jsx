@@ -63,7 +63,11 @@ const FoodNavigation = ({
     }
 
     const allId = usein === 'restaurant' ? 0 : id
-    const isAllActive = category_id === allId || category_id === id
+    // String() guards against category_id (from a URL query param, always a
+    // string) vs. menu.id (from the API, usually a number) type mismatches.
+    const isAllActive =
+        String(category_id) === String(allId) ||
+        String(category_id) === String(id)
 
     useEffect(() => {
         const container = tabBarRef.current
@@ -75,35 +79,63 @@ const FoodNavigation = ({
         })
     }, [category_id])
 
+    // A single sub-category has nothing to switch between, so there's no
+    // "All" tab — but some items are assigned straight to the parent
+    // category with no sub-category, so fetching must still go through the
+    // parent id/allId to include those. The lone tab is shown as selected
+    // and its click is a no-op on the actual fetched id.
+    const showAllTab = catetoryMenus?.length > 1
+    const onlySubCategory = catetoryMenus?.length === 1 ? catetoryMenus[0] : null
+
     return (
         <RTL direction={languageDirection}>
             <TabBar role="tablist" ref={tabBarRef}>
-                <TabBtn
-                    role="tab"
-                    type="button"
-                    ref={isAllActive ? activeBtnRef : null}
-                    isactive={isAllActive ? 'true' : 'false'}
-                    onClick={() => handleCategoryId(id)}
-                >
-                    {t('All')}
-                </TabBtn>
-                {catetoryMenus?.length > 0 &&
-                    catetoryMenus.map((menu) => (
-                        <TabBtn
-                            key={menu.id}
-                            role="tab"
-                            type="button"
-                            ref={
-                                category_id === menu.id ? activeBtnRef : null
-                            }
-                            isactive={
-                                category_id === menu.id ? 'true' : 'false'
-                            }
-                            onClick={() => handleCategoryId(menu.id)}
-                        >
-                            {menu.name}
-                        </TabBtn>
-                    ))}
+                {showAllTab && (
+                    <TabBtn
+                        role="tab"
+                        type="button"
+                        ref={isAllActive ? activeBtnRef : null}
+                        isactive={isAllActive ? 'true' : 'false'}
+                        onClick={() => handleCategoryId(id)}
+                    >
+                        {t('All')}
+                    </TabBtn>
+                )}
+                {onlySubCategory && (
+                    <TabBtn
+                        role="tab"
+                        type="button"
+                        ref={activeBtnRef}
+                        isactive="true"
+                        onClick={() => handleCategoryId(id)}
+                    >
+                        {onlySubCategory.name}
+                    </TabBtn>
+                )}
+                {showAllTab &&
+                    catetoryMenus.map((menu) => {
+                        // Sub-categories are the same "categories" resource
+                        // as top-level ones — prefer their slug (readable
+                        // in the URL) and fall back to id only if a menu
+                        // has none.
+                        const menuIdentifier = menu.slug || menu.id
+                        const isMenuActive =
+                            String(category_id) === String(menuIdentifier)
+                        return (
+                            <TabBtn
+                                key={menu.id}
+                                role="tab"
+                                type="button"
+                                ref={isMenuActive ? activeBtnRef : null}
+                                isactive={isMenuActive ? 'true' : 'false'}
+                                onClick={() =>
+                                    handleCategoryId(menuIdentifier)
+                                }
+                            >
+                                {menu.name}
+                            </TabBtn>
+                        )
+                    })}
             </TabBar>
         </RTL>
     )

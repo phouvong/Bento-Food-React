@@ -4,6 +4,8 @@ const initialState = {
     welcomeModal: false,
     isNeedLoad: false,
     trackOrderStoreData: {},
+    // Shared by the navbar cart icon and the floating cart button.
+    cartDrawerOpen: false,
 }
 export const utilsSlice = createSlice({
     name: 'utils-data',
@@ -24,10 +26,17 @@ export const utilsSlice = createSlice({
                 phone: action.payload,
             }
         },
+        setCartDrawerOpen: (state, action) => {
+            state.cartDrawerOpen = action.payload
+        },
     },
 })
 
-export const { setTrackOrderStoreData, setWelcomeModal, setIsNeedLoad } =
-    utilsSlice.actions
+export const {
+    setTrackOrderStoreData,
+    setWelcomeModal,
+    setIsNeedLoad,
+    setCartDrawerOpen,
+} = utilsSlice.actions
 
 export default utilsSlice.reducer

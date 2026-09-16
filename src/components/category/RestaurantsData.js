@@ -4,6 +4,8 @@ import NewStoreCard from '@/components/new-store-card/NewStoreCard'
 import CustomePagination from '../pagination/Pagination'
 import { useRouter } from 'next/router'
 
+const DEFAULT_GRID_SIZES = { lg: 3, md: 3, sm: 6, xs: 12 }
+
 const RestaurantsData = ({
     resData,
     page_limit = 10,
@@ -11,6 +13,7 @@ const RestaurantsData = ({
     setOffset,
     global,
     restaurantType,
+    gridSizes = DEFAULT_GRID_SIZES,
 }) => {
     const router = useRouter();
     const matchesToMd = useMediaQuery('(min-width:740px)');
@@ -25,14 +28,7 @@ const RestaurantsData = ({
     return (
         <>
             {resData?.data?.restaurants?.map((res) => (
-                <Grid
-                    key={res?.id}
-                    item
-                    lg={3}
-                    md={3}
-                    sm={6}
-                    xs={12}
-                >
+                <Grid key={res?.id} item {...gridSizes}>
                     <NewStoreCard
                         restaurant={{
                             ...res,

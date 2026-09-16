@@ -124,7 +124,10 @@ const ForgotPasswordNumberForm = ({
                        <Typography
                            fontSize="16px"
                            fontWeight={600}
-                           sx={{ color: theme.palette.text.formHeader }}
+                           sx={{
+                               display: { xs: 'none', sm: 'block' },
+                               color: theme.palette.text.formHeader,
+                           }}
                        >
                            {t('Forgot Password')}
                        </Typography>

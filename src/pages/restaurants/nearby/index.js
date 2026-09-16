@@ -1,6 +1,6 @@
 import React from 'react'
 import { NoSsr } from '@mui/material'
-import TypeWiseResturant from '../../../components/type-wise-resturant-page/TypeWiseResturant'
+import TypeWiseResturant from '../../../components/type-wise-restaurant-page/TypeWiseRestaurant'
 import Meta from '../../../components/Meta'
 import { useTranslation } from 'react-i18next'
 import { getCommonServerSideProps } from '@/helpers/serverSidePropsHelper'

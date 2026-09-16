@@ -7,9 +7,7 @@ import CustomShimmerCategories from '../../CustomShimmer/CustomShimmerCategories
 import { Grid } from '@mui/material'
 import { t } from 'i18next'
 import { useRouter } from 'next/router'
-import Slider from 'react-slick'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
+import Slider from '@/components/slider/SlickToSwiper'
 import CuisinesCard from './CuisinesCard'
 import cuisine_image from '../../../../public/static/cuisine_image.svg'
 import Skeleton from '@mui/material/Skeleton'
@@ -197,6 +195,7 @@ const Cuisines = () => {
                                             >
                                                 <Slider
                                                     {...settings}
+                                                    gap={SLIDE_GAP}
                                                     ref={sliderRef}
                                                 >
                                                     {cuisines?.map(

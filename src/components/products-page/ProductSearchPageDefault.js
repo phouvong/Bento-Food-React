@@ -35,7 +35,7 @@ const ProductSearchPage = ({
     )
     console.log({tags,searchTagData});
     
-    const [page_limit, setPageLimit] = useState(36)
+    const [page_limit, setPageLimit] = useState(30)
     const [offset, setOffset] = useState(1)
     const [searchValue, setSearchValue] = useState('')
     const { filterData, foodOrRestaurant } = useSelector(

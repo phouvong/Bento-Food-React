@@ -90,6 +90,8 @@ const DrawerMenu = ({ zoneid, cartListRefetch }) => {
             await cartListRefetch()
             queryClient.invalidateQueries('cart-item')
             queryClient.invalidateQueries('cart-item-restaurant')
+            queryClient.removeQueries(['address-list'])
+            queryClient.removeQueries(['profile-info'])
             CustomToaster('success', logoutSuccessFull)
             if (router.pathname === '/') {
                 router.push('/')

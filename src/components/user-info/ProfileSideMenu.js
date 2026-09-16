@@ -1,14 +1,6 @@
 import React from 'react'
-import order from '../../../public/static/profile/order.svg'
-import profile from '../../../public/static/profile/profileIcon.svg'
-import cupons from '../../../public/static/profile/cupons.png'
-import wallet from '../../../public/static/profile/wallet.svg'
-import loyalty from '../../../public/static/profile/loyalty.svg'
-import refer from '../../../public/static/refer_code.png'
-import settings from '../../../public/static/profile/settings.svg'
-import wish from '../../../public/static/profile/wish.svg'
-import inboxIcon from '../../../public/static/profile/inbox-icon.png'
-import crown from '../../../public/static/profile/crown.svg'
+import { t } from 'i18next'
+import NextLink from 'next/link'
 import {
     CustomPaperBigCard,
     CustomStackFullWidth,
@@ -16,103 +8,156 @@ import {
 import CustomerInfo from './CustomerInfo'
 import MenuBar from './MenuBar'
 import { RTL } from '../RTL/RTL'
-import { Stack } from '@mui/material'
+import { Breadcrumbs, Link, Stack, Typography } from '@mui/material'
+import HomeIcon from '@mui/icons-material/Home'
+import NavigateNextIcon from '@mui/icons-material/NavigateNext'
+
+// Same fi-rr-* Flaticon uicon set used in the navbar AccountPopover menu.
 export const tabData = [
     {
         id: 1,
         label: 'My Profile',
         value: 'profile',
-        img: profile,
+        icon: 'fi-rr-circle-user',
     },
     {
         id: 2,
         label: 'Orders',
         value: 'order',
-        img: order,
+        icon: 'fi-rr-receipt',
     },
     {
         id: 3,
         label: 'Coupons',
         value: 'coupons',
-        img: cupons,
+        icon: 'fi-rr-ticket',
     },
     {
         id: 4,
         label: 'Wish List',
         value: 'wishlist',
-        img: wish,
+        icon: 'fi-rr-heart',
     },
     {
         id: 5,
         label: 'Wallets',
         value: 'wallets',
-        img: wallet,
+        icon: 'fi-rr-wallet',
     },
     {
         id: 6,
         label: 'Subscription Plan',
         value: 'subscription',
-        img: crown,
+        icon: 'fi-rr-crown',
     },
     {
         id: 7,
         label: 'Loyalty Points',
         value: 'loyalty',
-        img: loyalty,
+        icon: 'fi-rr-badge',
     },
     {
         id: 8,
         label: 'Referral Code',
         value: 'referral',
-        img: refer,
+        icon: 'fi-rr-share',
     },
     {
         id: 9,
         label: 'Inbox',
         value: 'inbox',
-        img: inboxIcon,
+        icon: 'fi-rr-messages',
     },
 
     {
         id: 10,
         label: 'Settings',
         value: 'settings',
-        img: settings,
+        icon: 'fi-rr-settings',
     },
 ]
 
-const ProfileSideMenu = ({ onClose, sidedrawer, page, setAttributeId }) => {
+const ProfileSideMenu = ({
+    onClose,
+    sidedrawer,
+    page,
+    setAttributeId,
+    isAuthenticated,
+}) => {
     let languageDirection = undefined
     if (typeof window !== 'undefined') {
         languageDirection = localStorage.getItem('direction')
     }
+
+    const currentTab = tabData.find((item) => item.value === page)
+    const breadcrumbLabel =
+        currentTab?.id === 1 ? t('Profile') : t(currentTab?.label || '')
 
     return (
         <RTL direction={languageDirection}>
             <CustomStackFullWidth
                 sx={{
                     position: 'sticky',
-                    top: { xs: '90px', md: '130px' },
+                    top: { xs: '90px', md: '88px' },
                     zIndex: 9,
                 }}
             >
                 <Stack
                     padding="1rem"
                     sx={{
-                        borderRadius: '5px',
-                        paddingTop: '15px',
-                        marginTop: '2px',
+                        borderRadius: '16px',
+                        backgroundColor: (theme) =>
+                            theme.palette.neutral[1800],
+                        paddingTop: '24px',
                         paddingBottom: '25px',
                     }}
                 >
-                    <CustomStackFullWidth gap="20px">
-                        <CustomerInfo />
+                    <CustomStackFullWidth gap="24px">
+                        <CustomStackFullWidth gap="16px">
+                            <Breadcrumbs
+                                separator={
+                                    <NavigateNextIcon sx={{ fontSize: 14 }} />
+                                }
+                                sx={{
+                                    fontSize: '14px',
+                                    color: (theme) =>
+                                        theme.palette.text.secondary,
+                                    '& .MuiBreadcrumbs-separator': {
+                                        mx: '4px',
+                                    },
+                                }}
+                            >
+                                <Link
+                                    component={NextLink}
+                                    href="/home"
+                                    underline="hover"
+                                    color="text.secondary"
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        fontSize: 'inherit',
+                                    }}
+                                >
+                                    <HomeIcon sx={{ fontSize: 14 }} />
+                                    {t('Home')}
+                                </Link>
+                                <Typography
+                                    color="text.secondary"
+                                    fontSize="inherit"
+                                >
+                                    {breadcrumbLabel}
+                                </Typography>
+                            </Breadcrumbs>
+                            {isAuthenticated && <CustomerInfo />}
+                        </CustomStackFullWidth>
                         <MenuBar
                             setAttributeId={setAttributeId}
                             tabData={tabData}
                             onClose={onClose}
                             sidedrawer={sidedrawer}
                             page={page}
+                            isAuthenticated={isAuthenticated}
                         />
                     </CustomStackFullWidth>
                 </Stack>

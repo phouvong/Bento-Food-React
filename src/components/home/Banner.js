@@ -3,9 +3,7 @@ import {
     CustomStackFullWidth,
     SliderCustom,
 } from '@/styled-components/CustomStyles.style'
-import Slider from 'react-slick'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
+import Slider from '@/components/slider/SlickToSwiper'
 import BannerCard from './Banner/BannerCard'
 import { useRouter } from 'next/router'
 import dynamic from 'next/dynamic'
@@ -15,12 +13,14 @@ import { handleBadge } from '@/utils/customFunctions'
 import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import SliderSectionHeader from '@/components/slider-section-header/SliderSectionHeader'
+import { HOME_SECTION_SPACING } from './homeSectionSpacing'
 
 const FoodDetailModal = dynamic(() =>
     import('../foodDetail-modal/FoodDetailModal')
 )
 
 export const SLIDE_GAP = '20px'
+const SPACING = HOME_SECTION_SPACING.banner
 
 const Banner = ({ isFetched, data }) => {
     const router = useRouter()
@@ -68,14 +68,16 @@ const Banner = ({ isFetched, data }) => {
         if (banner.type === 'restaurant_wise') {
             router.push(
                 {
-                    pathname: `/restaurants/${banner?.restaurant?.slug || banner?.restaurant?.id}`,
+                    pathname: `/restaurants/${
+                        banner?.restaurant?.slug || banner?.restaurant?.id
+                    }`,
                 },
                 undefined,
                 { shallow: true }
             )
         } else if (banner?.available_date_ends) {
             router.push(
-                {pathname: `campaigns/${banner?.slug || banner?.id}`},
+                { pathname: `campaigns/${banner?.slug || banner?.id}` },
                 undefined,
                 { shallow: true }
             )
@@ -92,17 +94,18 @@ const Banner = ({ isFetched, data }) => {
     const bannerSettings = {
         infinite: bannerData?.length > 3,
         speed: 600,
-        slidesToShow: 3,
+        slidesToShow: 3.13,
         autoplay: true,
-        dots: false,
+        dots: true,
         arrows: false,
         beforeChange: (_, next) => setActiveSlide(next),
         responsive: [
             {
                 breakpoint: 1450,
                 settings: {
-                    slidesToShow: 3,
+                    slidesToShow: 3.13,
                     infinite: bannerData?.length > 3,
+                    dots: true,
                     autoplay: true,
                 },
             },
@@ -111,6 +114,7 @@ const Banner = ({ isFetched, data }) => {
                 settings: {
                     slidesToShow: 2.3,
                     infinite: bannerData?.length > 3,
+                    dots: true,
                     autoplay: true,
                 },
             },
@@ -119,8 +123,8 @@ const Banner = ({ isFetched, data }) => {
                 settings: {
                     slidesToShow: 1.7,
                     infinite: bannerData?.length > 3,
+                    dots: true,
                     autoplay: true,
-                    centerMode: true,
                 },
             },
             {
@@ -130,8 +134,6 @@ const Banner = ({ isFetched, data }) => {
                     infinite: bannerData?.length > 3,
                     dots: true,
                     autoplay: true,
-                    centerMode: true,
-                    centerPadding: '100px',
                 },
             },
             {
@@ -140,19 +142,15 @@ const Banner = ({ isFetched, data }) => {
                     slidesToShow: 1.5,
                     dots: true,
                     autoplay: true,
-                    centerMode: true,
-                    centerPadding: '80px',
                 },
             },
             {
                 breakpoint: 500,
                 settings: {
-                    slidesToShow: 1,
+                    slidesToShow: 1.12,
                     initialSlide: 1,
                     dots: true,
                     autoplay: true,
-                    centerMode: true,
-                    centerPadding: '30px',
                 },
             },
         ],
@@ -161,26 +159,45 @@ const Banner = ({ isFetched, data }) => {
         ...(data?.data?.banners || []),
         ...(data?.data?.campaigns || []),
     ]
-    const bData = mergeBanner || bannerData;
+    const bData = data ? mergeBanner : bannerData
     const displayBanners = bData?.slice(0, 8) || []
     const totalBanners = displayBanners.length
+    const hasBannerData = Boolean(
+        banners?.banners?.length || banners?.campaigns?.length
+    )
 
     return (
-        <CustomStackFullWidth sx={{marginTop:{xs:"16px", md: "23px"}}} >
-            <SliderSectionHeader
-                title={t('Find Best Restaurants and Foods')}
-                subtitle={t(
-                    'Discover what fits your mood — filter, explore, and order in a tap.'
-                )}
-                titleComponent="h1"
-                sliderRef={sliderRef}
-                itemsCount={totalBanners}
-                viewAllText={t('See all offers')}
-                onViewAll={() => router.push('/campaigns')}
-            />
-            <SliderCustom gap={slideGap}>
-                {isFetched ? (
-                    <Slider {...bannerSettings} ref={sliderRef}>
+        <CustomStackFullWidth sx={{ pt: SPACING.pt, pb: SPACING.pb }}>
+            <SliderCustom
+                gap={slideGap}
+                sx={(theme) => ({
+                    '& .swiper-wrapper': {
+                        pb: SPACING.dotsGap,
+                    },
+                    '& .swiper-pagination': {
+                        bottom: '0 !important',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        '--swiper-pagination-bullet-horizontal-gap': '3px',
+                    },
+                    '& .swiper-pagination-bullet': {
+                        width: '7px',
+                        height: '7px',
+                        flexShrink: 0,
+                        backgroundColor: theme.palette.divider,
+                        opacity: 1,
+                        transition: 'width 0.2s ease, height 0.2s ease',
+                    },
+                    '& .swiper-pagination-bullet-active': {
+                        width: '10px',
+                        height: '10px',
+                        backgroundColor: theme.palette.primary.main,
+                    },
+                })}
+            >
+                {isFetched || hasBannerData ? (
+                    <Slider {...bannerSettings} gap={slideGap} ref={sliderRef}>
                         {displayBanners.map((banner) => {
                             return (
                                 <BannerCard
@@ -192,13 +209,12 @@ const Banner = ({ isFetched, data }) => {
                         })}
                     </Slider>
                 ) : (
-                    <Slider {...bannerSettings}>
+                    <Slider {...bannerSettings} gap={slideGap}>
                         {[...Array(4)].map((i) => {
                             return <BannerCard key={i} onlyShimmer />
                         })}
                     </Slider>
                 )}
-              
             </SliderCustom>
             {FoodBannerData && openModal && (
                 <FoodDetailModal

@@ -1,38 +1,51 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { alpha, Grid, Typography } from '@mui/material'
-import 'slick-carousel/slick/slick.css'
-import 'slick-carousel/slick/slick-theme.css'
+import { Box, Grid, Typography, useMediaQuery } from '@mui/material'
 import NewFoodCard from '@/components/new-food-card/NewFoodCard'
-import { Stack } from '@mui/system'
-import CustomImageContainer from '../CustomImageContainer'
-import fire_image from '../../../public/static/fire.svg'
+import BogoProductCard from '@/components/new-food-card/BogoProductCard'
+import Slider from '@/components/slider/SlickToSwiper'
 import { useSelector } from 'react-redux'
 import { useTheme } from '@emotion/react'
 import { RTL } from '../RTL/RTL'
 import discountBanner from '../../../public/static/discount.svg'
-import heroImg from '../../../public/static/heroHome.svg'
 import ImageNotFound from '../../../public/static/no-image-found.png'
 import { DiscountImageGrid } from './restaurant-details.style'
+import { getAmount } from '@/utils/customFunctions'
+import { formatBogoValidUntil } from '@/utils/formatBogoValidUntil'
 import { t } from 'i18next'
+
+const popularSliderSettings = {
+    dots: false,
+    arrows: false,
+    infinite: false,
+    speed: 400,
+    slidesToShow: 4.5,
+    slidesToScroll: 4,
+    responsive: [
+        { breakpoint: 1200, settings: { slidesToShow: 3.2 } },
+        { breakpoint: 900, settings: { slidesToShow: 2.5 } },
+        { breakpoint: 600, settings: { slidesToShow: 2.3 } },
+    ],
+}
 
 const CategoriesWiseFood = ({
     data,
     handleFocusedSection,
     indexNumber,
-    restaurantDiscount,
     hasFreeDelivery,
-    disRef,
+    onBogoCardClick,
+    restaurantId,
 }) => {
     const theme = useTheme()
     const ref2 = useRef(null)
     const { global } = useSelector((state) => state.globalSettings)
     const [isInPosition, setIsInPosition] = useState(false)
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+    const sliderGap = isMobile ? 12 : 16
 
-    let i = 0
     const scrollHandler = () => {
         const element = ref2.current
         const rect = element?.getBoundingClientRect()
-        const targetPosition = 360
+        const targetPosition = 250
 
         if (rect?.top <= targetPosition && rect?.bottom >= targetPosition) {
             setIsInPosition(true)
@@ -50,7 +63,6 @@ const CategoriesWiseFood = ({
     }, [isInPosition])
 
     useEffect(() => {
-        //ref2.current.scrollIntoView({ behavior: 'smooth' })
         window.addEventListener('scroll', scrollHandler, true)
         return () => {
             window.removeEventListener('scroll', scrollHandler, true)
@@ -62,139 +74,111 @@ const CategoriesWiseFood = ({
         languageDirection = localStorage.getItem('direction')
     }
 
+    const visibleProducts =
+        data?.products?.filter(
+            (food) =>
+                food?.variations === null ||
+                food?.variations[0]?.values ||
+                food?.variations?.length === 0
+        ) ?? []
+
+    const sectionTitle = (
+        <Typography
+            sx={{
+                fontSize: { xs: '16px', md: '18px' },
+                fontWeight: 700,
+                lineHeight: 1.2,
+                color: theme.palette.text.primary,
+            }}
+        >
+            {data?.name}
+        </Typography>
+    )
+
     return (
-        <Grid container ref={ref2} gap="1rem">
-            <>
-                {data?.isBgColor ? (
+        <RTL direction={languageDirection}>
+            <Grid container ref={ref2} gap="1rem">
+                {data?.isBogo ? (
                     <>
                         <Grid
                             item
                             xs={12}
-                            sm={12}
-                            md={12}
-                            align="left"
+                            align={
+                                languageDirection === 'rtl' ? 'right' : 'left'
+                            }
                             paddingTop="5px"
                         >
-                            <Stack
-                                direction="row"
-                                alignItems="center"
-                                spacing={0.5}
-                            >
-                                <CustomImageContainer
-                                    src={fire_image.src}
-                                    width="26px"
-                                    height="26px"
-                                />
-                                <Typography
-                                    fontWeight="500"
-                                    fontSize={{
-                                        xs: '16px',
-                                        sm: '18px',
-                                        md: '20px',
-                                    }}
-                                    color={theme.palette.neutral[1000]}
-                                >
-                                    {data?.name}
-                                </Typography>
-                            </Stack>
+                            {sectionTitle}
                         </Grid>
-                        {data?.products?.length > 0 && (
-                            <Grid
-                                item
-                                container
-                                xs={12}
-                                sm={12}
-                                md={12}
+                        <Grid item xs={12}>
+                            <Box
                                 sx={{
-                                    padding: {
-                                        xs: '10px',
-                                        sm: '.6rem',
-                                        md: '.6rem',
+                                    display: 'grid',
+                                    gap: 2,
+                                    gridTemplateColumns: {
+                                        xs: '1fr',
+                                        sm: 'repeat(2, 1fr)',
                                     },
-                                    background: alpha(
-                                        theme.palette.neutral[500],
-                                        0.05
-                                    ),
-                                    marginTop: '.5rem',
                                 }}
                             >
-                                {data?.products?.map((food) => {
-                                    if (
-                                        food?.variations === null ||
-                                        food?.variations[0]?.values ||
-                                        food?.variations?.length === 0
-                                    ) {
-                                        return (
-                                            <Grid
-                                                item
-                                                xs={6}
-                                                sm={4}
-                                                md={2}
-                                                spacing={2}
+                                {data?.offers?.map((offer) => (
+                                    <BogoProductCard
+                                        key={offer?.id}
+                                        product={{
+                                            name: offer?.title,
+                                            price: getAmount(
+                                                offer?.final_price,
+                                                global?.currency_symbol_direction,
+                                                global?.currency_symbol,
+                                                global?.digit_after_decimal_point
+                                            ),
+                                        }}
+                                        buyItems={offer?.buy_items ?? []}
+                                        getItems={offer?.free_items ?? []}
+                                        validUntil={formatBogoValidUntil(offer)}
+                                        offer={offer}
+                                        restaurantId={restaurantId}
+                                        onCardClick={() =>
+                                            onBogoCardClick?.(offer)
+                                        }
+                                        onAddClick={() =>
+                                            onBogoCardClick?.(offer)
+                                        }
+                                    />
+                                ))}
+                            </Box>
+                        </Grid>
+                    </>
+                ) : data?.isBgColor ? (
+                    <>
+                        <Grid item xs={12} align="left" paddingTop="5px">
+                            {sectionTitle}
+                        </Grid>
+                        {visibleProducts.length > 0 && (
+                            <Grid item xs={12}>
+                                <Box
+                                    sx={{
+                                        '& .swiper': { py: 0.5 },
+                                    }}
+                                >
+                                    <Slider
+                                        {...popularSliderSettings}
+                                        gap={sliderGap}
+                                    >
+                                        {visibleProducts.map((food) => (
+                                            <NewFoodCard
                                                 key={food?.id}
-                                                sx={{
-                                                    paddingInlineEnd: {
-                                                        xs: '0px',
-                                                        sm: '8px',
-                                                    },
-                                                    paddingBlockEnd: {
-                                                        xs: '5px',
-                                                        sm: '8px',
-                                                    },
-                                                }}
-                                                padding=".5rem"
-                                            >
-                                                <NewFoodCard
-                                                    product={food}
-                                                    productImageUrl={
-                                                        global?.base_urls
-                                                            ?.product_image_url
-                                                    }
-                                                />
-                                            </Grid>
-                                        )
-                                    }
-                                })}
+                                                product={food}
+                                                variant="vertical"
+                                                productImageUrl={
+                                                    global?.base_urls
+                                                        ?.product_image_url
+                                                }
+                                            />
+                                        ))}
+                                    </Slider>
+                                </Box>
                             </Grid>
-                        )}
-                        {indexNumber === 0 && restaurantDiscount && (
-                            <DiscountImageGrid
-                                ref={disRef}
-                                item
-                                xs={12}
-                                sm={12}
-                                md={12}
-                                discountBanner={discountBanner}
-                                ImageNotFound={ImageNotFound}
-                            >
-                                <Typography
-                                    color={theme.palette.primary.main}
-                                    textAlign="center"
-                                    fontSize="27px"
-                                    fontWeigth="600"
-                                >
-                                    {restaurantDiscount}
-                                </Typography>
-                            </DiscountImageGrid>
-                        )}
-                        {indexNumber === 1 && hasFreeDelivery && (
-                            <DiscountImageGrid
-                                item
-                                xs={12}
-                                sm={12}
-                                md={12}
-                                discountBanner={discountBanner}
-                                ImageNotFound={ImageNotFound}
-                            >
-                                <Typography
-                                    color={theme.palette.primary.main}
-                                    textAlign="center"
-                                    fontSize="27px"
-                                    fontWeigth="600"
-                                >
-                                    {t('Free Delivery')}
-                                </Typography>
-                            </DiscountImageGrid>
                         )}
                     </>
                 ) : (
@@ -202,109 +186,67 @@ const CategoriesWiseFood = ({
                         <Grid
                             item
                             xs={12}
-                            sm={12}
-                            md={12}
                             align={
                                 languageDirection === 'rtl' ? 'right' : 'left'
                             }
                             paddingTop="5px"
                         >
-                            <Typography
-                                fontWeight="500"
-                                fontSize={{
-                                    xs: '16px',
-                                    sm: '18px',
-                                    md: '20px',
+                            {sectionTitle}
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: { xs: '12px', md: '24px' },
                                 }}
-                                color={theme.palette.neutral[1000]}
                             >
-                                {data?.name}
-                            </Typography>
+                                {visibleProducts.map((food) => (
+                                    <Box
+                                        key={food?.id}
+                                        sx={{
+                                            width: {
+                                                xs: '100%',
+                                                md: '445px',
+                                            },
+                                        }}
+                                    >
+                                        <NewFoodCard
+                                            product={food}
+                                            variant="horizontal"
+                                            mediaSize={{ xs: 116, md: 126 }}
+                                            productImageUrl={
+                                                global?.base_urls
+                                                    ?.product_image_url
+                                            }
+                                        />
+                                    </Box>
+                                ))}
+                            </Box>
                         </Grid>
-                        <Grid
-                            item
-                            xs={12}
-                            sm={12}
-                            md={12}
-                            container
-                            spacing={2}
-                        >
-                            {data?.products?.length > 0 &&
-                                data?.products.map((food) => {
-                                    if (
-                                        food?.variations === null ||
-                                        food?.variations[0]?.values ||
-                                        food?.variations?.length === 0
-                                    ) {
-                                        return (
-                                            <Grid
-                                                key={food?.id}
-                                                item
-                                                xs={6}
-                                                sm={4}
-                                                md={2}
-                                                align="left"
-                                                pb={{
-                                                    xs: '0rem',
-                                                    sm: '.5rem',
-                                                    md: '1.2rem',
-                                                }}
-                                            >
-                                                <NewFoodCard
-                                                    product={food}
-                                                    key={food.id}
-                                                    productImageUrl={
-                                                        global?.base_urls
-                                                            ?.product_image_url
-                                                    }
-                                                />
-                                            </Grid>
-                                        )
-                                    }
-                                })}
-                        </Grid>
-                        {indexNumber === 0 && restaurantDiscount && (
-                            <DiscountImageGrid
-                                item
-                                xs={12}
-                                sm={12}
-                                md={12}
-                                discountBanner={discountBanner}
-                                ImageNotFound={ImageNotFound}
-                            >
-                                <Typography
-                                    color={theme.palette.primary.main}
-                                    textAlign="center"
-                                    fontSize="27px"
-                                    fontWeigth="600"
-                                >
-                                    {restaurantDiscount}
-                                </Typography>
-                            </DiscountImageGrid>
-                        )}
-                        {indexNumber === 1 && hasFreeDelivery && (
-                            <DiscountImageGrid
-                                item
-                                xs={12}
-                                sm={12}
-                                md={12}
-                                discountBanner={discountBanner}
-                                ImageNotFound={ImageNotFound}
-                            >
-                                <Typography
-                                    color={theme.palette.primary.main}
-                                    textAlign="center"
-                                    fontSize="27px"
-                                    fontWeigth="600"
-                                >
-                                    {t('Free Delivery')}
-                                </Typography>
-                            </DiscountImageGrid>
-                        )}
                     </>
                 )}
-            </>
-        </Grid>
+                {indexNumber === 1 && hasFreeDelivery && (
+                    <DiscountImageGrid
+                        item
+                        xs={12}
+                        sm={12}
+                        md={12}
+                        discountBanner={discountBanner}
+                        ImageNotFound={ImageNotFound}
+                    >
+                        <Typography
+                            color={theme.palette.primary.main}
+                            textAlign="center"
+                            fontSize="27px"
+                            fontWeigth="600"
+                        >
+                            {t('Free Delivery')}
+                        </Typography>
+                    </DiscountImageGrid>
+                )}
+            </Grid>
+        </RTL>
     )
 }
 

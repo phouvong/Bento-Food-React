@@ -1,30 +1,35 @@
 import React from 'react'
-import { Box, Typography } from '@mui/material'
+import { Box, Stack, Typography } from '@mui/material'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import EmojiEventsRoundedIcon from '@mui/icons-material/EmojiEventsRounded'
 
 interface ProPlanBannerProps {
     onSubscribe?: () => void
     t: (key: string) => string
     // Optional override for the lead-in text rendered before the bolded
-    // "Pro Plan" suffix. Defaults to the standard subscribe-prompt copy.
+    // "Pro Plan" phrase. Defaults to the standard subscribe-prompt copy.
     messageKey?: string
+    // Text after the bolded "Pro Plan" phrase.
+    suffixKey?: string
 }
 
+// Blue promo banner — crown badge, "Use Pro Plan to get extra savings in
+// every order." copy and an "Explore ›" call to action.
 const ProPlanBanner: React.FC<ProPlanBannerProps> = ({
     onSubscribe,
     t,
-    messageKey = 'Enjoy extra savings on every order with a',
+    messageKey = 'Use',
+    suffixKey = 'to get extra savings in every order.',
 }) => {
     return (
         <Box
             sx={{
                 mx: 2,
-                mt: 1.5,
-                mb: 1.5,
-                px: 1.5,
-                py: 1.25,
+                my: 1.5,
+                px: 1.75,
+                py: 1.5,
                 borderRadius: '12px',
-                backgroundColor: '#E9DFFF',
+                backgroundColor: '#3D6CE7',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 1.25,
@@ -32,46 +37,60 @@ const ProPlanBanner: React.FC<ProPlanBannerProps> = ({
         >
             <Box
                 sx={{
-                    width: 30,
-                    height: 30,
+                    width: 32,
+                    height: 32,
                     borderRadius: '50%',
-                    backgroundColor: '#F59E0B',
+                    backgroundColor: '#F5C842',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
                 }}
             >
-                <EmojiEventsRoundedIcon sx={{ fontSize: 16, color: '#fff' }} />
+                <EmojiEventsRoundedIcon sx={{ fontSize: 18, color: '#fff' }} />
             </Box>
             <Typography
                 sx={{
                     flex: 1,
-                    fontSize: '12px',
-                    color: '#1F2937',
-                    lineHeight: 1.35,
+                    minWidth: 0,
+                    fontSize: '13px',
+                    color: '#fff',
+                    lineHeight: 1.4,
                 }}
             >
                 {t(messageKey)}{' '}
-                <Box component="span" sx={{ fontWeight: 700 }}>
+                <Box
+                    component="span"
+                    sx={{ fontWeight: 700, fontStyle: 'italic' }}
+                >
                     {t('Pro Plan')}
                 </Box>
+                {suffixKey ? <> {t(suffixKey)}</> : null}
             </Typography>
             {onSubscribe && (
-                <Typography
+                <Stack
+                    direction="row"
+                    alignItems="center"
                     onClick={onSubscribe}
                     sx={{
                         flexShrink: 0,
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        color: '#7C3AED',
                         cursor: 'pointer',
-                        textDecoration: 'underline',
-                        whiteSpace: 'nowrap',
+                        userSelect: 'none',
+                        '&:hover': { opacity: 0.85 },
                     }}
                 >
-                    {t('Subscribe Now')}
-                </Typography>
+                    <Typography
+                        sx={{
+                            fontSize: '14px',
+                            fontWeight: 700,
+                            color: '#fff',
+                            whiteSpace: 'nowrap',
+                        }}
+                    >
+                        {t('Explore')}
+                    </Typography>
+                    <ChevronRightIcon sx={{ fontSize: 18, color: '#fff' }} />
+                </Stack>
             )}
         </Box>
     )

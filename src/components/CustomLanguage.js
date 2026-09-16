@@ -3,12 +3,15 @@ import { ListItemIcon, MenuItem, Stack, Typography, alpha } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import i18n from 'i18next'
 import cookie from 'js-cookie'
+import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
+import { useQueryClient } from 'react-query'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSettings } from '@/contexts/use-settings'
 import {
     setCountryCode,
     setCountryFlag,
+    setIsLanguageChanging,
     setLanguage,
 } from '@/redux/slices/languageChange'
 import { CustomColouredTypography } from '@/styled-components/CustomStyles.style'
@@ -21,8 +24,9 @@ import { StyledMenu } from './navbar/top-navbar/TopNav.style'
 const CustomLanguage = ({ formMobileMenu, language, isMobile, noLocation }) => {
     const theme = useTheme()
     const dispatch = useDispatch()
-    console.log({language});
-    
+    const queryClient = useQueryClient()
+    const router = useRouter()
+
 
     const [anchorEl, setAnchorEl] = useState(null)
     const [mounted, setMounted] = useState(false)
@@ -67,7 +71,14 @@ const CustomLanguage = ({ formMobileMenu, language, isMobile, noLocation }) => {
         setValues(getValues(settings))
     }, [settings])
     const open = Boolean(anchorEl)
-    const handleLanguage = (ln) => {
+    const handleLanguage = async (ln) => {
+        // Global overlay (rendered in _app.js) — survives this menu/drawer
+        // unmounting. Held for a minimum time so fast refetches still give
+        // visible feedback instead of an imperceptible flash.
+        const shownAt = Date.now()
+        dispatch(setIsLanguageChanging(true))
+        handleClose()
+
         dispatch(setLanguage(ln?.languageCode))
         dispatch(setCountryCode(ln?.countryCode))
         dispatch(setCountryFlag(ln?.countryFlag))
@@ -84,9 +95,42 @@ const CustomLanguage = ({ formMobileMenu, language, isMobile, noLocation }) => {
             direction: isRTLLanguage(ln?.languageCode) ? 'rtl' : 'ltr',
         })
 
-        CustomToaster('success', 'Language Changed Successfully')
+        // Swap UI translations in place, then refetch all active queries so
+        // API data re-arrives in the new language (the MainApi interceptor
+        // reads `language` from localStorage on every request) — no reload.
+        // invalidateQueries resolves once active refetches settle, which
+        // bounds how long the blocking backdrop stays up.
+        // router.replace(asPath) re-runs the current page's getServerSideProps
+        // (which reads the languageSetting cookie set above) so SSR pages like
+        // the landing page also re-arrive in the new language — no-op on
+        // pages without server-side props.
+        i18n.changeLanguage(ln?.languageCode)
+        try {
+            // Cap the blocking overlay at MAX_VISIBLE_MS — slow queries keep
+            // refetching in the background (react-query swaps each one in as
+            // it lands) instead of holding the whole screen hostage.
+            const MAX_VISIBLE_MS = 2500
+            await Promise.race([
+                Promise.all([
+                    queryClient.invalidateQueries(),
+                    router.replace(router.asPath, undefined, {
+                        scroll: false,
+                    }),
+                ]),
+                new Promise((resolve) =>
+                    setTimeout(resolve, MAX_VISIBLE_MS)
+                ),
+            ])
+        } finally {
+            const MIN_VISIBLE_MS = 600
+            const remaining = MIN_VISIBLE_MS - (Date.now() - shownAt)
+            if (remaining > 0) {
+                await new Promise((resolve) => setTimeout(resolve, remaining))
+            }
+            dispatch(setIsLanguageChanging(false))
+        }
 
-        window.location.reload()
+        CustomToaster('success', 'Language Changed Successfully')
     }
     const arrowColor = theme.palette.neutral[500]
     const marginRight = languageDirection === 'rtl' ? '1rem' : '0px';

@@ -4,8 +4,6 @@ import RemoveIcon from '@mui/icons-material/Remove'
 import {
     ButtonGroup,
     Checkbox,
-    FormControlLabel,
-    Grid,
     IconButton,
     Typography,
     Stack,
@@ -14,9 +12,9 @@ import { useTheme } from '@mui/material/styles'
 import { t } from 'i18next'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { CustomTypographyLabel } from '@/styled-components/CustomTypographies.style'
 import { getAmount } from '@/utils/customFunctions'
 import { useIsMount } from '../first-render-useeffect-controller/useIsMount'
+import { FlatCheckboxIcon, variationControlSx } from './FoodModalStyle'
 
 const IncDecAddOn = ({
     changeAddOns,
@@ -118,120 +116,84 @@ const IncDecAddOn = ({
         setQuantity((prevState) => prevState - 1)
     }
 
+    const isOutOfStock =
+        add_on?.stock_type !== 'unlimited' && add_on?.addon_stock === 0
+
     return (
         <>
             {addOn && (
-                <Grid
-                    container
+                // Same row shape as the variation options: label on the left,
+                // price + control on the right.
+                <Stack
+                    direction="row"
                     alignItems="center"
                     justifyContent="space-between"
+                    spacing={1}
+                    sx={{ py: 0.75 }}
                 >
-                    <Grid
-                        item
-                        md={quantity > 0 ? 6 : 7}
-                        sm={quantity > 0 ? 5 : 6}
-                        xs={quantity > 0 ? 5 : 7}
+                    <Stack
+                        direction="row"
+                        spacing={0.5}
+                        alignItems="center"
+                        flexWrap="nowrap"
+                        sx={{ minWidth: 0 }}
                     >
-                        <FormControlLabel
-                            disabled={
-                                add_on?.stock_type !== 'unlimited' &&
-                                add_on?.addon_stock === 0
-                            }
+                        <Typography
                             sx={{
-                                marginInlineStart: '-10px',
-                                marginRight: 0,
-                                alignItems: 'center',
-                                '& .MuiFormControlLabel-label': {
-                                    minWidth: 0,
-                                    flex: 1,
-                                },
-                            }}
-                            key={addOn?.id}
-                            control={
-                                <Checkbox
-                                    onChange={changeCheckedAddOn}
-                                    checked={checkAddOne}
-                                />
-                            }
-                            label={
-                                <Stack
-                                    direction="row"
-                                    spacing={0.5}
-                                    alignItems="center"
-                                    flexWrap="nowrap"
-                                    sx={{ minWidth: 0 }}
-                                >
-                                    <CustomTypographyLabel
-                                        sx={{
-                                            textAlign: 'start',
-                                            overflow: 'hidden',
-                                            display: 'block',
-                                            WebkitLineClamp: 'unset',
-                                            whiteSpace: 'nowrap',
-                                            textOverflow: 'ellipsis',
-                                            color: (theme) =>
-                                                add_on?.stock_type !==
-                                                    'unlimited' &&
-                                                add_on?.addon_stock === 0
-                                                    ? theme.palette.neutral[400]
-                                                    : theme.palette
-                                                          .neutral[1000],
-                                        }}
-                                        span="component"
-                                    >
-                                        {addOn?.name}
-                                    </CustomTypographyLabel>
-                                    {add_on?.stock_type !== 'unlimited' &&
-                                        add_on?.addon_stock === 0 && (
-                                            <Typography
-                                                fontSize={{ xs: '10px', md: '12px' }}
-                                                color={theme.palette.error.main}
-                                                sx={{
-                                                    whiteSpace: 'nowrap',
-                                                    flexShrink: 0,
-                                                }}
-                                            >
-                                                {`(${t('out of stock')})`}
-                                            </Typography>
-                                        )}
-                                </Stack>
-                            }
-                        />
-                    </Grid>
-                    <Grid
-                        item
-                        md={quantity > 0 ? 3 : 5}
-                        sm={quantity > 0 ? 3 : 6}
-                        xs={quantity > 0 ? 3 : 5}
-                        justifySelf="flex-end"
-                    >
-                        <CustomTypographyLabel
-                            sx={{
-                                textAlign: 'right',
-                                fontWeight: quantity > 0 ? '700' : '500',
-                                color:
-                                    quantity > 0
-                                        ? theme.palette.neutral[1000]
-                                        : theme.palette.neutral[400],
+                                fontSize: '16px',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                color: (theme) =>
+                                    isOutOfStock
+                                        ? theme.palette.neutral[400]
+                                        : theme.palette.text.primary,
                             }}
                         >
-                            {getAmount(
+                            {addOn?.name}
+                        </Typography>
+                        {isOutOfStock && (
+                            <Typography
+                                fontSize={{ xs: '10px', md: '12px' }}
+                                color={theme.palette.error.main}
+                                sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+                            >
+                                {`(${t('out of stock')})`}
+                            </Typography>
+                        )}
+                    </Stack>
+
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={0.5}
+                        // Flex gap (not sibling margins) so the checkbox's
+                        // own ml can add extra space before it.
+                        useFlexGap
+                        sx={{ flexShrink: 0 }}
+                    >
+                        <Typography
+                            sx={{
+                                fontSize: '16px',
+                                whiteSpace: 'nowrap',
+                                fontWeight: quantity > 0 ? 700 : 400,
+                                color: (theme) =>
+                                    quantity > 0
+                                        ? theme.palette.text.primary
+                                        : theme.palette.neutral[500],
+                            }}
+                        >
+                            {/* Prefixed like the variation prices so the row
+                                reads as an addition to the base price. */}
+                            {`+ ${getAmount(
                                 addOn?.price,
                                 currencySymbolDirection,
                                 currencySymbol,
                                 digitAfterDecimalPoint
-                            )}
-                        </CustomTypographyLabel>
-                    </Grid>
-                    {quantity > 0 && (
-                        <Grid
-                            item
-                            md={3}
-                            sm={4}
-                            xs={4}
-                            align="right"
-                            alignItems="center"
-                        >
+                            )}`}
+                        </Typography>
+
+                        {quantity > 0 && (
                             <ButtonGroup
                                 variant="contained"
                                 aria-label="contained primary button group"
@@ -289,9 +251,18 @@ const IncDecAddOn = ({
                                     />
                                 </IconButton>
                             </ButtonGroup>
-                        </Grid>
-                    )}
-                </Grid>
+                        )}
+
+                        <Checkbox
+                            disabled={isOutOfStock}
+                            onChange={changeCheckedAddOn}
+                            checked={checkAddOne}
+                            sx={{ ...variationControlSx, ml: 1 }}
+                            icon={<FlatCheckboxIcon />}
+                            checkedIcon={<FlatCheckboxIcon checked />}
+                        />
+                    </Stack>
+                </Stack>
             )}
         </>
     )

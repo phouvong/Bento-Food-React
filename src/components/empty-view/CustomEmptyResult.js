@@ -5,7 +5,15 @@ import { Stack, Typography, useTheme } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import CustomImageContainer from '../CustomImageContainer'
 
-const CustomEmptyResult = ({ label, image, height, width, subTitle }) => {
+const CustomEmptyResult = ({
+    label,
+    image,
+    height,
+    width,
+    subTitle,
+    labelFontSize = '14px',
+    subTitleFontSize = '12px',
+}) => {
     const { t } = useTranslation()
     const theme = useTheme()
 
@@ -24,7 +32,7 @@ const CustomEmptyResult = ({ label, image, height, width, subTitle }) => {
             />
             <Stack alignItems="center" justifyContent="center" gap="5px">
                 <Typography
-                    fontSize="14px"
+                    fontSize={labelFontSize}
                     fontWeight={600}
                     color={
                         subTitle
@@ -37,7 +45,7 @@ const CustomEmptyResult = ({ label, image, height, width, subTitle }) => {
                 {subTitle && (
                     <Typography
                         color={theme.palette.neutral[400]}
-                        fontSize="12px"
+                        fontSize={subTitleFontSize}
                         fontWeight={400}
                     >
                         {t(subTitle)}
